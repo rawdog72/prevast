@@ -1,0 +1,63 @@
+{
+  "name": "prevast-open-server",
+  "version": "0.1.0",
+  "private": true,
+  "license": "GPL-2.0-only",
+  "type": "module",
+  "scripts": {
+    "setup": "node scripts/setup.mjs",
+    "build": "tsx scripts/build.mjs",
+    "build:prod": "tsx scripts/build.mjs --minify",
+    "build:all": "npm run build && npm run server:build",
+    "dev": "tsx scripts/build.mjs --watch",
+    "start": "node dist/web/index.js",
+    "server:build": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/server.ps1 -Action Build",
+    "server:dev": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/server.ps1 -Action Run",
+    "server:validate": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/server.ps1 -Action Validate",
+    "server:selftest": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/server.ps1 -Action Selftest",
+    "server:benchmark": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/server.ps1 -Action Run -Profile benchmark",
+    "server:scenario": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/server.ps1 -Action Run -Profile scenario",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "format": "prettier --write \"apps/**/*.ts\" \"shared/**/*.ts\" \"tools/**/*.ts\" \"tests/integration/**/*.ts\" \"scripts/**/*.mjs\"",
+    "check": "npm run typecheck && npm run build && npm run test",
+    "content:export": "tsx tools/content/export-content.ts",
+    "content:parity": "tsx tools/content/content-parity.ts",
+    "assets:check": "tsx tools/assets/original-assets-cli.ts check",
+    "assets:manifest": "tsx tools/assets/original-assets-cli.ts manifest",
+    "release:audit": "tsx tools/release/audit-cli.ts",
+    "capture": "tsx tools/capture-frames.ts",
+    "sync": "tsx tools/sync-server.ts",
+    "smoke": "node tests/integration/run-smoke.mjs",
+    "test:scenario": "node tests/integration/run-scenario.mjs",
+    "account:set-group": "node scripts/account-set-group.mjs",
+    "accounts:fixtures": "tsx tools/accounts/make-ticket-fixtures.ts"
+  },
+  "dependencies": {
+    "@xmldom/xmldom": "^0.9.12",
+    "compression": "^1.8.2",
+    "express": "^5.1.0",
+    "mysql2": "^3.24.4",
+    "nodemailer": "^10.0.14",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@types/compression": "^1.8.1",
+    "@types/express": "^5.0.3",
+    "@types/jsdom": "^30.0.0",
+    "@types/node": "^24.3.0",
+    "@types/nodemailer": "^8.0.2",
+    "@types/ws": "^8.18.1",
+    "esbuild": "^0.25.9",
+    "fake-indexeddb": "^6.2.5",
+    "jsdom": "^26.1.0",
+    "prettier": "^3.6.2",
+    "tsx": "^4.23.13",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4",
+    "ws": "^8.18.3"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

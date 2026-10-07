@@ -1,0 +1,77 @@
+{
+  "format": "prevast-scenario",
+  "schemaVersion": 2,
+  "id": "prj-population-live",
+  "title": "Population live test",
+  "revision": 1,
+  "nextId": 30,
+  "requiredFeatures": [
+    "population.agents",
+    "population.loot",
+    "population.npcs",
+    "population.spawners",
+    "population.spawns",
+    "regions.effects",
+    "regions.permissions",
+    "world.v1"
+  ],
+  "world": {
+    "tilesX": 30,
+    "tilesY": 30,
+    "seed": 99,
+    "time": "night",
+    "population": { "resources": false, "structures": false, "agents": false }
+  },
+  "entities": [
+    {
+      "id": "spawn",
+      "kind": "spawn",
+      "ref": "player",
+      "x": 1050,
+      "y": 1050,
+      "loadout": [
+        { "item": "hatchet", "count": 1 },
+        { "item": "bandage", "count": 3 }
+      ]
+    },
+    { "id": "mara", "kind": "npc", "ref": "merchant", "x": 1450, "y": 1050, "angle": 128, "wander": 0 },
+    {
+      "id": "chest",
+      "kind": "object",
+      "ref": "wood_chest",
+      "x": 650,
+      "y": 650,
+      "container": { "fixed": [{ "item": "bandage", "count": 2 }], "loot": "medical", "refillSeconds": 60 }
+    },
+    { "id": "sleeper", "kind": "agent", "ref": "normal_ghoul", "x": 650, "y": 1450, "angle": 64 }
+  ],
+  "groups": [],
+  "regions": [
+    {
+      "id": "hot",
+      "name": "Hot spawn",
+      "shape": { "type": "circle", "x": 1050, "y": 1050, "r": 300 },
+      "priority": 0,
+      "permissions": { "pvp": "deny" },
+      "effects": [{ "stat": "radiation", "perMinute": 90, "falloff": "none" }]
+    },
+    {
+      "id": "pen",
+      "name": "Ghoul pen",
+      "shape": { "type": "rect", "x": 1300, "y": 1300, "w": 600, "h": 500 },
+      "priority": 0,
+      "spawner": { "agent": "normal_ghoul", "maxAlive": 3, "batch": 3, "everySeconds": 1, "startDelay": 1 }
+    }
+  ],
+  "templates": [],
+  "lootTables": [
+    {
+      "id": "medical",
+      "name": "Medical",
+      "mode": "weighted",
+      "rolls": 2,
+      "empty": 0,
+      "entries": [{ "item": "bandage", "min": 1, "max": 2, "weight": 1 }]
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<agent key="radioactive_ghoul" family="ghoul" sprite="3">
+  <body radius="38" collision="true" separation="true"/>
+  <vitals health="160" experience="1500" lifetimeMs="0"/>
+  <daylight damage="5" intervalMs="1000"/>
+  <areaEffects>
+    <areaEffect id="2" type="radiation" strength="1" area="2"/>
+  </areaEffects>
+  <movement speed="250" nightSpeed="300"/>
+  <brain type="aggressive" vision="700" loseTarget="1000" leash="0" chase="true" roamRadius="1500" roamPauseMs="0" aggroAfterCycles="7" repelBreakMs="60000">
+    <target type="player" priority="100"/>
+    <target type="agent" priority="60"/>
+    <target type="object" priority="30"/>
+  </brain>
+  <!-- Sidesteps a little more readily than a normal ghoul; the aura makes
+		     staying at range the obvious answer, so it should not be free. -->
+  <dodge chance="0.35" reactionMs="250" speed="220" durationMs="280" cooldownMs="1400"/>
+  <abilities>
+    <ability type="melee" cooldownMs="500" impactMs="350" range="50" radius="32" staminaUsage="3" knockback="3">
+      <damage amount="5" amountMax="15"/>
+    </ability>
+  </abilities>
+  <onDeath>
+    <drops>
+      <item key="uranium" amount="1"/>
+    </drops>
+  </onDeath>
+  <client render="ghoul" breath="0.05" armMove="6" head="day-ghoul2" hurt="ghoul2-hurt" death="day-ghoul2-death" light="1" hitAnimMs="350">
+    <leftArm sprite="day-ghoul2-left-arm" angle="0" x="28" y="-40"/>
+    <rightArm sprite="day-ghoul2-right-arm" angle="0" x="28" y="40"/>
+  </client>
+</agent>

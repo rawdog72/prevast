@@ -1,0 +1,7725 @@
+{
+  "name": "objects",
+  "version": 1,
+  "hash": "58738cee605b8512",
+  "attributes": {},
+  "entries": {
+    "orange_seed": {
+      "key": "orange_seed",
+      "category": "plant",
+      "healthMax": 250,
+      "layer": "low",
+      "transform": {
+        "width": 30,
+        "height": 30,
+        "collision": false,
+        "blocksProjectiles": false
+      },
+      "place": {
+        "delayMs": 300
+      },
+      "stages": {
+        "stage": [
+          {
+            "id": 0,
+            "durationMs": 120000,
+            "next": 1
+          },
+          {
+            "id": 1,
+            "durationMs": 120000,
+            "next": 2
+          },
+          {
+            "id": 2,
+            "durationMs": 120000,
+            "next": 3
+          },
+          {
+            "id": 3,
+            "durationMs": 120000,
+            "next": 4
+          },
+          {
+            "id": 4,
+            "harvestable": true,
+            "produceItemKey": "orange",
+            "produceMin": 2,
+            "produceMax": 5,
+            "postHarvestStage": 3
+          }
+        ]
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "orange",
+              "amount": 1
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "orangeSeed",
+        "blueprint": "day-clear-blue-plant2-orange",
+        "redprint": "day-redprint-plant2-orange",
+        "particles": "orange",
+        "particlesDistance": 68,
+        "z": 0,
+        "zGroup": -1,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-plant0-orange"
+          },
+          {
+            "index": 1,
+            "sprite": "day-plant1-orange"
+          },
+          {
+            "index": 2,
+            "sprite": "day-plant2-orange"
+          },
+          {
+            "index": 3,
+            "sprite": "day-plant3-orange"
+          },
+          {
+            "index": 4,
+            "sprite": "day-plant4-orange"
+          }
+        ],
+        "offset": [
+          {
+            "rotation": 0,
+            "x": 35,
+            "y": 35
+          },
+          {
+            "rotation": 1,
+            "x": 35,
+            "y": 35
+          },
+          {
+            "rotation": 2,
+            "x": 35,
+            "y": 35
+          },
+          {
+            "rotation": 3,
+            "x": 35,
+            "y": 35
+          }
+        ]
+      },
+      "lifetime": {
+        "durationMs": 2400000
+      }
+    },
+    "tomato_seed": {
+      "key": "tomato_seed",
+      "category": "plant",
+      "healthMax": 250,
+      "layer": "low",
+      "transform": {
+        "width": 30,
+        "height": 30,
+        "collision": false,
+        "blocksProjectiles": false
+      },
+      "place": {
+        "delayMs": 300
+      },
+      "stages": {
+        "stage": [
+          {
+            "id": 0,
+            "durationMs": 120000,
+            "next": 1
+          },
+          {
+            "id": 1,
+            "durationMs": 120000,
+            "next": 2
+          },
+          {
+            "id": 2,
+            "durationMs": 120000,
+            "next": 3
+          },
+          {
+            "id": 3,
+            "durationMs": 120000,
+            "next": 4
+          },
+          {
+            "id": 4,
+            "harvestable": true,
+            "produceItemKey": "tomato",
+            "produceMin": 2,
+            "produceMax": 5,
+            "postHarvestStage": 3
+          }
+        ]
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "tomato",
+              "amount": 1
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "orangeSeed",
+        "blueprint": "day-clear-blue-tomato",
+        "redprint": "day-redprint-tomato",
+        "particles": "tomato",
+        "particlesDistance": 68,
+        "z": 0,
+        "zGroup": -1,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-plant0-tomato"
+          },
+          {
+            "index": 1,
+            "sprite": "day-plant1-tomato"
+          },
+          {
+            "index": 2,
+            "sprite": "day-plant2-tomato"
+          },
+          {
+            "index": 3,
+            "sprite": "day-plant3-tomato"
+          },
+          {
+            "index": 4,
+            "sprite": "day-plant4-tomato"
+          }
+        ],
+        "offset": [
+          {
+            "rotation": 0,
+            "x": 35,
+            "y": 35
+          },
+          {
+            "rotation": 1,
+            "x": 35,
+            "y": 35
+          },
+          {
+            "rotation": 2,
+            "x": 35,
+            "y": 35
+          },
+          {
+            "rotation": 3,
+            "x": 35,
+            "y": 35
+          }
+        ]
+      },
+      "lifetime": {
+        "durationMs": 2400000
+      }
+    },
+    "lapabot": {
+      "key": "lapabot",
+      "category": "spawner",
+      "healthMax": 250,
+      "layer": "low",
+      "transform": {
+        "width": 30,
+        "height": 30,
+        "collision": false,
+        "blocksProjectiles": false
+      },
+      "place": {
+        "delayMs": 300
+      },
+      "stages": {
+        "stage": [
+          {
+            "id": 0,
+            "durationMs": 10000,
+            "next": 1
+          },
+          {
+            "id": 1,
+            "durationMs": 10000,
+            "next": 2
+          },
+          {
+            "id": 2,
+            "durationMs": 10000,
+            "spawnCreature": "lapabot"
+          }
+        ]
+      },
+      "client": {
+        "render": "construction",
+        "blueprint": "clear-blue-lapabot",
+        "redprint": "redprint-lapabot",
+        "builder": "day-lapabot-builder",
+        "particles": "metal",
+        "particlesDistance": 68,
+        "impactSound": "steel_impact",
+        "destroySound": "steel_destroy",
+        "z": 0,
+        "zGroup": -1,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "lapabot0"
+          },
+          {
+            "index": 1,
+            "sprite": "lapabot1"
+          },
+          {
+            "index": 2,
+            "sprite": "lapabot2"
+          },
+          {
+            "index": 3,
+            "sprite": "lapabot3"
+          },
+          {
+            "index": 4,
+            "sprite": "lapabot4"
+          }
+        ],
+        "offset": [
+          {
+            "rotation": 0,
+            "x": 35,
+            "y": 35
+          },
+          {
+            "rotation": 1,
+            "x": 35,
+            "y": 35
+          },
+          {
+            "rotation": 2,
+            "x": 35,
+            "y": 35
+          },
+          {
+            "rotation": 3,
+            "x": 35,
+            "y": 35
+          }
+        ]
+      },
+      "lifetime": {
+        "durationMs": 30000
+      }
+    },
+    "halbot": {
+      "key": "halbot",
+      "category": "spawner",
+      "healthMax": 400,
+      "layer": "low",
+      "transform": {
+        "width": 30,
+        "height": 30,
+        "collision": false,
+        "blocksProjectiles": false
+      },
+      "place": {
+        "delayMs": 300
+      },
+      "stages": {
+        "stage": [
+          {
+            "id": 0,
+            "durationMs": 10000,
+            "next": 1
+          },
+          {
+            "id": 1,
+            "durationMs": 10000,
+            "next": 2
+          },
+          {
+            "id": 2,
+            "durationMs": 10000,
+            "spawnCreature": "halbot"
+          }
+        ]
+      },
+      "client": {
+        "render": "construction",
+        "blueprint": "clear-blue-hal-bot",
+        "redprint": "redprint-hal-bot",
+        "builder": "day-hal-bot-builder",
+        "particles": "metal",
+        "particlesDistance": 68,
+        "impactSound": "steel_impact",
+        "destroySound": "steel_destroy",
+        "z": 0,
+        "zGroup": -1,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "hal-bot0"
+          },
+          {
+            "index": 1,
+            "sprite": "hal-bot1"
+          },
+          {
+            "index": 2,
+            "sprite": "hal-bot2"
+          },
+          {
+            "index": 3,
+            "sprite": "hal-bot3"
+          },
+          {
+            "index": 4,
+            "sprite": "hal-bot4"
+          }
+        ],
+        "offset": [
+          {
+            "rotation": 0,
+            "x": 35,
+            "y": 35
+          },
+          {
+            "rotation": 1,
+            "x": 35,
+            "y": 35
+          },
+          {
+            "rotation": 2,
+            "x": 35,
+            "y": 35
+          },
+          {
+            "rotation": 3,
+            "x": 35,
+            "y": 35
+          }
+        ]
+      },
+      "lifetime": {
+        "durationMs": 30000
+      }
+    },
+    "teslabot": {
+      "key": "teslabot",
+      "category": "spawner",
+      "healthMax": 500,
+      "layer": "low",
+      "transform": {
+        "width": 30,
+        "height": 30,
+        "collision": false,
+        "blocksProjectiles": false
+      },
+      "place": {
+        "delayMs": 300
+      },
+      "stages": {
+        "stage": [
+          {
+            "id": 0,
+            "durationMs": 10000,
+            "next": 1
+          },
+          {
+            "id": 1,
+            "durationMs": 10000,
+            "next": 2
+          },
+          {
+            "id": 2,
+            "durationMs": 10000,
+            "spawnCreature": "teslabot"
+          }
+        ]
+      },
+      "client": {
+        "render": "construction",
+        "blueprint": "clear-blue-tesla-bot",
+        "redprint": "redprint-tesla-bot",
+        "builder": "day-lapabot-builder",
+        "particles": "metal",
+        "particlesDistance": 68,
+        "impactSound": "steel_impact",
+        "destroySound": "steel_destroy",
+        "z": 0,
+        "zGroup": -1,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "tesla-bot0"
+          },
+          {
+            "index": 1,
+            "sprite": "tesla-bot1"
+          },
+          {
+            "index": 2,
+            "sprite": "tesla-bot2"
+          },
+          {
+            "index": 3,
+            "sprite": "tesla-bot3"
+          },
+          {
+            "index": 4,
+            "sprite": "tesla-bot4"
+          }
+        ],
+        "offset": [
+          {
+            "rotation": 0,
+            "x": 35,
+            "y": 35
+          },
+          {
+            "rotation": 1,
+            "x": 35,
+            "y": 35
+          },
+          {
+            "rotation": 2,
+            "x": 35,
+            "y": 35
+          },
+          {
+            "rotation": 3,
+            "x": 35,
+            "y": 35
+          }
+        ]
+      },
+      "lifetime": {
+        "durationMs": 30000
+      }
+    },
+    "ghoul_seed": {
+      "key": "ghoul_seed",
+      "category": "spawner",
+      "healthMax": 250,
+      "layer": "low",
+      "transform": {
+        "width": 30,
+        "height": 30,
+        "collision": false,
+        "blocksProjectiles": false
+      },
+      "place": {
+        "delayMs": 300
+      },
+      "stages": {
+        "stage": [
+          {
+            "id": 0,
+            "durationMs": 800000,
+            "next": 1
+          },
+          {
+            "id": 1,
+            "durationMs": 800000,
+            "next": 2
+          },
+          {
+            "id": 2,
+            "durationMs": 800000,
+            "spawnCreature": "pumpkin_ghoul",
+            "spawnCreatureCount": 3
+          }
+        ]
+      },
+      "client": {
+        "render": "orangeSeed",
+        "blueprint": "clear-blue-root",
+        "redprint": "redprint-root",
+        "particles": "orange",
+        "particlesDistance": 68,
+        "impactSound": "pillow_impact",
+        "destroySound": "pillow_destroy",
+        "z": 0,
+        "zGroup": -1,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-root0-ghoul"
+          },
+          {
+            "index": 1,
+            "sprite": "day-root1-ghoul"
+          },
+          {
+            "index": 2,
+            "sprite": "day-root2-ghoul"
+          },
+          {
+            "index": 3,
+            "sprite": "day-root3-ghoul"
+          },
+          {
+            "index": 4,
+            "sprite": "day-root4-ghoul"
+          }
+        ],
+        "offset": [
+          {
+            "rotation": 0,
+            "x": 35,
+            "y": 35
+          },
+          {
+            "rotation": 1,
+            "x": 35,
+            "y": 35
+          },
+          {
+            "rotation": 2,
+            "x": 35,
+            "y": 35
+          },
+          {
+            "rotation": 3,
+            "x": 35,
+            "y": 35
+          }
+        ]
+      },
+      "lifetime": {
+        "durationMs": 2400000
+      }
+    },
+    "workbench": {
+      "key": "workbench",
+      "category": "station",
+      "healthMax": 250,
+      "layer": "mid",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "place": {
+        "delayMs": 300
+      },
+      "interaction": {
+        "type": "station",
+        "interactionDelayMs": 1000
+      },
+      "station": {
+        "key": "workbench",
+        "areaId": 2
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "wood",
+              "amount": 3
+            },
+            {
+              "key": "stone",
+              "amount": 10
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "workbench",
+        "blueprint": "day-clear-blue-workbench",
+        "redprint": "day-redprint-workbench",
+        "interact": "e-workbench",
+        "particles": "wood",
+        "particlesDistance": 80,
+        "impactSound": "wood_impact",
+        "destroySound": "wood_destroy",
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-workbench"
+          }
+        ]
+      }
+    },
+    "weaving": {
+      "key": "weaving",
+      "category": "station",
+      "healthMax": 250,
+      "layer": "mid",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "place": {
+        "delayMs": 300
+      },
+      "interaction": {
+        "type": "station",
+        "interactionDelayMs": 1000
+      },
+      "station": {
+        "key": "weaving",
+        "areaId": 4
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "wood",
+              "amount": 3
+            },
+            {
+              "key": "stone",
+              "amount": 10
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "workbench",
+        "blueprint": "day-clear-blue-weaving-machine",
+        "redprint": "day-redprint-weaving-machine",
+        "interact": "e-weaving-machine",
+        "particles": "wood",
+        "particlesDistance": 80,
+        "impactSound": "wood_impact",
+        "destroySound": "wood_destroy",
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-weaving-machine"
+          }
+        ]
+      }
+    },
+    "welding_machine": {
+      "key": "welding_machine",
+      "category": "station",
+      "healthMax": 500,
+      "layer": "mid",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "place": {
+        "delayMs": 300
+      },
+      "interaction": {
+        "type": "station",
+        "interactionDelayMs": 1000
+      },
+      "station": {
+        "key": "welding_machine",
+        "areaId": 11
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "wood",
+              "amount": 3
+            },
+            {
+              "key": "stone",
+              "amount": 10
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "workbench",
+        "blueprint": "clear-blue-welding-machine",
+        "redprint": "redprint-welding-machine",
+        "interact": "e-welding-machine",
+        "particles": "metal",
+        "particlesDistance": 80,
+        "impactSound": "steel_impact",
+        "destroySound": "steel_destroy",
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-welding-machine"
+          }
+        ]
+      }
+    },
+    "research_bench": {
+      "key": "research_bench",
+      "category": "station",
+      "healthMax": 400,
+      "layer": "mid",
+      "transform": {
+        "width": 100,
+        "height": 280,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "place": {
+        "delayMs": 300
+      },
+      "interaction": {
+        "type": "station",
+        "interactionDelayMs": 1000
+      },
+      "station": {
+        "key": "research_bench",
+        "areaId": 5
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "wood",
+              "amount": 3
+            },
+            {
+              "key": "stone",
+              "amount": 10
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "workbench2",
+        "blueprint": "day-clear-blue-workbench2",
+        "redprint": "day-redprint-workbench2",
+        "interact": "e-workbench2",
+        "particles": "metal",
+        "particlesDistance": 80,
+        "impactSound": "steel_impact",
+        "destroySound": "steel_destroy",
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-workbench2"
+          }
+        ],
+        "offset": [
+          {
+            "rotation": 0,
+            "y": -90,
+            "tileI": -1
+          },
+          {
+            "rotation": 1,
+            "x": -90,
+            "tileJ": -1
+          },
+          {
+            "rotation": 2,
+            "y": -90,
+            "tileI": -1
+          },
+          {
+            "rotation": 3,
+            "x": -90,
+            "tileJ": -1
+          }
+        ]
+      }
+    },
+    "tesla": {
+      "key": "tesla",
+      "category": "station",
+      "healthMax": 3000,
+      "layer": "mid",
+      "transform": {
+        "width": 100,
+        "height": 260,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "place": {
+        "delayMs": 300
+      },
+      "interaction": {
+        "type": "station",
+        "interactionDelayMs": 1000
+      },
+      "station": {
+        "key": "tesla",
+        "areaId": 7
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "wood",
+              "amount": 3
+            },
+            {
+              "key": "stone",
+              "amount": 10
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "teslaBench",
+        "blueprint": "day-clear-blue-workbench3",
+        "redprint": "day-redprint-workbench3",
+        "interact": "e-workbench3",
+        "particles": "metal",
+        "particlesDistance": 80,
+        "impactSound": "steel_impact",
+        "destroySound": "steel_destroy",
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-workbench3"
+          },
+          {
+            "index": 1,
+            "sprite": "day-workbench3-1"
+          },
+          {
+            "index": 2,
+            "sprite": "day-workbench3-2"
+          },
+          {
+            "index": 3,
+            "sprite": "day-workbench3-3"
+          }
+        ],
+        "offset": [
+          {
+            "rotation": 0,
+            "y": -80,
+            "tileI": -1,
+            "lightX": -20.5,
+            "lightY": 101.5
+          },
+          {
+            "rotation": 1,
+            "x": -80,
+            "tileJ": -1,
+            "lightX": -101.5,
+            "lightY": -20.5
+          },
+          {
+            "rotation": 2,
+            "y": -80,
+            "tileI": -1,
+            "lightX": 20.5,
+            "lightY": -101
+          },
+          {
+            "rotation": 3,
+            "x": -80,
+            "tileJ": -1,
+            "lightX": 101.5,
+            "lightY": 20.5
+          }
+        ],
+        "light": [
+          {
+            "index": 0,
+            "sprite": "day-tesla-light0"
+          },
+          {
+            "index": 2,
+            "sprite": "day-tesla-light1"
+          },
+          {
+            "index": 3,
+            "sprite": "day-tesla-light2"
+          },
+          {
+            "index": 5,
+            "sprite": "day-tesla-light3"
+          },
+          {
+            "index": 6,
+            "sprite": "day-tesla-light4"
+          },
+          {
+            "index": 7,
+            "sprite": "day-tesla-light5"
+          }
+        ]
+      }
+    },
+    "feeder": {
+      "key": "feeder",
+      "category": "station",
+      "healthMax": 250,
+      "layer": "mid",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": false,
+        "blocksProjectiles": false
+      },
+      "place": {
+        "delayMs": 300
+      },
+      "interaction": {
+        "type": "station",
+        "interactionDelayMs": 1000
+      },
+      "station": {
+        "key": "feeder",
+        "areaId": 12
+      },
+      "fuel": {
+        "itemKey": "energy_cells",
+        "burnDurationPerUnitMs": 15000,
+        "addAmount": 1
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "wood",
+              "amount": 3
+            },
+            {
+              "key": "stone",
+              "amount": 10
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "feeder",
+        "blueprint": "clear-blue-feeder",
+        "redprint": "redprint-feeder",
+        "interact": "e-feeder",
+        "particles": "metal",
+        "particlesDistance": 80,
+        "impactSound": "steel_impact",
+        "destroySound": "steel_destroy",
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-feeder"
+          },
+          {
+            "index": 1,
+            "sprite": "day-feeder-rotate"
+          },
+          {
+            "index": 2,
+            "sprite": "day-feeder-off"
+          }
+        ]
+      },
+      "areaEffects": {
+        "areaEffect": [
+          {
+            "id": 1,
+            "type": "food",
+            "strength": 1,
+            "area": 0,
+            "needsFuel": true
+          }
+        ]
+      }
+    },
+    "smelter": {
+      "key": "smelter",
+      "category": "station",
+      "healthMax": 3000,
+      "layer": "mid",
+      "transform": {
+        "width": 100,
+        "height": 260,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "place": {
+        "delayMs": 300
+      },
+      "interaction": {
+        "type": "station",
+        "interactionDelayMs": 1000
+      },
+      "station": {
+        "key": "smelter",
+        "areaId": 6
+      },
+      "fuel": {
+        "itemKey": "gasoline",
+        "burnDurationPerUnitMs": 15000,
+        "addAmount": 1
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "wood",
+              "amount": 3
+            },
+            {
+              "key": "stone",
+              "amount": 10
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "smelter",
+        "blueprint": "day-clear-blue-smelter",
+        "redprint": "day-redprint-smelter",
+        "interact": "e-smelter",
+        "particles": "metal",
+        "particlesDistance": 80,
+        "impactSound": "steel_impact",
+        "destroySound": "steel_destroy",
+        "z": 1,
+        "zGroup": 1,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-smelter-off"
+          },
+          {
+            "index": 1,
+            "sprite": "day-smelter-on"
+          },
+          {
+            "index": 2,
+            "sprite": "day-smelter-light-up"
+          },
+          {
+            "index": 3,
+            "sprite": "day-smelter-light-down"
+          }
+        ],
+        "offset": [
+          {
+            "rotation": 0,
+            "y": -80,
+            "tileI": -1,
+            "lightX": -20.5,
+            "lightY": 101.5
+          },
+          {
+            "rotation": 1,
+            "x": -80,
+            "tileJ": -1,
+            "lightX": -101.5,
+            "lightY": -20.5
+          },
+          {
+            "rotation": 2,
+            "y": -80,
+            "tileI": -1,
+            "lightX": 20.5,
+            "lightY": -101
+          },
+          {
+            "rotation": 3,
+            "x": -80,
+            "tileJ": -1,
+            "lightX": 101.5,
+            "lightY": 20.5
+          }
+        ]
+      }
+    },
+    "compost": {
+      "key": "compost",
+      "category": "station",
+      "healthMax": 500,
+      "layer": "mid",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "place": {
+        "delayMs": 300
+      },
+      "interaction": {
+        "type": "station",
+        "interactionDelayMs": 1000
+      },
+      "station": {
+        "key": "compost",
+        "areaId": 8
+      },
+      "fuel": {
+        "itemKey": "wood",
+        "burnDurationPerUnitMs": 15000
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "wood",
+              "amount": 3
+            },
+            {
+              "key": "stone",
+              "amount": 10
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "compost",
+        "blueprint": "clear-blue-composter",
+        "redprint": "redprint-composter",
+        "interact": "e-composter",
+        "particles": "metal",
+        "particlesDistance": 80,
+        "impactSound": "steel_impact",
+        "destroySound": "steel_destroy",
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-composter-off"
+          },
+          {
+            "index": 1,
+            "sprite": "day-composter"
+          }
+        ]
+      }
+    },
+    "agitator": {
+      "key": "agitator",
+      "category": "station",
+      "healthMax": 500,
+      "layer": "mid",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "place": {
+        "delayMs": 300
+      },
+      "interaction": {
+        "type": "station",
+        "interactionDelayMs": 1000
+      },
+      "station": {
+        "key": "agitator",
+        "areaId": 9
+      },
+      "fuel": {
+        "itemKey": "gasoline",
+        "burnDurationPerUnitMs": 15000,
+        "addAmount": 1
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "wood",
+              "amount": 3
+            },
+            {
+              "key": "stone",
+              "amount": 10
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "agitator",
+        "blueprint": "clear-blue-agitator",
+        "redprint": "redprint-agitator",
+        "interact": "e-agitator",
+        "particles": "metal",
+        "particlesDistance": 80,
+        "impactSound": "steel_impact",
+        "destroySound": "steel_destroy",
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-agitator1-off"
+          },
+          {
+            "index": 1,
+            "sprite": "day-agitator1-on"
+          },
+          {
+            "index": 2,
+            "sprite": "day-agitator-1"
+          },
+          {
+            "index": 3,
+            "sprite": "day-agitator-2"
+          }
+        ],
+        "offset": [
+          {
+            "rotation": 0,
+            "spineX": -25.5,
+            "spineY": 21
+          },
+          {
+            "rotation": 1,
+            "spineX": -21,
+            "spineY": -25.5
+          },
+          {
+            "rotation": 2,
+            "spineX": 25.5,
+            "spineY": -21
+          },
+          {
+            "rotation": 3,
+            "spineX": 21,
+            "spineY": 25.5
+          }
+        ]
+      }
+    },
+    "extractor": {
+      "key": "extractor",
+      "category": "station",
+      "healthMax": 500,
+      "layer": "mid",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "place": {
+        "delayMs": 300
+      },
+      "interaction": {
+        "type": "station",
+        "interactionDelayMs": 1000
+      },
+      "station": {
+        "key": "extractor",
+        "areaId": 10
+      },
+      "fuel": {
+        "itemKey": "gasoline",
+        "burnDurationPerUnitMs": 15000
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "wood",
+              "amount": 3
+            },
+            {
+              "key": "stone",
+              "amount": 10
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "extractor",
+        "blueprint": "clear-blue-extractor",
+        "redprint": "redprint-extractor",
+        "interact": "e-extractor",
+        "particles": "metal",
+        "particlesDistance": 80,
+        "impactSound": "steel_impact",
+        "destroySound": "steel_destroy",
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-extractor"
+          },
+          {
+            "index": 1,
+            "sprite": "day-extractor-rotate"
+          },
+          {
+            "index": 2,
+            "sprite": "day-extractor-off"
+          }
+        ]
+      }
+    },
+    "wood_wall": {
+      "key": "wood_wall",
+      "category": "wall",
+      "healthMax": 3000,
+      "layer": "top",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "place": {
+        "delayMs": 300
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "stone",
+              "amount": 1
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "wall",
+        "blueprint": "day-clear-blue-wood-wall",
+        "redprint": "day-redprint-wood-wall",
+        "particles": "wood",
+        "particlesDistance": 80,
+        "impactSound": "wood_impact",
+        "destroySound": "wood_destroy",
+        "z": 1,
+        "zGroup": 1,
+        "autotile": true,
+        "autotileGroup": "wood_wall",
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-wood-wall0"
+          },
+          {
+            "index": 1,
+            "sprite": "day-wood-wall1"
+          },
+          {
+            "index": 2,
+            "sprite": "day-wood-wall2"
+          },
+          {
+            "index": 3,
+            "sprite": "day-wood-wall3"
+          },
+          {
+            "index": 4,
+            "sprite": "day-wood-wall4"
+          },
+          {
+            "index": 5,
+            "sprite": "day-wood-wall5"
+          },
+          {
+            "index": 6,
+            "sprite": "day-wood-wall6"
+          },
+          {
+            "index": 7,
+            "sprite": "day-wood-wall7"
+          },
+          {
+            "index": 8,
+            "sprite": "day-wood-wall8"
+          },
+          {
+            "index": 9,
+            "sprite": "day-wood-wall9"
+          },
+          {
+            "index": 10,
+            "sprite": "day-wood-wall10"
+          },
+          {
+            "index": 11,
+            "sprite": "day-wood-wall11"
+          },
+          {
+            "index": 12,
+            "sprite": "day-wood-wall12"
+          },
+          {
+            "index": 13,
+            "sprite": "day-wood-wall13"
+          },
+          {
+            "index": 14,
+            "sprite": "day-wood-wall14"
+          },
+          {
+            "index": 15,
+            "sprite": "day-wood-wall15"
+          },
+          {
+            "index": 16,
+            "sprite": "day-wood-wall16"
+          },
+          {
+            "index": 17,
+            "sprite": "day-wood-wall17"
+          },
+          {
+            "index": 18,
+            "sprite": "day-wood-wall18"
+          },
+          {
+            "index": 19,
+            "sprite": "day-wood-wall19"
+          },
+          {
+            "index": 20,
+            "sprite": "day-wood-wall20"
+          },
+          {
+            "index": 21,
+            "sprite": "day-wood-wall21"
+          },
+          {
+            "index": 22,
+            "sprite": "day-wood-wall22"
+          },
+          {
+            "index": 23,
+            "sprite": "day-wood-wall23"
+          },
+          {
+            "index": 24,
+            "sprite": "day-wood-wall24"
+          },
+          {
+            "index": 25,
+            "sprite": "day-wood-wall25"
+          },
+          {
+            "index": 26,
+            "sprite": "day-wood-wall26"
+          },
+          {
+            "index": 27,
+            "sprite": "day-wood-wall27"
+          },
+          {
+            "index": 28,
+            "sprite": "day-wood-wall28"
+          },
+          {
+            "index": 29,
+            "sprite": "day-wood-wall29"
+          },
+          {
+            "index": 30,
+            "sprite": "day-wood-wall30"
+          },
+          {
+            "index": 31,
+            "sprite": "day-wood-wall31"
+          },
+          {
+            "index": 32,
+            "sprite": "day-wood-wall32"
+          },
+          {
+            "index": 33,
+            "sprite": "day-wood-wall33"
+          },
+          {
+            "index": 34,
+            "sprite": "day-wood-wall34"
+          },
+          {
+            "index": 35,
+            "sprite": "day-wood-wall35"
+          },
+          {
+            "index": 36,
+            "sprite": "day-wood-wall36"
+          },
+          {
+            "index": 37,
+            "sprite": "day-wood-wall37"
+          },
+          {
+            "index": 38,
+            "sprite": "day-wood-wall38"
+          },
+          {
+            "index": 39,
+            "sprite": "day-wood-wall39"
+          },
+          {
+            "index": 40,
+            "sprite": "day-wood-wall40"
+          },
+          {
+            "index": 41,
+            "sprite": "day-wood-wall41"
+          },
+          {
+            "index": 42,
+            "sprite": "day-wood-wall42"
+          },
+          {
+            "index": 43,
+            "sprite": "day-wood-wall43"
+          },
+          {
+            "index": 44,
+            "sprite": "day-wood-wall44"
+          },
+          {
+            "index": 45,
+            "sprite": "day-wood-wall45"
+          },
+          {
+            "index": 46,
+            "sprite": "day-wood-wall46"
+          }
+        ],
+        "broken": [
+          {
+            "index": 0,
+            "sprite": "day-wood-wall-broken0"
+          },
+          {
+            "index": 1,
+            "sprite": "day-wood-wall-broken1"
+          },
+          {
+            "index": 2,
+            "sprite": "day-wood-wall-broken2"
+          }
+        ]
+      }
+    },
+    "stone_wall": {
+      "key": "stone_wall",
+      "category": "wall",
+      "healthMax": 7000,
+      "layer": "top",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "place": {
+        "delayMs": 300
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "stone",
+              "amount": 1
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "wall",
+        "blueprint": "day-clear-blue-stone-wall",
+        "redprint": "day-redprint-stone-wall",
+        "particles": "stone",
+        "particlesDistance": 80,
+        "impactSound": "stone_impact",
+        "destroySound": "stone_destroy",
+        "z": 1,
+        "zGroup": 1,
+        "autotile": true,
+        "autotileGroup": "stone_wall",
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-stone-wall0"
+          },
+          {
+            "index": 1,
+            "sprite": "day-stone-wall1"
+          },
+          {
+            "index": 2,
+            "sprite": "day-stone-wall2"
+          },
+          {
+            "index": 3,
+            "sprite": "day-stone-wall3"
+          },
+          {
+            "index": 4,
+            "sprite": "day-stone-wall4"
+          },
+          {
+            "index": 5,
+            "sprite": "day-stone-wall5"
+          },
+          {
+            "index": 6,
+            "sprite": "day-stone-wall6"
+          },
+          {
+            "index": 7,
+            "sprite": "day-stone-wall7"
+          },
+          {
+            "index": 8,
+            "sprite": "day-stone-wall8"
+          },
+          {
+            "index": 9,
+            "sprite": "day-stone-wall9"
+          },
+          {
+            "index": 10,
+            "sprite": "day-stone-wall10"
+          },
+          {
+            "index": 11,
+            "sprite": "day-stone-wall11"
+          },
+          {
+            "index": 12,
+            "sprite": "day-stone-wall12"
+          },
+          {
+            "index": 13,
+            "sprite": "day-stone-wall13"
+          },
+          {
+            "index": 14,
+            "sprite": "day-stone-wall14"
+          },
+          {
+            "index": 15,
+            "sprite": "day-stone-wall15"
+          },
+          {
+            "index": 16,
+            "sprite": "day-stone-wall16"
+          },
+          {
+            "index": 17,
+            "sprite": "day-stone-wall17"
+          },
+          {
+            "index": 18,
+            "sprite": "day-stone-wall18"
+          },
+          {
+            "index": 19,
+            "sprite": "day-stone-wall19"
+          },
+          {
+            "index": 20,
+            "sprite": "day-stone-wall20"
+          },
+          {
+            "index": 21,
+            "sprite": "day-stone-wall21"
+          },
+          {
+            "index": 22,
+            "sprite": "day-stone-wall22"
+          },
+          {
+            "index": 23,
+            "sprite": "day-stone-wall23"
+          },
+          {
+            "index": 24,
+            "sprite": "day-stone-wall24"
+          },
+          {
+            "index": 25,
+            "sprite": "day-stone-wall25"
+          },
+          {
+            "index": 26,
+            "sprite": "day-stone-wall26"
+          },
+          {
+            "index": 27,
+            "sprite": "day-stone-wall27"
+          },
+          {
+            "index": 28,
+            "sprite": "day-stone-wall28"
+          },
+          {
+            "index": 29,
+            "sprite": "day-stone-wall29"
+          },
+          {
+            "index": 30,
+            "sprite": "day-stone-wall30"
+          },
+          {
+            "index": 31,
+            "sprite": "day-stone-wall31"
+          },
+          {
+            "index": 32,
+            "sprite": "day-stone-wall32"
+          },
+          {
+            "index": 33,
+            "sprite": "day-stone-wall33"
+          },
+          {
+            "index": 34,
+            "sprite": "day-stone-wall34"
+          },
+          {
+            "index": 35,
+            "sprite": "day-stone-wall35"
+          },
+          {
+            "index": 36,
+            "sprite": "day-stone-wall36"
+          },
+          {
+            "index": 37,
+            "sprite": "day-stone-wall37"
+          },
+          {
+            "index": 38,
+            "sprite": "day-stone-wall38"
+          },
+          {
+            "index": 39,
+            "sprite": "day-stone-wall39"
+          },
+          {
+            "index": 40,
+            "sprite": "day-stone-wall40"
+          },
+          {
+            "index": 41,
+            "sprite": "day-stone-wall41"
+          },
+          {
+            "index": 42,
+            "sprite": "day-stone-wall42"
+          },
+          {
+            "index": 43,
+            "sprite": "day-stone-wall43"
+          },
+          {
+            "index": 44,
+            "sprite": "day-stone-wall44"
+          },
+          {
+            "index": 45,
+            "sprite": "day-stone-wall45"
+          },
+          {
+            "index": 46,
+            "sprite": "day-stone-wall46"
+          }
+        ],
+        "broken": [
+          {
+            "index": 0,
+            "sprite": "day-stone-wall-broken0"
+          },
+          {
+            "index": 1,
+            "sprite": "day-stone-wall-broken1"
+          },
+          {
+            "index": 2,
+            "sprite": "day-stone-wall-broken2"
+          }
+        ]
+      }
+    },
+    "steel_wall": {
+      "key": "steel_wall",
+      "category": "wall",
+      "healthMax": 15000,
+      "layer": "top",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "place": {
+        "delayMs": 300
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "shaped_metal",
+              "amount": 1
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "wall",
+        "blueprint": "day-clear-blue-stone-wall",
+        "redprint": "day-redprint-stone-wall",
+        "particles": "steel",
+        "particlesDistance": 80,
+        "impactSound": "steel_impact",
+        "destroySound": "steel_destroy",
+        "z": 1,
+        "zGroup": 1,
+        "autotile": true,
+        "autotileGroup": "steel_wall",
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-steel-wall0"
+          },
+          {
+            "index": 1,
+            "sprite": "day-steel-wall1"
+          },
+          {
+            "index": 2,
+            "sprite": "day-steel-wall2"
+          },
+          {
+            "index": 3,
+            "sprite": "day-steel-wall3"
+          },
+          {
+            "index": 4,
+            "sprite": "day-steel-wall4"
+          },
+          {
+            "index": 5,
+            "sprite": "day-steel-wall5"
+          },
+          {
+            "index": 6,
+            "sprite": "day-steel-wall6"
+          },
+          {
+            "index": 7,
+            "sprite": "day-steel-wall7"
+          },
+          {
+            "index": 8,
+            "sprite": "day-steel-wall8"
+          },
+          {
+            "index": 9,
+            "sprite": "day-steel-wall9"
+          },
+          {
+            "index": 10,
+            "sprite": "day-steel-wall10"
+          },
+          {
+            "index": 11,
+            "sprite": "day-steel-wall11"
+          },
+          {
+            "index": 12,
+            "sprite": "day-steel-wall12"
+          },
+          {
+            "index": 13,
+            "sprite": "day-steel-wall13"
+          },
+          {
+            "index": 14,
+            "sprite": "day-steel-wall14"
+          },
+          {
+            "index": 15,
+            "sprite": "day-steel-wall15"
+          },
+          {
+            "index": 16,
+            "sprite": "day-steel-wall16"
+          },
+          {
+            "index": 17,
+            "sprite": "day-steel-wall17"
+          },
+          {
+            "index": 18,
+            "sprite": "day-steel-wall18"
+          },
+          {
+            "index": 19,
+            "sprite": "day-steel-wall19"
+          },
+          {
+            "index": 20,
+            "sprite": "day-steel-wall20"
+          },
+          {
+            "index": 21,
+            "sprite": "day-steel-wall21"
+          },
+          {
+            "index": 22,
+            "sprite": "day-steel-wall22"
+          },
+          {
+            "index": 23,
+            "sprite": "day-steel-wall23"
+          },
+          {
+            "index": 24,
+            "sprite": "day-steel-wall24"
+          },
+          {
+            "index": 25,
+            "sprite": "day-steel-wall25"
+          },
+          {
+            "index": 26,
+            "sprite": "day-steel-wall26"
+          },
+          {
+            "index": 27,
+            "sprite": "day-steel-wall27"
+          },
+          {
+            "index": 28,
+            "sprite": "day-steel-wall28"
+          },
+          {
+            "index": 29,
+            "sprite": "day-steel-wall29"
+          },
+          {
+            "index": 30,
+            "sprite": "day-steel-wall30"
+          },
+          {
+            "index": 31,
+            "sprite": "day-steel-wall31"
+          },
+          {
+            "index": 32,
+            "sprite": "day-steel-wall32"
+          },
+          {
+            "index": 33,
+            "sprite": "day-steel-wall33"
+          },
+          {
+            "index": 34,
+            "sprite": "day-steel-wall34"
+          },
+          {
+            "index": 35,
+            "sprite": "day-steel-wall35"
+          },
+          {
+            "index": 36,
+            "sprite": "day-steel-wall36"
+          },
+          {
+            "index": 37,
+            "sprite": "day-steel-wall37"
+          },
+          {
+            "index": 38,
+            "sprite": "day-steel-wall38"
+          },
+          {
+            "index": 39,
+            "sprite": "day-steel-wall39"
+          },
+          {
+            "index": 40,
+            "sprite": "day-steel-wall40"
+          },
+          {
+            "index": 41,
+            "sprite": "day-steel-wall41"
+          },
+          {
+            "index": 42,
+            "sprite": "day-steel-wall42"
+          },
+          {
+            "index": 43,
+            "sprite": "day-steel-wall43"
+          },
+          {
+            "index": 44,
+            "sprite": "day-steel-wall44"
+          },
+          {
+            "index": 45,
+            "sprite": "day-steel-wall45"
+          },
+          {
+            "index": 46,
+            "sprite": "day-steel-wall46"
+          }
+        ],
+        "broken": [
+          {
+            "index": 0,
+            "sprite": "day-steel-wall-broken0"
+          },
+          {
+            "index": 1,
+            "sprite": "day-steel-wall-broken1"
+          },
+          {
+            "index": 2,
+            "sprite": "day-steel-wall-broken2"
+          }
+        ]
+      }
+    },
+    "wood_low_door": {
+      "key": "wood_low_door",
+      "category": "wall",
+      "healthMax": 2000,
+      "layer": "mid",
+      "transform": {
+        "width": 100,
+        "height": 35,
+        "collision": true,
+        "blocksProjectiles": false
+      },
+      "place": {
+        "delayMs": 250
+      },
+      "interaction": {
+        "type": "door",
+        "interactionDelayMs": 500
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "stone",
+              "amount": 10
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "door",
+        "blueprint": "day-clear-blue-wood-door",
+        "redprint": "day-redprint-wood-door",
+        "interact": "e-opendoor",
+        "interactClose": "e-closedoor",
+        "particles": "wood",
+        "particlesDistance": 55,
+        "impactSound": "wood_impact",
+        "destroySound": "wood_destroy",
+        "angle": 1.5707963267948966,
+        "z": 0,
+        "zGroup": 0,
+        "pivotX": 6,
+        "pivotY": 46,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-wood-door"
+          }
+        ],
+        "broken": [
+          {
+            "index": 0,
+            "sprite": "day-wood-door-broken0"
+          },
+          {
+            "index": 1,
+            "sprite": "day-wood-door-broken1"
+          },
+          {
+            "index": 2,
+            "sprite": "day-wood-door-broken2"
+          }
+        ],
+        "offset": [
+          {
+            "rotation": 0,
+            "cy": 30,
+            "y": 65
+          },
+          {
+            "rotation": 1,
+            "cx": -30
+          },
+          {
+            "rotation": 2,
+            "cy": -30
+          },
+          {
+            "rotation": 3,
+            "cx": 30,
+            "x": 65
+          }
+        ],
+        "swing": [
+          {
+            "rotation": 0,
+            "i": 1,
+            "j": 0,
+            "x": 0,
+            "y": 0,
+            "w": 35,
+            "h": 100
+          },
+          {
+            "rotation": 1,
+            "i": 0,
+            "j": -1,
+            "x": 0,
+            "y": 0,
+            "w": 100,
+            "h": 35
+          },
+          {
+            "rotation": 2,
+            "i": -1,
+            "j": 0,
+            "x": 65,
+            "y": 0,
+            "w": 35,
+            "h": 100
+          },
+          {
+            "rotation": 3,
+            "i": 0,
+            "j": 1,
+            "x": 0,
+            "y": 65,
+            "w": 100,
+            "h": 35
+          }
+        ]
+      },
+      "align": "bottom"
+    },
+    "stone_low_door": {
+      "key": "stone_low_door",
+      "category": "wall",
+      "healthMax": 5000,
+      "layer": "mid",
+      "transform": {
+        "width": 100,
+        "height": 35,
+        "collision": true,
+        "blocksProjectiles": false
+      },
+      "place": {
+        "delayMs": 250
+      },
+      "interaction": {
+        "type": "door",
+        "interactionDelayMs": 500
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "stone",
+              "amount": 1
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "door",
+        "blueprint": "day-clear-blue-stone-door",
+        "redprint": "day-redprint-stone-door",
+        "interact": "e-opendoor",
+        "interactClose": "e-closedoor",
+        "particles": "stone",
+        "particlesDistance": 55,
+        "impactSound": "stone_impact",
+        "destroySound": "stone_destroy",
+        "angle": 1.5707963267948966,
+        "z": 0,
+        "zGroup": 0,
+        "pivotX": 6,
+        "pivotY": 46,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-stone-door"
+          }
+        ],
+        "broken": [
+          {
+            "index": 0,
+            "sprite": "day-stone-door-broken0"
+          },
+          {
+            "index": 1,
+            "sprite": "day-stone-door-broken1"
+          },
+          {
+            "index": 2,
+            "sprite": "day-stone-door-broken2"
+          }
+        ],
+        "offset": [
+          {
+            "rotation": 0,
+            "cy": 30,
+            "y": 65
+          },
+          {
+            "rotation": 1,
+            "cx": -30
+          },
+          {
+            "rotation": 2,
+            "cy": -30
+          },
+          {
+            "rotation": 3,
+            "cx": 30,
+            "x": 65
+          }
+        ],
+        "swing": [
+          {
+            "rotation": 0,
+            "i": 1,
+            "j": 0,
+            "x": 0,
+            "y": 0,
+            "w": 35,
+            "h": 100
+          },
+          {
+            "rotation": 1,
+            "i": 0,
+            "j": -1,
+            "x": 0,
+            "y": 0,
+            "w": 100,
+            "h": 35
+          },
+          {
+            "rotation": 2,
+            "i": -1,
+            "j": 0,
+            "x": 65,
+            "y": 0,
+            "w": 35,
+            "h": 100
+          },
+          {
+            "rotation": 3,
+            "i": 0,
+            "j": 1,
+            "x": 0,
+            "y": 65,
+            "w": 100,
+            "h": 35
+          }
+        ]
+      },
+      "align": "bottom"
+    },
+    "steel_low_door": {
+      "key": "steel_low_door",
+      "category": "wall",
+      "healthMax": 10000,
+      "layer": "mid",
+      "transform": {
+        "width": 100,
+        "height": 35,
+        "collision": true,
+        "blocksProjectiles": false
+      },
+      "place": {
+        "delayMs": 250
+      },
+      "interaction": {
+        "type": "door",
+        "interactionDelayMs": 500
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "stone",
+              "amount": 1
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "door",
+        "blueprint": "day-clear-blue-stone-door",
+        "redprint": "day-redprint-stone-door",
+        "interact": "e-opendoor",
+        "interactClose": "e-closedoor",
+        "particles": "steel",
+        "particlesDistance": 55,
+        "impactSound": "steel_impact",
+        "destroySound": "steel_destroy",
+        "angle": 1.5707963267948966,
+        "z": 0,
+        "zGroup": 0,
+        "pivotX": 6,
+        "pivotY": 46,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-steel-door"
+          }
+        ],
+        "broken": [
+          {
+            "index": 0,
+            "sprite": "day-steel-door-broken0"
+          },
+          {
+            "index": 1,
+            "sprite": "day-steel-door-broken1"
+          },
+          {
+            "index": 2,
+            "sprite": "day-steel-door-broken2"
+          }
+        ],
+        "offset": [
+          {
+            "rotation": 0,
+            "cy": 30,
+            "y": 65
+          },
+          {
+            "rotation": 1,
+            "cx": -30
+          },
+          {
+            "rotation": 2,
+            "cy": -30
+          },
+          {
+            "rotation": 3,
+            "cx": 30,
+            "x": 65
+          }
+        ],
+        "swing": [
+          {
+            "rotation": 0,
+            "i": 1,
+            "j": 0,
+            "x": 0,
+            "y": 0,
+            "w": 35,
+            "h": 100
+          },
+          {
+            "rotation": 1,
+            "i": 0,
+            "j": -1,
+            "x": 0,
+            "y": 0,
+            "w": 100,
+            "h": 35
+          },
+          {
+            "rotation": 2,
+            "i": -1,
+            "j": 0,
+            "x": 65,
+            "y": 0,
+            "w": 35,
+            "h": 100
+          },
+          {
+            "rotation": 3,
+            "i": 0,
+            "j": 1,
+            "x": 0,
+            "y": 65,
+            "w": 100,
+            "h": 35
+          }
+        ]
+      },
+      "align": "bottom"
+    },
+    "campfire": {
+      "key": "campfire",
+      "category": "station",
+      "healthMax": 150,
+      "layer": "low",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": true,
+        "blocksProjectiles": false
+      },
+      "place": {
+        "delayMs": 250
+      },
+      "interaction": {
+        "type": "station",
+        "interactionDelayMs": 1000
+      },
+      "station": {
+        "key": "campfire",
+        "areaId": 1
+      },
+      "fuel": {
+        "itemKey": "wood",
+        "burnDurationPerUnitMs": 15000,
+        "addAmount": 15
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "stone",
+              "amount": 5
+            },
+            {
+              "key": "stone",
+              "amount": 1
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "campfire",
+        "renderTop": "campfireLight",
+        "blueprint": "day-clear-blue-campfire",
+        "redprint": "day-redprint-campfire",
+        "interact": "e-campfire",
+        "particles": "wood",
+        "particlesDistance": 80,
+        "impactSound": "wood_impact",
+        "destroySound": "wood_destroy",
+        "z": 0,
+        "zGroup": -1,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-campfire"
+          }
+        ]
+      },
+      "lifetime": {
+        "durationMs": 960000
+      },
+      "areaEffects": {
+        "areaEffect": [
+          {
+            "id": 1,
+            "type": "warm",
+            "strength": 1,
+            "radius": 140,
+            "needsFuel": true
+          }
+        ]
+      }
+    },
+    "wood_door": {
+      "key": "wood_door",
+      "category": "wall",
+      "healthMax": 2500,
+      "layer": "top",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "place": {
+        "delayMs": 300
+      },
+      "interaction": {
+        "type": "door",
+        "interactionDelayMs": 500
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "stone",
+              "amount": 10
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "door",
+        "blueprint": "day-clear-blue-wood-door1",
+        "redprint": "day-redprint-wood-door1",
+        "interact": "e-opendoor",
+        "interactClose": "e-closedoor",
+        "particles": "wood",
+        "particlesDistance": 80,
+        "impactSound": "wood_impact",
+        "destroySound": "wood_destroy",
+        "angle": 3.141592653589793,
+        "z": 1,
+        "zGroup": 1,
+        "pivotX": 17,
+        "pivotY": 113,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-wood-door1"
+          }
+        ],
+        "broken": [
+          {
+            "index": 0,
+            "sprite": "day-wood-door1-broken0"
+          },
+          {
+            "index": 1,
+            "sprite": "day-wood-door1-broken1"
+          },
+          {
+            "index": 2,
+            "sprite": "day-wood-door1-broken2"
+          }
+        ],
+        "swing": [
+          {
+            "rotation": 0,
+            "i": 1,
+            "j": -1,
+            "x": 0,
+            "y": 0,
+            "w": 100,
+            "h": 100
+          },
+          {
+            "rotation": 1,
+            "i": -1,
+            "j": -1,
+            "x": 0,
+            "y": 0,
+            "w": 100,
+            "h": 100
+          },
+          {
+            "rotation": 2,
+            "i": -1,
+            "j": 1,
+            "x": 0,
+            "y": 0,
+            "w": 100,
+            "h": 100
+          },
+          {
+            "rotation": 3,
+            "i": 1,
+            "j": 1,
+            "x": 0,
+            "y": 0,
+            "w": 100,
+            "h": 100
+          }
+        ]
+      }
+    },
+    "stone_door": {
+      "key": "stone_door",
+      "category": "wall",
+      "healthMax": 6000,
+      "layer": "top",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "place": {
+        "delayMs": 300
+      },
+      "interaction": {
+        "type": "door",
+        "interactionDelayMs": 500
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "stone",
+              "amount": 10
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "door",
+        "blueprint": "day-clear-blue-stone-door1",
+        "redprint": "day-redprint-stone-door1",
+        "interact": "e-opendoor",
+        "interactClose": "e-closedoor",
+        "particles": "stone",
+        "particlesDistance": 80,
+        "impactSound": "stone_impact",
+        "destroySound": "stone_destroy",
+        "angle": 3.141592653589793,
+        "z": 1,
+        "zGroup": 1,
+        "pivotX": 17,
+        "pivotY": 113,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-stone-door1"
+          }
+        ],
+        "broken": [
+          {
+            "index": 0,
+            "sprite": "day-stone-door1-broken0"
+          },
+          {
+            "index": 1,
+            "sprite": "day-stone-door1-broken1"
+          },
+          {
+            "index": 2,
+            "sprite": "day-stone-door1-broken2"
+          }
+        ],
+        "swing": [
+          {
+            "rotation": 0,
+            "i": 1,
+            "j": -1,
+            "x": 0,
+            "y": 0,
+            "w": 100,
+            "h": 100
+          },
+          {
+            "rotation": 1,
+            "i": -1,
+            "j": -1,
+            "x": 0,
+            "y": 0,
+            "w": 100,
+            "h": 100
+          },
+          {
+            "rotation": 2,
+            "i": -1,
+            "j": 1,
+            "x": 0,
+            "y": 0,
+            "w": 100,
+            "h": 100
+          },
+          {
+            "rotation": 3,
+            "i": 1,
+            "j": 1,
+            "x": 0,
+            "y": 0,
+            "w": 100,
+            "h": 100
+          }
+        ]
+      }
+    },
+    "steel_door": {
+      "key": "steel_door",
+      "category": "wall",
+      "healthMax": 12500,
+      "layer": "top",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "place": {
+        "delayMs": 300
+      },
+      "interaction": {
+        "type": "door",
+        "interactionDelayMs": 500
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "stone",
+              "amount": 10
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "door",
+        "blueprint": "day-clear-blue-stone-door1",
+        "redprint": "day-redprint-stone-door1",
+        "interact": "e-opendoor",
+        "interactClose": "e-closedoor",
+        "particles": "steel",
+        "particlesDistance": 80,
+        "impactSound": "steel_impact",
+        "destroySound": "steel_destroy",
+        "angle": 3.141592653589793,
+        "z": 1,
+        "zGroup": 1,
+        "pivotX": 17,
+        "pivotY": 113,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-steel-door1"
+          }
+        ],
+        "broken": [
+          {
+            "index": 0,
+            "sprite": "day-steel-door1-broken0"
+          },
+          {
+            "index": 1,
+            "sprite": "day-steel-door1-broken1"
+          },
+          {
+            "index": 2,
+            "sprite": "day-steel-door1-broken2"
+          }
+        ],
+        "swing": [
+          {
+            "rotation": 0,
+            "i": 1,
+            "j": -1,
+            "x": 0,
+            "y": 0,
+            "w": 100,
+            "h": 100
+          },
+          {
+            "rotation": 1,
+            "i": -1,
+            "j": -1,
+            "x": 0,
+            "y": 0,
+            "w": 100,
+            "h": 100
+          },
+          {
+            "rotation": 2,
+            "i": -1,
+            "j": 1,
+            "x": 0,
+            "y": 0,
+            "w": 100,
+            "h": 100
+          },
+          {
+            "rotation": 3,
+            "i": 1,
+            "j": 1,
+            "x": 0,
+            "y": 0,
+            "w": 100,
+            "h": 100
+          }
+        ]
+      }
+    },
+    "firepit": {
+      "key": "firepit",
+      "category": "station",
+      "healthMax": 250,
+      "layer": "low",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": true,
+        "blocksProjectiles": false
+      },
+      "place": {
+        "delayMs": 250
+      },
+      "interaction": {
+        "type": "station",
+        "interactionDelayMs": 1000
+      },
+      "station": {
+        "key": "firepit",
+        "areaId": 3
+      },
+      "fuel": {
+        "itemKey": "wood",
+        "burnDurationPerUnitMs": 15000,
+        "addAmount": 15
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "stone",
+              "amount": 5
+            },
+            {
+              "key": "stone",
+              "amount": 1
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "campfire",
+        "renderTop": "campfireLight",
+        "blueprint": "day-clear-blue-campfire-bbq",
+        "redprint": "day-redprint-campfire-bbq",
+        "interact": "e-campfire-bbq",
+        "particles": "wood",
+        "particlesDistance": 80,
+        "impactSound": "wood_impact",
+        "destroySound": "wood_destroy",
+        "z": 0,
+        "zGroup": -1,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-campfire-bbq"
+          }
+        ]
+      },
+      "areaEffects": {
+        "areaEffect": [
+          {
+            "id": 1,
+            "type": "warm",
+            "strength": 1,
+            "radius": 140,
+            "needsFuel": true
+          }
+        ]
+      }
+    },
+    "wood_chest": {
+      "key": "wood_chest",
+      "category": "container",
+      "healthMax": 300,
+      "layer": "mid",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": true,
+        "blocksProjectiles": false
+      },
+      "place": {
+        "delayMs": 250
+      },
+      "interaction": {
+        "type": "container",
+        "interactionDelayMs": 1000
+      },
+      "storage": {
+        "slots": 4,
+        "refrigeration": false
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "stone",
+              "amount": 5
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "workbench",
+        "blueprint": "day-clear-blue-chest",
+        "redprint": "day-redprint-chest",
+        "interact": "e-chest",
+        "particles": "wood",
+        "particlesDistance": 55,
+        "impactSound": "wood_impact",
+        "destroySound": "wood_destroy",
+        "angle": 1.5707963267948966,
+        "z": 0,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-chest"
+          }
+        ]
+      }
+    },
+    "fridge": {
+      "key": "fridge",
+      "category": "container",
+      "healthMax": 300,
+      "layer": "mid",
+      "transform": {
+        "width": 36,
+        "height": 100,
+        "collision": true,
+        "blocksProjectiles": false
+      },
+      "place": {
+        "delayMs": 250
+      },
+      "interaction": {
+        "type": "container",
+        "interactionDelayMs": 1000
+      },
+      "storage": {
+        "slots": 4,
+        "refrigeration": true
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "stone",
+              "amount": 5
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "workbench",
+        "blueprint": "day-clear-blue-fridge",
+        "redprint": "day-redprint-fridge",
+        "interact": "e-fridge",
+        "particles": "metal",
+        "particlesDistance": 55,
+        "impactSound": "steel_impact",
+        "destroySound": "steel_destroy",
+        "angle": 1.5707963267948966,
+        "z": 0,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-fridge"
+          }
+        ],
+        "offset": [
+          {
+            "rotation": 0
+          },
+          {
+            "rotation": 1
+          },
+          {
+            "rotation": 2,
+            "x": 50
+          },
+          {
+            "rotation": 3,
+            "y": 50
+          }
+        ]
+      },
+      "align": "left"
+    },
+    "wood_floor": {
+      "key": "wood_floor",
+      "category": "floor",
+      "healthMax": 4000,
+      "layer": "bottom",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": false,
+        "blocksProjectiles": false
+      },
+      "place": {
+        "delayMs": 250
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "stone",
+              "amount": 10
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "groundFloor",
+        "blueprint": "day-clear-blue-wood-floor",
+        "redprint": "day-redprint-wood-floor",
+        "particles": "wood",
+        "particlesDistance": 80,
+        "destroySound": "wood_destroy",
+        "z": 0,
+        "zGroup": 2,
+        "autotile": true,
+        "autotileGroup": "wood_floor",
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-wood-floor-0"
+          },
+          {
+            "index": 1,
+            "sprite": "day-wood-floor-1"
+          },
+          {
+            "index": 2,
+            "sprite": "day-wood-floor-2"
+          },
+          {
+            "index": 3,
+            "sprite": "day-wood-floor-3"
+          },
+          {
+            "index": 4,
+            "sprite": "day-wood-floor-4"
+          },
+          {
+            "index": 5,
+            "sprite": "day-wood-floor-5"
+          },
+          {
+            "index": 6,
+            "sprite": "day-wood-floor-6"
+          },
+          {
+            "index": 7,
+            "sprite": "day-wood-floor-7"
+          },
+          {
+            "index": 8,
+            "sprite": "day-wood-floor-8"
+          },
+          {
+            "index": 9,
+            "sprite": "day-wood-floor-9"
+          },
+          {
+            "index": 10,
+            "sprite": "day-wood-floor-10"
+          },
+          {
+            "index": 11,
+            "sprite": "day-wood-floor-11"
+          },
+          {
+            "index": 12,
+            "sprite": "day-wood-floor-12"
+          },
+          {
+            "index": 13,
+            "sprite": "day-wood-floor-13"
+          },
+          {
+            "index": 14,
+            "sprite": "day-wood-floor-14"
+          },
+          {
+            "index": 15,
+            "sprite": "day-wood-floor-15"
+          },
+          {
+            "index": 16,
+            "sprite": "day-wood-floor-16"
+          },
+          {
+            "index": 17,
+            "sprite": "day-wood-floor-17"
+          },
+          {
+            "index": 18,
+            "sprite": "day-wood-floor-18"
+          },
+          {
+            "index": 19,
+            "sprite": "day-wood-floor-19"
+          },
+          {
+            "index": 20,
+            "sprite": "day-wood-floor-20"
+          },
+          {
+            "index": 21,
+            "sprite": "day-wood-floor-21"
+          },
+          {
+            "index": 22,
+            "sprite": "day-wood-floor-22"
+          },
+          {
+            "index": 23,
+            "sprite": "day-wood-floor-23"
+          },
+          {
+            "index": 24,
+            "sprite": "day-wood-floor-24"
+          },
+          {
+            "index": 25,
+            "sprite": "day-wood-floor-25"
+          },
+          {
+            "index": 26,
+            "sprite": "day-wood-floor-26"
+          },
+          {
+            "index": 27,
+            "sprite": "day-wood-floor-27"
+          },
+          {
+            "index": 28,
+            "sprite": "day-wood-floor-28"
+          },
+          {
+            "index": 29,
+            "sprite": "day-wood-floor-29"
+          },
+          {
+            "index": 30,
+            "sprite": "day-wood-floor-30"
+          },
+          {
+            "index": 31,
+            "sprite": "day-wood-floor-31"
+          },
+          {
+            "index": 32,
+            "sprite": "day-wood-floor-32"
+          },
+          {
+            "index": 33,
+            "sprite": "day-wood-floor-33"
+          },
+          {
+            "index": 34,
+            "sprite": "day-wood-floor-34"
+          },
+          {
+            "index": 35,
+            "sprite": "day-wood-floor-35"
+          },
+          {
+            "index": 36,
+            "sprite": "day-wood-floor-36"
+          },
+          {
+            "index": 37,
+            "sprite": "day-wood-floor-37"
+          },
+          {
+            "index": 38,
+            "sprite": "day-wood-floor-38"
+          },
+          {
+            "index": 39,
+            "sprite": "day-wood-floor-39"
+          },
+          {
+            "index": 40,
+            "sprite": "day-wood-floor-40"
+          },
+          {
+            "index": 41,
+            "sprite": "day-wood-floor-41"
+          },
+          {
+            "index": 42,
+            "sprite": "day-wood-floor-42"
+          },
+          {
+            "index": 43,
+            "sprite": "day-wood-floor-43"
+          },
+          {
+            "index": 44,
+            "sprite": "day-wood-floor-44"
+          },
+          {
+            "index": 45,
+            "sprite": "day-wood-floor-45"
+          },
+          {
+            "index": 46,
+            "sprite": "day-wood-floor-46"
+          }
+        ],
+        "broken": [
+          {
+            "index": 0,
+            "sprite": "day-wood-floor-broken0"
+          },
+          {
+            "index": 1,
+            "sprite": "day-wood-floor-broken1"
+          },
+          {
+            "index": 2,
+            "sprite": "day-wood-floor-broken2"
+          }
+        ]
+      }
+    },
+    "woodlight_floor": {
+      "key": "woodlight_floor",
+      "category": "floor",
+      "healthMax": 4000,
+      "layer": "bottom",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": false,
+        "blocksProjectiles": false
+      },
+      "place": {
+        "delayMs": 250
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "stone",
+              "amount": 10
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "groundFloor",
+        "blueprint": "day-clear-blue-woodlight-floor",
+        "redprint": "day-redprint-woodlight-floor",
+        "particles": "woodlight",
+        "particlesDistance": 80,
+        "destroySound": "wood_destroy",
+        "z": 0,
+        "zGroup": 2,
+        "autotile": true,
+        "autotileGroup": "woodlight_floor",
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-wood-floor-light-0"
+          },
+          {
+            "index": 1,
+            "sprite": "day-wood-floor-light-1"
+          },
+          {
+            "index": 2,
+            "sprite": "day-wood-floor-light-2"
+          },
+          {
+            "index": 3,
+            "sprite": "day-wood-floor-light-3"
+          },
+          {
+            "index": 4,
+            "sprite": "day-wood-floor-light-4"
+          },
+          {
+            "index": 5,
+            "sprite": "day-wood-floor-light-5"
+          },
+          {
+            "index": 6,
+            "sprite": "day-wood-floor-light-6"
+          },
+          {
+            "index": 7,
+            "sprite": "day-wood-floor-light-7"
+          },
+          {
+            "index": 8,
+            "sprite": "day-wood-floor-light-8"
+          },
+          {
+            "index": 9,
+            "sprite": "day-wood-floor-light-9"
+          },
+          {
+            "index": 10,
+            "sprite": "day-wood-floor-light-10"
+          },
+          {
+            "index": 11,
+            "sprite": "day-wood-floor-light-11"
+          },
+          {
+            "index": 12,
+            "sprite": "day-wood-floor-light-12"
+          },
+          {
+            "index": 13,
+            "sprite": "day-wood-floor-light-13"
+          },
+          {
+            "index": 14,
+            "sprite": "day-wood-floor-light-14"
+          },
+          {
+            "index": 15,
+            "sprite": "day-wood-floor-light-15"
+          },
+          {
+            "index": 16,
+            "sprite": "day-wood-floor-light-16"
+          },
+          {
+            "index": 17,
+            "sprite": "day-wood-floor-light-17"
+          },
+          {
+            "index": 18,
+            "sprite": "day-wood-floor-light-18"
+          },
+          {
+            "index": 19,
+            "sprite": "day-wood-floor-light-19"
+          },
+          {
+            "index": 20,
+            "sprite": "day-wood-floor-light-20"
+          },
+          {
+            "index": 21,
+            "sprite": "day-wood-floor-light-21"
+          },
+          {
+            "index": 22,
+            "sprite": "day-wood-floor-light-22"
+          },
+          {
+            "index": 23,
+            "sprite": "day-wood-floor-light-23"
+          },
+          {
+            "index": 24,
+            "sprite": "day-wood-floor-light-24"
+          },
+          {
+            "index": 25,
+            "sprite": "day-wood-floor-light-25"
+          },
+          {
+            "index": 26,
+            "sprite": "day-wood-floor-light-26"
+          },
+          {
+            "index": 27,
+            "sprite": "day-wood-floor-light-27"
+          },
+          {
+            "index": 28,
+            "sprite": "day-wood-floor-light-28"
+          },
+          {
+            "index": 29,
+            "sprite": "day-wood-floor-light-29"
+          },
+          {
+            "index": 30,
+            "sprite": "day-wood-floor-light-30"
+          },
+          {
+            "index": 31,
+            "sprite": "day-wood-floor-light-31"
+          },
+          {
+            "index": 32,
+            "sprite": "day-wood-floor-light-32"
+          },
+          {
+            "index": 33,
+            "sprite": "day-wood-floor-light-33"
+          },
+          {
+            "index": 34,
+            "sprite": "day-wood-floor-light-34"
+          },
+          {
+            "index": 35,
+            "sprite": "day-wood-floor-light-35"
+          },
+          {
+            "index": 36,
+            "sprite": "day-wood-floor-light-36"
+          },
+          {
+            "index": 37,
+            "sprite": "day-wood-floor-light-37"
+          },
+          {
+            "index": 38,
+            "sprite": "day-wood-floor-light-38"
+          },
+          {
+            "index": 39,
+            "sprite": "day-wood-floor-light-39"
+          },
+          {
+            "index": 40,
+            "sprite": "day-wood-floor-light-40"
+          },
+          {
+            "index": 41,
+            "sprite": "day-wood-floor-light-41"
+          },
+          {
+            "index": 42,
+            "sprite": "day-wood-floor-light-42"
+          },
+          {
+            "index": 43,
+            "sprite": "day-wood-floor-light-43"
+          },
+          {
+            "index": 44,
+            "sprite": "day-wood-floor-light-44"
+          },
+          {
+            "index": 45,
+            "sprite": "day-wood-floor-light-45"
+          },
+          {
+            "index": 46,
+            "sprite": "day-wood-floor-light-46"
+          }
+        ],
+        "broken": [
+          {
+            "index": 0,
+            "sprite": "day-wood-floor-light-broken0"
+          },
+          {
+            "index": 1,
+            "sprite": "day-wood-floor-light-broken1"
+          },
+          {
+            "index": 2,
+            "sprite": "day-wood-floor-light-broken2"
+          }
+        ]
+      }
+    },
+    "stone_floor": {
+      "key": "stone_floor",
+      "category": "floor",
+      "healthMax": 8000,
+      "layer": "bottom",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": false,
+        "blocksProjectiles": false
+      },
+      "place": {
+        "delayMs": 250
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "stone",
+              "amount": 10
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "groundFloor",
+        "blueprint": "day-clear-blue-stone-floor",
+        "redprint": "day-redprint-stone-floor",
+        "particles": "stone",
+        "particlesDistance": 80,
+        "destroySound": "stone_destroy",
+        "z": 0,
+        "zGroup": 2,
+        "autotile": true,
+        "autotileGroup": "stone_floor",
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-stone-floor-0"
+          },
+          {
+            "index": 1,
+            "sprite": "day-stone-floor-1"
+          },
+          {
+            "index": 2,
+            "sprite": "day-stone-floor-2"
+          },
+          {
+            "index": 3,
+            "sprite": "day-stone-floor-3"
+          },
+          {
+            "index": 4,
+            "sprite": "day-stone-floor-4"
+          },
+          {
+            "index": 5,
+            "sprite": "day-stone-floor-5"
+          },
+          {
+            "index": 6,
+            "sprite": "day-stone-floor-6"
+          },
+          {
+            "index": 7,
+            "sprite": "day-stone-floor-7"
+          },
+          {
+            "index": 8,
+            "sprite": "day-stone-floor-8"
+          },
+          {
+            "index": 9,
+            "sprite": "day-stone-floor-9"
+          },
+          {
+            "index": 10,
+            "sprite": "day-stone-floor-10"
+          },
+          {
+            "index": 11,
+            "sprite": "day-stone-floor-11"
+          },
+          {
+            "index": 12,
+            "sprite": "day-stone-floor-12"
+          },
+          {
+            "index": 13,
+            "sprite": "day-stone-floor-13"
+          },
+          {
+            "index": 14,
+            "sprite": "day-stone-floor-14"
+          },
+          {
+            "index": 15,
+            "sprite": "day-stone-floor-15"
+          },
+          {
+            "index": 16,
+            "sprite": "day-stone-floor-16"
+          },
+          {
+            "index": 17,
+            "sprite": "day-stone-floor-17"
+          },
+          {
+            "index": 18,
+            "sprite": "day-stone-floor-18"
+          },
+          {
+            "index": 19,
+            "sprite": "day-stone-floor-19"
+          },
+          {
+            "index": 20,
+            "sprite": "day-stone-floor-20"
+          },
+          {
+            "index": 21,
+            "sprite": "day-stone-floor-21"
+          },
+          {
+            "index": 22,
+            "sprite": "day-stone-floor-22"
+          },
+          {
+            "index": 23,
+            "sprite": "day-stone-floor-23"
+          },
+          {
+            "index": 24,
+            "sprite": "day-stone-floor-24"
+          },
+          {
+            "index": 25,
+            "sprite": "day-stone-floor-25"
+          },
+          {
+            "index": 26,
+            "sprite": "day-stone-floor-26"
+          },
+          {
+            "index": 27,
+            "sprite": "day-stone-floor-27"
+          },
+          {
+            "index": 28,
+            "sprite": "day-stone-floor-28"
+          },
+          {
+            "index": 29,
+            "sprite": "day-stone-floor-29"
+          },
+          {
+            "index": 30,
+            "sprite": "day-stone-floor-30"
+          },
+          {
+            "index": 31,
+            "sprite": "day-stone-floor-31"
+          },
+          {
+            "index": 32,
+            "sprite": "day-stone-floor-32"
+          },
+          {
+            "index": 33,
+            "sprite": "day-stone-floor-33"
+          },
+          {
+            "index": 34,
+            "sprite": "day-stone-floor-34"
+          },
+          {
+            "index": 35,
+            "sprite": "day-stone-floor-35"
+          },
+          {
+            "index": 36,
+            "sprite": "day-stone-floor-36"
+          },
+          {
+            "index": 37,
+            "sprite": "day-stone-floor-37"
+          },
+          {
+            "index": 38,
+            "sprite": "day-stone-floor-38"
+          },
+          {
+            "index": 39,
+            "sprite": "day-stone-floor-39"
+          },
+          {
+            "index": 40,
+            "sprite": "day-stone-floor-40"
+          },
+          {
+            "index": 41,
+            "sprite": "day-stone-floor-41"
+          },
+          {
+            "index": 42,
+            "sprite": "day-stone-floor-42"
+          },
+          {
+            "index": 43,
+            "sprite": "day-stone-floor-43"
+          },
+          {
+            "index": 44,
+            "sprite": "day-stone-floor-44"
+          },
+          {
+            "index": 45,
+            "sprite": "day-stone-floor-45"
+          },
+          {
+            "index": 46,
+            "sprite": "day-stone-floor-46"
+          }
+        ],
+        "broken": [
+          {
+            "index": 0,
+            "sprite": "day-stone-floor-broken0"
+          },
+          {
+            "index": 1,
+            "sprite": "day-stone-floor-broken1"
+          },
+          {
+            "index": 2,
+            "sprite": "day-stone-floor-broken2"
+          }
+        ]
+      }
+    },
+    "tiling_floor": {
+      "key": "tiling_floor",
+      "category": "floor",
+      "healthMax": 8000,
+      "layer": "bottom",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": false,
+        "blocksProjectiles": false
+      },
+      "place": {
+        "delayMs": 250
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "stone",
+              "amount": 10
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "groundFloor",
+        "blueprint": "day-clear-blue-tiling-floor",
+        "redprint": "day-redprint-tiling-floor",
+        "particles": "stone",
+        "particlesDistance": 80,
+        "destroySound": "stone_destroy",
+        "z": 0,
+        "zGroup": 2,
+        "autotile": true,
+        "autotileGroup": "tiling_floor",
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-tiling-floor-0"
+          },
+          {
+            "index": 1,
+            "sprite": "day-tiling-floor-1"
+          },
+          {
+            "index": 2,
+            "sprite": "day-tiling-floor-2"
+          },
+          {
+            "index": 3,
+            "sprite": "day-tiling-floor-3"
+          },
+          {
+            "index": 4,
+            "sprite": "day-tiling-floor-4"
+          },
+          {
+            "index": 5,
+            "sprite": "day-tiling-floor-5"
+          },
+          {
+            "index": 6,
+            "sprite": "day-tiling-floor-6"
+          },
+          {
+            "index": 7,
+            "sprite": "day-tiling-floor-7"
+          },
+          {
+            "index": 8,
+            "sprite": "day-tiling-floor-8"
+          },
+          {
+            "index": 9,
+            "sprite": "day-tiling-floor-9"
+          },
+          {
+            "index": 10,
+            "sprite": "day-tiling-floor-10"
+          },
+          {
+            "index": 11,
+            "sprite": "day-tiling-floor-11"
+          },
+          {
+            "index": 12,
+            "sprite": "day-tiling-floor-12"
+          },
+          {
+            "index": 13,
+            "sprite": "day-tiling-floor-13"
+          },
+          {
+            "index": 14,
+            "sprite": "day-tiling-floor-14"
+          },
+          {
+            "index": 15,
+            "sprite": "day-tiling-floor-15"
+          },
+          {
+            "index": 16,
+            "sprite": "day-tiling-floor-16"
+          },
+          {
+            "index": 17,
+            "sprite": "day-tiling-floor-17"
+          },
+          {
+            "index": 18,
+            "sprite": "day-tiling-floor-18"
+          },
+          {
+            "index": 19,
+            "sprite": "day-tiling-floor-19"
+          },
+          {
+            "index": 20,
+            "sprite": "day-tiling-floor-20"
+          },
+          {
+            "index": 21,
+            "sprite": "day-tiling-floor-21"
+          },
+          {
+            "index": 22,
+            "sprite": "day-tiling-floor-22"
+          },
+          {
+            "index": 23,
+            "sprite": "day-tiling-floor-23"
+          },
+          {
+            "index": 24,
+            "sprite": "day-tiling-floor-24"
+          },
+          {
+            "index": 25,
+            "sprite": "day-tiling-floor-25"
+          },
+          {
+            "index": 26,
+            "sprite": "day-tiling-floor-26"
+          },
+          {
+            "index": 27,
+            "sprite": "day-tiling-floor-27"
+          },
+          {
+            "index": 28,
+            "sprite": "day-tiling-floor-28"
+          },
+          {
+            "index": 29,
+            "sprite": "day-tiling-floor-29"
+          },
+          {
+            "index": 30,
+            "sprite": "day-tiling-floor-30"
+          },
+          {
+            "index": 31,
+            "sprite": "day-tiling-floor-31"
+          },
+          {
+            "index": 32,
+            "sprite": "day-tiling-floor-32"
+          },
+          {
+            "index": 33,
+            "sprite": "day-tiling-floor-33"
+          },
+          {
+            "index": 34,
+            "sprite": "day-tiling-floor-34"
+          },
+          {
+            "index": 35,
+            "sprite": "day-tiling-floor-35"
+          },
+          {
+            "index": 36,
+            "sprite": "day-tiling-floor-36"
+          },
+          {
+            "index": 37,
+            "sprite": "day-tiling-floor-37"
+          },
+          {
+            "index": 38,
+            "sprite": "day-tiling-floor-38"
+          },
+          {
+            "index": 39,
+            "sprite": "day-tiling-floor-39"
+          },
+          {
+            "index": 40,
+            "sprite": "day-tiling-floor-40"
+          },
+          {
+            "index": 41,
+            "sprite": "day-tiling-floor-41"
+          },
+          {
+            "index": 42,
+            "sprite": "day-tiling-floor-42"
+          },
+          {
+            "index": 43,
+            "sprite": "day-tiling-floor-43"
+          },
+          {
+            "index": 44,
+            "sprite": "day-tiling-floor-44"
+          },
+          {
+            "index": 45,
+            "sprite": "day-tiling-floor-45"
+          },
+          {
+            "index": 46,
+            "sprite": "day-tiling-floor-46"
+          }
+        ],
+        "broken": [
+          {
+            "index": 0,
+            "sprite": "day-tiling-floor-broken0"
+          },
+          {
+            "index": 1,
+            "sprite": "day-tiling-floor-broken1"
+          },
+          {
+            "index": 2,
+            "sprite": "day-tiling-floor-broken2"
+          }
+        ]
+      }
+    },
+    "sleeping_bag": {
+      "key": "sleeping_bag",
+      "category": "resurection",
+      "healthMax": 500,
+      "layer": "low",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": false,
+        "blocksProjectiles": false
+      },
+      "place": {
+        "delayMs": 250
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "stone",
+              "amount": 10
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "defaultBuilding",
+        "blueprint": "day-clear-blue-sleeping-bag",
+        "redprint": "day-redprint-sleeping-bag",
+        "particles": "fur",
+        "particlesDistance": 80,
+        "impactSound": "pillow_impact",
+        "destroySound": "pillow_destroy",
+        "z": 0,
+        "zGroup": -1,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-sleeping-bag"
+          }
+        ]
+      },
+      "respawner": {
+        "gauges": {
+          "health": 30,
+          "stamina": 30,
+          "food": 30,
+          "cold": 30
+        }
+      }
+    },
+    "wood_low_wall": {
+      "key": "wood_low_wall",
+      "category": "wall",
+      "healthMax": 3000,
+      "layer": "mid",
+      "transform": {
+        "width": 100,
+        "height": 35,
+        "collision": true,
+        "blocksProjectiles": false
+      },
+      "place": {
+        "delayMs": 250
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "stone",
+              "amount": 10
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "lowWall",
+        "blueprint": "day-clear-blue-wood-smallwall",
+        "redprint": "day-redprint-wood-smallwall",
+        "particles": "wood",
+        "particlesDistance": 80,
+        "impactSound": "wood_impact",
+        "destroySound": "wood_destroy",
+        "angle": 1.5707963267948966,
+        "z": 0,
+        "zGroup": 0,
+        "pivotX": 6,
+        "pivotY": 46,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-wood-smallwalls-0"
+          },
+          {
+            "index": 1,
+            "sprite": "day-wood-smallwalls-1"
+          },
+          {
+            "index": 2,
+            "sprite": "day-wood-smallwalls-2"
+          },
+          {
+            "index": 3,
+            "sprite": "day-wood-smallwalls-3"
+          },
+          {
+            "index": 4,
+            "sprite": "day-wood-smallwalls-4"
+          },
+          {
+            "index": 5,
+            "sprite": "day-wood-smallwalls-5"
+          },
+          {
+            "index": 6,
+            "sprite": "day-wood-smallwalls-6"
+          },
+          {
+            "index": 7,
+            "sprite": "day-wood-smallwalls-7"
+          },
+          {
+            "index": 8,
+            "sprite": "day-wood-smallwalls-8"
+          },
+          {
+            "index": 9,
+            "sprite": "day-wood-smallwalls-9"
+          },
+          {
+            "index": 10,
+            "sprite": "day-wood-smallwalls-10"
+          },
+          {
+            "index": 11,
+            "sprite": "day-wood-smallwalls-11"
+          },
+          {
+            "index": 12,
+            "sprite": "day-wood-smallwalls-12"
+          },
+          {
+            "index": 13,
+            "sprite": "day-wood-smallwalls-13"
+          },
+          {
+            "index": 14,
+            "sprite": "day-wood-smallwalls-14"
+          },
+          {
+            "index": 15,
+            "sprite": "day-wood-smallwalls-15"
+          },
+          {
+            "index": 16,
+            "sprite": "day-wood-smallwalls-16"
+          },
+          {
+            "index": 17,
+            "sprite": "day-wood-smallwalls-17"
+          },
+          {
+            "index": 18,
+            "sprite": "day-wood-smallwalls-18"
+          },
+          {
+            "index": 19,
+            "sprite": "day-wood-smallwalls-19"
+          },
+          {
+            "index": 20,
+            "sprite": "day-wood-smallwalls-20"
+          },
+          {
+            "index": 21,
+            "sprite": "day-wood-smallwalls-21"
+          },
+          {
+            "index": 22,
+            "sprite": "day-wood-smallwalls-22"
+          },
+          {
+            "index": 23,
+            "sprite": "day-wood-smallwalls-23"
+          },
+          {
+            "index": 24,
+            "sprite": "day-wood-smallwalls-24"
+          },
+          {
+            "index": 25,
+            "sprite": "day-wood-smallwalls-25"
+          },
+          {
+            "index": 26,
+            "sprite": "day-wood-smallwalls-26"
+          },
+          {
+            "index": 27,
+            "sprite": "day-wood-smallwalls-27"
+          },
+          {
+            "index": 28,
+            "sprite": "day-wood-smallwalls-28"
+          },
+          {
+            "index": 29,
+            "sprite": "day-wood-smallwalls-29"
+          },
+          {
+            "index": 30,
+            "sprite": "day-wood-smallwalls-30"
+          },
+          {
+            "index": 31,
+            "sprite": "day-wood-smallwalls-31"
+          },
+          {
+            "index": 32,
+            "sprite": "day-wood-smallwalls-32"
+          },
+          {
+            "index": 33,
+            "sprite": "day-wood-smallwalls-33"
+          },
+          {
+            "index": 34,
+            "sprite": "day-wood-smallwalls-34"
+          },
+          {
+            "index": 35,
+            "sprite": "day-wood-smallwalls-35"
+          },
+          {
+            "index": 36,
+            "sprite": "day-wood-smallwalls-36"
+          },
+          {
+            "index": 37,
+            "sprite": "day-wood-smallwalls-37"
+          },
+          {
+            "index": 38,
+            "sprite": "day-wood-smallwalls-38"
+          },
+          {
+            "index": 39,
+            "sprite": "day-wood-smallwalls-39"
+          }
+        ],
+        "broken": [
+          {
+            "index": 0,
+            "sprite": "day-wood-smallwalls-broken0"
+          },
+          {
+            "index": 1,
+            "sprite": "day-wood-smallwalls-broken1"
+          },
+          {
+            "index": 2,
+            "sprite": "day-wood-smallwalls-broken2"
+          }
+        ],
+        "offset": [
+          {
+            "rotation": 0,
+            "cy": 30,
+            "y": 65
+          },
+          {
+            "rotation": 1,
+            "cx": -30
+          },
+          {
+            "rotation": 2,
+            "cy": -30
+          },
+          {
+            "rotation": 3,
+            "cx": 30,
+            "x": 65
+          }
+        ],
+        "swing": [
+          {
+            "rotation": 0,
+            "i": 1,
+            "j": 0,
+            "x": 0,
+            "y": 0,
+            "w": 35,
+            "h": 100
+          },
+          {
+            "rotation": 1,
+            "i": 0,
+            "j": -1,
+            "x": 0,
+            "y": 0,
+            "w": 100,
+            "h": 35
+          },
+          {
+            "rotation": 2,
+            "i": -1,
+            "j": 0,
+            "x": 65,
+            "y": 0,
+            "w": 35,
+            "h": 100
+          },
+          {
+            "rotation": 3,
+            "i": 0,
+            "j": 1,
+            "x": 0,
+            "y": 65,
+            "w": 100,
+            "h": 35
+          }
+        ]
+      },
+      "align": "bottom"
+    },
+    "stone_low_wall": {
+      "key": "stone_low_wall",
+      "category": "wall",
+      "healthMax": 7000,
+      "layer": "mid",
+      "transform": {
+        "width": 100,
+        "height": 35,
+        "collision": true,
+        "blocksProjectiles": false
+      },
+      "place": {
+        "delayMs": 250
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "stone",
+              "amount": 10
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "lowWall",
+        "blueprint": "day-clear-blue-stone-smallwalls",
+        "redprint": "day-redprint-stone-smallwalls",
+        "particles": "stone",
+        "particlesDistance": 80,
+        "impactSound": "stone_impact",
+        "destroySound": "stone_destroy",
+        "angle": 1.5707963267948966,
+        "z": 0,
+        "zGroup": 0,
+        "pivotX": 6,
+        "pivotY": 46,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-stone-smallwalls-0"
+          },
+          {
+            "index": 1,
+            "sprite": "day-stone-smallwalls-1"
+          },
+          {
+            "index": 2,
+            "sprite": "day-stone-smallwalls-2"
+          },
+          {
+            "index": 3,
+            "sprite": "day-stone-smallwalls-3"
+          },
+          {
+            "index": 4,
+            "sprite": "day-stone-smallwalls-4"
+          },
+          {
+            "index": 5,
+            "sprite": "day-stone-smallwalls-5"
+          },
+          {
+            "index": 6,
+            "sprite": "day-stone-smallwalls-6"
+          },
+          {
+            "index": 7,
+            "sprite": "day-stone-smallwalls-7"
+          },
+          {
+            "index": 8,
+            "sprite": "day-stone-smallwalls-8"
+          },
+          {
+            "index": 9,
+            "sprite": "day-stone-smallwalls-9"
+          },
+          {
+            "index": 10,
+            "sprite": "day-stone-smallwalls-10"
+          },
+          {
+            "index": 11,
+            "sprite": "day-stone-smallwalls-11"
+          },
+          {
+            "index": 12,
+            "sprite": "day-stone-smallwalls-12"
+          },
+          {
+            "index": 13,
+            "sprite": "day-stone-smallwalls-13"
+          },
+          {
+            "index": 14,
+            "sprite": "day-stone-smallwalls-14"
+          },
+          {
+            "index": 15,
+            "sprite": "day-stone-smallwalls-15"
+          },
+          {
+            "index": 16,
+            "sprite": "day-stone-smallwalls-16"
+          },
+          {
+            "index": 17,
+            "sprite": "day-stone-smallwalls-17"
+          },
+          {
+            "index": 18,
+            "sprite": "day-stone-smallwalls-18"
+          },
+          {
+            "index": 19,
+            "sprite": "day-stone-smallwalls-19"
+          },
+          {
+            "index": 20,
+            "sprite": "day-stone-smallwalls-20"
+          },
+          {
+            "index": 21,
+            "sprite": "day-stone-smallwalls-21"
+          },
+          {
+            "index": 22,
+            "sprite": "day-stone-smallwalls-22"
+          },
+          {
+            "index": 23,
+            "sprite": "day-stone-smallwalls-23"
+          },
+          {
+            "index": 24,
+            "sprite": "day-stone-smallwalls-24"
+          },
+          {
+            "index": 25,
+            "sprite": "day-stone-smallwalls-25"
+          },
+          {
+            "index": 26,
+            "sprite": "day-stone-smallwalls-26"
+          },
+          {
+            "index": 27,
+            "sprite": "day-stone-smallwalls-27"
+          },
+          {
+            "index": 28,
+            "sprite": "day-stone-smallwalls-28"
+          },
+          {
+            "index": 29,
+            "sprite": "day-stone-smallwalls-29"
+          },
+          {
+            "index": 30,
+            "sprite": "day-stone-smallwalls-30"
+          },
+          {
+            "index": 31,
+            "sprite": "day-stone-smallwalls-31"
+          },
+          {
+            "index": 32,
+            "sprite": "day-stone-smallwalls-32"
+          },
+          {
+            "index": 33,
+            "sprite": "day-stone-smallwalls-33"
+          },
+          {
+            "index": 34,
+            "sprite": "day-stone-smallwalls-34"
+          },
+          {
+            "index": 35,
+            "sprite": "day-stone-smallwalls-35"
+          },
+          {
+            "index": 36,
+            "sprite": "day-stone-smallwalls-36"
+          },
+          {
+            "index": 37,
+            "sprite": "day-stone-smallwalls-37"
+          },
+          {
+            "index": 38,
+            "sprite": "day-stone-smallwalls-38"
+          },
+          {
+            "index": 39,
+            "sprite": "day-stone-smallwalls-39"
+          }
+        ],
+        "broken": [
+          {
+            "index": 0,
+            "sprite": "day-stone-smallwalls-broken0"
+          },
+          {
+            "index": 1,
+            "sprite": "day-stone-smallwalls-broken1"
+          },
+          {
+            "index": 2,
+            "sprite": "day-stone-smallwalls-broken2"
+          }
+        ],
+        "offset": [
+          {
+            "rotation": 0,
+            "cy": 30,
+            "y": 65
+          },
+          {
+            "rotation": 1,
+            "cx": -30
+          },
+          {
+            "rotation": 2,
+            "cy": -30
+          },
+          {
+            "rotation": 3,
+            "cx": 30,
+            "x": 65
+          }
+        ],
+        "swing": [
+          {
+            "rotation": 0,
+            "i": 1,
+            "j": 0,
+            "x": 0,
+            "y": 0,
+            "w": 35,
+            "h": 100
+          },
+          {
+            "rotation": 1,
+            "i": 0,
+            "j": -1,
+            "x": 0,
+            "y": 0,
+            "w": 100,
+            "h": 35
+          },
+          {
+            "rotation": 2,
+            "i": -1,
+            "j": 0,
+            "x": 65,
+            "y": 0,
+            "w": 35,
+            "h": 100
+          },
+          {
+            "rotation": 3,
+            "i": 0,
+            "j": 1,
+            "x": 0,
+            "y": 65,
+            "w": 100,
+            "h": 35
+          }
+        ]
+      },
+      "align": "bottom"
+    },
+    "steel_low_wall": {
+      "key": "steel_low_wall",
+      "category": "wall",
+      "healthMax": 15000,
+      "layer": "mid",
+      "transform": {
+        "width": 100,
+        "height": 35,
+        "collision": true,
+        "blocksProjectiles": false
+      },
+      "place": {
+        "delayMs": 250
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "stone",
+              "amount": 10
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "lowWall",
+        "blueprint": "day-clear-blue-stone-smallwalls",
+        "redprint": "day-redprint-stone-smallwalls",
+        "particles": "steel",
+        "particlesDistance": 55,
+        "impactSound": "steel_impact",
+        "destroySound": "steel_destroy",
+        "angle": 1.5707963267948966,
+        "z": 0,
+        "zGroup": 0,
+        "pivotX": 6,
+        "pivotY": 46,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-steel-smallwalls-0"
+          },
+          {
+            "index": 1,
+            "sprite": "day-steel-smallwalls-1"
+          },
+          {
+            "index": 2,
+            "sprite": "day-steel-smallwalls-2"
+          },
+          {
+            "index": 3,
+            "sprite": "day-steel-smallwalls-3"
+          },
+          {
+            "index": 4,
+            "sprite": "day-steel-smallwalls-4"
+          },
+          {
+            "index": 5,
+            "sprite": "day-steel-smallwalls-5"
+          },
+          {
+            "index": 6,
+            "sprite": "day-steel-smallwalls-6"
+          },
+          {
+            "index": 7,
+            "sprite": "day-steel-smallwalls-7"
+          },
+          {
+            "index": 8,
+            "sprite": "day-steel-smallwalls-8"
+          },
+          {
+            "index": 9,
+            "sprite": "day-steel-smallwalls-9"
+          },
+          {
+            "index": 10,
+            "sprite": "day-steel-smallwalls-10"
+          },
+          {
+            "index": 11,
+            "sprite": "day-steel-smallwalls-11"
+          },
+          {
+            "index": 12,
+            "sprite": "day-steel-smallwalls-12"
+          },
+          {
+            "index": 13,
+            "sprite": "day-steel-smallwalls-13"
+          },
+          {
+            "index": 14,
+            "sprite": "day-steel-smallwalls-14"
+          },
+          {
+            "index": 15,
+            "sprite": "day-steel-smallwalls-15"
+          },
+          {
+            "index": 16,
+            "sprite": "day-steel-smallwalls-16"
+          },
+          {
+            "index": 17,
+            "sprite": "day-steel-smallwalls-17"
+          },
+          {
+            "index": 18,
+            "sprite": "day-steel-smallwalls-18"
+          },
+          {
+            "index": 19,
+            "sprite": "day-steel-smallwalls-19"
+          },
+          {
+            "index": 20,
+            "sprite": "day-steel-smallwalls-20"
+          },
+          {
+            "index": 21,
+            "sprite": "day-steel-smallwalls-21"
+          },
+          {
+            "index": 22,
+            "sprite": "day-steel-smallwalls-22"
+          },
+          {
+            "index": 23,
+            "sprite": "day-steel-smallwalls-23"
+          },
+          {
+            "index": 24,
+            "sprite": "day-steel-smallwalls-24"
+          },
+          {
+            "index": 25,
+            "sprite": "day-steel-smallwalls-25"
+          },
+          {
+            "index": 26,
+            "sprite": "day-steel-smallwalls-26"
+          },
+          {
+            "index": 27,
+            "sprite": "day-steel-smallwalls-27"
+          },
+          {
+            "index": 28,
+            "sprite": "day-steel-smallwalls-28"
+          },
+          {
+            "index": 29,
+            "sprite": "day-steel-smallwalls-29"
+          },
+          {
+            "index": 30,
+            "sprite": "day-steel-smallwalls-30"
+          },
+          {
+            "index": 31,
+            "sprite": "day-steel-smallwalls-31"
+          },
+          {
+            "index": 32,
+            "sprite": "day-steel-smallwalls-32"
+          },
+          {
+            "index": 33,
+            "sprite": "day-steel-smallwalls-33"
+          },
+          {
+            "index": 34,
+            "sprite": "day-steel-smallwalls-34"
+          },
+          {
+            "index": 35,
+            "sprite": "day-steel-smallwalls-35"
+          },
+          {
+            "index": 36,
+            "sprite": "day-steel-smallwalls-36"
+          },
+          {
+            "index": 37,
+            "sprite": "day-steel-smallwalls-37"
+          },
+          {
+            "index": 38,
+            "sprite": "day-steel-smallwalls-38"
+          },
+          {
+            "index": 39,
+            "sprite": "day-steel-smallwalls-39"
+          }
+        ],
+        "broken": [
+          {
+            "index": 0,
+            "sprite": "day-steel-smallwalls-broken0"
+          },
+          {
+            "index": 1,
+            "sprite": "day-steel-smallwalls-broken1"
+          },
+          {
+            "index": 2,
+            "sprite": "day-steel-smallwalls-broken2"
+          }
+        ],
+        "offset": [
+          {
+            "rotation": 0,
+            "cy": 30,
+            "y": 65
+          },
+          {
+            "rotation": 1,
+            "cx": -30
+          },
+          {
+            "rotation": 2,
+            "cy": -30
+          },
+          {
+            "rotation": 3,
+            "cx": 30,
+            "x": 65
+          }
+        ],
+        "swing": [
+          {
+            "rotation": 0,
+            "i": 1,
+            "j": 0,
+            "x": 0,
+            "y": 0,
+            "w": 35,
+            "h": 100
+          },
+          {
+            "rotation": 1,
+            "i": 0,
+            "j": -1,
+            "x": 0,
+            "y": 0,
+            "w": 100,
+            "h": 35
+          },
+          {
+            "rotation": 2,
+            "i": -1,
+            "j": 0,
+            "x": 65,
+            "y": 0,
+            "w": 35,
+            "h": 100
+          },
+          {
+            "rotation": 3,
+            "i": 0,
+            "j": 1,
+            "x": 0,
+            "y": 65,
+            "w": 100,
+            "h": 35
+          }
+        ]
+      },
+      "align": "bottom"
+    },
+    "tree_seed": {
+      "key": "tree_seed",
+      "category": "plant",
+      "healthMax": 150,
+      "layer": "low",
+      "transform": {
+        "width": 30,
+        "height": 30,
+        "collision": true,
+        "blocksProjectiles": false
+      },
+      "place": {
+        "delayMs": 300
+      },
+      "stages": {
+        "stage": [
+          {
+            "id": 0,
+            "name": "seed",
+            "durationMs": 120000,
+            "next": 1
+          },
+          {
+            "id": 1,
+            "name": "sprout",
+            "durationMs": 120000,
+            "next": 2
+          },
+          {
+            "id": 2,
+            "name": "young",
+            "durationMs": 120000,
+            "next": 3
+          },
+          {
+            "id": 3,
+            "name": "grown",
+            "durationMs": 120000,
+            "next": 4
+          },
+          {
+            "id": 4,
+            "name": "full"
+          }
+        ]
+      },
+      "client": {
+        "render": "treeSeed",
+        "blueprint": "clear-blue-plant-tree",
+        "redprint": "redprint-plant-tree",
+        "particles": "wood",
+        "particlesDistance": 68,
+        "impactSound": "wood_impact",
+        "destroySound": "wood_destroy",
+        "z": 0,
+        "zGroup": -1,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-plant-tree0"
+          },
+          {
+            "index": 1,
+            "sprite": "day-plant-tree1"
+          },
+          {
+            "index": 2,
+            "sprite": "day-plant-tree2"
+          },
+          {
+            "index": 3,
+            "sprite": "day-plant-tree3"
+          },
+          {
+            "index": 4,
+            "sprite": "day-plant4-orange"
+          }
+        ],
+        "offset": [
+          {
+            "rotation": 0,
+            "x": 35,
+            "y": 35
+          },
+          {
+            "rotation": 1,
+            "x": 35,
+            "y": 35
+          },
+          {
+            "rotation": 2,
+            "x": 35,
+            "y": 35
+          },
+          {
+            "rotation": 3,
+            "x": 35,
+            "y": 35
+          }
+        ]
+      },
+      "lifetime": {
+        "durationMs": 2400000
+      }
+    },
+    "wood_spike": {
+      "key": "wood_spike",
+      "category": "trap",
+      "healthMax": 200,
+      "layer": "low",
+      "transform": {
+        "width": 50,
+        "height": 50,
+        "collision": false,
+        "blocksProjectiles": false
+      },
+      "place": {
+        "delayMs": 250
+      },
+      "client": {
+        "render": "spike",
+        "blueprint": "clear-blue-wood-spike",
+        "redprint": "redprint-wood-spike",
+        "particles": "wood",
+        "particlesDistance": 80,
+        "z": 0,
+        "zGroup": -1,
+        "offset": [
+          {
+            "rotation": 0,
+            "x": 25,
+            "y": 25
+          },
+          {
+            "rotation": 1,
+            "x": 25,
+            "y": 25
+          },
+          {
+            "rotation": 2,
+            "x": 25,
+            "y": 25
+          },
+          {
+            "rotation": 3,
+            "x": 25,
+            "y": 25
+          }
+        ],
+        "hidden": [
+          {
+            "index": 0,
+            "sprite": "day-wood-spike-cover1"
+          },
+          {
+            "index": 1,
+            "sprite": "day-wood-spike-cover2"
+          },
+          {
+            "index": 2,
+            "sprite": "day-wood-spike-cover3"
+          }
+        ],
+        "deployed": [
+          {
+            "index": 0,
+            "sprite": "day-wood-spike-1"
+          },
+          {
+            "index": 1,
+            "sprite": "day-wood-spike-2"
+          },
+          {
+            "index": 2,
+            "sprite": "day-wood-spike-3"
+          }
+        ]
+      },
+      "lifetime": {
+        "durationMs": 120000,
+        "startOnTrigger": true
+      },
+      "onStepIn": {
+        "damage": 1,
+        "intervalMs": 100,
+        "changeSpeed": -200
+      }
+    },
+    "landmine": {
+      "key": "landmine",
+      "category": "explosives",
+      "healthMax": 100,
+      "layer": "low",
+      "transform": {
+        "width": 50,
+        "height": 50,
+        "collision": false,
+        "blocksProjectiles": false
+      },
+      "place": {
+        "delayMs": 250
+      },
+      "conceal": {
+        "tiles": 3
+      },
+      "onDestroy": {
+        "explosion": {
+          "area": 1,
+          "playerDamage": 200,
+          "buildingDamage": 400,
+          "knockback": 20,
+          "onHit": {
+            "condition": "slowed",
+            "chance": 1,
+            "durationMs": 1000,
+            "strength": 1
+          }
+        }
+      },
+      "client": {
+        "render": "landmine",
+        "blueprint": "clear-blue-landmine",
+        "redprint": "redprint-landmine",
+        "particles": "kaki",
+        "particlesDistance": 80,
+        "impactSound": "steel_impact",
+        "destroySound": "steel_destroy",
+        "z": 0,
+        "zGroup": -1,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-landmine-0"
+          },
+          {
+            "index": 1,
+            "sprite": "day-landmine-1"
+          },
+          {
+            "index": 2,
+            "sprite": "day-landmine-2"
+          }
+        ],
+        "offset": [
+          {
+            "rotation": 0,
+            "x": 25,
+            "y": 25
+          },
+          {
+            "rotation": 1,
+            "x": 25,
+            "y": 25
+          },
+          {
+            "rotation": 2,
+            "x": 25,
+            "y": 25
+          },
+          {
+            "rotation": 3,
+            "x": 25,
+            "y": 25
+          }
+        ]
+      },
+      "onStepOut": {
+        "detonate": true
+      }
+    },
+    "dynamite": {
+      "key": "dynamite",
+      "category": "explosives",
+      "healthMax": 100,
+      "layer": "low",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": false,
+        "blocksProjectiles": false
+      },
+      "place": {
+        "delayMs": 250
+      },
+      "onDestroy": {
+        "explosion": {
+          "area": 1,
+          "playerDamage": 180,
+          "buildingDamage": 1400,
+          "knockback": 20,
+          "onHit": {
+            "condition": "slowed",
+            "chance": 1,
+            "durationMs": 1000,
+            "strength": 1
+          }
+        }
+      },
+      "client": {
+        "render": "dynamite",
+        "blueprint": "clear-blue-dynamite",
+        "redprint": "redprint-dynamite",
+        "particles": "red_steel",
+        "particlesDistance": 80,
+        "impactSound": "pillow_impact",
+        "z": 0,
+        "zGroup": -1,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-dynamite"
+          },
+          {
+            "index": 1,
+            "sprite": "dynamite-yellow"
+          }
+        ]
+      },
+      "lifetime": {
+        "durationMs": 5000
+      }
+    },
+    "c4": {
+      "key": "c4",
+      "category": "explosives",
+      "healthMax": 50,
+      "layer": "low",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": false,
+        "blocksProjectiles": false
+      },
+      "place": {
+        "delayMs": 250
+      },
+      "onDestroy": {
+        "explosion": {
+          "area": 1,
+          "playerDamage": 255,
+          "buildingDamage": 6000,
+          "knockback": 20,
+          "onHit": {
+            "condition": "slowed",
+            "chance": 1,
+            "durationMs": 2000,
+            "strength": 1.5
+          }
+        }
+      },
+      "client": {
+        "render": "dynamite",
+        "blueprint": "clear-blue-C4",
+        "redprint": "redprint-C4",
+        "particles": "kaki",
+        "particlesDistance": 80,
+        "impactSound": "pillow_impact",
+        "z": 0,
+        "zGroup": -1,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-C4"
+          },
+          {
+            "index": 1,
+            "sprite": "C4-red"
+          }
+        ]
+      },
+      "remote": {
+        "channel": "c4",
+        "action": "detonate"
+      }
+    },
+    "cable0": {
+      "key": "cable0",
+      "category": "logic",
+      "healthMax": 250,
+      "layer": "low",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": false,
+        "blocksProjectiles": false
+      },
+      "place": {
+        "delayMs": 250
+      },
+      "conceal": {
+        "tiles": 3
+      },
+      "client": {
+        "render": "hiddenBuilding",
+        "blueprint": "clear-blue-wire0",
+        "redprint": "redprint-wire0",
+        "particles": "barelred",
+        "particlesDistance": 40,
+        "impactSound": "pillow_impact",
+        "destroySound": "pillow_destroy",
+        "z": 0,
+        "zGroup": -1,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-wire0"
+          }
+        ],
+        "wire": [
+          {
+            "rotation": 0,
+            "a": 1,
+            "b": 1,
+            "c": 0,
+            "d": 0
+          },
+          {
+            "rotation": 1,
+            "a": 0,
+            "b": 0,
+            "c": 1,
+            "d": 1
+          },
+          {
+            "rotation": 2,
+            "a": 1,
+            "b": 1,
+            "c": 0,
+            "d": 0
+          },
+          {
+            "rotation": 3,
+            "a": 0,
+            "b": 0,
+            "c": 1,
+            "d": 1
+          }
+        ]
+      },
+      "logic": {
+        "type": "cable",
+        "connections_rot0": "TB",
+        "connections_rot1": "LR",
+        "connections_rot2": "TB",
+        "connections_rot3": "LR"
+      }
+    },
+    "cable1": {
+      "key": "cable1",
+      "category": "logic",
+      "healthMax": 250,
+      "layer": "low",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": false,
+        "blocksProjectiles": false
+      },
+      "place": {
+        "delayMs": 250
+      },
+      "conceal": {
+        "tiles": 3
+      },
+      "client": {
+        "render": "hiddenBuilding",
+        "blueprint": "clear-blue-wire1",
+        "redprint": "redprint-wire1",
+        "particles": "barelred",
+        "particlesDistance": 40,
+        "impactSound": "pillow_impact",
+        "destroySound": "pillow_destroy",
+        "z": 0,
+        "zGroup": -1,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-wire1"
+          }
+        ],
+        "wire": [
+          {
+            "rotation": 0,
+            "a": 1,
+            "b": 1,
+            "c": 1,
+            "d": 1
+          },
+          {
+            "rotation": 1,
+            "a": 1,
+            "b": 1,
+            "c": 1,
+            "d": 1
+          },
+          {
+            "rotation": 2,
+            "a": 1,
+            "b": 1,
+            "c": 1,
+            "d": 1
+          },
+          {
+            "rotation": 3,
+            "a": 1,
+            "b": 1,
+            "c": 1,
+            "d": 1
+          }
+        ]
+      },
+      "logic": {
+        "type": "cable",
+        "connections_rot0": "TRBL",
+        "connections_rot1": "TRBL",
+        "connections_rot2": "TRBL",
+        "connections_rot3": "TRBL"
+      }
+    },
+    "cable2": {
+      "key": "cable2",
+      "category": "logic",
+      "healthMax": 250,
+      "layer": "low",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": false,
+        "blocksProjectiles": false
+      },
+      "place": {
+        "delayMs": 250
+      },
+      "conceal": {
+        "tiles": 3
+      },
+      "client": {
+        "render": "hiddenBuilding",
+        "blueprint": "clear-blue-wire2",
+        "redprint": "redprint-wire2",
+        "particles": "barelred",
+        "particlesDistance": 40,
+        "impactSound": "pillow_impact",
+        "destroySound": "pillow_destroy",
+        "z": 0,
+        "zGroup": -1,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-wire2"
+          }
+        ],
+        "wire": [
+          {
+            "rotation": 0,
+            "a": 0,
+            "b": 1,
+            "c": 0,
+            "d": 1
+          },
+          {
+            "rotation": 1,
+            "a": 0,
+            "b": 1,
+            "c": 1,
+            "d": 0
+          },
+          {
+            "rotation": 2,
+            "a": 1,
+            "b": 0,
+            "c": 1,
+            "d": 0
+          },
+          {
+            "rotation": 3,
+            "a": 1,
+            "b": 0,
+            "c": 0,
+            "d": 1
+          }
+        ]
+      },
+      "logic": {
+        "type": "cable",
+        "connections_rot0": "RB",
+        "connections_rot1": "BL",
+        "connections_rot2": "LT",
+        "connections_rot3": "TR"
+      }
+    },
+    "cable3": {
+      "key": "cable3",
+      "category": "logic",
+      "healthMax": 250,
+      "layer": "low",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": false,
+        "blocksProjectiles": false
+      },
+      "place": {
+        "delayMs": 250
+      },
+      "conceal": {
+        "tiles": 3
+      },
+      "client": {
+        "render": "hiddenBuilding",
+        "blueprint": "clear-blue-wire3",
+        "redprint": "redprint-wire3",
+        "particles": "barelred",
+        "particlesDistance": 40,
+        "impactSound": "pillow_impact",
+        "destroySound": "pillow_destroy",
+        "z": 0,
+        "zGroup": -1,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-wire3"
+          }
+        ],
+        "wire": [
+          {
+            "rotation": 0,
+            "a": 0,
+            "b": 1,
+            "c": 1,
+            "d": 1
+          },
+          {
+            "rotation": 1,
+            "a": 1,
+            "b": 1,
+            "c": 1,
+            "d": 0
+          },
+          {
+            "rotation": 2,
+            "a": 1,
+            "b": 0,
+            "c": 1,
+            "d": 1
+          },
+          {
+            "rotation": 3,
+            "a": 1,
+            "b": 1,
+            "c": 0,
+            "d": 1
+          }
+        ]
+      },
+      "logic": {
+        "type": "cable",
+        "connections_rot0": "RBL",
+        "connections_rot1": "TBL",
+        "connections_rot2": "TRL",
+        "connections_rot3": "TRB"
+      }
+    },
+    "cable4": {
+      "key": "cable4",
+      "category": "logic",
+      "healthMax": 250,
+      "layer": "low",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": false,
+        "blocksProjectiles": false
+      },
+      "place": {
+        "delayMs": 250
+      },
+      "conceal": {
+        "tiles": 3
+      },
+      "client": {
+        "render": "hiddenBuilding",
+        "blueprint": "clear-blue-wire4",
+        "redprint": "redprint-wire4",
+        "particles": "barelred",
+        "particlesDistance": 40,
+        "impactSound": "pillow_impact",
+        "destroySound": "pillow_destroy",
+        "z": 0,
+        "zGroup": -1,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-wire4"
+          }
+        ],
+        "wire": [
+          {
+            "rotation": 0,
+            "a": 1,
+            "b": 1,
+            "c": 1,
+            "d": 1
+          },
+          {
+            "rotation": 1,
+            "a": 1,
+            "b": 1,
+            "c": 1,
+            "d": 1
+          },
+          {
+            "rotation": 2,
+            "a": 1,
+            "b": 1,
+            "c": 1,
+            "d": 1
+          },
+          {
+            "rotation": 3,
+            "a": 1,
+            "b": 1,
+            "c": 1,
+            "d": 1
+          }
+        ]
+      },
+      "logic": {
+        "type": "bridge",
+        "connections_rot0": "TRBL",
+        "connections_rot1": "TRBL",
+        "connections_rot2": "TRBL",
+        "connections_rot3": "TRBL"
+      }
+    },
+    "switch": {
+      "key": "switch",
+      "category": "logic",
+      "healthMax": 250,
+      "layer": "low",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": false,
+        "blocksProjectiles": false
+      },
+      "place": {
+        "delayMs": 250
+      },
+      "interaction": {
+        "type": "switch",
+        "interactionDelayMs": 1000
+      },
+      "client": {
+        "render": "switchOff",
+        "blueprint": "clear-blue-switch",
+        "redprint": "redprint-switch",
+        "interact": "e-turnon",
+        "particles": "metal",
+        "particlesDistance": 80,
+        "impactSound": "steel_impact",
+        "destroySound": "steel_destroy",
+        "z": 0,
+        "zGroup": -1,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-switch-off"
+          },
+          {
+            "index": 1,
+            "sprite": "day-switch-on"
+          }
+        ],
+        "wire": [
+          {
+            "rotation": 0,
+            "a": 1,
+            "b": 1,
+            "c": 1,
+            "d": 1
+          },
+          {
+            "rotation": 1,
+            "a": 1,
+            "b": 1,
+            "c": 1,
+            "d": 1
+          },
+          {
+            "rotation": 2,
+            "a": 1,
+            "b": 1,
+            "c": 1,
+            "d": 1
+          },
+          {
+            "rotation": 3,
+            "a": 1,
+            "b": 1,
+            "c": 1,
+            "d": 1
+          }
+        ]
+      },
+      "logic": {
+        "type": "switch",
+        "connections_rot0": "TRBL",
+        "connections_rot1": "TRBL",
+        "connections_rot2": "TRBL",
+        "connections_rot3": "TRBL"
+      }
+    },
+    "gate_or": {
+      "key": "gate_or",
+      "category": "logic",
+      "healthMax": 250,
+      "layer": "low",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": false,
+        "blocksProjectiles": false
+      },
+      "place": {
+        "delayMs": 250
+      },
+      "conceal": {
+        "tiles": 3
+      },
+      "client": {
+        "render": "hiddenBuilding",
+        "blueprint": "clear-blue-switch-or",
+        "redprint": "redprint-switch-or",
+        "particles": "metal",
+        "particlesDistance": 80,
+        "impactSound": "steel_impact",
+        "destroySound": "steel_destroy",
+        "z": 0,
+        "zGroup": -1,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-switch-or"
+          }
+        ],
+        "wire": [
+          {
+            "rotation": 0,
+            "a": 1,
+            "b": 0,
+            "c": 0,
+            "d": 0
+          },
+          {
+            "rotation": 1,
+            "a": 0,
+            "b": 0,
+            "c": 0,
+            "d": 1
+          },
+          {
+            "rotation": 2,
+            "a": 0,
+            "b": 1,
+            "c": 0,
+            "d": 0
+          },
+          {
+            "rotation": 3,
+            "a": 0,
+            "b": 0,
+            "c": 1,
+            "d": 0
+          }
+        ]
+      },
+      "logic": {
+        "type": "gate_or",
+        "connections_rot0": "TRBL",
+        "input_rot0": "BLR",
+        "connections_rot1": "TRBL",
+        "input_rot1": "TBL",
+        "connections_rot2": "TRBL",
+        "input_rot2": "TLR",
+        "connections_rot3": "TRBL",
+        "input_rot3": "TBR"
+      }
+    },
+    "gate_and": {
+      "key": "gate_and",
+      "category": "logic",
+      "healthMax": 250,
+      "layer": "low",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": false,
+        "blocksProjectiles": false
+      },
+      "place": {
+        "delayMs": 250
+      },
+      "conceal": {
+        "tiles": 3
+      },
+      "client": {
+        "render": "hiddenBuilding",
+        "blueprint": "clear-blue-switch-and",
+        "redprint": "redprint-switch-and",
+        "particles": "metal",
+        "particlesDistance": 80,
+        "impactSound": "steel_impact",
+        "destroySound": "steel_destroy",
+        "z": 0,
+        "zGroup": -1,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-switch-and"
+          }
+        ],
+        "wire": [
+          {
+            "rotation": 0,
+            "a": 1,
+            "b": 0,
+            "c": 0,
+            "d": 0
+          },
+          {
+            "rotation": 1,
+            "a": 0,
+            "b": 0,
+            "c": 0,
+            "d": 1
+          },
+          {
+            "rotation": 2,
+            "a": 0,
+            "b": 1,
+            "c": 0,
+            "d": 0
+          },
+          {
+            "rotation": 3,
+            "a": 0,
+            "b": 0,
+            "c": 1,
+            "d": 0
+          }
+        ]
+      },
+      "logic": {
+        "type": "gate_and",
+        "connections_rot0": "TRBL",
+        "input_rot0": "BLR",
+        "connections_rot1": "TRBL",
+        "input_rot1": "TBL",
+        "connections_rot2": "TRBL",
+        "input_rot2": "TLR",
+        "connections_rot3": "TRBL",
+        "input_rot3": "TBR"
+      }
+    },
+    "gate_not": {
+      "key": "gate_not",
+      "category": "logic",
+      "healthMax": 250,
+      "layer": "low",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": false,
+        "blocksProjectiles": false
+      },
+      "place": {
+        "delayMs": 250
+      },
+      "conceal": {
+        "tiles": 3
+      },
+      "client": {
+        "render": "hiddenBuilding",
+        "blueprint": "clear-blue-switch-reverse",
+        "redprint": "redprint-switch-reverse",
+        "particles": "metal",
+        "particlesDistance": 80,
+        "impactSound": "steel_impact",
+        "destroySound": "steel_destroy",
+        "z": 0,
+        "zGroup": -1,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-switch-reverse"
+          }
+        ],
+        "wire": [
+          {
+            "rotation": 0,
+            "a": 1,
+            "b": 0,
+            "c": 1,
+            "d": 1
+          },
+          {
+            "rotation": 1,
+            "a": 1,
+            "b": 1,
+            "c": 0,
+            "d": 1
+          },
+          {
+            "rotation": 2,
+            "a": 0,
+            "b": 1,
+            "c": 1,
+            "d": 1
+          },
+          {
+            "rotation": 3,
+            "a": 1,
+            "b": 1,
+            "c": 1,
+            "d": 0
+          }
+        ]
+      },
+      "logic": {
+        "type": "gate_not",
+        "connections_rot0": "TRBL",
+        "input_rot0": "B",
+        "connections_rot1": "TRBL",
+        "input_rot1": "L",
+        "connections_rot2": "TRBL",
+        "input_rot2": "T",
+        "connections_rot3": "TRBL",
+        "input_rot3": "R"
+      }
+    },
+    "gate_timer": {
+      "key": "gate_timer",
+      "category": "logic",
+      "healthMax": 250,
+      "layer": "low",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": false,
+        "blocksProjectiles": false
+      },
+      "place": {
+        "delayMs": 250
+      },
+      "conceal": {
+        "tiles": 3
+      },
+      "interaction": {
+        "type": "switch",
+        "interactionDelayMs": 1000
+      },
+      "client": {
+        "render": "timerGate",
+        "blueprint": "clear-blue-timer",
+        "redprint": "redprint-timer",
+        "interact": "e-light",
+        "particles": "metal",
+        "particlesDistance": 80,
+        "impactSound": "steel_impact",
+        "destroySound": "steel_destroy",
+        "z": 0,
+        "zGroup": -1,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-timer-0"
+          },
+          {
+            "index": 1,
+            "sprite": "day-timer-1"
+          },
+          {
+            "index": 2,
+            "sprite": "day-timer-2"
+          },
+          {
+            "index": 3,
+            "sprite": "day-timer-3"
+          }
+        ],
+        "wire": [
+          {
+            "rotation": 0,
+            "a": 1,
+            "b": 1,
+            "c": 1,
+            "d": 1
+          },
+          {
+            "rotation": 1,
+            "a": 1,
+            "b": 1,
+            "c": 1,
+            "d": 1
+          },
+          {
+            "rotation": 2,
+            "a": 1,
+            "b": 1,
+            "c": 1,
+            "d": 1
+          },
+          {
+            "rotation": 3,
+            "a": 1,
+            "b": 1,
+            "c": 1,
+            "d": 1
+          }
+        ]
+      },
+      "logic": {
+        "type": "timer",
+        "connections_rot0": "TRBL",
+        "connections_rot1": "TRBL",
+        "connections_rot2": "TRBL",
+        "connections_rot3": "TRBL",
+        "ratesMs": "500,1000,2000,4000",
+        "pulseType": "pulse",
+        "pulseDurationMs": 100
+      }
+    },
+    "gate_xor": {
+      "key": "gate_xor",
+      "category": "logic",
+      "healthMax": 250,
+      "layer": "low",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": false,
+        "blocksProjectiles": false
+      },
+      "place": {
+        "delayMs": 250
+      },
+      "conceal": {
+        "tiles": 3
+      },
+      "client": {
+        "render": "hiddenBuilding",
+        "blueprint": "clear-blue-xor",
+        "redprint": "redprint-xor",
+        "particles": "metal",
+        "particlesDistance": 80,
+        "impactSound": "steel_impact",
+        "destroySound": "steel_destroy",
+        "z": 0,
+        "zGroup": -1,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-xor"
+          }
+        ],
+        "wire": [
+          {
+            "rotation": 0,
+            "a": 1,
+            "b": 0,
+            "c": 0,
+            "d": 0
+          },
+          {
+            "rotation": 1,
+            "a": 0,
+            "b": 0,
+            "c": 0,
+            "d": 1
+          },
+          {
+            "rotation": 2,
+            "a": 0,
+            "b": 1,
+            "c": 0,
+            "d": 0
+          },
+          {
+            "rotation": 3,
+            "a": 0,
+            "b": 0,
+            "c": 1,
+            "d": 0
+          }
+        ]
+      },
+      "logic": {
+        "type": "gate_xor",
+        "connections_rot0": "TRBL",
+        "input_rot0": "BLR",
+        "connections_rot1": "TRBL",
+        "input_rot1": "TBL",
+        "connections_rot2": "TRBL",
+        "input_rot2": "TLR",
+        "connections_rot3": "TRBL",
+        "input_rot3": "TBR"
+      }
+    },
+    "lamp": {
+      "key": "lamp",
+      "category": "logic",
+      "healthMax": 600,
+      "layer": "low",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": true,
+        "blocksProjectiles": false
+      },
+      "place": {
+        "delayMs": 250
+      },
+      "interaction": {
+        "type": "switch",
+        "interactionDelayMs": 1000
+      },
+      "client": {
+        "render": "lamp",
+        "renderTop": "lampLight",
+        "blueprint": "clear-blue-lamp",
+        "redprint": "redprint-lamp",
+        "interact": "e-light",
+        "particles": "metal",
+        "particlesDistance": 80,
+        "impactSound": "steel_impact",
+        "destroySound": "steel_destroy",
+        "z": 0,
+        "zGroup": -1,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-lamp-off"
+          }
+        ],
+        "on": [
+          {
+            "index": 0,
+            "sprite": "day-lamp-white"
+          },
+          {
+            "index": 1,
+            "sprite": "day-lamp-yellow"
+          },
+          {
+            "index": 2,
+            "sprite": "day-lamp-green"
+          },
+          {
+            "index": 3,
+            "sprite": "day-lamp-clear-blue"
+          },
+          {
+            "index": 4,
+            "sprite": "day-lamp-purple"
+          },
+          {
+            "index": 5,
+            "sprite": "day-lamp-pink"
+          },
+          {
+            "index": 6,
+            "sprite": "day-lamp-orange"
+          }
+        ],
+        "top": [
+          {
+            "index": 0,
+            "sprite": "day-lamp-light-white"
+          },
+          {
+            "index": 1,
+            "sprite": "day-lamp-light-yellow"
+          },
+          {
+            "index": 2,
+            "sprite": "day-lamp-light-green"
+          },
+          {
+            "index": 3,
+            "sprite": "day-lamp-light-clear-blue"
+          },
+          {
+            "index": 4,
+            "sprite": "day-lamp-light-purple"
+          },
+          {
+            "index": 5,
+            "sprite": "day-lamp-light-pink"
+          },
+          {
+            "index": 6,
+            "sprite": "day-lamp-light-orange"
+          }
+        ],
+        "wire": [
+          {
+            "rotation": 0,
+            "a": 1,
+            "b": 1,
+            "c": 1,
+            "d": 1
+          },
+          {
+            "rotation": 1,
+            "a": 1,
+            "b": 1,
+            "c": 1,
+            "d": 1
+          },
+          {
+            "rotation": 2,
+            "a": 1,
+            "b": 1,
+            "c": 1,
+            "d": 1
+          },
+          {
+            "rotation": 3,
+            "a": 1,
+            "b": 1,
+            "c": 1,
+            "d": 1
+          }
+        ]
+      },
+      "logic": {
+        "type": "lamp",
+        "connections_rot0": "TRBL",
+        "connections_rot1": "TRBL",
+        "connections_rot2": "TRBL",
+        "connections_rot3": "TRBL",
+        "colorCount": 7
+      }
+    },
+    "cable_wall": {
+      "key": "cable_wall",
+      "category": "wall",
+      "healthMax": 15000,
+      "layer": "top",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "place": {
+        "delayMs": 300
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "shaped_metal",
+              "amount": 1
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "breakable",
+        "blueprint": "clear-blue-cable-wall",
+        "redprint": "redprint-cable-wall",
+        "particles": "metal",
+        "particlesDistance": 40,
+        "impactSound": "steel_impact",
+        "destroySound": "steel_destroy",
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-cable-wall"
+          },
+          {
+            "index": 1,
+            "sprite": "day-cable-wall1"
+          },
+          {
+            "index": 2,
+            "sprite": "day-cable-wall2"
+          },
+          {
+            "index": 3,
+            "sprite": "day-cable-wall3"
+          }
+        ],
+        "wire": [
+          {
+            "rotation": 0,
+            "a": 1,
+            "b": 1,
+            "c": 0,
+            "d": 0
+          },
+          {
+            "rotation": 1,
+            "a": 0,
+            "b": 0,
+            "c": 1,
+            "d": 1
+          },
+          {
+            "rotation": 2,
+            "a": 1,
+            "b": 1,
+            "c": 0,
+            "d": 0
+          },
+          {
+            "rotation": 3,
+            "a": 0,
+            "b": 0,
+            "c": 1,
+            "d": 1
+          }
+        ]
+      },
+      "logic": {
+        "type": "cable",
+        "connections_rot0": "TB",
+        "connections_rot1": "LR",
+        "connections_rot2": "TB",
+        "connections_rot3": "LR"
+      }
+    },
+    "automatic_door": {
+      "key": "automatic_door",
+      "category": "wall",
+      "healthMax": 15000,
+      "layer": "mid",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "place": {
+        "delayMs": 300
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "shaped_metal",
+              "amount": 1
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "automaticDoor",
+        "blueprint": "clear-blue-automatic-door",
+        "redprint": "redprint-automatic-door",
+        "particles": "metal",
+        "particlesDistance": 80,
+        "impactSound": "steel_impact",
+        "destroySound": "steel_destroy",
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "state": 0,
+            "sprite": "day-automatic-door-off"
+          },
+          {
+            "index": 1,
+            "state": 0,
+            "sprite": "day-automatic-door1-off"
+          },
+          {
+            "index": 2,
+            "state": 0,
+            "sprite": "day-automatic-door2-off"
+          },
+          {
+            "index": 3,
+            "state": 0,
+            "sprite": "day-automatic-door3-off"
+          },
+          {
+            "index": 0,
+            "state": 1,
+            "sprite": "day-automatic-door-on"
+          },
+          {
+            "index": 1,
+            "state": 1,
+            "sprite": "day-automatic-door1-on"
+          },
+          {
+            "index": 2,
+            "state": 1,
+            "sprite": "day-automatic-door2-on"
+          },
+          {
+            "index": 3,
+            "state": 1,
+            "sprite": "day-automatic-door3-on"
+          }
+        ],
+        "wire": [
+          {
+            "rotation": 0,
+            "a": 0,
+            "b": 1,
+            "c": 1,
+            "d": 1
+          },
+          {
+            "rotation": 1,
+            "a": 1,
+            "b": 1,
+            "c": 1,
+            "d": 0
+          },
+          {
+            "rotation": 2,
+            "a": 1,
+            "b": 0,
+            "c": 1,
+            "d": 1
+          },
+          {
+            "rotation": 3,
+            "a": 1,
+            "b": 1,
+            "c": 0,
+            "d": 1
+          }
+        ]
+      },
+      "logic": {
+        "type": "sink",
+        "connections_rot0": "LBR",
+        "connections_rot1": "BLT",
+        "connections_rot2": "LTR",
+        "connections_rot3": "TRB"
+      }
+    },
+    "platform": {
+      "key": "platform",
+      "category": "logic",
+      "healthMax": 250,
+      "layer": "low",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": false,
+        "blocksProjectiles": false
+      },
+      "place": {
+        "delayMs": 250
+      },
+      "client": {
+        "render": "defaultBuilding",
+        "blueprint": "clear-blue-platform-off",
+        "redprint": "redprint-platform-off",
+        "particles": "fridge",
+        "particlesDistance": 80,
+        "impactSound": "steel_impact",
+        "destroySound": "steel_destroy",
+        "z": 0,
+        "zGroup": -1,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-platform-off"
+          }
+        ],
+        "wire": [
+          {
+            "rotation": 0,
+            "a": 1,
+            "b": 1,
+            "c": 1,
+            "d": 1
+          },
+          {
+            "rotation": 1,
+            "a": 1,
+            "b": 1,
+            "c": 1,
+            "d": 1
+          },
+          {
+            "rotation": 2,
+            "a": 1,
+            "b": 1,
+            "c": 1,
+            "d": 1
+          },
+          {
+            "rotation": 3,
+            "a": 1,
+            "b": 1,
+            "c": 1,
+            "d": 1
+          }
+        ]
+      },
+      "logic": {
+        "type": "platform_source",
+        "connections_rot0": "TRBL",
+        "connections_rot1": "TRBL",
+        "connections_rot2": "TRBL",
+        "connections_rot3": "TRBL",
+        "platformDelayInMs": 300,
+        "platformDelayOutMs": 1000
+      }
+    },
+    "stone_cave": {
+      "key": "stone_cave",
+      "category": "wall",
+      "healthMax": 300,
+      "layer": "top",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "place": {
+        "delayMs": 300
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "stone",
+              "amount": 1
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "wall",
+        "blueprint": "clear-blue-stone-cave",
+        "redprint": "redprint-stone-cave",
+        "particles": "stone",
+        "particlesDistance": 80,
+        "impactSound": "stone_impact",
+        "destroySound": "stone_destroy",
+        "z": 1,
+        "zGroup": 1,
+        "autotile": true,
+        "autotileGroup": "stone_cave",
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-stone-cave0"
+          },
+          {
+            "index": 1,
+            "sprite": "day-stone-cave1"
+          },
+          {
+            "index": 2,
+            "sprite": "day-stone-cave2"
+          },
+          {
+            "index": 3,
+            "sprite": "day-stone-cave3"
+          },
+          {
+            "index": 4,
+            "sprite": "day-stone-cave4"
+          },
+          {
+            "index": 5,
+            "sprite": "day-stone-cave5"
+          },
+          {
+            "index": 6,
+            "sprite": "day-stone-cave6"
+          },
+          {
+            "index": 7,
+            "sprite": "day-stone-cave7"
+          },
+          {
+            "index": 8,
+            "sprite": "day-stone-cave8"
+          },
+          {
+            "index": 9,
+            "sprite": "day-stone-cave9"
+          },
+          {
+            "index": 10,
+            "sprite": "day-stone-cave10"
+          },
+          {
+            "index": 11,
+            "sprite": "day-stone-cave11"
+          },
+          {
+            "index": 12,
+            "sprite": "day-stone-cave12"
+          },
+          {
+            "index": 13,
+            "sprite": "day-stone-cave13"
+          },
+          {
+            "index": 14,
+            "sprite": "day-stone-cave14"
+          },
+          {
+            "index": 15,
+            "sprite": "day-stone-cave15"
+          },
+          {
+            "index": 16,
+            "sprite": "day-stone-cave16"
+          },
+          {
+            "index": 17,
+            "sprite": "day-stone-cave17"
+          },
+          {
+            "index": 18,
+            "sprite": "day-stone-cave18"
+          },
+          {
+            "index": 19,
+            "sprite": "day-stone-cave19"
+          },
+          {
+            "index": 20,
+            "sprite": "day-stone-cave20"
+          },
+          {
+            "index": 21,
+            "sprite": "day-stone-cave21"
+          },
+          {
+            "index": 22,
+            "sprite": "day-stone-cave22"
+          },
+          {
+            "index": 23,
+            "sprite": "day-stone-cave23"
+          },
+          {
+            "index": 24,
+            "sprite": "day-stone-cave24"
+          },
+          {
+            "index": 25,
+            "sprite": "day-stone-cave25"
+          },
+          {
+            "index": 26,
+            "sprite": "day-stone-cave26"
+          },
+          {
+            "index": 27,
+            "sprite": "day-stone-cave27"
+          },
+          {
+            "index": 28,
+            "sprite": "day-stone-cave28"
+          },
+          {
+            "index": 29,
+            "sprite": "day-stone-cave29"
+          },
+          {
+            "index": 30,
+            "sprite": "day-stone-cave30"
+          },
+          {
+            "index": 31,
+            "sprite": "day-stone-cave31"
+          },
+          {
+            "index": 32,
+            "sprite": "day-stone-cave32"
+          },
+          {
+            "index": 33,
+            "sprite": "day-stone-cave33"
+          },
+          {
+            "index": 34,
+            "sprite": "day-stone-cave34"
+          },
+          {
+            "index": 35,
+            "sprite": "day-stone-cave35"
+          },
+          {
+            "index": 36,
+            "sprite": "day-stone-cave36"
+          },
+          {
+            "index": 37,
+            "sprite": "day-stone-cave37"
+          },
+          {
+            "index": 38,
+            "sprite": "day-stone-cave38"
+          },
+          {
+            "index": 39,
+            "sprite": "day-stone-cave39"
+          },
+          {
+            "index": 40,
+            "sprite": "day-stone-cave40"
+          },
+          {
+            "index": 41,
+            "sprite": "day-stone-cave41"
+          },
+          {
+            "index": 42,
+            "sprite": "day-stone-cave42"
+          },
+          {
+            "index": 43,
+            "sprite": "day-stone-cave43"
+          },
+          {
+            "index": 44,
+            "sprite": "day-stone-cave44"
+          },
+          {
+            "index": 45,
+            "sprite": "day-stone-cave45"
+          },
+          {
+            "index": 46,
+            "sprite": "day-stone-cave46"
+          }
+        ],
+        "broken": [
+          {
+            "index": 0,
+            "sprite": "day-stone-cave-broken0"
+          },
+          {
+            "index": 1,
+            "sprite": "day-stone-cave-broken1"
+          },
+          {
+            "index": 2,
+            "sprite": "day-stone-cave-broken2"
+          }
+        ]
+      }
+    },
+    "bunker_wall": {
+      "key": "bunker_wall",
+      "category": "wall",
+      "healthMax": 10000,
+      "layer": "top",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "place": {
+        "delayMs": 300
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "stone",
+              "amount": 1
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "wall",
+        "blueprint": "clear-blue-bunker-wall",
+        "redprint": "redprint-bunker-wall",
+        "particles": "steel",
+        "particlesDistance": 80,
+        "impactSound": "steel_impact",
+        "destroySound": "steel_destroy",
+        "z": 1,
+        "zGroup": 1,
+        "autotile": true,
+        "autotileGroup": "stone_cave",
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-bunker-wall0"
+          },
+          {
+            "index": 1,
+            "sprite": "day-bunker-wall1"
+          },
+          {
+            "index": 2,
+            "sprite": "day-bunker-wall2"
+          },
+          {
+            "index": 3,
+            "sprite": "day-bunker-wall3"
+          },
+          {
+            "index": 4,
+            "sprite": "day-bunker-wall4"
+          },
+          {
+            "index": 5,
+            "sprite": "day-bunker-wall5"
+          },
+          {
+            "index": 6,
+            "sprite": "day-bunker-wall6"
+          },
+          {
+            "index": 7,
+            "sprite": "day-bunker-wall7"
+          },
+          {
+            "index": 8,
+            "sprite": "day-bunker-wall8"
+          },
+          {
+            "index": 9,
+            "sprite": "day-bunker-wall9"
+          },
+          {
+            "index": 10,
+            "sprite": "day-bunker-wall10"
+          },
+          {
+            "index": 11,
+            "sprite": "day-bunker-wall11"
+          },
+          {
+            "index": 12,
+            "sprite": "day-bunker-wall12"
+          },
+          {
+            "index": 13,
+            "sprite": "day-bunker-wall13"
+          },
+          {
+            "index": 14,
+            "sprite": "day-bunker-wall14"
+          },
+          {
+            "index": 15,
+            "sprite": "day-bunker-wall15"
+          },
+          {
+            "index": 16,
+            "sprite": "day-bunker-wall16"
+          },
+          {
+            "index": 17,
+            "sprite": "day-bunker-wall17"
+          },
+          {
+            "index": 18,
+            "sprite": "day-bunker-wall18"
+          },
+          {
+            "index": 19,
+            "sprite": "day-bunker-wall19"
+          },
+          {
+            "index": 20,
+            "sprite": "day-bunker-wall20"
+          },
+          {
+            "index": 21,
+            "sprite": "day-bunker-wall21"
+          },
+          {
+            "index": 22,
+            "sprite": "day-bunker-wall22"
+          },
+          {
+            "index": 23,
+            "sprite": "day-bunker-wall23"
+          },
+          {
+            "index": 24,
+            "sprite": "day-bunker-wall24"
+          },
+          {
+            "index": 25,
+            "sprite": "day-bunker-wall25"
+          },
+          {
+            "index": 26,
+            "sprite": "day-bunker-wall26"
+          },
+          {
+            "index": 27,
+            "sprite": "day-bunker-wall27"
+          },
+          {
+            "index": 28,
+            "sprite": "day-bunker-wall28"
+          },
+          {
+            "index": 29,
+            "sprite": "day-bunker-wall29"
+          },
+          {
+            "index": 30,
+            "sprite": "day-bunker-wall30"
+          },
+          {
+            "index": 31,
+            "sprite": "day-bunker-wall31"
+          },
+          {
+            "index": 32,
+            "sprite": "day-bunker-wall32"
+          },
+          {
+            "index": 33,
+            "sprite": "day-bunker-wall33"
+          },
+          {
+            "index": 34,
+            "sprite": "day-bunker-wall34"
+          },
+          {
+            "index": 35,
+            "sprite": "day-bunker-wall35"
+          },
+          {
+            "index": 36,
+            "sprite": "day-bunker-wall36"
+          },
+          {
+            "index": 37,
+            "sprite": "day-bunker-wall37"
+          },
+          {
+            "index": 38,
+            "sprite": "day-bunker-wall38"
+          },
+          {
+            "index": 39,
+            "sprite": "day-bunker-wall39"
+          },
+          {
+            "index": 40,
+            "sprite": "day-bunker-wall40"
+          },
+          {
+            "index": 41,
+            "sprite": "day-bunker-wall41"
+          },
+          {
+            "index": 42,
+            "sprite": "day-bunker-wall42"
+          },
+          {
+            "index": 43,
+            "sprite": "day-bunker-wall43"
+          },
+          {
+            "index": 44,
+            "sprite": "day-bunker-wall44"
+          },
+          {
+            "index": 45,
+            "sprite": "day-bunker-wall45"
+          },
+          {
+            "index": 46,
+            "sprite": "day-bunker-wall46"
+          }
+        ],
+        "broken": [
+          {
+            "index": 0,
+            "sprite": "day-bunker-wall-broken0"
+          },
+          {
+            "index": 1,
+            "sprite": "day-bunker-wall-broken1"
+          },
+          {
+            "index": 2,
+            "sprite": "day-bunker-wall-broken2"
+          }
+        ]
+      }
+    },
+    "gold_floor": {
+      "key": "gold_floor",
+      "category": "floor",
+      "healthMax": 3000,
+      "layer": "bottom",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": false,
+        "blocksProjectiles": false
+      },
+      "place": {
+        "delayMs": 250
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "stone",
+              "amount": 10
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "groundFloor",
+        "blueprint": "day-clear-blue-stone-floor",
+        "redprint": "day-redprint-stone-floor",
+        "particles": "gold",
+        "particlesDistance": 80,
+        "destroySound": "pillow_destroy",
+        "z": 0,
+        "zGroup": 2,
+        "autotile": true,
+        "autotileGroup": "gold_floor",
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-mustard-floor-0"
+          },
+          {
+            "index": 1,
+            "sprite": "day-mustard-floor-1"
+          },
+          {
+            "index": 2,
+            "sprite": "day-mustard-floor-2"
+          },
+          {
+            "index": 3,
+            "sprite": "day-mustard-floor-3"
+          },
+          {
+            "index": 4,
+            "sprite": "day-mustard-floor-4"
+          },
+          {
+            "index": 5,
+            "sprite": "day-mustard-floor-5"
+          },
+          {
+            "index": 6,
+            "sprite": "day-mustard-floor-6"
+          },
+          {
+            "index": 7,
+            "sprite": "day-mustard-floor-7"
+          },
+          {
+            "index": 8,
+            "sprite": "day-mustard-floor-8"
+          },
+          {
+            "index": 9,
+            "sprite": "day-mustard-floor-9"
+          },
+          {
+            "index": 10,
+            "sprite": "day-mustard-floor-10"
+          },
+          {
+            "index": 11,
+            "sprite": "day-mustard-floor-11"
+          },
+          {
+            "index": 12,
+            "sprite": "day-mustard-floor-12"
+          },
+          {
+            "index": 13,
+            "sprite": "day-mustard-floor-13"
+          },
+          {
+            "index": 14,
+            "sprite": "day-mustard-floor-14"
+          },
+          {
+            "index": 15,
+            "sprite": "day-mustard-floor-15"
+          },
+          {
+            "index": 16,
+            "sprite": "day-mustard-floor-16"
+          },
+          {
+            "index": 17,
+            "sprite": "day-mustard-floor-17"
+          },
+          {
+            "index": 18,
+            "sprite": "day-mustard-floor-18"
+          },
+          {
+            "index": 19,
+            "sprite": "day-mustard-floor-19"
+          },
+          {
+            "index": 20,
+            "sprite": "day-mustard-floor-20"
+          },
+          {
+            "index": 21,
+            "sprite": "day-mustard-floor-21"
+          },
+          {
+            "index": 22,
+            "sprite": "day-mustard-floor-22"
+          },
+          {
+            "index": 23,
+            "sprite": "day-mustard-floor-23"
+          },
+          {
+            "index": 24,
+            "sprite": "day-mustard-floor-24"
+          },
+          {
+            "index": 25,
+            "sprite": "day-mustard-floor-25"
+          },
+          {
+            "index": 26,
+            "sprite": "day-mustard-floor-26"
+          },
+          {
+            "index": 27,
+            "sprite": "day-mustard-floor-27"
+          },
+          {
+            "index": 28,
+            "sprite": "day-mustard-floor-28"
+          },
+          {
+            "index": 29,
+            "sprite": "day-mustard-floor-29"
+          },
+          {
+            "index": 30,
+            "sprite": "day-mustard-floor-30"
+          },
+          {
+            "index": 31,
+            "sprite": "day-mustard-floor-31"
+          },
+          {
+            "index": 32,
+            "sprite": "day-mustard-floor-32"
+          },
+          {
+            "index": 33,
+            "sprite": "day-mustard-floor-33"
+          },
+          {
+            "index": 34,
+            "sprite": "day-mustard-floor-34"
+          },
+          {
+            "index": 35,
+            "sprite": "day-mustard-floor-35"
+          },
+          {
+            "index": 36,
+            "sprite": "day-mustard-floor-36"
+          },
+          {
+            "index": 37,
+            "sprite": "day-mustard-floor-37"
+          },
+          {
+            "index": 38,
+            "sprite": "day-mustard-floor-38"
+          },
+          {
+            "index": 39,
+            "sprite": "day-mustard-floor-39"
+          },
+          {
+            "index": 40,
+            "sprite": "day-mustard-floor-40"
+          },
+          {
+            "index": 41,
+            "sprite": "day-mustard-floor-41"
+          },
+          {
+            "index": 42,
+            "sprite": "day-mustard-floor-42"
+          },
+          {
+            "index": 43,
+            "sprite": "day-mustard-floor-43"
+          },
+          {
+            "index": 44,
+            "sprite": "day-mustard-floor-44"
+          },
+          {
+            "index": 45,
+            "sprite": "day-mustard-floor-45"
+          },
+          {
+            "index": 46,
+            "sprite": "day-mustard-floor-46"
+          }
+        ],
+        "broken": [
+          {
+            "index": 0,
+            "sprite": "day-mustard-floor-broken0"
+          },
+          {
+            "index": 1,
+            "sprite": "day-mustard-floor-broken1"
+          },
+          {
+            "index": 2,
+            "sprite": "day-mustard-floor-broken2"
+          }
+        ]
+      }
+    },
+    "red_floor": {
+      "key": "red_floor",
+      "category": "floor",
+      "healthMax": 3000,
+      "layer": "bottom",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": false,
+        "blocksProjectiles": false
+      },
+      "place": {
+        "delayMs": 250
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "stone",
+              "amount": 10
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "groundFloor",
+        "blueprint": "day-clear-blue-stone-floor",
+        "redprint": "day-redprint-stone-floor",
+        "particles": "mushroom1",
+        "particlesDistance": 80,
+        "destroySound": "pillow_destroy",
+        "z": 0,
+        "zGroup": 2,
+        "autotile": true,
+        "autotileGroup": "red_floor",
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-red-floor-0"
+          },
+          {
+            "index": 1,
+            "sprite": "day-red-floor-1"
+          },
+          {
+            "index": 2,
+            "sprite": "day-red-floor-2"
+          },
+          {
+            "index": 3,
+            "sprite": "day-red-floor-3"
+          },
+          {
+            "index": 4,
+            "sprite": "day-red-floor-4"
+          },
+          {
+            "index": 5,
+            "sprite": "day-red-floor-5"
+          },
+          {
+            "index": 6,
+            "sprite": "day-red-floor-6"
+          },
+          {
+            "index": 7,
+            "sprite": "day-red-floor-7"
+          },
+          {
+            "index": 8,
+            "sprite": "day-red-floor-8"
+          },
+          {
+            "index": 9,
+            "sprite": "day-red-floor-9"
+          },
+          {
+            "index": 10,
+            "sprite": "day-red-floor-10"
+          },
+          {
+            "index": 11,
+            "sprite": "day-red-floor-11"
+          },
+          {
+            "index": 12,
+            "sprite": "day-red-floor-12"
+          },
+          {
+            "index": 13,
+            "sprite": "day-red-floor-13"
+          },
+          {
+            "index": 14,
+            "sprite": "day-red-floor-14"
+          },
+          {
+            "index": 15,
+            "sprite": "day-red-floor-15"
+          },
+          {
+            "index": 16,
+            "sprite": "day-red-floor-16"
+          },
+          {
+            "index": 17,
+            "sprite": "day-red-floor-17"
+          },
+          {
+            "index": 18,
+            "sprite": "day-red-floor-18"
+          },
+          {
+            "index": 19,
+            "sprite": "day-red-floor-19"
+          },
+          {
+            "index": 20,
+            "sprite": "day-red-floor-20"
+          },
+          {
+            "index": 21,
+            "sprite": "day-red-floor-21"
+          },
+          {
+            "index": 22,
+            "sprite": "day-red-floor-22"
+          },
+          {
+            "index": 23,
+            "sprite": "day-red-floor-23"
+          },
+          {
+            "index": 24,
+            "sprite": "day-red-floor-24"
+          },
+          {
+            "index": 25,
+            "sprite": "day-red-floor-25"
+          },
+          {
+            "index": 26,
+            "sprite": "day-red-floor-26"
+          },
+          {
+            "index": 27,
+            "sprite": "day-red-floor-27"
+          },
+          {
+            "index": 28,
+            "sprite": "day-red-floor-28"
+          },
+          {
+            "index": 29,
+            "sprite": "day-red-floor-29"
+          },
+          {
+            "index": 30,
+            "sprite": "day-red-floor-30"
+          },
+          {
+            "index": 31,
+            "sprite": "day-red-floor-31"
+          },
+          {
+            "index": 32,
+            "sprite": "day-red-floor-32"
+          },
+          {
+            "index": 33,
+            "sprite": "day-red-floor-33"
+          },
+          {
+            "index": 34,
+            "sprite": "day-red-floor-34"
+          },
+          {
+            "index": 35,
+            "sprite": "day-red-floor-35"
+          },
+          {
+            "index": 36,
+            "sprite": "day-red-floor-36"
+          },
+          {
+            "index": 37,
+            "sprite": "day-red-floor-37"
+          },
+          {
+            "index": 38,
+            "sprite": "day-red-floor-38"
+          },
+          {
+            "index": 39,
+            "sprite": "day-red-floor-39"
+          },
+          {
+            "index": 40,
+            "sprite": "day-red-floor-40"
+          },
+          {
+            "index": 41,
+            "sprite": "day-red-floor-41"
+          },
+          {
+            "index": 42,
+            "sprite": "day-red-floor-42"
+          },
+          {
+            "index": 43,
+            "sprite": "day-red-floor-43"
+          },
+          {
+            "index": 44,
+            "sprite": "day-red-floor-44"
+          },
+          {
+            "index": 45,
+            "sprite": "day-red-floor-45"
+          },
+          {
+            "index": 46,
+            "sprite": "day-red-floor-46"
+          }
+        ],
+        "broken": [
+          {
+            "index": 0,
+            "sprite": "day-red-floor-broken0"
+          },
+          {
+            "index": 1,
+            "sprite": "day-red-floor-broken1"
+          },
+          {
+            "index": 2,
+            "sprite": "day-red-floor-broken2"
+          }
+        ]
+      }
+    },
+    "road": {
+      "key": "road",
+      "category": "road",
+      "healthMax": 100000000,
+      "layer": "bottom",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": false,
+        "blocksProjectiles": false
+      },
+      "place": {
+        "delayMs": 250
+      },
+      "client": {
+        "render": "road",
+        "variant": [
+          {
+            "id": 0,
+            "sprite": "day-road0",
+            "angle": 3.141592653589793
+          },
+          {
+            "id": 1,
+            "sprite": "day-road1",
+            "angle": 3.141592653589793
+          },
+          {
+            "id": 2,
+            "sprite": "day-road2",
+            "angle": 3.141592653589793
+          },
+          {
+            "id": 3,
+            "sprite": "day-road3",
+            "angle": 3.141592653589793
+          },
+          {
+            "id": 4,
+            "sprite": "day-road4",
+            "angle": 3.141592653589793
+          },
+          {
+            "id": 5,
+            "sprite": "day-road5",
+            "angle": 3.141592653589793
+          },
+          {
+            "id": 6,
+            "sprite": "day-road6",
+            "angle": 3.141592653589793
+          },
+          {
+            "id": 7,
+            "sprite": "day-road7",
+            "angle": 3.141592653589793
+          },
+          {
+            "id": 8,
+            "sprite": "day-road8",
+            "angle": 3.141592653589793
+          },
+          {
+            "id": 9,
+            "sprite": "day-road9",
+            "angle": 3.141592653589793
+          },
+          {
+            "id": 10,
+            "sprite": "day-road10",
+            "angle": 3.141592653589793
+          },
+          {
+            "id": 11,
+            "sprite": "day-road11",
+            "angle": 3.141592653589793
+          },
+          {
+            "id": 12,
+            "sprite": "day-road12",
+            "angle": 3.141592653589793
+          },
+          {
+            "id": 13,
+            "sprite": "day-road13",
+            "angle": 3.141592653589793
+          },
+          {
+            "id": 14,
+            "sprite": "day-road14",
+            "angle": 3.141592653589793
+          },
+          {
+            "id": 15,
+            "sprite": "day-road15",
+            "angle": 3.141592653589793
+          },
+          {
+            "id": 16,
+            "sprite": "day-road16",
+            "angle": 3.141592653589793
+          },
+          {
+            "id": 17,
+            "sprite": "day-road17",
+            "angle": 3.141592653589793
+          },
+          {
+            "id": 18,
+            "sprite": "day-road18",
+            "angle": 3.141592653589793
+          },
+          {
+            "id": 19,
+            "sprite": "day-road19",
+            "angle": 3.141592653589793
+          },
+          {
+            "id": 20,
+            "sprite": "day-road20",
+            "angle": 3.141592653589793
+          },
+          {
+            "id": 21,
+            "sprite": "day-road21",
+            "angle": 3.141592653589793
+          },
+          {
+            "id": 22,
+            "sprite": "day-road22",
+            "angle": 3.141592653589793
+          },
+          {
+            "id": 23,
+            "sprite": "day-road23",
+            "angle": 3.141592653589793
+          },
+          {
+            "id": 24,
+            "sprite": "day-road24",
+            "angle": 3.141592653589793
+          },
+          {
+            "id": 25,
+            "sprite": "day-road25",
+            "angle": 3.141592653589793
+          },
+          {
+            "id": 26,
+            "sprite": "day-road26",
+            "angle": 3.141592653589793
+          },
+          {
+            "id": 27,
+            "sprite": "day-road27",
+            "angle": 3.141592653589793
+          },
+          {
+            "id": 28,
+            "sprite": "day-road28",
+            "angle": 3.141592653589793
+          },
+          {
+            "id": 29,
+            "sprite": "day-road29",
+            "angle": 3.141592653589793
+          },
+          {
+            "id": 30,
+            "sprite": "day-road30",
+            "angle": 3.141592653589793
+          },
+          {
+            "id": 31,
+            "sprite": "day-road31",
+            "angle": 3.141592653589793
+          },
+          {
+            "id": 32,
+            "sprite": "day-road32",
+            "angle": 3.141592653589793
+          },
+          {
+            "id": 33,
+            "sprite": "day-road33",
+            "angle": 3.141592653589793
+          },
+          {
+            "id": 34,
+            "sprite": "day-road34",
+            "angle": 3.141592653589793
+          },
+          {
+            "id": 35,
+            "sprite": "day-road35",
+            "angle": 3.141592653589793
+          },
+          {
+            "id": 36,
+            "sprite": "day-road36",
+            "angle": 3.141592653589793
+          },
+          {
+            "id": 37,
+            "sprite": "day-road37",
+            "angle": 3.141592653589793
+          },
+          {
+            "id": 38,
+            "sprite": "day-road38",
+            "angle": 3.141592653589793
+          },
+          {
+            "id": 39,
+            "sprite": "day-road39",
+            "angle": 3.141592653589793
+          },
+          {
+            "id": 40,
+            "sprite": "day-road40",
+            "angle": 3.141592653589793
+          },
+          {
+            "id": 41,
+            "sprite": "day-road41",
+            "angle": 3.141592653589793
+          },
+          {
+            "id": 42,
+            "sprite": "day-road42",
+            "angle": 3.141592653589793
+          },
+          {
+            "id": 43,
+            "sprite": "day-road43",
+            "angle": 3.141592653589793
+          },
+          {
+            "id": 44,
+            "sprite": "day-road44",
+            "angle": 3.141592653589793
+          },
+          {
+            "id": 45,
+            "sprite": "day-road45",
+            "angle": 3.141592653589793
+          }
+        ]
+      }
+    }
+  }
+}

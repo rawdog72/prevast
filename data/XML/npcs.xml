@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<npcs>
+  <!-- Ordered definitions; each include contains exactly one NPC. -->
+  <include file="../npc/merchant.xml"/>
+  <include file="../npc/banker.xml"/>
+  <include file="../npc/quartermaster.xml"/>
+  <include file="../npc/smuggler.xml"/>
+
+  <spawn key="town_mara" npc="merchant" tileX="40" tileY="42"/>
+  <spawn key="town_elias" npc="banker" tileX="42" tileY="42"/>
+  <spawn key="town_rook" npc="quartermaster" tileX="44" tileY="42"/>
+  <spawn key="town_vex" npc="smuggler" tileX="46" tileY="42"/>
+</npcs>

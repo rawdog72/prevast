@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<agent key="lapabot" family="bot" sprite="6">
+  <body radius="38" collision="true" separation="true" stackGroup="bot"/>
+  <vitals health="600" experience="100" lifetimeMs="0"/>
+  <movement speed="80"/>
+  <brain type="repair" vision="700" loseTarget="1000" leash="0" chase="false">
+    <target type="damaged_object" priority="100" pursue="true"/>
+    <target type="player" priority="50" pursue="false"/>
+    <!-- Defends itself and its owner's side against rival bots AND
+			     against ghouls, but never walks off the job to do it: it hits
+			     what comes within reach and carries on repairing. No <target
+			     type="object">, because a repair drone mends buildings, it does
+			     not knock them down. -->
+    <target type="agent" priority="40" pursue="false"/>
+  </brain>
+  <abilities>
+    <ability type="melee" cooldownMs="700" impactMs="550" range="40" knockback="4">
+      <damage amount="10" amountMax="18"/>
+    </ability>
+    <!-- amount = health restored per pulse. Costs nothing: the bot
+			     repairs for as long as it is alive. -->
+    <ability type="repair" cooldownMs="700" impactMs="550" range="50" amount="30"/>
+  </abilities>
+  <onDeath>
+    <drops>
+      <item key="shaped_metal" amount="1"/>
+    </drops>
+  </onDeath>
+  <client render="ghoul" breath="0.05" armMove="6" head="day-lapabot" hurt="lapabot-hurt" death="day-lapabot-death" light="0" hitAnimMs="550">
+    <leftArm sprite="day-lapabot-left-arm" angle="0" x="28" y="-50"/>
+    <rightArm sprite="day-lapabot-right-arm" angle="0" x="28" y="50"/>
+  </client>
+</agent>

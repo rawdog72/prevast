@@ -1,0 +1,374 @@
+{
+  "name": "wearables",
+  "version": 1,
+  "hash": "10beafe03c56e28e",
+  "attributes": {},
+  "entries": {
+    "headscarf": {
+      "key": "headscarf",
+      "id": 1,
+      "skinId": 1,
+      "modifiers": {
+        "modifier": [
+          {
+            "key": "coldResistance",
+            "multiplier": 0.00085
+          }
+        ]
+      },
+      "client": {
+        "head": "day-headscarf"
+      }
+    },
+    "chapka": {
+      "key": "chapka",
+      "id": 2,
+      "skinId": 2,
+      "modifiers": {
+        "modifier": [
+          {
+            "key": "coldResistance",
+            "multiplier": 0.0017
+          }
+        ]
+      },
+      "client": {
+        "head": "day-chapka",
+        "leftArm": "day-left-arm-chapka",
+        "rightArm": "day-right-arm-chapka"
+      }
+    },
+    "winter_coat": {
+      "key": "winter_coat",
+      "id": 3,
+      "skinId": 3,
+      "modifiers": {
+        "modifier": [
+          {
+            "key": "coldResistance",
+            "multiplier": 0.0026
+          }
+        ]
+      },
+      "client": {
+        "head": "day-coat",
+        "leftArm": "day-left-arm-coat",
+        "rightArm": "day-right-arm-coat"
+      }
+    },
+    "gaz_mask": {
+      "key": "gaz_mask",
+      "id": 4,
+      "skinId": 4,
+      "modifiers": {
+        "modifier": [
+          {
+            "key": "radiationResistance",
+            "multiplier": 0.009
+          }
+        ]
+      },
+      "client": {
+        "head": "day-gaz-mask"
+      }
+    },
+    "gaz_protection": {
+      "key": "gaz_protection",
+      "id": 5,
+      "skinId": 5,
+      "modifiers": {
+        "modifier": [
+          {
+            "key": "radiationResistance",
+            "multiplier": 0.016
+          },
+          {
+            "key": "coldResistance",
+            "multiplier": 0.0006
+          }
+        ]
+      },
+      "client": {
+        "head": "day-gaz-protection",
+        "leftArm": "day-left-arm-gaz-protection",
+        "rightArm": "day-right-arm-gaz-protection"
+      }
+    },
+    "radiation_suit": {
+      "key": "radiation_suit",
+      "id": 6,
+      "skinId": 6,
+      "modifiers": {
+        "modifier": [
+          {
+            "key": "radiationResistance",
+            "multiplier": 0.022
+          },
+          {
+            "key": "speedMultiplier",
+            "multiplier": -0.01
+          }
+        ]
+      },
+      "client": {
+        "head": "day-radiation-suit",
+        "leftArm": "day-left-arm-radiation-suit",
+        "rightArm": "day-right-arm-radiation-suit"
+      }
+    },
+    "metal_helmet": {
+      "key": "metal_helmet",
+      "id": 7,
+      "skinId": 7,
+      "modifiers": {
+        "modifier": [
+          {
+            "key": "meleeResistance",
+            "multiplier": 0.15
+          },
+          {
+            "key": "stunResistance",
+            "multiplier": 0.3
+          },
+          {
+            "key": "speedMultiplier",
+            "multiplier": -0.01
+          }
+        ]
+      },
+      "client": {
+        "head": "day-metal-helmet"
+      }
+    },
+    "welding_helmet": {
+      "key": "welding_helmet",
+      "id": 8,
+      "skinId": 8,
+      "modifiers": {
+        "modifier": [
+          {
+            "key": "meleeResistance",
+            "multiplier": 0.4
+          },
+          {
+            "key": "explosionResistance",
+            "multiplier": 0.05
+          },
+          {
+            "key": "speedMultiplier",
+            "multiplier": -0.02
+          }
+        ]
+      },
+      "client": {
+        "head": "day-welding-helmet",
+        "leftArm": "day-left-arm-welding-helmet",
+        "rightArm": "day-right-arm-welding-helmet"
+      }
+    },
+    "gladiator_helmet": {
+      "key": "gladiator_helmet",
+      "id": 9,
+      "skinId": 9,
+      "modifiers": {
+        "modifier": [
+          {
+            "key": "meleeResistance",
+            "multiplier": 0.6
+          },
+          {
+            "key": "piercingResistance",
+            "multiplier": 0.1
+          },
+          {
+            "key": "explosionResistance",
+            "multiplier": 0.2
+          },
+          {
+            "key": "stunResistance",
+            "multiplier": 0.6
+          },
+          {
+            "key": "speedMultiplier",
+            "multiplier": -0.03
+          }
+        ]
+      },
+      "client": {
+        "head": "day-gladiator-helmet",
+        "leftArm": "day-left-arm-gladiator-armor",
+        "rightArm": "day-right-arm-gladiator-armor"
+      }
+    },
+    "leather_jacket": {
+      "key": "leather_jacket",
+      "id": 10,
+      "skinId": 10,
+      "modifiers": {
+        "modifier": [
+          {
+            "key": "piercingResistance",
+            "multiplier": 0.2
+          },
+          {
+            "key": "coldResistance",
+            "multiplier": 0.0006
+          }
+        ]
+      },
+      "client": {
+        "head": "day-leather-jacket",
+        "leftArm": "day-left-arm-leather-jacket",
+        "rightArm": "day-right-arm-leather-jacket"
+      }
+    },
+    "kevlar_suit": {
+      "key": "kevlar_suit",
+      "id": 11,
+      "skinId": 11,
+      "modifiers": {
+        "modifier": [
+          {
+            "key": "piercingResistance",
+            "multiplier": 0.4
+          }
+        ]
+      },
+      "client": {
+        "head": "day-kevlar-suit",
+        "leftArm": "day-left-arm-kevlar-suit",
+        "rightArm": "day-right-arm-kevlar-suit"
+      }
+    },
+    "swat_suit": {
+      "key": "swat_suit",
+      "id": 12,
+      "skinId": 12,
+      "modifiers": {
+        "modifier": [
+          {
+            "key": "meleeResistance",
+            "multiplier": 0.1
+          },
+          {
+            "key": "piercingResistance",
+            "multiplier": 0.7
+          },
+          {
+            "key": "explosionResistance",
+            "multiplier": 0.1
+          },
+          {
+            "key": "speedMultiplier",
+            "multiplier": -0.01
+          }
+        ]
+      },
+      "client": {
+        "head": "day-SWAT-suit",
+        "leftArm": "day-left-arm-SWAT-suit",
+        "rightArm": "day-right-arm-SWAT-suit"
+      }
+    },
+    "protective_suit": {
+      "key": "protective_suit",
+      "id": 13,
+      "skinId": 13,
+      "modifiers": {
+        "modifier": [
+          {
+            "key": "coldResistance",
+            "multiplier": 0.00085
+          },
+          {
+            "key": "explosionResistance",
+            "multiplier": 0.9
+          },
+          {
+            "key": "slowedResistance",
+            "multiplier": 0.75
+          },
+          {
+            "key": "speedMultiplier",
+            "multiplier": -0.03
+          }
+        ]
+      },
+      "client": {
+        "head": "day-protective-suit",
+        "leftArm": "day-left-arm-protective-suit",
+        "rightArm": "day-right-arm-protective-suit"
+      }
+    },
+    "power_armor": {
+      "key": "power_armor",
+      "id": 14,
+      "skinId": 14,
+      "modifiers": {
+        "modifier": [
+          {
+            "key": "energyResistance",
+            "multiplier": 0.3
+          }
+        ]
+      },
+      "client": {
+        "head": "day-tesla-0",
+        "leftArm": "day-left-arm-tesla-0",
+        "rightArm": "day-right-arm-tesla-0"
+      }
+    },
+    "tesla_armor": {
+      "key": "tesla_armor",
+      "id": 15,
+      "skinId": 15,
+      "modifiers": {
+        "modifier": [
+          {
+            "key": "coldResistance",
+            "multiplier": 0.00085
+          },
+          {
+            "key": "radiationResistance",
+            "multiplier": 0.01
+          },
+          {
+            "key": "meleeResistance",
+            "multiplier": 0.2
+          },
+          {
+            "key": "piercingResistance",
+            "multiplier": 0.2
+          },
+          {
+            "key": "explosionResistance",
+            "multiplier": 0.2
+          },
+          {
+            "key": "energyResistance",
+            "multiplier": 0.75
+          },
+          {
+            "key": "speedMultiplier",
+            "multiplier": -0.02
+          }
+        ]
+      },
+      "client": {
+        "head": "day-tesla-armor",
+        "leftArm": "day-left-arm-tesla-armor",
+        "rightArm": "day-right-arm-tesla-armor"
+      }
+    },
+    "camouflage_gear": {
+      "key": "camouflage_gear",
+      "id": 16,
+      "skinId": 16,
+      "client": {
+        "head": "day-camouflage-gear",
+        "leftArm": "day-left-arm-camouflage-gear",
+        "rightArm": "day-right-arm-camouflage-gear"
+      }
+    }
+  }
+}

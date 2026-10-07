@@ -1,0 +1,1160 @@
+{
+  "name": "kits",
+  "version": 1,
+  "hash": "8757e6baa04311da",
+  "attributes": {
+    "deathRewardExpiryMinutes": 180,
+    "overflowStartLevelPercent": 50
+  },
+  "entries": {
+    "0": {
+      "level": 0,
+      "firstSession": true,
+      "items": {
+        "item": [
+          {
+            "key": "stone",
+            "amount": 2
+          }
+        ]
+      }
+    },
+    "1": {
+      "level": 0,
+      "startLevel": 0,
+      "items": {
+        "item": [
+          {
+            "key": "hatchet",
+            "amount": 1
+          },
+          {
+            "key": "stone",
+            "amount": 20
+          },
+          {
+            "key": "wood",
+            "amount": 40
+          },
+          {
+            "key": "orange",
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "2": {
+      "level": 1,
+      "startLevel": 0,
+      "items": {
+        "item": [
+          {
+            "key": "hatchet",
+            "amount": 1
+          },
+          {
+            "key": "stone",
+            "amount": 20
+          },
+          {
+            "key": "wood",
+            "amount": 40
+          },
+          {
+            "key": "orange",
+            "amount": 3
+          }
+        ]
+      }
+    },
+    "3": {
+      "level": 2,
+      "startLevel": 1,
+      "items": {
+        "item": [
+          {
+            "key": "hatchet",
+            "amount": 1
+          },
+          {
+            "key": "stone",
+            "amount": 20
+          },
+          {
+            "key": "wood",
+            "amount": 40
+          },
+          {
+            "key": "campfire",
+            "amount": 1
+          },
+          {
+            "key": "orange",
+            "amount": 4
+          }
+        ]
+      }
+    },
+    "4": {
+      "level": 3,
+      "startLevel": 1,
+      "items": {
+        "item": [
+          {
+            "key": "hatchet",
+            "amount": 1
+          },
+          {
+            "key": "stone",
+            "amount": 20
+          },
+          {
+            "key": "wood",
+            "amount": 40
+          },
+          {
+            "key": "campfire",
+            "amount": 1
+          },
+          {
+            "key": "workbench",
+            "amount": 1
+          },
+          {
+            "key": "orange",
+            "amount": 3
+          }
+        ]
+      }
+    },
+    "5": {
+      "level": 4,
+      "startLevel": 2,
+      "items": {
+        "item": [
+          {
+            "key": "hatchet",
+            "amount": 1
+          },
+          {
+            "key": "stone",
+            "amount": 20
+          },
+          {
+            "key": "wood",
+            "amount": 40
+          },
+          {
+            "key": "campfire",
+            "amount": 1
+          },
+          {
+            "key": "workbench",
+            "amount": 1
+          },
+          {
+            "key": "raw_steak",
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "6": {
+      "level": 5,
+      "startLevel": 2,
+      "items": {
+        "item": [
+          {
+            "key": "hatchet",
+            "amount": 1
+          },
+          {
+            "key": "stone",
+            "amount": 40
+          },
+          {
+            "key": "wood",
+            "amount": 150
+          },
+          {
+            "key": "campfire",
+            "amount": 1
+          },
+          {
+            "key": "workbench",
+            "amount": 1
+          },
+          {
+            "key": "raw_steak",
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "7": {
+      "level": 6,
+      "startLevel": 3,
+      "items": {
+        "item": [
+          {
+            "key": "hatchet",
+            "amount": 1
+          },
+          {
+            "key": "stone_pickaxe",
+            "amount": 1
+          },
+          {
+            "key": "campfire",
+            "amount": 1
+          },
+          {
+            "key": "workbench",
+            "amount": 1
+          },
+          {
+            "key": "raw_steak",
+            "amount": 2
+          }
+        ]
+      }
+    },
+    "8": {
+      "level": 7,
+      "startLevel": 3,
+      "items": {
+        "item": [
+          {
+            "key": "hatchet",
+            "amount": 1
+          },
+          {
+            "key": "stone_pickaxe",
+            "amount": 1
+          },
+          {
+            "key": "campfire",
+            "amount": 1
+          },
+          {
+            "key": "iron",
+            "amount": 6
+          },
+          {
+            "key": "workbench",
+            "amount": 1
+          },
+          {
+            "key": "raw_steak",
+            "amount": 2
+          }
+        ]
+      }
+    },
+    "9": {
+      "level": 8,
+      "startLevel": 4,
+      "items": {
+        "item": [
+          {
+            "key": "hatchet",
+            "amount": 1
+          },
+          {
+            "key": "stone_pickaxe",
+            "amount": 1
+          },
+          {
+            "key": "firepit",
+            "amount": 1
+          },
+          {
+            "key": "wood_spear",
+            "amount": 1
+          },
+          {
+            "key": "workbench",
+            "amount": 1
+          },
+          {
+            "key": "raw_steak",
+            "amount": 3
+          }
+        ]
+      }
+    },
+    "10": {
+      "level": 9,
+      "startLevel": 4,
+      "items": {
+        "item": [
+          {
+            "key": "hatchet",
+            "amount": 1
+          },
+          {
+            "key": "stone_pickaxe",
+            "amount": 1
+          },
+          {
+            "key": "firepit",
+            "amount": 1
+          },
+          {
+            "key": "wood_bow",
+            "amount": 1
+          },
+          {
+            "key": "wood_arrow",
+            "amount": 20
+          },
+          {
+            "key": "workbench",
+            "amount": 1
+          },
+          {
+            "key": "raw_steak",
+            "amount": 4
+          }
+        ]
+      }
+    },
+    "11": {
+      "level": 10,
+      "startLevel": 5,
+      "items": {
+        "item": [
+          {
+            "key": "hatchet",
+            "amount": 1
+          },
+          {
+            "key": "stone_pickaxe",
+            "amount": 1
+          },
+          {
+            "key": "firepit",
+            "amount": 1
+          },
+          {
+            "key": "stone_wall",
+            "amount": 10
+          },
+          {
+            "key": "wood_low_door",
+            "amount": 2
+          },
+          {
+            "key": "workbench",
+            "amount": 1
+          },
+          {
+            "key": "raw_steak",
+            "amount": 4
+          }
+        ]
+      }
+    },
+    "12": {
+      "level": 11,
+      "startLevel": 5,
+      "items": {
+        "item": [
+          {
+            "key": "hatchet",
+            "amount": 1
+          },
+          {
+            "key": "stone_pickaxe",
+            "amount": 1
+          },
+          {
+            "key": "firepit",
+            "amount": 1
+          },
+          {
+            "key": "stone_wall",
+            "amount": 16
+          },
+          {
+            "key": "stone_low_door",
+            "amount": 2
+          },
+          {
+            "key": "workbench",
+            "amount": 2
+          },
+          {
+            "key": "raw_steak",
+            "amount": 4
+          }
+        ]
+      }
+    },
+    "13": {
+      "level": 12,
+      "startLevel": 6,
+      "items": {
+        "item": [
+          {
+            "key": "hatchet",
+            "amount": 1
+          },
+          {
+            "key": "stone_pickaxe",
+            "amount": 1
+          },
+          {
+            "key": "firepit",
+            "amount": 1
+          },
+          {
+            "key": "stone_wall",
+            "amount": 14
+          },
+          {
+            "key": "stone_low_door",
+            "amount": 2
+          },
+          {
+            "key": "workbench",
+            "amount": 2
+          },
+          {
+            "key": "raw_steak",
+            "amount": 4
+          }
+        ]
+      }
+    },
+    "14": {
+      "level": 13,
+      "startLevel": 6,
+      "items": {
+        "item": [
+          {
+            "key": "hatchet",
+            "amount": 1
+          },
+          {
+            "key": "stone_pickaxe",
+            "amount": 1
+          },
+          {
+            "key": "firepit",
+            "amount": 1
+          },
+          {
+            "key": "landmine",
+            "amount": 1
+          },
+          {
+            "key": "stone_wall",
+            "amount": 14
+          },
+          {
+            "key": "stone_low_door",
+            "amount": 2
+          },
+          {
+            "key": "workbench",
+            "amount": 2
+          },
+          {
+            "key": "raw_steak",
+            "amount": 4
+          }
+        ]
+      }
+    },
+    "15": {
+      "level": 14,
+      "startLevel": 7,
+      "items": {
+        "item": [
+          {
+            "key": "hatchet",
+            "amount": 1
+          },
+          {
+            "key": "stone_pickaxe",
+            "amount": 1
+          },
+          {
+            "key": "firepit",
+            "amount": 1
+          },
+          {
+            "key": "metal_helmet",
+            "amount": 1
+          },
+          {
+            "key": "stone_wall",
+            "amount": 14
+          },
+          {
+            "key": "stone_low_door",
+            "amount": 2
+          },
+          {
+            "key": "workbench",
+            "amount": 2
+          },
+          {
+            "key": "raw_steak",
+            "amount": 4
+          }
+        ]
+      }
+    },
+    "16": {
+      "level": 15,
+      "startLevel": 7,
+      "items": {
+        "item": [
+          {
+            "key": "hatchet",
+            "amount": 1
+          },
+          {
+            "key": "stone_pickaxe",
+            "amount": 1
+          },
+          {
+            "key": "firepit",
+            "amount": 1
+          },
+          {
+            "key": "stone_wall",
+            "amount": 16
+          },
+          {
+            "key": "stone_low_door",
+            "amount": 2
+          },
+          {
+            "key": "wood_chest",
+            "amount": 1
+          },
+          {
+            "key": "workbench",
+            "amount": 2
+          },
+          {
+            "key": "raw_steak",
+            "amount": 4
+          }
+        ]
+      }
+    },
+    "17": {
+      "level": 16,
+      "startLevel": 8,
+      "items": {
+        "item": [
+          {
+            "key": "hatchet",
+            "amount": 1
+          },
+          {
+            "key": "metal_pickaxe",
+            "amount": 1
+          },
+          {
+            "key": "firepit",
+            "amount": 1
+          },
+          {
+            "key": "stone_wall",
+            "amount": 16
+          },
+          {
+            "key": "stone_low_door",
+            "amount": 2
+          },
+          {
+            "key": "wood_chest",
+            "amount": 1
+          },
+          {
+            "key": "workbench",
+            "amount": 2
+          },
+          {
+            "key": "raw_steak",
+            "amount": 4
+          }
+        ]
+      }
+    },
+    "18": {
+      "level": 17,
+      "startLevel": 8,
+      "items": {
+        "item": [
+          {
+            "key": "hatchet",
+            "amount": 1
+          },
+          {
+            "key": "metal_pickaxe",
+            "amount": 1
+          },
+          {
+            "key": "firepit",
+            "amount": 1
+          },
+          {
+            "key": "stone_wall",
+            "amount": 16
+          },
+          {
+            "key": "stone_low_door",
+            "amount": 2
+          },
+          {
+            "key": "wood_chest",
+            "amount": 1
+          },
+          {
+            "key": "research_bench",
+            "amount": 1
+          },
+          {
+            "key": "raw_steak",
+            "amount": 4
+          }
+        ]
+      }
+    },
+    "19": {
+      "level": 18,
+      "startLevel": 9,
+      "items": {
+        "item": [
+          {
+            "key": "stone_axe",
+            "amount": 1
+          },
+          {
+            "key": "metal_pickaxe",
+            "amount": 1
+          },
+          {
+            "key": "firepit",
+            "amount": 1
+          },
+          {
+            "key": "stone_wall",
+            "amount": 16
+          },
+          {
+            "key": "stone_low_door",
+            "amount": 2
+          },
+          {
+            "key": "wood_chest",
+            "amount": 1
+          },
+          {
+            "key": "research_bench",
+            "amount": 1
+          },
+          {
+            "key": "raw_steak",
+            "amount": 4
+          }
+        ]
+      }
+    },
+    "20": {
+      "level": 19,
+      "startLevel": 9,
+      "items": {
+        "item": [
+          {
+            "key": "stone_axe",
+            "amount": 1
+          },
+          {
+            "key": "metal_pickaxe",
+            "amount": 1
+          },
+          {
+            "key": "firepit",
+            "amount": 2
+          },
+          {
+            "key": "stone_wall",
+            "amount": 20
+          },
+          {
+            "key": "stone_low_door",
+            "amount": 4
+          },
+          {
+            "key": "wood_chest",
+            "amount": 2
+          },
+          {
+            "key": "research_bench",
+            "amount": 1
+          },
+          {
+            "key": "raw_steak",
+            "amount": 4
+          }
+        ]
+      }
+    },
+    "21": {
+      "level": 20,
+      "startLevel": 10,
+      "items": {
+        "item": [
+          {
+            "key": "stone_axe",
+            "amount": 1
+          },
+          {
+            "key": "metal_pickaxe",
+            "amount": 1
+          },
+          {
+            "key": "firepit",
+            "amount": 2
+          },
+          {
+            "key": "stone_wall",
+            "amount": 26
+          },
+          {
+            "key": "stone_low_door",
+            "amount": 6
+          },
+          {
+            "key": "wood_chest",
+            "amount": 3
+          },
+          {
+            "key": "research_bench",
+            "amount": 1
+          },
+          {
+            "key": "orange_seed",
+            "amount": 8
+          }
+        ]
+      }
+    },
+    "22": {
+      "level": 21,
+      "startLevel": 10,
+      "items": {
+        "item": [
+          {
+            "key": "stone_axe",
+            "amount": 1
+          },
+          {
+            "key": "metal_pickaxe",
+            "amount": 1
+          },
+          {
+            "key": "headscarf",
+            "amount": 1
+          },
+          {
+            "key": "stone_wall",
+            "amount": 26
+          },
+          {
+            "key": "stone_low_door",
+            "amount": 6
+          },
+          {
+            "key": "wood_chest",
+            "amount": 3
+          },
+          {
+            "key": "research_bench",
+            "amount": 1
+          },
+          {
+            "key": "orange_seed",
+            "amount": 8
+          }
+        ]
+      }
+    },
+    "23": {
+      "level": 22,
+      "startLevel": 11,
+      "items": {
+        "item": [
+          {
+            "key": "stone_axe",
+            "amount": 1
+          },
+          {
+            "key": "metal_pickaxe",
+            "amount": 1
+          },
+          {
+            "key": "headscarf",
+            "amount": 1
+          },
+          {
+            "key": "stone_wall",
+            "amount": 26
+          },
+          {
+            "key": "stone_low_door",
+            "amount": 6
+          },
+          {
+            "key": "wood_chest",
+            "amount": 3
+          },
+          {
+            "key": "pistol",
+            "amount": 1,
+            "ammo": 20
+          },
+          {
+            "key": "research_bench",
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "24": {
+      "level": 23,
+      "startLevel": 11,
+      "items": {
+        "item": [
+          {
+            "key": "stone_axe",
+            "amount": 1
+          },
+          {
+            "key": "sulfur_pickaxe",
+            "amount": 1
+          },
+          {
+            "key": "headscarf",
+            "amount": 1
+          },
+          {
+            "key": "stone_wall",
+            "amount": 26
+          },
+          {
+            "key": "stone_low_door",
+            "amount": 6
+          },
+          {
+            "key": "wood_chest",
+            "amount": 3
+          },
+          {
+            "key": "pistol",
+            "amount": 1,
+            "ammo": 20
+          },
+          {
+            "key": "research_bench",
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "25": {
+      "level": 24,
+      "startLevel": 12,
+      "items": {
+        "item": [
+          {
+            "key": "stone_axe",
+            "amount": 1
+          },
+          {
+            "key": "sulfur_pickaxe",
+            "amount": 1
+          },
+          {
+            "key": "headscarf",
+            "amount": 1
+          },
+          {
+            "key": "stone_wall",
+            "amount": 26
+          },
+          {
+            "key": "smelter",
+            "amount": 1
+          },
+          {
+            "key": "wood_chest",
+            "amount": 3
+          },
+          {
+            "key": "pistol",
+            "amount": 1,
+            "ammo": 20
+          },
+          {
+            "key": "research_bench",
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "26": {
+      "level": 25,
+      "startLevel": 12,
+      "items": {
+        "item": [
+          {
+            "key": "sulfur_axe",
+            "amount": 1
+          },
+          {
+            "key": "sulfur_pickaxe",
+            "amount": 1
+          },
+          {
+            "key": "headscarf",
+            "amount": 1
+          },
+          {
+            "key": "stone_wall",
+            "amount": 26
+          },
+          {
+            "key": "smelter",
+            "amount": 1
+          },
+          {
+            "key": "wood_chest",
+            "amount": 3
+          },
+          {
+            "key": "pistol",
+            "amount": 1,
+            "ammo": 20
+          },
+          {
+            "key": "research_bench",
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "27": {
+      "level": 26,
+      "startLevel": 13,
+      "items": {
+        "item": [
+          {
+            "key": "sulfur_axe",
+            "amount": 1
+          },
+          {
+            "key": "sulfur_pickaxe",
+            "amount": 1
+          },
+          {
+            "key": "chapka",
+            "amount": 1
+          },
+          {
+            "key": "stone_wall",
+            "amount": 26
+          },
+          {
+            "key": "smelter",
+            "amount": 1
+          },
+          {
+            "key": "wood_chest",
+            "amount": 3
+          },
+          {
+            "key": "pistol",
+            "amount": 1,
+            "ammo": 20
+          },
+          {
+            "key": "research_bench",
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "28": {
+      "level": 27,
+      "startLevel": 13,
+      "items": {
+        "item": [
+          {
+            "key": "sulfur_axe",
+            "amount": 1
+          },
+          {
+            "key": "sulfur_pickaxe",
+            "amount": 1
+          },
+          {
+            "key": "chapka",
+            "amount": 1
+          },
+          {
+            "key": "steel_wall",
+            "amount": 14
+          },
+          {
+            "key": "smelter",
+            "amount": 1
+          },
+          {
+            "key": "wood_chest",
+            "amount": 3
+          },
+          {
+            "key": "pistol",
+            "amount": 1,
+            "ammo": 20
+          },
+          {
+            "key": "research_bench",
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "29": {
+      "level": 28,
+      "startLevel": 14,
+      "items": {
+        "item": [
+          {
+            "key": "sulfur_axe",
+            "amount": 1
+          },
+          {
+            "key": "sulfur_pickaxe",
+            "amount": 1
+          },
+          {
+            "key": "chapka",
+            "amount": 1
+          },
+          {
+            "key": "steel_wall",
+            "amount": 14
+          },
+          {
+            "key": "smelter",
+            "amount": 1
+          },
+          {
+            "key": "wood_chest",
+            "amount": 3
+          },
+          {
+            "key": "desert_eagle",
+            "amount": 1,
+            "ammo": 7
+          },
+          {
+            "key": "research_bench",
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "30": {
+      "level": 29,
+      "startLevel": 14,
+      "items": {
+        "item": [
+          {
+            "key": "sulfur_axe",
+            "amount": 1
+          },
+          {
+            "key": "sulfur_pickaxe",
+            "amount": 1
+          },
+          {
+            "key": "chapka",
+            "amount": 1
+          },
+          {
+            "key": "steel_wall",
+            "amount": 14
+          },
+          {
+            "key": "smelter",
+            "amount": 1
+          },
+          {
+            "key": "dynamite",
+            "amount": 6
+          },
+          {
+            "key": "desert_eagle",
+            "amount": 1,
+            "ammo": 7
+          },
+          {
+            "key": "research_bench",
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "31": {
+      "level": 30,
+      "startLevel": 15,
+      "items": {
+        "item": [
+          {
+            "key": "sulfur_axe",
+            "amount": 1
+          },
+          {
+            "key": "sulfur_pickaxe",
+            "amount": 1
+          },
+          {
+            "key": "chapka",
+            "amount": 1
+          },
+          {
+            "key": "steel_wall",
+            "amount": 20
+          },
+          {
+            "key": "smelter",
+            "amount": 1
+          },
+          {
+            "key": "landmine",
+            "amount": 6
+          },
+          {
+            "key": "desert_eagle",
+            "amount": 1,
+            "ammo": 7
+          },
+          {
+            "key": "research_bench",
+            "amount": 1
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wearables>
+    <wearable skinId="1" key="headscarf">
+        <modifiers>
+            <modifier key="coldResistance" multiplier="0.00085" />
+        </modifiers>
+        <client head="day-headscarf"/>
+    </wearable> 
+    <wearable skinId="2" key="chapka">
+        <modifiers>
+            <modifier key="coldResistance" multiplier="0.0017" />
+        </modifiers>
+        <client head="day-chapka" leftArm="day-left-arm-chapka" rightArm="day-right-arm-chapka"/>
+    </wearable>
+    <wearable skinId="3" key="winter_coat">
+        <modifiers>
+            <modifier key="coldResistance" multiplier="0.0026" />
+        </modifiers>
+        <client head="day-coat" leftArm="day-left-arm-coat" rightArm="day-right-arm-coat"/>
+    </wearable>
+    <wearable skinId="4" key="gaz_mask">
+        <modifiers>
+            <modifier key="radiationResistance" multiplier="0.009" />
+        </modifiers>
+        <client head="day-gaz-mask"/>
+    </wearable>
+    <wearable skinId="5" key="gaz_protection">
+        <modifiers>
+            <modifier key="radiationResistance" multiplier="0.016" />
+            <modifier key="coldResistance" multiplier="0.0006" />
+        </modifiers>
+        <client head="day-gaz-protection" leftArm="day-left-arm-gaz-protection" rightArm="day-right-arm-gaz-protection"/>
+    </wearable>
+    <wearable skinId="6" key="radiation_suit">
+        <modifiers>
+            <modifier key="radiationResistance" multiplier="0.022" />
+            <modifier key="speedMultiplier" multiplier="-0.01" />
+        </modifiers>
+        <client head="day-radiation-suit" leftArm="day-left-arm-radiation-suit" rightArm="day-right-arm-radiation-suit"/>
+    </wearable>
+    <!-- CONDITION RESISTANCE (2026-08-15). Any modifier named
+         "<conditionKey>Resistance" protects against that condition: the fraction
+         SHRINKS ITS DURATION and 1.0 blocks it outright. No code knows these
+         keys - they are looked up by name off the condition being applied - so
+         a new condition in conditions.xml is protectable the moment it exists.
+         A helmet is the obvious place for stun. First-guess numbers. -->
+    <wearable skinId="7" key="metal_helmet">
+        <modifiers>
+            <modifier key="meleeResistance" multiplier="0.15" />
+            <modifier key="stunResistance" multiplier="0.3" />
+            <modifier key="speedMultiplier" multiplier="-0.01" />
+        </modifiers>
+        <client head="day-metal-helmet"/>
+    </wearable>
+    <wearable skinId="8" key="welding_helmet">
+        <modifiers>
+            <modifier key="meleeResistance" multiplier="0.4" />
+            <modifier key="explosionResistance" multiplier="0.05" />
+            <modifier key="speedMultiplier" multiplier="-0.02" />
+        </modifiers>
+        <client head="day-welding-helmet" leftArm="day-left-arm-welding-helmet" rightArm="day-right-arm-welding-helmet"/>
+    </wearable>
+    <wearable skinId="9" key="gladiator_helmet">
+        <modifiers>
+            <modifier key="meleeResistance" multiplier="0.6" />
+            <modifier key="piercingResistance" multiplier="0.1" />
+            <modifier key="explosionResistance" multiplier="0.2" />
+            <modifier key="stunResistance" multiplier="0.6" />
+            <modifier key="speedMultiplier" multiplier="-0.03" />
+        </modifiers>
+        <client head="day-gladiator-helmet" leftArm="day-left-arm-gladiator-armor" rightArm="day-right-arm-gladiator-armor"/>
+    </wearable>
+    <wearable skinId="10" key="leather_jacket">
+        <modifiers>
+            <modifier key="piercingResistance" multiplier="0.2" />
+            <modifier key="coldResistance" multiplier="0.0006" />
+        </modifiers>
+        <client head="day-leather-jacket" leftArm="day-left-arm-leather-jacket" rightArm="day-right-arm-leather-jacket"/>
+    </wearable>
+    <wearable skinId="11" key="kevlar_suit">
+        <modifiers>
+            <modifier key="piercingResistance" multiplier="0.4" />
+        </modifiers>
+        <client head="day-kevlar-suit" leftArm="day-left-arm-kevlar-suit" rightArm="day-right-arm-kevlar-suit"/>
+    </wearable>
+    <wearable skinId="12" key="swat_suit">
+        <modifiers>
+            <modifier key="meleeResistance" multiplier="0.1" />
+            <modifier key="piercingResistance" multiplier="0.7" />
+            <modifier key="explosionResistance" multiplier="0.1" />
+            <modifier key="speedMultiplier" multiplier="-0.01" />
+        </modifiers>
+        <client head="day-SWAT-suit" leftArm="day-left-arm-SWAT-suit" rightArm="day-right-arm-SWAT-suit"/>
+    </wearable>
+    <wearable skinId="13" key="protective_suit">
+        <modifiers>
+            <modifier key="coldResistance" multiplier="0.00085" />
+            <modifier key="explosionResistance" multiplier="0.9" />
+            <!-- The key is the CONDITION key + "Resistance". It shortens the
+                 duration (1.0 would block it outright), and it stacks with the
+                 explosionResistance above rather than duplicating it: that one
+                 cuts the blast's damage, this one cuts how long the stagger
+                 lasts. -->
+            <modifier key="slowedResistance" multiplier="0.75" />
+            <modifier key="speedMultiplier" multiplier="-0.03" />
+        </modifiers>
+        <client head="day-protective-suit" leftArm="day-left-arm-protective-suit" rightArm="day-right-arm-protective-suit"/>
+    </wearable>
+    <wearable skinId="14" key="power_armor">
+        <modifiers>
+            <modifier key="energyResistance" multiplier="0.3" />
+        </modifiers>
+        <client head="day-tesla-0" leftArm="day-left-arm-tesla-0" rightArm="day-right-arm-tesla-0"/>
+    </wearable>
+    <wearable skinId="15" key="tesla_armor">
+        <modifiers>
+            <modifier key="coldResistance" multiplier="0.00085" />
+            <modifier key="radiationResistance" multiplier="0.01" />
+            <modifier key="meleeResistance" multiplier="0.2" />
+            <modifier key="piercingResistance" multiplier="0.2" />
+            <modifier key="explosionResistance" multiplier="0.2" />
+            <modifier key="energyResistance" multiplier="0.75" />
+            <modifier key="speedMultiplier" multiplier="-0.02" />
+        </modifiers>
+        <client head="day-tesla-armor" leftArm="day-left-arm-tesla-armor" rightArm="day-right-arm-tesla-armor"/>
+    </wearable>
+    <wearable skinId="16" key="camouflage_gear">
+        <client head="day-camouflage-gear" leftArm="day-left-arm-camouflage-gear" rightArm="day-right-arm-camouflage-gear"/>
+    </wearable>
+</wearables>

@@ -1,0 +1,155 @@
+{
+  "about": "Weapon mod resolver cases. Run by the C++ --selftest (weapon_mods_selftest.cpp) and by vitest (apps/client/src/world/weapon-mods.test.ts): both resolvers must agree on every case.",
+  "cases": [
+    {
+      "name": "no mods and no magazine slot leave the base untouched",
+      "base": { "damage": 18, "fireDelayMs": 100, "spread": 0.08, "range": 900, "bulletSpeed": 1.7, "recoil": 0.7, "knockback": 1.2, "reloadMs": 2600, "drawMs": 1000, "magazineSize": 30 },
+      "hasMagazineSlot": false,
+      "mods": [],
+      "expect": { "damage": 18, "fireDelayMs": 100, "spread": 0.08, "range": 900, "bulletSpeed": 1.7, "recoil": 0.7, "knockback": 1.2, "reloadMs": 2600, "drawMs": 1000, "magazineSize": 30 }
+    },
+    {
+      "name": "a magazine slot with nothing fitted holds nothing",
+      "base": { "damage": 18, "fireDelayMs": 100, "spread": 0.08, "range": 900, "bulletSpeed": 1.7, "recoil": 0.7, "knockback": 1.2, "reloadMs": 2600, "drawMs": 1000, "magazineSize": 0 },
+      "hasMagazineSlot": true,
+      "mods": [],
+      "expect": { "damage": 18, "fireDelayMs": 100, "spread": 0.08, "range": 900, "bulletSpeed": 1.7, "recoil": 0.7, "knockback": 1.2, "reloadMs": 2600, "drawMs": 1000, "magazineSize": 0 }
+    },
+    {
+      "name": "a drum magazine sets capacity and slows reload and draw",
+      "base": { "damage": 18, "fireDelayMs": 100, "spread": 0.08, "range": 900, "bulletSpeed": 1.7, "recoil": 0.7, "knockback": 1.2, "reloadMs": 2600, "drawMs": 1000, "magazineSize": 0 },
+      "hasMagazineSlot": true,
+      "mods": [
+        { "slot": "magazine", "capacity": 40, "stats": [ { "name": "reloadMs", "add": 400 }, { "name": "drawMs", "add": 150 } ] }
+      ],
+      "expect": { "damage": 18, "fireDelayMs": 100, "spread": 0.08, "range": 900, "bulletSpeed": 1.7, "recoil": 0.7, "knockback": 1.2, "reloadMs": 3000, "drawMs": 1150, "magazineSize": 40 }
+    },
+    {
+      "name": "adds and percents sum across mods",
+      "base": { "damage": 18, "fireDelayMs": 100, "spread": 0.08, "range": 900, "bulletSpeed": 1.7, "recoil": 0.7, "knockback": 1.2, "reloadMs": 2600, "drawMs": 1000, "magazineSize": 0 },
+      "hasMagazineSlot": true,
+      "mods": [
+        { "slot": "underbarrel", "stats": [ { "name": "recoil", "percent": -30 } ] },
+        { "slot": "muzzle", "stats": [ { "name": "recoil", "percent": -15 }, { "name": "range", "percent": -10 } ] },
+        { "slot": "handguard", "stats": [ { "name": "spread", "add": 0.02, "percent": -5 } ] }
+      ],
+      "expect": { "damage": 18, "fireDelayMs": 100, "spread": 0.095, "range": 810, "bulletSpeed": 1.7, "recoil": 0.385, "knockback": 1.2, "reloadMs": 2600, "drawMs": 1000, "magazineSize": 0 }
+    },
+    {
+      "name": "mod order does not matter",
+      "base": { "damage": 18, "fireDelayMs": 100, "spread": 0.08, "range": 900, "bulletSpeed": 1.7, "recoil": 0.7, "knockback": 1.2, "reloadMs": 2600, "drawMs": 1000, "magazineSize": 0 },
+      "hasMagazineSlot": true,
+      "mods": [
+        { "slot": "handguard", "stats": [ { "name": "spread", "add": 0.02, "percent": -5 } ] },
+        { "slot": "muzzle", "stats": [ { "name": "recoil", "percent": -15 }, { "name": "range", "percent": -10 } ] },
+        { "slot": "underbarrel", "stats": [ { "name": "recoil", "percent": -30 } ] }
+      ],
+      "expect": { "damage": 18, "fireDelayMs": 100, "spread": 0.095, "range": 810, "bulletSpeed": 1.7, "recoil": 0.385, "knockback": 1.2, "reloadMs": 2600, "drawMs": 1000, "magazineSize": 0 }
+    },
+    {
+      "name": "results are clamped and the percent sum is floored at -95",
+      "base": { "damage": 18, "fireDelayMs": 100, "spread": 0.08, "range": 900, "bulletSpeed": 1.7, "recoil": 0.7, "knockback": 1.2, "reloadMs": 2600, "drawMs": 1000, "magazineSize": 0 },
+      "hasMagazineSlot": true,
+      "mods": [
+        { "slot": "optic", "stats": [ { "name": "fireDelayMs", "percent": -99 }, { "name": "damage", "add": -50 } ] }
+      ],
+      "expect": { "damage": 1, "fireDelayMs": 30, "spread": 0.08, "range": 900, "bulletSpeed": 1.7, "recoil": 0.7, "knockback": 1.2, "reloadMs": 2600, "drawMs": 1000, "magazineSize": 0 }
+    },
+    {
+      "name": "integer stats round to nearest",
+      "base": { "damage": 18, "fireDelayMs": 100, "spread": 0.08, "range": 900, "bulletSpeed": 1.7, "recoil": 0.7, "knockback": 1.2, "reloadMs": 2600, "drawMs": 1000, "magazineSize": 0 },
+      "hasMagazineSlot": true,
+      "mods": [
+        { "slot": "stock", "stats": [ { "name": "reloadMs", "percent": -33.3 }, { "name": "damage", "percent": 25 } ] }
+      ],
+      "expect": { "damage": 23, "fireDelayMs": 100, "spread": 0.08, "range": 900, "bulletSpeed": 1.7, "recoil": 0.7, "knockback": 1.2, "reloadMs": 1734, "drawMs": 1000, "magazineSize": 0 }
+    },
+    {
+      "name": "a percent sum below -95 is floored at -95, not clamped straight to the minimum",
+      "base": { "damage": 18, "fireDelayMs": 100, "spread": 0.08, "range": 900, "bulletSpeed": 1.7, "recoil": 0.7, "knockback": 1.2, "reloadMs": 2600, "drawMs": 1000, "magazineSize": 0 },
+      "hasMagazineSlot": true,
+      "mods": [
+        { "slot": "stock", "stats": [ { "name": "reloadMs", "percent": -99 } ] }
+      ],
+      "expect": { "damage": 18, "fireDelayMs": 100, "spread": 0.08, "range": 900, "bulletSpeed": 1.7, "recoil": 0.7, "knockback": 1.2, "reloadMs": 130, "drawMs": 1000, "magazineSize": 0 }
+    },
+    {
+      "name": "the -95 floor applies to the percent summed across mods",
+      "base": { "damage": 18, "fireDelayMs": 100, "spread": 0.08, "range": 900, "bulletSpeed": 1.7, "recoil": 0.7, "knockback": 1.2, "reloadMs": 2600, "drawMs": 1000, "magazineSize": 0 },
+      "hasMagazineSlot": true,
+      "mods": [
+        { "slot": "stock", "stats": [ { "name": "reloadMs", "percent": -60 } ] },
+        { "slot": "side", "stats": [ { "name": "reloadMs", "percent": -50 } ] }
+      ],
+      "expect": { "damage": 18, "fireDelayMs": 100, "spread": 0.08, "range": 900, "bulletSpeed": 1.7, "recoil": 0.7, "knockback": 1.2, "reloadMs": 130, "drawMs": 1000, "magazineSize": 0 }
+    },
+    {
+      "name": "a stat no mod touches keeps its base even when that base is out of range",
+      "base": { "damage": 0, "fireDelayMs": 100, "spread": 12, "range": 10, "bulletSpeed": 1.7, "recoil": 0.7, "knockback": 1.2, "reloadMs": 2600, "drawMs": 1000, "magazineSize": 0 },
+      "hasMagazineSlot": true,
+      "mods": [
+        { "slot": "stock", "stats": [ { "name": "reloadMs", "add": 100 } ] }
+      ],
+      "expect": { "damage": 0, "fireDelayMs": 100, "spread": 12, "range": 10, "bulletSpeed": 1.7, "recoil": 0.7, "knockback": 1.2, "reloadMs": 2700, "drawMs": 1000, "magazineSize": 0 }
+    },
+    {
+      "name": "adds from different mods to the same stat sum",
+      "base": { "damage": 18, "fireDelayMs": 100, "spread": 0.08, "range": 900, "bulletSpeed": 1.7, "recoil": 0.7, "knockback": 1.2, "reloadMs": 2600, "drawMs": 1000, "magazineSize": 0 },
+      "hasMagazineSlot": true,
+      "mods": [
+        { "slot": "stock", "stats": [ { "name": "reloadMs", "add": 100 } ] },
+        { "slot": "side", "stats": [ { "name": "reloadMs", "add": 200 } ] }
+      ],
+      "expect": { "damage": 18, "fireDelayMs": 100, "spread": 0.08, "range": 900, "bulletSpeed": 1.7, "recoil": 0.7, "knockback": 1.2, "reloadMs": 2900, "drawMs": 1000, "magazineSize": 0 }
+    },
+    {
+      "name": "results above a stat's maximum clamp down to it",
+      "base": { "damage": 18, "fireDelayMs": 100, "spread": 0.08, "range": 900, "bulletSpeed": 1.7, "recoil": 0.7, "knockback": 1.2, "reloadMs": 2600, "drawMs": 1000, "magazineSize": 0 },
+      "hasMagazineSlot": true,
+      "mods": [
+        { "slot": "optic", "stats": [ { "name": "range", "add": 70000 }, { "name": "recoil", "add": 200 } ] }
+      ],
+      "expect": { "damage": 18, "fireDelayMs": 100, "spread": 0.08, "range": 65535, "bulletSpeed": 1.7, "recoil": 100, "knockback": 1.2, "reloadMs": 2600, "drawMs": 1000, "magazineSize": 0 }
+    },
+    {
+      "name": "results below a stat's minimum clamp up to it, to zero for spread and knockback",
+      "base": { "damage": 18, "fireDelayMs": 100, "spread": 0.08, "range": 900, "bulletSpeed": 1.7, "recoil": 0.7, "knockback": 1.2, "reloadMs": 2600, "drawMs": 1000, "magazineSize": 0 },
+      "hasMagazineSlot": true,
+      "mods": [
+        { "slot": "handguard", "stats": [ { "name": "spread", "add": -1 }, { "name": "knockback", "add": -5 }, { "name": "drawMs", "add": -950 } ] }
+      ],
+      "expect": { "damage": 18, "fireDelayMs": 100, "spread": 0, "range": 900, "bulletSpeed": 1.7, "recoil": 0.7, "knockback": 0, "reloadMs": 2600, "drawMs": 100, "magazineSize": 0 }
+    },
+    {
+      "name": "an aiming weapon with no mods: aim stats come from <aim> and the hip spread",
+      "base": { "damage": 18, "fireDelayMs": 100, "spread": 0.08, "range": 900, "bulletSpeed": 1.7, "recoil": 0.7, "knockback": 1.2, "reloadMs": 2600, "drawMs": 1000, "magazineSize": 0 },
+      "hasMagazineSlot": true,
+      "aim": { "spreadPercent": -35, "movePercent": -20, "timeMs": 250 },
+      "mods": [],
+      "expect": { "damage": 18, "fireDelayMs": 100, "spread": 0.08, "range": 900, "bulletSpeed": 1.7, "recoil": 0.7, "knockback": 1.2, "reloadMs": 2600, "drawMs": 1000, "magazineSize": 0, "aimSpread": 0.052, "aimMove": 0.8, "aimMs": 250 }
+    },
+    {
+      "name": "aim mods act on the modded hip spread, after the hip stats",
+      "base": { "damage": 18, "fireDelayMs": 100, "spread": 0.08, "range": 900, "bulletSpeed": 1.7, "recoil": 0.7, "knockback": 1.2, "reloadMs": 2600, "drawMs": 1000, "magazineSize": 0 },
+      "hasMagazineSlot": true,
+      "aim": { "spreadPercent": -35, "movePercent": -20, "timeMs": 250 },
+      "mods": [
+        { "slot": "handguard", "stats": [ { "name": "spread", "percent": -5 } ] },
+        { "slot": "optic", "stats": [ { "name": "aimSpread", "percent": -30 }, { "name": "aimMove", "percent": -10 }, { "name": "aimMs", "add": 100 } ] },
+        { "slot": "underbarrel", "stats": [ { "name": "aimSpread", "percent": -10 } ] },
+        { "slot": "stock", "stats": [ { "name": "aimSpread", "percent": -10 }, { "name": "aimMove", "percent": -5 } ] }
+      ],
+      "expect": { "damage": 18, "fireDelayMs": 100, "spread": 0.076, "range": 900, "bulletSpeed": 1.7, "recoil": 0.7, "knockback": 1.2, "reloadMs": 2600, "drawMs": 1000, "magazineSize": 0, "aimSpread": 0.0247, "aimMove": 0.68, "aimMs": 350 }
+    },
+    {
+      "name": "aim stats clamp: walk never below 0.1, aim time never below 0, percents floor at -95",
+      "base": { "damage": 18, "fireDelayMs": 100, "spread": 0.08, "range": 900, "bulletSpeed": 1.7, "recoil": 0.7, "knockback": 1.2, "reloadMs": 2600, "drawMs": 1000, "magazineSize": 0 },
+      "hasMagazineSlot": true,
+      "aim": { "spreadPercent": -35, "movePercent": -20, "timeMs": 250 },
+      "mods": [
+        { "slot": "optic", "stats": [ { "name": "aimSpread", "percent": -200 }, { "name": "aimMove", "add": -0.9 }, { "name": "aimMs", "add": -500 } ] }
+      ],
+      "expect": { "damage": 18, "fireDelayMs": 100, "spread": 0.08, "range": 900, "bulletSpeed": 1.7, "recoil": 0.7, "knockback": 1.2, "reloadMs": 2600, "drawMs": 1000, "magazineSize": 0, "aimSpread": 0.0026, "aimMove": 0.1, "aimMs": 0 }
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<npc key="banker" id="2" name="Elias" invulnerable="true">
+  <client head="day-skin2" leftArm="day-left-arm2" rightArm="day-right-arm2" tint="#a4c6dd"/>
+  <body solid="true" walkThrough="false"/>
+  <movement walkRadius="0"/>
+  <banker enabled="true"/>
+  <dialogue greeting="Welcome to the bank. Ask about {bank} or your {balance}." fallback="I can help with your {bank} account. Say {bye} when finished.">
+    <topic key="root">
+      <reply keyword="delivery" text="If you brought my firewood, I have received it. Report back to the quartermaster."/>
+    </topic>
+  </dialogue>
+</npc>

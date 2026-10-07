@@ -1,0 +1,56 @@
+{
+  "format": "prevast-scenario",
+  "schemaVersion": 1,
+  "id": "prj-corpus",
+  "title": "Corpus",
+  "revision": 1,
+  "nextId": 20,
+  "requiredFeatures": [
+    "world.v1"
+  ],
+  "world": {
+    "tilesX": 20,
+    "tilesY": 20,
+    "seed": 7,
+    "time": "day",
+    "population": {
+      "resources": false,
+      "structures": false,
+      "agents": false
+    }
+  },
+  "entities": [],
+  "groups": [],
+  "regions": [
+    {
+      "id": "r",
+      "name": "R",
+      "priority": 0,
+      "permissions": {
+        "pvp": "deny"
+      },
+      "shape": {
+        "type": "polygon",
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            100,
+            100
+          ],
+          [
+            100,
+            0
+          ],
+          [
+            0,
+            100
+          ]
+        ]
+      }
+    }
+  ],
+  "templates": []
+}

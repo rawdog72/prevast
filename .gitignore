@@ -1,0 +1,28 @@
+node_modules/
+build/
+dist/
+runtime/
+.vs/
+.listing-token
+*.user
+*.log
+*.pdb
+*.obj
+*.exe
+*.dll
+__pycache__/
+*.pyc
+.DS_Store
+.m1-work/
+.env
+.env.*
+!.env.example
+
+# Original Devast.io images and sounds: each person supplies their own copy.
+original-assets/*
+!original-assets/README.md
+!original-assets/manifest.json
+
+# Local working notes, specs and plans stay out of the public repository.
+.superpowers/
+docs/superpowers/

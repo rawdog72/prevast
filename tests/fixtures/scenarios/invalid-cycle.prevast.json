@@ -1,0 +1,47 @@
+{
+  "format": "prevast-scenario",
+  "schemaVersion": 1,
+  "id": "prj-corpus",
+  "title": "Corpus",
+  "revision": 1,
+  "nextId": 20,
+  "requiredFeatures": [
+    "world.v1"
+  ],
+  "world": {
+    "tilesX": 20,
+    "tilesY": 20,
+    "seed": 7,
+    "time": "day",
+    "population": {
+      "resources": false,
+      "structures": false,
+      "agents": false
+    }
+  },
+  "entities": [],
+  "groups": [
+    {
+      "id": "g1",
+      "name": "A",
+      "kind": "group",
+      "parent": "g2",
+      "pivot": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "id": "g2",
+      "name": "B",
+      "kind": "group",
+      "parent": "g1",
+      "pivot": {
+        "x": 0,
+        "y": 0
+      }
+    }
+  ],
+  "regions": [],
+  "templates": []
+}

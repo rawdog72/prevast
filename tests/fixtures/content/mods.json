@@ -1,0 +1,139 @@
+{
+  "name": "mods",
+  "version": 1,
+  "hash": "6cdb54e3bc154ac0",
+  "attributes": {},
+  "entries": {
+    "mp5_mag_15": {
+      "key": "mp5_mag_15",
+      "slot": "magazine",
+      "installMs": 1500,
+      "capacity": 15,
+      "stat": [
+        {
+          "name": "reloadMs",
+          "add": -300
+        },
+        {
+          "name": "drawMs",
+          "add": -100
+        }
+      ]
+    },
+    "mp5_mag_30": {
+      "key": "mp5_mag_30",
+      "slot": "magazine",
+      "installMs": 1800,
+      "capacity": 30
+    },
+    "mp5_mag_40": {
+      "key": "mp5_mag_40",
+      "slot": "magazine",
+      "installMs": 2200,
+      "capacity": 40,
+      "stat": [
+        {
+          "name": "reloadMs",
+          "add": 400
+        },
+        {
+          "name": "drawMs",
+          "add": 150
+        }
+      ]
+    },
+    "reflex_sight": {
+      "key": "reflex_sight",
+      "slot": "optic",
+      "installMs": 1500
+    },
+    "tube_scope": {
+      "key": "tube_scope",
+      "slot": "optic",
+      "installMs": 2500
+    },
+    "suppressor_9mm": {
+      "key": "suppressor_9mm",
+      "slot": "muzzle",
+      "installMs": 2000,
+      "stat": [
+        {
+          "name": "recoil",
+          "percent": -15
+        },
+        {
+          "name": "range",
+          "percent": -10
+        }
+      ]
+    },
+    "grip_vertical": {
+      "key": "grip_vertical",
+      "slot": "underbarrel",
+      "installMs": 2000,
+      "stat": [
+        {
+          "name": "recoil",
+          "percent": -30
+        }
+      ]
+    },
+    "grip_angled": {
+      "key": "grip_angled",
+      "slot": "underbarrel",
+      "installMs": 2000,
+      "stat": [
+        {
+          "name": "recoil",
+          "percent": -15
+        },
+        {
+          "name": "drawMs",
+          "add": -100
+        }
+      ]
+    },
+    "stock_solid": {
+      "key": "stock_solid",
+      "slot": "stock",
+      "installMs": 3000,
+      "stat": [
+        {
+          "name": "recoil",
+          "percent": -35
+        },
+        {
+          "name": "drawMs",
+          "add": 150
+        }
+      ]
+    },
+    "stock_open": {
+      "key": "stock_open",
+      "slot": "stock",
+      "installMs": 3000,
+      "stat": [
+        {
+          "name": "recoil",
+          "percent": -20
+        }
+      ]
+    },
+    "handguard_standard": {
+      "key": "handguard_standard",
+      "slot": "handguard",
+      "installMs": 2500
+    },
+    "handguard_vented": {
+      "key": "handguard_vented",
+      "slot": "handguard",
+      "installMs": 2500,
+      "stat": [
+        {
+          "name": "spread",
+          "percent": -5
+        }
+      ]
+    }
+  }
+}

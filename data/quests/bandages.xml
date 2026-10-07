@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<quest key="bandages" name="Field Medicine" category="side"
+       description="The settlement is running short of medical supplies.">
+  <start>
+    <talk npc="quartermaster" keyword="medicine" text="Craft 2 bandages yourself, then tell me about the {medicine}. The reward is 150 caps."/>
+  </start>
+  <stage key="craft" journal="Craft 2 bandages yourself, then report to Rook.">
+    <objective key="bandages" type="craft" item="bandage" count="2" text="Craft bandages"/>
+    <objective key="report" type="talk" npc="quartermaster" keyword="medicine" after="bandages"
+               text="Report to Rook" reply="Good work. Here are 150 caps."/>
+    <outcome when="all" next="end:paid"><reward caps="150"/></outcome>
+  </stage>
+  <ending key="paid" journal="Rook accepted your work and paid you 150 caps."/>
+  <dialogue npc="quartermaster">
+    <reply keyword="medicine" stage="craft" text="Craft 2 bandages first, then come back about the {medicine}."/>
+    <reply keyword="medicine" state="completed" text="You already helped with the medicine."/>
+  </dialogue>
+</quest>

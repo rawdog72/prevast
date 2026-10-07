@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<modes>
+    <!--
+        base="<key>" starts a mode as a copy of one declared ABOVE it, so the
+        blocks every mode shares are written once. A block that is PRESENT in
+        the child replaces the inherited one wholesale rather than merging into
+        it, which is the only way to say "this mode has no gauges at all" and
+        keeps the spawn lists from doubling.
+
+        abstract="true" marks a template: it can be inherited but never played.
+        config.lua gameMode cannot select one, and the "mode not found" fallback
+        skips it.
+
+        The boot log prints one summary line per mode with the values it ended
+        up with. What a mode inherits is invisible in this file, so that line
+        is how you check it.
+    -->
+    <mode key="common" abstract="true">
+	<clans enabled="true" canCreate="true" maxMembers="9" maxClans="18"/>
+        <karma>
+            <level id="0" xpMultiplier="1.25" maxKills="0"/> <!-- Angel -->
+            <level id="1" xpMultiplier="1.00" maxKills="3"/> <!-- Normal -->
+            <level id="2" xpMultiplier="0.95" maxKills="5"/> <!-- Orange -->
+            <level id="3" xpMultiplier="0.90" maxKills="7"/> <!-- Red -->
+            <level id="4" xpMultiplier="0.85" maxKills="10"/> <!-- Savage -->
+            <level id="5" xpMultiplier="0.80" maxKills="999999"/> <!-- Devil -->
+        </karma>
+        <!-- The survival gauge set. benchmark replaces this block; ghoul takes
+             it as-is. -->
+        <gauges>
+            <gauge key="life" max="255" speedInc="50" speedDec="50"/>
+
+            <gauge key="food" max="255" speedInc="12" speedDec="12"
+                   lifeDecBelowPct="0"
+                   lifeRegenAbovePct="30"/>
+
+            <gauge key="warmth" max="255" speedInc="50" speedDec="35"
+                   lifeDecBelowPct="0"
+                   lifeRegenAbovePct="30"/>
+
+            <gauge key="stamina" max="255" speedInc="150" speedDec="300"/>
+
+            <gauge key="radiation" max="255" speedInc="30" speedDec="240"
+                   lifeDecAbovePct="70"
+                   lifeRegenBelowPct="50"/>
+        </gauges>
+    </mode>
+
+    <mode key="survival" base="common" clientModeId="0" dayNightCycle="960000" craftSpeed="1.0">
+        <spawns>
+            <!-- respawnDelayMs is how long a harvested resource waits before
+                 it comes back somewhere else. 0 = NEVER, which also stops the
+                 periodic relocation that removes a live resource every 20s
+                 expecting the queue to replace it. Omit the attribute to keep
+                 the old behaviour: 60s scaled by respawnDelayMultiplier.
+                 Changeable live with !respawn-resources=<ms|off>. -->
+            <spawn type="resources" respawnDelayMs="60000" respawnDelayMultiplier="1.0" rateExperience="1.0" rateItem="1.0"/>
+            <spawn type="structures"  respawnDelayMs="480000">
+                <structure key="house0" amount="1" isCity="0" />
+                <structure key="house1" amount="1" isCity="0" />
+                <structure key="house2" amount="1" isCity="0" />
+                <structure key="house3" amount="1" isCity="0" />
+                <structure key="house4" amount="1" isCity="0" />
+                <structure key="house5" amount="1" isCity="0" />
+                <structure key="house6" amount="1" isCity="0" />
+                <structure key="house7" amount="1" isCity="0" />
+                <structure key="house8" amount="1" isCity="0" />
+                <structure key="house9" amount="1" isCity="0" />
+                <structure key="city0" amount="1" isCity="1" />
+                <structure key="bunker0" amount="1" isCity="0" />
+            </spawn>
+
+            <!--
+                World-spawned agents. `time` gates each type on the day/night
+                clock, so ghouls appear only after dark and the sun thins them
+                out again at dawn (<daylight> in agents.xml) - the population is
+                a sawtooth, not a steady state.
+
+                respawnDelayMs is the CADENCE of the trickle, not the fill rate.
+                How many arrive per tick is derived from the night length and the
+                population cap so that the map fills in about a third of the
+                night, whatever those numbers are: the ghouls get out and hunting
+                with most of the dark still ahead of them, instead of arriving at
+                dawn in time to burn. So a shorter delay means a smoother
+                trickle, NOT more ghouls - 5s gives a couple at a time rather
+                than a crowd every minute.
+
+                maxAlive is per type, maxTotal is the mode-wide ceiling across
+                all of them; the effective cap is whichever is lower. Both count
+                world spawns only, so player-built bots never eat the budget.
+                weight is the relative share of each spawn.
+            -->
+            <spawn type="agents" respawnDelayMs="5000" maxTotal="200">
+                <agent key="normal_ghoul"      maxAlive="50" weight="100" time="night"/>
+                <agent key="explosive_ghoul"   maxAlive="50" weight="60"  time="night"/>
+                <agent key="fast_ghoul"        maxAlive="40" weight="50"  time="night"/>
+                <agent key="radioactive_ghoul" maxAlive="30" weight="30"  time="night"/>
+                <agent key="armored_ghoul"     maxAlive="30" weight="20"  time="night"/>
+            </spawn>
+        </spawns>
+    </mode>
+
+    <!-- GHOUL MODE. A round, not a persistent world.
+
+         A countdown starts the moment the FIRST player joins an empty round.
+         Until it expires the mode plays as survival: people gather, craft,
+         build, and anyone who dies respawns as a player with the usual starting
+         kit. When it expires the world LOCKS, and from then on every login
+         arrives as a ghoul instead - including a player who dies afterward and
+         comes back. Players already alive at the lock stay players; the only way
+         to stop being one is to die. The round ends when the last living player
+         character leaves the world, and the world is regenerated for the next.
+
+         id="2" is REQUIRED and is not a free choice: client.js keys every ghoul
+         code path off World.__GHOUL__ == 2 - the ghoul sprites, the frozen
+         gauges, the hidden craft and team buttons, the countdown and the alive
+         counter. Any other id and clients draw plain survival while the server
+         enforces ghoul rules.
+
+         craftSpeed="0.4" MATCHES the client, which hardcodes
+         World.PLAYER.craftFactor = 0.4 for this mode. Change one without the
+         other and every craft bar disagrees with the server that fills it.
+
+         There is deliberately no <spawn type="agents"> here. NPC ghouls would be
+         indistinguishable from player ghouls, and the whole map is hostile
+         already. Player-BUILT bots are unaffected - they are never spawned from
+         a mode's table - and they treat ghouls as enemies, so a base defends
+         itself. -->
+    <mode key="ghoul" base="common" clientModeId="2" dayNightCycle="960000" craftSpeed="0.4">
+
+        <!-- lockDelayMs   countdown from the first player joining to the lock.
+             extendPlayerCount / extendMultiplier
+                           if at least this many players are online WHEN THE
+                           COUNTDOWN EXPIRES, it is multiplied instead - once.
+                           A busy round gets longer to gear up. Checked at
+                           expiry rather than continuously, so a rush of joiners
+                           who all leave again cannot extend a round that is no
+                           longer busy.
+             revealIntervalMs
+                           how often the last few players' positions are pushed
+                           to every living ghoul. The threshold itself is fixed
+                           at 5 by client.js (it only draws the arrows while
+                           playerAlive < 6), so only the cadence is tunable.
+                           Coarse on purpose: a live feed makes the endgame
+                           unwinnable, a stale ping makes it tense.
+             shiftSpeedBonus
+                           flat speed a ghoul gains holding shift, matching what
+                           a player gains (230 -> 322). Flat, not a multiplier:
+                           a fast_ghoul is already quicker than a player and
+                           scaling would compound that into something nobody
+                           can outrun.
+             daylightDamage
+                           whether ghouls burn in the sun (agents.xml
+                           <daylight>). Off here: that rule exists to thin out a
+                           NIGHT population, and these ghouls are players - a
+                           round that killed half of them at dawn would end on
+                           the clock instead of on the fight.
+
+             <ghoul> is the weighted body table a new ghoul is drawn from. The
+             weights are the spawn weights the survival mode uses for the same
+             creatures, so the mix reads the same: mostly normal ghouls, rarely
+             an armoured one. Everything ELSE about a ghoul - health, speed,
+             night speed, melee, resistances, drops, the explosive one's blast,
+             the radioactive one's aura - comes from agents.xml, so a ghoul here
+             is exactly the creature that mode spawns at night. -->
+        <ghoulRules lockDelayMs="48000"
+                    extendPlayerCount="60" extendMultiplier="2.0"
+                    revealIntervalMs="5000"
+                    shiftSpeedBonus="92"
+                    daylightDamage="false">
+            <ghoul key="normal_ghoul"      weight="100"/>
+            <ghoul key="explosive_ghoul"   weight="60"/>
+            <ghoul key="fast_ghoul"        weight="50"/>
+            <ghoul key="radioactive_ghoul" weight="30"/>
+            <ghoul key="armored_ghoul"     weight="20"/>
+        </ghoulRules>
+
+        <!-- clans, karma and gauges come from base="common". A ghoul's gauges
+             are then overridden per player from its agents.xml body (life
+             ceiling) and by the mode's ghoul rules (food, warmth and radiation
+             never drain, stamina refills faster) - the inherited values are
+             what the PLAYERS in the round live by. -->
+
+        <spawns>
+            <spawn type="resources" respawnDelayMs="60000" respawnDelayMultiplier="1.0" rateExperience="2.0" rateItem="1.0"/>
+            <spawn type="structures"  respawnDelayMs="480000">
+                <structure key="house0" amount="1" isCity="0" />
+                <structure key="house1" amount="1" isCity="0" />
+                <structure key="house2" amount="1" isCity="0" />
+                <structure key="house3" amount="1" isCity="0" />
+                <structure key="house4" amount="1" isCity="0" />
+                <structure key="house5" amount="1" isCity="0" />
+                <structure key="house6" amount="1" isCity="0" />
+                <structure key="house7" amount="1" isCity="0" />
+                <structure key="house8" amount="1" isCity="0" />
+                <structure key="house9" amount="1" isCity="0" />
+                <structure key="city0" amount="1" isCity="1" />
+                <structure key="bunker0" amount="1" isCity="0" />
+            </spawn>
+        </spawns>
+    </mode>
+
+    <!-- BENCHMARK ONLY - NOT FOR PRODUCTION.
+         Every gauge decays at speedDec="0", so players never starve, freeze,
+         irradiate or die. That is deliberate: under `survival` a stress run
+         cannot hold a steady population, because bots starve after ~3.5 min
+         and the per-IP connect throttle caps reconnects below 2/s, so the
+         population equilibrates well under the target. Removing mortality
+         also stops corpse loot accumulating (entity count climbed 7.5k -> 9.2k
+         over one run, and every visibility scan pays for that), which keeps
+         the measurement about player load rather than drift in world state.
+
+         id="0" is intentional and NOT a copy-paste error: the client validates
+         the mode id it is sent and rejects unknown ones, so this mode presents
+         to clients as ordinary survival. Only server-side gauge decay differs.
+
+         benchmark="true" makes the server print a startup warning banner when
+         this mode is active, so a deployment that selects it by accident is
+         visible in the log rather than silent. -->
+    <mode key="benchmark" base="common" clientModeId="0" dayNightCycle="960000" craftSpeed="1.0" benchmark="true">
+        <!-- clans and karma come from base="common". This block REPLACES the
+             inherited gauges rather than merging with them. -->
+        <gauges>
+            <!-- speedDec="0" everywhere: gauges only ever refill, never drain,
+                 so nothing can reach a lethal threshold. The lifeDec*/lifeRegen*
+                 thresholds are left as in survival; they are unreachable once
+                 the gauges cannot fall. -->
+            <gauge key="life" max="255" speedInc="50" speedDec="0"/>
+
+            <gauge key="food" max="255" speedInc="12" speedDec="0"
+                   lifeDecBelowPct="0"
+                   lifeRegenAbovePct="30"/>
+
+            <gauge key="warmth" max="255" speedInc="50" speedDec="0"
+                   lifeDecBelowPct="0"
+                   lifeRegenAbovePct="30"/>
+
+            <gauge key="stamina" max="255" speedInc="150" speedDec="0"/>
+
+            <gauge key="radiation" max="255" speedInc="30" speedDec="0"
+                   lifeDecAbovePct="70"
+                   lifeRegenBelowPct="50"/>
+        </gauges>
+        <spawns>
+            <!-- respawnDelayMs is how long a harvested resource waits before
+                 it comes back somewhere else. 0 = NEVER, which also stops the
+                 periodic relocation that removes a live resource every 20s
+                 expecting the queue to replace it. Omit the attribute to keep
+                 the old behaviour: 60s scaled by respawnDelayMultiplier.
+                 Changeable live with !respawn-resources=<ms|off>. -->
+            <spawn type="resources" respawnDelayMs="60000" respawnDelayMultiplier="1.0" rateExperience="1.0" rateItem="1.0"/>
+            <spawn type="structures"  respawnDelayMs="480000">
+                <structure key="house0" amount="1" isCity="0" />
+                <structure key="house1" amount="1" isCity="0" />
+                <structure key="house2" amount="1" isCity="0" />
+                <structure key="house3" amount="1" isCity="0" />
+                <structure key="house4" amount="1" isCity="0" />
+                <structure key="house5" amount="1" isCity="0" />
+                <structure key="house6" amount="1" isCity="0" />
+                <structure key="house7" amount="1" isCity="0" />
+                <structure key="house8" amount="1" isCity="0" />
+                <structure key="house9" amount="1" isCity="0" />
+                <structure key="city0" amount="1" isCity="1" />
+                <structure key="bunker0" amount="1" isCity="0" />
+            </spawn>
+        </spawns>
+    </mode>
+</modes>

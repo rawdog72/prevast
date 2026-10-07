@@ -1,0 +1,1336 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects>
+	<object key="base_furniture" itemKey="furniture" category="furniture" healthMax="450" layer="mid" abstract="true">
+		<transform width="100" height="100" collision="true" blocksProjectiles="true"/>
+		<onDestroy>
+			<drops>
+				<item key="shaped_metal" amount="2" />
+			</drops>
+		</onDestroy>
+	</object>
+	<!-- Every furniture is this unless it says otherwise: the shared item id,
+	     the mid layer, 450 health and a one-tile solid footprint. An entry
+	     overrides whichever of those it needs and declares its own drops.
+	     itemKey stays on each entry: it is read from the node itself and is
+	     deliberately NOT inherited (see ObjectManager::loadFromXml). -->
+	<object key="base_furniture" itemKey="furniture" category="furniture"
+	        healthMax="450" layer="mid" abstract="true">
+		<transform width="100" height="100" collision="true" blocksProjectiles="true" />
+	</object>
+	<object key="base_sofa" itemKey="furniture" category="furniture" healthMax="450" layer="mid" abstract="true">
+		<transform width="100" height="100" collision="true" blocksProjectiles="true"/>
+		<onDestroy>
+			<drops>
+				<item key="wood" amount="10" />
+			</drops>
+		</onDestroy>
+	</object>
+	<object key="base_storage" itemKey="furniture" category="furniture" healthMax="1000" layer="mid" abstract="true">
+		<transform width="100" height="100" collision="true" blocksProjectiles="true"/>
+		<storage slots="4" refrigeration="false" />
+		<onDestroy>
+			<drops>
+				<item key="shaped_metal" amount="2" />
+			</drops>
+		</onDestroy>
+	</object>
+	<object key="sofa0" itemKey="furniture" subtype="0" base="base_sofa" >
+		<client render="furniture" impactSound="pillow_impact" destroySound="pillow_destroy" particles="sofa0" particlesDistance="70" angle="3.141592653589793" z="1" zGroup="0">
+			<frame index="0" sprite="day-sofa0"/>
+		</client>
+	</object>
+	<object key="sofa1" itemKey="furniture" subtype="1" base="base_sofa" >
+		<client render="furniture" impactSound="pillow_impact" destroySound="pillow_destroy" particles="sofa1" particlesDistance="70" angle="3.141592653589793" z="1" zGroup="0">
+			<frame index="0" sprite="day-sofa1"/>
+		</client>
+	</object>
+	<object key="sofa2" itemKey="furniture" subtype="2" base="base_sofa" >
+		<client render="furniture" impactSound="pillow_impact" destroySound="pillow_destroy" particles="sofa1" particlesDistance="70" angle="3.141592653589793" z="1" zGroup="0">
+			<frame index="0" sprite="day-sofa2"/>
+		</client>
+	</object>
+	<object key="sofa3" itemKey="furniture" subtype="3" base="base_sofa" >
+		<client render="furniture" impactSound="pillow_impact" destroySound="pillow_destroy" particles="sofa2" particlesDistance="70" angle="3.141592653589793" z="1" zGroup="0">
+			<frame index="0" sprite="day-sofa3"/>
+		</client>
+	</object>
+	<object key="sofa4" itemKey="furniture" subtype="4" base="base_sofa" >
+		<client render="furniture" impactSound="pillow_impact" destroySound="pillow_destroy" particles="sofa2" particlesDistance="70" angle="3.141592653589793" z="1" zGroup="0">
+			<frame index="0" sprite="day-sofa4"/>
+		</client>
+	</object>
+	<object key="sofa6" itemKey="furniture" subtype="42" base="base_sofa" >
+		<client render="furniture" impactSound="pillow_impact" destroySound="pillow_destroy" particles="sofa2" particlesDistance="70" angle="3.141592653589793" z="1" zGroup="0">
+			<frame index="0" sprite="day-sofa6"/>
+		</client>
+	</object>
+	<object key="bed0" itemKey="furniture" subtype="5" healthMax="300" base="base_furniture">
+		<onDestroy>
+			<drops>
+				<item key="wood" amount="200" />
+				<item key="leather" amount="20" />
+			</drops>
+		</onDestroy>
+		<client render="furniture" impactSound="pillow_impact" destroySound="pillow_destroy" particles="bed0" particlesDistance="70" angle="3.141592653589793" z="1" zGroup="0">
+			<frame index="0" sprite="day-bed0"/>
+		</client>
+		</object>
+	<object key="bed1" itemKey="furniture" subtype="6" healthMax="300" base="base_furniture">
+		<onDestroy>
+			<drops>
+				<item key="wood" amount="200" />
+				<item key="leather" amount="20" />
+			</drops>
+		</onDestroy>
+		<client render="furniture" impactSound="pillow_impact" destroySound="pillow_destroy" particles="bed1" particlesDistance="70" angle="3.141592653589793" z="1" zGroup="0">
+			<frame index="0" sprite="day-bed1"/>
+		</client>
+		</object>
+	<object key="bed2" itemKey="furniture" subtype="48" healthMax="500" base="base_furniture">
+		<onDestroy>
+			<drops>
+				<item key="animal_fat" amount="12" />
+				<item key="leather" amount="20" />
+				<item key="shaped_metal" amount="12" />
+			</drops>
+		</onDestroy>
+		<client render="furniture" impactSound="pillow_impact" destroySound="pillow_destroy" particles="grey_steel" particlesDistance="70" angle="3.141592653589793" z="1" zGroup="0">
+			<frame index="0" sprite="day-bed2"/>
+		</client>
+		</object>
+	<object key="reinforced" itemKey="furniture" subtype="41" healthMax="7000" base="base_furniture">
+		<onDestroy>
+			<drops>
+				<item key="shaped_metal" amount="40" />
+			</drops>
+		</onDestroy>
+		<client render="furniture" impactSound="pillow_impact" destroySound="pillow_destroy" particles="steel" particlesDistance="70" angle="3.141592653589793" z="1" zGroup="0">
+			<frame index="0" sprite="day-renforced-door"/>
+		</client>
+		</object>
+	<object key="tv0" itemKey="furniture" subtype="8" healthMax="200" base="base_furniture">
+		<onDestroy>
+			<drops>
+				<item key="electronics" amount="4" />
+				<item key="shaped_metal" amount="16" />
+				<item key="small_wire" amount="4" />
+				<item key="junk" amount="12" />
+			</drops>
+		</onDestroy>
+		<client render="furniture" impactSound="steel_impact" destroySound="steel_destroy" particles="safe0" particlesDistance="70" angle="3.141592653589793" z="1" zGroup="0">
+			<frame index="0" sprite="day-tv0"/>
+		</client>
+		</object>
+	<object key="computer0" itemKey="furniture" subtype="9" healthMax="250" base="base_furniture">
+		<onDestroy>
+			<drops>
+				<item key="electronics" amount="4" />
+				<item key="shaped_metal" amount="16" />
+				<item key="small_wire" amount="4" />
+				<item key="junk" amount="12" />
+			</drops>
+		</onDestroy>
+		<client render="furniture" impactSound="steel_impact" destroySound="steel_destroy" particles="metal" particlesDistance="70" angle="3.141592653589793" z="1" zGroup="0">
+			<frame index="0" sprite="day-computer0"/>
+		</client>
+		</object>
+	<object key="machine0" itemKey="furniture" subtype="33" healthMax="800" base="base_furniture">
+		<onDestroy>
+			<drops>
+				<item key="electronics" amount="4" />
+				<item key="shaped_metal" amount="4" />
+				<item key="energy_cells" amount="8" />
+				<item key="junk" amount="12" />
+			</drops>
+		</onDestroy>
+		<client render="furniture" impactSound="steel_impact" destroySound="steel_destroy" particles="steel" particlesDistance="70" angle="3.141592653589793" z="1" zGroup="0">
+			<frame index="0" sprite="day-electronic-box0"/>
+		</client>
+		</object>
+	<object key="machine1" itemKey="furniture" subtype="34" healthMax="1400" base="base_furniture">
+		<transform width="120" height="120" collision="true" blocksProjectiles="true" />
+		<onDestroy>
+			<drops>
+				<item key="electronics" amount="16" />
+				<item key="shaped_metal" amount="16" />
+				<item key="energy_cells" amount="16" />
+				<item key="wire" amount="8" />
+			</drops>
+		</onDestroy>
+		<client render="furniture" impactSound="steel_impact" destroySound="steel_destroy" particles="steel" particlesDistance="70" angle="3.141592653589793" z="1" zGroup="0">
+			<frame index="0" sprite="day-electronic-box1"/>
+			<offset rotation="0" x="-10" y="-10"/>
+			<offset rotation="1" x="-10" y="-10"/>
+			<offset rotation="2" x="-10" y="-10"/>
+			<offset rotation="3" x="-10" y="-10"/>
+		</client>
+		</object>
+	<object key="table0" itemKey="furniture" subtype="7" healthMax="500" base="base_furniture">
+		<onDestroy>
+			<drops>
+				<item key="wood" amount="200" />
+			</drops>
+		</onDestroy>
+		<client render="furniture" impactSound="wood_impact" destroySound="wood_destroy" particles="wood" particlesDistance="70" angle="3.141592653589793" z="1" zGroup="0">
+			<frame index="0" sprite="day-table0"/>
+		</client>
+		</object>
+	<object key="table1" itemKey="furniture" subtype="46" healthMax="500" base="base_furniture">
+		<transform width="100" height="280" collision="true" blocksProjectiles="true" />
+		<onDestroy>
+			<drops>
+				<item key="wood" amount="200" />
+			</drops>
+		</onDestroy>
+		<client render="furniture" impactSound="wood_impact" destroySound="wood_destroy" particles="wood" particlesDistance="70" angle="3.141592653589793" z="1" zGroup="0">
+			<frame index="0" sprite="day-table1"/>
+			<offset rotation="0" y="-90" tileI="-1"/>
+			<offset rotation="1" x="-90" tileJ="-1"/>
+			<offset rotation="2" y="-90" tileI="-1"/>
+			<offset rotation="3" x="-90" tileJ="-1"/>
+		</client>
+		</object>
+	<object key="table2" itemKey="furniture" subtype="56" healthMax="500" base="base_furniture">
+		<onDestroy>
+			<drops>
+				<item key="shaped_metal" amount="8" />
+			</drops>
+		</onDestroy>
+		<client render="furniture" impactSound="steel_impact" destroySound="steel_destroy" particles="steel" particlesDistance="70" angle="3.141592653589793" z="1" zGroup="0">
+			<frame index="0" sprite="day-table2"/>
+		</client>
+		</object>
+	<object key="little_table0" itemKey="furniture" subtype="22" healthMax="500" base="base_furniture">
+		<transform width="50" height="50" collision="true" blocksProjectiles="true" />
+		<onDestroy>
+			<drops>
+				<item key="shaped_metal" amount="8" />
+			</drops>
+		</onDestroy>
+		<client render="furniture" impactSound="steel_impact" destroySound="steel_destroy" particles="metal" particlesDistance="70" angle="3.141592653589793" z="1" zGroup="0">
+			<frame index="0" sprite="day-little-table0"/>
+			<offset rotation="0" x="25" y="25"/>
+			<offset rotation="1" x="25" y="25"/>
+			<offset rotation="2" x="25" y="25"/>
+			<offset rotation="3" x="25" y="25"/>
+		</client>
+		</object>
+	<object key="chair0" itemKey="furniture" subtype="10" base="base_furniture">
+		<onDestroy>
+			<drops>
+				<item key="leather" amount="8" />
+				<item key="shaped_metal" amount="8" />
+			</drops>
+		</onDestroy>
+		<client render="furniture" impactSound="steel_impact" destroySound="steel_destroy" particles="metal" particlesDistance="70" angle="3.141592653589793" z="1" zGroup="0">
+			<frame index="0" sprite="day-chair0"/>
+		</client>
+		</object>
+	<object key="chair1" itemKey="furniture" subtype="52" base="base_furniture">
+		<onDestroy>
+			<drops>
+				<item key="leather" amount="8" />
+				<item key="shaped_metal" amount="8" />
+			</drops>
+		</onDestroy>
+		<client render="furniture" impactSound="steel_impact" destroySound="steel_destroy" particles="metal" particlesDistance="70" angle="3.141592653589793" z="1" zGroup="0">
+			<frame index="0" sprite="day-chair1"/>
+		</client>
+		</object>
+	<object key="chair2" itemKey="furniture" subtype="53" base="base_furniture">
+		<onDestroy>
+			<drops>
+				<item key="leather" amount="8" />
+				<item key="shaped_metal" amount="8" />
+			</drops>
+		</onDestroy>
+		<client render="furniture" impactSound="steel_impact" destroySound="steel_destroy" particles="metal" particlesDistance="70" angle="3.141592653589793" z="1" zGroup="0">
+			<frame index="0" sprite="day-chair2"/>
+		</client>
+		</object>
+	<object key="gold_chair0" itemKey="furniture" subtype="43" base="base_furniture">
+		<onDestroy>
+			<drops>
+				<item key="leather" amount="8" />
+				<item key="wood" amount="8" />
+			</drops>
+		</onDestroy>
+		<client render="furniture" impactSound="pillow_impact" destroySound="pillow_destroy" particles="gold" particlesDistance="70" angle="3.141592653589793" z="1" zGroup="0">
+			<frame index="0" sprite="day-gold-chair0"/>
+			<offset rotation="0" x="15" y="15"/>
+			<offset rotation="1" x="15" y="15"/>
+			<offset rotation="2" x="15" y="15"/>
+			<offset rotation="3" x="15" y="15"/>
+		</client>
+		</object>
+	<object key="green_chair0" itemKey="furniture" subtype="44" base="base_furniture">
+		<onDestroy>
+			<drops>
+				<item key="leather" amount="8" />
+				<item key="wood" amount="8" />
+			</drops>
+		</onDestroy>
+		<client render="furniture" impactSound="pillow_impact" destroySound="pillow_destroy" particles="kaki" particlesDistance="70" angle="3.141592653589793" z="1" zGroup="0">
+			<frame index="0" sprite="day-green-chair0"/>
+			<offset rotation="0" x="15" y="15"/>
+			<offset rotation="1" x="15" y="15"/>
+			<offset rotation="2" x="15" y="15"/>
+			<offset rotation="3" x="15" y="15"/>
+		</client>
+		</object>
+	<object key="wood_chair0" itemKey="furniture" subtype="45" base="base_furniture">
+		<onDestroy>
+			<drops>
+				<item key="wood" amount="8" />
+			</drops>
+		</onDestroy>
+		<client render="furniture" impactSound="wood_impact" destroySound="wood_destroy" particles="woodlight" particlesDistance="70" angle="3.141592653589793" z="1" zGroup="0">
+			<frame index="0" sprite="day-wood-chair0"/>
+			<offset rotation="0" x="15" y="15"/>
+			<offset rotation="1" x="15" y="15"/>
+			<offset rotation="2" x="15" y="15"/>
+			<offset rotation="3" x="15" y="15"/>
+		</client>
+		</object>
+    <object key="washbasin0" itemKey="furniture" subtype="11" base="base_furniture">
+		<transform width="100" height="100" collision="true" blocksProjectiles="true" />
+		<onDestroy>
+			<drops>
+				<item key="wood" amount="150" />
+                <item key="shaped_metal" amount="8" />
+			</drops>
+		</onDestroy>
+        <client render="furniture" impactSound="wood_impact" destroySound="wood_destroy" particles="woodlight" particlesDistance="70" angle="3.141592653589793" z="1" zGroup="0">
+            <frame index="0" sprite="day-washbasin0"/>
+        </client>
+	    </object>
+    <object key="pharma0" itemKey="furniture" subtype="28" base="base_furniture">
+		<transform width="100" height="100" collision="true" blocksProjectiles="true" />
+        <storage slots="4" refrigeration="false">
+            <contents>
+                <item key="bandage" amount="1" chance="0.1" />
+                <item key="medkit" amount="1" chance="0.03" />
+                <item key="radaway" amount="1" chance="0.05" />
+                <item key="chemical_component" amount="2" chance="0.2" />
+                <item key="syringe" amount="1" chance="0.1" />
+            </contents>
+        </storage>
+		<onDestroy>
+			<drops>
+				<item key="stone" amount="60" />
+                <item key="shaped_metal" amount="8" />
+			</drops>
+		</onDestroy>
+        <client render="furniture" impactSound="stone_impact" destroySound="stone_destroy" particles="toilet" particlesDistance="70" angle="3.141592653589793" z="1" zGroup="0">
+            <frame index="0" sprite="day-pharma0"/>
+        </client>
+	    </object>
+    <object key="shower0" itemKey="furniture" subtype="55" base="base_furniture">
+		<transform width="100" height="100" collision="true" blocksProjectiles="true" />
+		<onDestroy>
+			<drops>
+				<item key="stone" amount="60" />
+                <item key="shaped_metal" amount="8" />
+			</drops>
+		</onDestroy>
+        <client render="furniture" impactSound="stone_impact" destroySound="stone_destroy" particles="toilet" particlesDistance="70" angle="3.141592653589793" z="1" zGroup="0">
+            <frame index="0" sprite="day-shower0"/>
+            <offset rotation="0"/>
+            <offset rotation="1"/>
+            <offset rotation="2" x="30"/>
+            <offset rotation="3" y="30"/>
+        </client>
+	    </object>
+
+    <object key="furniture0" itemKey="furniture" subtype="12" align="left" base="base_furniture">
+		<transform width="36" height="100" collision="true" blocksProjectiles="true" />
+        <storage slots="4" refrigeration="false">
+            <contents>
+                <item key="headscarf" amount="1" chance="0.004" />
+                <item key="gaz_mask" amount="1" chance="0.004" />
+                <item key="9mm_bullet" amount="30" chance="0.02" />
+                <item key="bandage" amount="2" chance="0.05" />
+                <item key="tomato_seed" amount="1" chance="0.08" />
+                <item key="nails" amount="40" chance="0.1" />
+                <item key="orange_seed" amount="1" chance="0.1" />
+                <item key="sleeping_bag" amount="1" chance="0.01" />
+                <item key="energy_cells" amount="4" chance="0.05" />
+                <item key="junk" amount="1" chance="0.2" />
+                <item key="string" amount="2" chance="0.1" />
+            </contents>
+        </storage>
+		<onDestroy>
+			<drops>
+				<item key="wood" amount="200" />
+			</drops>
+		</onDestroy>
+        <client render="furniture" impactSound="wood_impact" destroySound="wood_destroy" particles="woodlight" particlesDistance="70" angle="3.141592653589793" z="1" zGroup="0">
+            <frame index="0" sprite="day-furniture0"/>
+            <offset rotation="0"/>
+            <offset rotation="1"/>
+            <offset rotation="2" x="50"/>
+            <offset rotation="3" y="50"/>
+        </client>
+	    </object>
+
+    <object key="furniture1" itemKey="furniture" subtype="13" align="left" base="base_furniture">
+		<transform width="70" height="100" collision="true" blocksProjectiles="true" />
+        <storage slots="4" refrigeration="false">
+            <contents>
+                <item key="headscarf" amount="1" chance="0.004" />
+                <item key="gaz_mask" amount="1" chance="0.004" />
+                <item key="9mm_bullet" amount="30" chance="0.02" />
+                <item key="bandage" amount="2" chance="0.05" />
+                <item key="tomato_seed" amount="1" chance="0.08" />
+                <item key="nails" amount="40" chance="0.1" />
+                <item key="orange_seed" amount="1" chance="0.1" />
+                <item key="sleeping_bag" amount="1" chance="0.01" />
+                <item key="energy_cells" amount="4" chance="0.05" />
+                <item key="junk" amount="1" chance="0.2" />
+                <item key="string" amount="2" chance="0.1" />
+            </contents>
+        </storage>
+		<onDestroy>
+			<drops>
+				<item key="wood" amount="100" />
+			</drops>
+		</onDestroy>
+        <client render="furniture" impactSound="wood_impact" destroySound="wood_destroy" particles="woodlight" particlesDistance="70" angle="3.141592653589793" z="1" zGroup="0">
+            <frame index="0" sprite="day-furniture1"/>
+            <offset rotation="0"/>
+            <offset rotation="1"/>
+            <offset rotation="2" x="30"/>
+            <offset rotation="3" y="30"/>
+        </client>
+	    </object>
+
+    <object key="furniture2" itemKey="furniture" subtype="14" base="base_furniture">
+		<transform width="70" height="70" collision="true" blocksProjectiles="true" />
+        <storage slots="4" refrigeration="false">
+            <contents>
+                <item key="headscarf" amount="1" chance="0.004" />
+                <item key="gaz_mask" amount="1" chance="0.004" />
+                <item key="9mm_bullet" amount="30" chance="0.02" />
+                <item key="bandage" amount="2" chance="0.05" />
+                <item key="tomato_seed" amount="1" chance="0.08" />
+                <item key="nails" amount="40" chance="0.1" />
+                <item key="orange_seed" amount="1" chance="0.1" />
+                <item key="sleeping_bag" amount="1" chance="0.01" />
+                <item key="energy_cells" amount="4" chance="0.05" />
+                <item key="junk" amount="1" chance="0.2" />
+                <item key="string" amount="2" chance="0.1" />
+            </contents>
+        </storage>
+		<onDestroy>
+			<drops>
+				<item key="wood" amount="100" />
+			</drops>
+		</onDestroy>
+        <client render="furniture" impactSound="wood_impact" destroySound="wood_destroy" particles="woodlight" particlesDistance="70" angle="3.141592653589793" z="1" zGroup="0">
+            <frame index="0" sprite="day-furniture2"/>
+            <offset rotation="0" x="15" y="15"/>
+            <offset rotation="1" x="15" y="15"/>
+            <offset rotation="2" x="15" y="15"/>
+            <offset rotation="3" x="15" y="15"/>
+        </client>
+	    </object>
+
+    <object key="furniture3" itemKey="furniture" subtype="15" base="base_furniture">
+		<transform width="70" height="70" collision="true" blocksProjectiles="true" />
+        <storage slots="4" refrigeration="false">
+            <contents>
+                <item key="headscarf" amount="1" chance="0.004" />
+                <item key="gaz_mask" amount="1" chance="0.004" />
+                <item key="9mm_bullet" amount="30" chance="0.02" />
+                <item key="bandage" amount="2" chance="0.05" />
+                <item key="tomato_seed" amount="1" chance="0.08" />
+                <item key="nails" amount="40" chance="0.1" />
+                <item key="orange_seed" amount="1" chance="0.1" />
+                <item key="sleeping_bag" amount="1" chance="0.01" />
+                <item key="energy_cells" amount="4" chance="0.05" />
+                <item key="junk" amount="1" chance="0.2" />
+                <item key="string" amount="2" chance="0.1" />
+            </contents>
+        </storage>
+		<onDestroy>
+			<drops>
+				<item key="wood" amount="100" />
+			</drops>
+		</onDestroy>
+        <client render="furniture" impactSound="wood_impact" destroySound="wood_destroy" particles="woodlight" particlesDistance="70" angle="3.141592653589793" z="1" zGroup="0">
+            <frame index="0" sprite="day-furniture3"/>
+            <offset rotation="0" x="15" y="15"/>
+            <offset rotation="1" x="15" y="15"/>
+            <offset rotation="2" x="15" y="15"/>
+            <offset rotation="3" x="15" y="15"/>
+        </client>
+	    </object>
+
+    <object key="furniture4" itemKey="furniture" subtype="49" align="left" base="base_furniture">
+		<transform width="70" height="100" collision="true" blocksProjectiles="true" />
+        <storage slots="4" refrigeration="false">
+            <contents>
+                <item key="headscarf" amount="1" chance="0.004" />
+                <item key="gaz_mask" amount="1" chance="0.004" />
+                <item key="pistol" amount="1" chance="0.005" />
+                <item key="9mm_bullet" amount="30" chance="0.02" />
+                <item key="bandage" amount="2" chance="0.05" />
+                <item key="small_wire" amount="4" chance="0.1" />
+                <item key="lamp" amount="1" chance="0.08" />
+                <item key="platform" amount="1" chance="0.08" />
+                <item key="sleeping_bag" amount="1" chance="0.01" />
+                <item key="energy_cells" amount="8" chance="0.05" />
+                <item key="junk" amount="2" chance="0.2" />
+                <item key="string" amount="2" chance="0.1" />
+            </contents>
+        </storage>
+		<onDestroy>
+			<drops>
+				<item key="wood" amount="100" />
+			</drops>
+		</onDestroy>
+        <client render="furniture" impactSound="steel_impact" destroySound="steel_destroy" particles="grey_steel" particlesDistance="70" angle="3.141592653589793" z="1" zGroup="0">
+            <frame index="0" sprite="day-furniture4"/>
+            <offset rotation="0"/>
+            <offset rotation="1"/>
+            <offset rotation="2" x="30"/>
+            <offset rotation="3" y="30"/>
+        </client>
+	    </object>
+
+    <object key="furniture5" itemKey="furniture" subtype="50" base="base_furniture">
+		<transform width="70" height="70" collision="true" blocksProjectiles="true" />
+        <storage slots="4" refrigeration="false">
+            <contents>
+                <item key="headscarf" amount="1" chance="0.004" />
+                <item key="gaz_mask" amount="1" chance="0.004" />
+                <item key="pistol" amount="1" chance="0.005" />
+                <item key="9mm_bullet" amount="30" chance="0.02" />
+                <item key="bandage" amount="2" chance="0.05" />
+                <item key="small_wire" amount="4" chance="0.1" />
+                <item key="lamp" amount="1" chance="0.08" />
+                <item key="platform" amount="1" chance="0.08" />
+                <item key="sleeping_bag" amount="1" chance="0.01" />
+                <item key="energy_cells" amount="8" chance="0.05" />
+                <item key="junk" amount="2" chance="0.2" />
+                <item key="string" amount="2" chance="0.1" />
+            </contents>
+        </storage>
+		<onDestroy>
+			<drops>
+				<item key="wood" amount="100" />
+			</drops>
+		</onDestroy>
+        <client render="furniture" impactSound="steel_impact" destroySound="steel_destroy" particles="grey_steel" particlesDistance="70" angle="3.141592653589793" z="1" zGroup="0">
+            <frame index="0" sprite="day-furniture5"/>
+            <offset rotation="0" x="15" y="15"/>
+            <offset rotation="1" x="15" y="15"/>
+            <offset rotation="2" x="15" y="15"/>
+            <offset rotation="3" x="15" y="15"/>
+        </client>
+	    </object>
+
+     <object key="furniture6" itemKey="furniture" subtype="51" base="base_furniture">
+		<transform width="70" height="70" collision="true" blocksProjectiles="true" />
+        <storage slots="4" refrigeration="false">
+            <contents>
+                <item key="headscarf" amount="1" chance="0.004" />
+                <item key="gaz_mask" amount="1" chance="0.004" />
+                <item key="pistol" amount="1" chance="0.005" />
+                <item key="9mm_bullet" amount="30" chance="0.02" />
+                <item key="bandage" amount="2" chance="0.05" />
+                <item key="small_wire" amount="4" chance="0.1" />
+                <item key="lamp" amount="1" chance="0.08" />
+                <item key="platform" amount="1" chance="0.08" />
+                <item key="sleeping_bag" amount="1" chance="0.01" />
+                <item key="energy_cells" amount="8" chance="0.05" />
+                <item key="junk" amount="2" chance="0.2" />
+                <item key="string" amount="2" chance="0.1" />
+            </contents>
+        </storage>
+		<onDestroy>
+			<drops>
+				<item key="wood" amount="100" />
+			</drops>
+		</onDestroy>
+          <client render="furniture" impactSound="steel_impact" destroySound="steel_destroy" particles="grey_steel" particlesDistance="70" angle="3.141592653589793" z="1" zGroup="0">
+               <frame index="0" sprite="day-furniture6"/>
+               <offset rotation="0" x="15" y="15"/>
+               <offset rotation="1" x="15" y="15"/>
+               <offset rotation="2" x="15" y="15"/>
+               <offset rotation="3" x="15" y="15"/>
+          </client>
+	     </object>
+
+    <object key="carton0" itemKey="furniture" subtype="16" base="base_furniture">
+		<transform width="70" height="70" collision="true" blocksProjectiles="true" />
+        <storage slots="4" refrigeration="false">
+            <contents>
+                <item key="headscarf" amount="1" chance="0.003" />
+                <item key="gaz_mask" amount="1" chance="0.003" />
+                <item key="pistol" amount="1" chance="0.005" />
+                <item key="9mm_bullet" amount="30" chance="0.02" />
+                <item key="bandage" amount="1" chance="0.08" />
+                <item key="tomato_seed" amount="1" chance="0.1" />
+                <item key="nails" amount="40" chance="0.02" />
+                <item key="nail_gun" amount="1" chance="0.01" />
+                <item key="orange_seed" amount="2" chance="0.1" />
+                <item key="can" amount="1" chance="0.1" />
+                <item key="energy_cells" amount="4" chance="0.08" />
+                <item key="junk" amount="2" chance="0.2" />
+                <item key="electronics" amount="1" chance="0.1" />
+            </contents>
+        </storage>
+		<onDestroy>
+			<drops>
+				<item key="wood" amount="100" />
+			</drops>
+		</onDestroy>
+        <client render="furniture" impactSound="pillow_impact" destroySound="pillow_destroy" particles="woodlight" particlesDistance="70" angle="3.141592653589793" z="1" zGroup="0">
+            <frame index="0" sprite="day-carton-box0"/>
+            <offset rotation="0" x="15" y="15"/>
+            <offset rotation="1" x="15" y="15"/>
+            <offset rotation="2" x="15" y="15"/>
+            <offset rotation="3" x="15" y="15"/>
+        </client>
+	    </object>
+
+    <object key="carton1" itemKey="furniture" subtype="17" base="base_furniture">
+		<transform width="70" height="70" collision="true" blocksProjectiles="true" />
+        <storage slots="4" refrigeration="false">
+            <contents>
+                <item key="headscarf" amount="1" chance="0.003" />
+                <item key="gaz_mask" amount="1" chance="0.003" />
+                <item key="pistol" amount="1" chance="0.005" />
+                <item key="9mm_bullet" amount="30" chance="0.02" />
+                <item key="bandage" amount="1" chance="0.08" />
+                <item key="tomato_seed" amount="1" chance="0.1" />
+                <item key="nails" amount="40" chance="0.02" />
+                <item key="nail_gun" amount="1" chance="0.01" />
+                <item key="orange_seed" amount="2" chance="0.1" />
+                <item key="can" amount="1" chance="0.1" />
+                <item key="energy_cells" amount="4" chance="0.08" />
+                <item key="junk" amount="2" chance="0.2" />
+                <item key="electronics" amount="1" chance="0.1" />
+            </contents>
+        </storage>
+		<onDestroy>
+			<drops>
+				<item key="wood" amount="100" />
+			</drops>
+		</onDestroy>
+        <client render="furniture" impactSound="pillow_impact" destroySound="pillow_destroy" particles="woodlight" particlesDistance="70" angle="3.141592653589793" z="1" zGroup="0">
+            <frame index="0" sprite="day-carton-box1"/>
+            <offset rotation="0" x="15" y="15"/>
+            <offset rotation="1" x="15" y="15"/>
+            <offset rotation="2" x="15" y="15"/>
+            <offset rotation="3" x="15" y="15"/>
+        </client>
+	    </object>
+
+    <object key="plot0" itemKey="furniture" subtype="23" base="base_furniture">
+		<transform radius="30" collision="true" blocksProjectiles="true" />
+		<onDestroy>
+			<drops>
+				<item key="wood" amount="40" />
+                <item key="stone" amount="40" />
+			</drops>
+		</onDestroy>
+        <client render="furniture" impactSound="wood_impact" destroySound="wood_destroy" particles="plot" particlesDistance="70" angle="3.141592653589793" z="1" zGroup="0">
+            <frame index="0" sprite="day-plot0"/>
+            <offset rotation="0" x="15" y="15"/>
+            <offset rotation="1" x="15" y="15"/>
+            <offset rotation="2" x="15" y="15"/>
+            <offset rotation="3" x="15" y="15"/>
+        </client>
+	    </object>
+
+    <object key="blood_trans" itemKey="furniture" subtype="57" base="base_furniture">
+		<transform radius="30" collision="true" blocksProjectiles="true" />
+		<onDestroy>
+			<drops>
+				<item key="junk" amount="2" />
+                <item key="shaped_metal" amount="1" />
+                <item key="syringe" amount="1" />
+			</drops>
+		</onDestroy>
+        <client render="furniture" impactSound="steel_impact" destroySound="steel_destroy" particles="grey_steel" particlesDistance="70" angle="3.141592653589793" z="1" zGroup="0">
+            <frame index="0" sprite="day-blood-transfusion"/>
+            <offset rotation="0" x="15" y="15"/>
+            <offset rotation="1" x="15" y="15"/>
+            <offset rotation="2" x="15" y="15"/>
+            <offset rotation="3" x="15" y="15"/>
+        </client>
+	    </object>
+
+    <object key="barel0" itemKey="furniture" subtype="24" healthMax="100" base="base_furniture">
+		<transform radius="30" collision="true" blocksProjectiles="true" />
+        <storage slots="4" refrigeration="false">
+            <contents>
+                <item key="gasoline" amount="1" chance="0.2" />
+            </contents>
+        </storage>
+		<onDestroy>
+            <explosion area="1" playerDamage="250" buildingDamage="10000" knockback="20">
+                <onHit condition="slowed" chance="1" durationMs="1000" strength="1.0"/>
+            </explosion>
+			<drops>
+				<item key="shaped_metal" amount="8" />
+			</drops>
+		</onDestroy>
+        <client render="furniture" impactSound="steel_impact" particles="barelred" particlesDistance="70" angle="3.141592653589793" z="1" zGroup="0">
+            <frame index="0" sprite="day-barel0"/>
+            <offset rotation="0" x="15" y="15"/>
+            <offset rotation="1" x="15" y="15"/>
+            <offset rotation="2" x="15" y="15"/>
+            <offset rotation="3" x="15" y="15"/>
+        </client>
+	    </object>
+
+    <object key="barel1" itemKey="furniture" subtype="25" healthMax="300" base="base_furniture">
+		<transform radius="30" collision="true" blocksProjectiles="true" />
+        <areaEffects>
+			<areaEffect id="2" type="radiation" strength="1" area="2"/>
+		</areaEffects>
+		<onDestroy>
+            <explosion area="1" playerDamage="300" buildingDamage="10000" knockback="20">
+                <onHit condition="slowed" chance="1" durationMs="1000" strength="1.0"/>
+            </explosion>
+			<drops>
+				<item key="shaped_metal" amount="8" />
+                		<item key="uranium" amount="8" />
+			</drops>
+		</onDestroy>
+        <client render="furniture" impactSound="steel_impact" particles="barelgreen" particlesDistance="70" angle="3.141592653589793" z="1" zGroup="0">
+            <frame index="0" sprite="day-barel1"/>
+            <offset rotation="0" x="15" y="15"/>
+            <offset rotation="1" x="15" y="15"/>
+            <offset rotation="2" x="15" y="15"/>
+            <offset rotation="3" x="15" y="15"/>
+        </client>
+	    </object>
+
+    <object key="garabage0" itemKey="furniture" subtype="26" base="base_furniture">
+		<transform radius="30" collision="true" blocksProjectiles="true" />
+        <storage slots="4" refrigeration="false">
+            <contents>
+                <item key="gaz_mask" amount="1" chance="0.02" />
+                <item key="pistol" amount="1" chance="0.01" />
+                <item key="9mm_bullet" amount="30" chance="0.02" />
+                <item key="tomato_seed" amount="1" chance="0.1" />
+                <item key="orange_seed" amount="2" chance="0.1" />
+                <item key="nails" amount="40" chance="0.1" />
+                <item key="can" amount="1" chance="0.08" />
+                <item key="junk" amount="3" chance="0.4" />
+                <item key="rotten_steak" amount="1" chance="0.15" />
+                <item key="rotten_orange" amount="1" chance="0.15" />
+                <item key="rotten_tomato" amount="1" chance="0.15" />
+            </contents>
+        </storage>
+		<onDestroy>
+			<drops>
+				<item key="wood" amount="40" />
+                <item key="stone" amount="40" />
+			</drops>
+		</onDestroy>
+        <client render="furniture" impactSound="pillow_impact" destroySound="pillow_destroy" particles="garbage0" particlesDistance="70" angle="3.141592653589793" z="1" zGroup="0">
+            <frame index="0" sprite="day-garbage-bag0"/>
+            <offset rotation="0" x="15" y="15"/>
+            <offset rotation="1" x="15" y="15"/>
+            <offset rotation="2" x="15" y="15"/>
+            <offset rotation="3" x="15" y="15"/>
+        </client>
+	    </object>
+
+    <object key="fridge0" itemKey="furniture" subtype="19" align="left" base="base_furniture">
+		<transform width="36" height="100" collision="true" blocksProjectiles="true" />
+        <storage slots="4" refrigeration="true">
+            <contents>
+                <item key="soda" amount="1" chance="0.1" />
+                <item key="tomato_soup" amount="1" chance="0.1" />
+                <item key="crisps" amount="1" chance="0.01" />
+                <item key="rotten_steak" amount="1" chance="0.15" />
+                <item key="rotten_orange" amount="1" chance="0.15" />
+                <item key="rotten_tomato" amount="1" chance="0.15" />
+                <item key="rotten_crisps" amount="1" chance="0.01" />
+            </contents>
+        </storage>
+		<onDestroy>
+			<drops>
+				<item key="shaped_metal" amount="16" />
+                <item key="sulfur" amount="16" />
+			</drops>
+		</onDestroy>
+        <client render="furniture" impactSound="steel_impact" destroySound="steel_destroy" particles="metal" particlesDistance="70" angle="3.141592653589793" z="1" zGroup="0">
+            <frame index="0" sprite="day-fridge0"/>
+            <offset rotation="0"/>
+            <offset rotation="1"/>
+            <offset rotation="2" x="50"/>
+            <offset rotation="3" y="50"/>
+        </client>
+	    </object>
+
+    <object key="fridge1" itemKey="furniture" subtype="20" align="left" base="base_furniture">
+		<transform width="36" height="100" collision="true" blocksProjectiles="true" />
+        <storage slots="4" refrigeration="true">
+            <contents>
+                <item key="soda" amount="1" chance="0.1" />
+                <item key="tomato_soup" amount="1" chance="0.1" />
+                <item key="crisps" amount="1" chance="0.01" />
+                <item key="rotten_steak" amount="1" chance="0.15" />
+                <item key="rotten_orange" amount="1" chance="0.15" />
+                <item key="rotten_tomato" amount="1" chance="0.15" />
+                <item key="rotten_crisps" amount="1" chance="0.01" />
+            </contents>
+        </storage>
+		<onDestroy>
+			<drops>
+				<item key="shaped_metal" amount="16" />
+                <item key="sulfur" amount="16" />
+			</drops>
+		</onDestroy>
+        <client render="furniture" impactSound="steel_impact" destroySound="steel_destroy" particles="fridge" particlesDistance="70" angle="3.141592653589793" z="1" zGroup="0">
+            <frame index="0" sprite="day-fridge1"/>
+            <offset rotation="0"/>
+            <offset rotation="1"/>
+            <offset rotation="2" x="50"/>
+            <offset rotation="3" y="50"/>
+        </client>
+	    </object>
+
+    <object key="distributor0" itemKey="furniture" subtype="39" align="left" base="base_furniture">
+		<transform width="36" height="100" collision="true" blocksProjectiles="true" />
+        <storage slots="4" refrigeration="true">
+            <contents>
+                <item key="soda" amount="1" chance="0.04" />
+                <item key="crisps" amount="1" chance="0.04" />
+            </contents>
+        </storage>
+		<onDestroy>
+			<drops>
+				<item key="shaped_metal" amount="16" />
+                <item key="sulfur" amount="16" />
+			</drops>
+		</onDestroy>
+        <client render="furniture" impactSound="steel_impact" destroySound="steel_destroy" particles="red_steel" particlesDistance="70" angle="3.141592653589793" z="1" zGroup="0">
+            <frame index="0" sprite="day-vending-machine0"/>
+            <offset rotation="0"/>
+            <offset rotation="1"/>
+            <offset rotation="2" x="50"/>
+            <offset rotation="3" y="50"/>
+        </client>
+	    </object>
+
+    <object key="distributor1" itemKey="furniture" subtype="54" base="base_furniture">
+		<transform width="100" height="100" collision="true" blocksProjectiles="true" />
+        <storage slots="4" refrigeration="true">
+            <contents>
+                <item key="soda" amount="1" chance="0.04" />
+                <item key="crisps" amount="1" chance="0.04" />
+                <item key="tomato_soup" amount="1" chance="0.04" />
+            </contents>
+        </storage>
+		<onDestroy>
+			<drops>
+				<item key="shaped_metal" amount="16" />
+                <item key="sulfur" amount="16" />
+			</drops>
+		</onDestroy>
+        <client render="furniture" impactSound="steel_impact" destroySound="steel_destroy" particles="grey_steel" particlesDistance="70" angle="3.141592653589793" z="1" zGroup="0">
+            <frame index="0" sprite="day-distributor0"/>
+            <offset rotation="0"/>
+            <offset rotation="1"/>
+            <offset rotation="2" x="50"/>
+            <offset rotation="3" y="50"/>
+        </client>
+	    </object>
+
+    <object key="cash0" itemKey="furniture" subtype="40" align="left" base="base_furniture">
+		<transform width="70" height="100" collision="true" blocksProjectiles="true" />
+        <storage slots="4" refrigeration="false">
+            <contents>
+                <item key="junk" amount="1" chance="0.05" />
+            </contents>
+        </storage>
+		<onDestroy>
+			<drops>
+                <item key="shaped_metal" amount="16" />
+				<item key="electronics" amount="4" />
+			</drops>
+		</onDestroy>
+        <client render="furniture" impactSound="steel_impact" destroySound="steel_destroy" particles="grey_steel" particlesDistance="70" angle="3.141592653589793" z="1" zGroup="0">
+            <frame index="0" sprite="day-cash-machine0"/>
+            <offset rotation="0"/>
+            <offset rotation="1"/>
+            <offset rotation="2" x="30"/>
+            <offset rotation="3" y="30"/>
+        </client>
+	    </object>
+
+    <object key="cupboard0" itemKey="furniture" subtype="27" align="left" base="base_furniture">
+		<transform width="36" height="100" collision="true" blocksProjectiles="true" />
+        <storage slots="4" refrigeration="false">
+            <contents>
+                <item key="headscarf" amount="1" chance="0.004" />
+                <item key="gaz_mask" amount="1" chance="0.004" />
+                <item key="9mm_bullet" amount="30" chance="0.02" />
+                <item key="bandage" amount="2" chance="0.05" />
+                <item key="tomato_seed" amount="1" chance="0.08" />
+                <item key="nails" amount="40" chance="0.1" />
+                <item key="orange_seed" amount="1" chance="0.1" />
+                <item key="sleeping_bag" amount="1" chance="0.01" />
+                <item key="energy_cells" amount="4" chance="0.05" />
+                <item key="junk" amount="1" chance="0.2" />
+                <item key="string" amount="2" chance="0.1" />
+            </contents>
+        </storage>
+		<onDestroy>
+			<drops>
+				<item key="wood" amount="200" />
+			</drops>
+		</onDestroy>
+        <client render="furniture" impactSound="wood_impact" destroySound="wood_destroy" particles="wood" particlesDistance="70" angle="3.141592653589793" z="1" zGroup="0">
+            <frame index="0" sprite="day-cupboard0"/>
+            <offset rotation="0"/>
+            <offset rotation="1"/>
+            <offset rotation="2" x="50"/>
+            <offset rotation="3" y="50"/>
+        </client>
+	    </object>
+
+    <object key="usine_box0" itemKey="furniture" subtype="35" base="base_furniture">
+		<transform width="70" height="70" collision="true" blocksProjectiles="true" />
+        <storage slots="4" refrigeration="false">
+            <contents>
+                <item key="electronics" amount="2" chance="0.1" />
+                <item key="energy_cells" amount="20" chance="0.05" />
+                <item key="junk" amount="2" chance="0.1" />
+                <item key="syringe" amount="2" chance="0.1" />
+                <item key="chemical_component" amount="4" chance="0.1" />
+                <item key="radaway" amount="1" chance="0.03" />
+                <item key="alloys" amount="1" chance="0.01" />
+            </contents>
+        </storage>
+		<onDestroy>
+			<drops>
+				<item key="shaped_metal" amount="16" />
+			</drops>
+		</onDestroy>
+        <client render="furniture" impactSound="steel_impact" destroySound="steel_destroy" particles="steel" particlesDistance="70" angle="3.141592653589793" z="1" zGroup="0">
+            <frame index="0" sprite="day-electronic-box2"/>
+            <offset rotation="0" x="15" y="15"/>
+            <offset rotation="1" x="15" y="15"/>
+            <offset rotation="2" x="15" y="15"/>
+            <offset rotation="3" x="15" y="15"/>
+        </client>
+	    </object>
+
+    <object key="usine_box1" itemKey="furniture" subtype="36" base="base_furniture">
+		<transform width="70" height="70" collision="true" blocksProjectiles="true" />
+        <storage slots="4" refrigeration="false">
+            <contents>
+                <item key="electronics" amount="2" chance="0.1" />
+                <item key="wire" amount="1" chance="0.03" />
+                <item key="shaped_uranium" amount="5" chance="0.01" />
+                <item key="energy_cells" amount="20" chance="0.05" />
+                <item key="junk" amount="4" chance="0.1" />
+                <item key="syringe" amount="3" chance="0.1" />
+                <item key="chemical_component" amount="5" chance="0.1" />
+                <item key="radaway" amount="2" chance="0.1" />
+                <item key="alloys" amount="2" chance="0.05" />
+                <item key="laser_pistol" amount="1" chance="0.005" />
+            </contents>
+        </storage>
+		<onDestroy>
+			<drops>
+				<item key="shaped_metal" amount="16" />
+                <item key="electronics" amount="4" />
+			</drops>
+		</onDestroy>
+        <client render="furniture" impactSound="steel_impact" destroySound="steel_destroy" particles="steel" particlesDistance="70" angle="3.141592653589793" z="1" zGroup="0">
+            <frame index="0" sprite="day-electronic-box3"/>
+            <offset rotation="0" x="15" y="15"/>
+            <offset rotation="1" x="15" y="15"/>
+            <offset rotation="2" x="15" y="15"/>
+            <offset rotation="3" x="15" y="15"/>
+        </client>
+	    </object>
+
+    <object key="energy_box0" itemKey="furniture" subtype="58" base="base_furniture">
+		<transform width="70" height="70" collision="true" blocksProjectiles="true" />
+        <storage slots="4" refrigeration="false">
+            <contents>
+                <item key="electronics" amount="2" chance="0.1" />
+                <item key="shaped_uranium" amount="5" chance="0.01" />
+                <item key="energy_cells" amount="20" chance="0.05" />
+                <item key="junk" amount="4" chance="0.1" />
+                <item key="small_wire" amount="8" chance="0.03" />
+                <item key="syringe" amount="3" chance="0.1" />
+                <item key="chemical_component" amount="5" chance="0.1" />
+                <item key="radaway" amount="2" chance="0.1" />
+                <item key="alloys" amount="2" chance="0.05" />
+                <item key="laser_pistol" amount="1" chance="0.005" />
+            </contents>
+        </storage>
+		<onDestroy>
+			<drops>
+				<item key="shaped_metal" amount="16" />
+                <item key="electronics" amount="4" />
+			</drops>
+		</onDestroy>
+        <client render="furniture" impactSound="steel_impact" destroySound="steel_destroy" particles="kaki" particlesDistance="70" angle="3.141592653589793" z="1" zGroup="0">
+            <frame index="0" sprite="day-energy-box0"/>
+            <offset rotation="0" x="15" y="15"/>
+            <offset rotation="1" x="15" y="15"/>
+            <offset rotation="2" x="15" y="15"/>
+            <offset rotation="3" x="15" y="15"/>
+        </client>
+	    </object>
+
+    <object key="usine_box2" itemKey="furniture" subtype="37" base="base_furniture">
+		<transform width="70" height="70" collision="true" blocksProjectiles="true" />
+        <storage slots="4" refrigeration="false">
+            <contents>
+                <item key="electronics" amount="2" chance="0.1" />
+                <item key="energy_cells" amount="20" chance="0.05" />
+                <item key="shaped_uranium" amount="2" chance="0.01" />
+                <item key="junk" amount="4" chance="0.1" />
+                <item key="syringe" amount="3" chance="0.1" />
+                <item key="chemical_component" amount="5" chance="0.1" />
+                <item key="radaway" amount="1" chance="0.03" />
+                <item key="alloys" amount="1" chance="0.1" />
+                <item key="dynamite" amount="1" chance="0.008" />
+            </contents>
+        </storage>
+		<onDestroy>
+			<drops>
+				<item key="shaped_metal" amount="16" />
+			</drops>
+		</onDestroy>
+        <client render="furniture" impactSound="steel_impact" destroySound="steel_destroy" particles="steel" particlesDistance="70" angle="3.141592653589793" z="1" zGroup="0">
+            <frame index="0" sprite="day-electronic-box4"/>
+            <offset rotation="0" x="15" y="15"/>
+            <offset rotation="1" x="15" y="15"/>
+            <offset rotation="2" x="15" y="15"/>
+            <offset rotation="3" x="15" y="15"/>
+        </client>
+	    </object>
+
+    <object key="usine_box3" itemKey="furniture" subtype="38" base="base_furniture">
+		<transform width="70" height="70" collision="true" blocksProjectiles="true" />
+        <storage slots="4" refrigeration="false">
+            <contents>
+                <item key="electronics" amount="2" chance="0.1" />
+                <item key="energy_cells" amount="20" chance="0.05" />
+                <item key="junk" amount="2" chance="0.1" />
+                <item key="syringe" amount="2" chance="0.1" />
+                <item key="chemical_component" amount="4" chance="0.1" />
+                <item key="radaway" amount="1" chance="0.03" />
+                <item key="alloys" amount="1" chance="0.01" />
+            </contents>
+        </storage>
+		<onDestroy>
+			<drops>
+				<item key="shaped_metal" amount="16" />
+			</drops>
+		</onDestroy>
+        <client render="furniture" impactSound="steel_impact" destroySound="steel_destroy" particles="steel" particlesDistance="70" angle="3.141592653589793" z="1" zGroup="0">
+            <frame index="0" sprite="day-electronic-box5"/>
+            <offset rotation="0" x="15" y="15"/>
+            <offset rotation="1" x="15" y="15"/>
+            <offset rotation="2" x="15" y="15"/>
+            <offset rotation="3" x="15" y="15"/>
+        </client>
+	    </object>
+
+    <object key="ammobox0" itemKey="furniture" subtype="29" align="left" base="base_furniture">
+		<transform width="36" height="100" collision="true" blocksProjectiles="true" />
+        <storage slots="4" refrigeration="false">
+            <contents>
+                <item key="mp5" amount="1" chance="0.001" />
+                <item key="ak47" amount="1" chance="0.001" />
+                <item key="shotgun" amount="1" chance="0.001" />
+                <item key="sawed_off" amount="1" chance="0.001" />
+                <item key="desert_eagle" amount="1" chance="0.001" />
+                <item key="sniper" amount="1" chance="0.001" />
+                <item key="energy_cells" amount="20" chance="0.01" />
+                <item key="laser_pistol" amount="1" chance="0.0008" />
+                <item key="dynamite" amount="2" chance="0.005" />
+                <item key="c4" amount="1" chance="0.001" />
+                <item key="c4_trigger" amount="1" chance="0.001" />
+                <item key="landmine" amount="3" chance="0.005" />
+                <item key="12g_pellet" amount="30" chance="0.01" />
+                <item key="9mm_bullet" amount="50" chance="0.01" />
+                <item key="pistol" amount="1" chance="0.003" />
+                <item key="wood_crossbow" amount="1" chance="0.003" />
+                <item key="wood_crossarrow" amount="50" chance="0.01" />
+                <item key="stone_axe" amount="1" chance="0.005" />
+                <item key="metal_helmet" amount="1" chance="0.005" />
+                <item key="welding_helmet" amount="1" chance="0.002" />
+                <item key="gladiator_helmet" amount="1" chance="0.001" />
+                <item key="leather_jacket" amount="1" chance="0.005" />
+                <item key="kevlar_suit" amount="1" chance="0.002" />
+                <item key="swat_suit" amount="1" chance="0.001" />
+                <item key="power_armor" amount="1" chance="0.002" />
+                <item key="tesla_armor" amount="1" chance="0.001" />
+                <item key="lapadone" amount="1" chance="0.0005" />
+                <item key="laser_submachine" amount="1" chance="0.0005" />
+            </contents>
+        </storage>
+		<onDestroy>
+			<drops>
+				<item key="wood" amount="200" />
+			</drops>
+		</onDestroy>
+        <client render="furniture" impactSound="wood_impact" destroySound="wood_destroy" particles="woodlight" particlesDistance="70" angle="3.141592653589793" z="1" zGroup="0">
+            <frame index="0" sprite="day-ammo-box"/>
+            <offset rotation="0"/>
+            <offset rotation="1"/>
+            <offset rotation="2" x="50"/>
+            <offset rotation="3" y="50"/>
+        </client>
+	    </object>
+
+    <object key="ammolocker1" itemKey="furniture" subtype="31" align="left" base="base_furniture">
+		<transform width="36" height="100" collision="true" blocksProjectiles="true" />
+        <storage slots="4" refrigeration="false">
+            <contents>
+                <item key="mp5" amount="1" chance="0.001" />
+                <item key="ak47" amount="1" chance="0.001" />
+                <item key="shotgun" amount="1" chance="0.001" />
+                <item key="sawed_off" amount="1" chance="0.001" />
+                <item key="desert_eagle" amount="1" chance="0.001" />
+                <item key="sniper" amount="1" chance="0.001" />
+                <item key="energy_cells" amount="20" chance="0.01" />
+                <item key="laser_pistol" amount="1" chance="0.0008" />
+                <item key="dynamite" amount="2" chance="0.005" />
+                <item key="c4" amount="1" chance="0.001" />
+                <item key="c4_trigger" amount="1" chance="0.001" />
+                <item key="landmine" amount="3" chance="0.005" />
+                <item key="12g_pellet" amount="30" chance="0.01" />
+                <item key="9mm_bullet" amount="50" chance="0.01" />
+                <item key="pistol" amount="1" chance="0.003" />
+                <item key="wood_crossbow" amount="1" chance="0.003" />
+                <item key="wood_crossarrow" amount="50" chance="0.01" />
+                <item key="stone_axe" amount="1" chance="0.005" />
+                <item key="metal_helmet" amount="1" chance="0.005" />
+                <item key="welding_helmet" amount="1" chance="0.002" />
+                <item key="gladiator_helmet" amount="1" chance="0.001" />
+                <item key="leather_jacket" amount="1" chance="0.005" />
+                <item key="kevlar_suit" amount="1" chance="0.002" />
+                <item key="swat_suit" amount="1" chance="0.001" />
+                <item key="power_armor" amount="1" chance="0.002" />
+                <item key="tesla_armor" amount="1" chance="0.001" />
+                <item key="lapadone" amount="1" chance="0.0005" />
+                <item key="laser_submachine" amount="1" chance="0.0005" />
+            </contents>
+        </storage>
+		<onDestroy>
+			<drops>
+				<item key="shaped_metal" amount="32" />
+                <item key="sulfur" amount="12" />
+			</drops>
+		</onDestroy>
+        <client render="furniture" impactSound="steel_impact" destroySound="steel_destroy" particles="grey_steel" particlesDistance="70" angle="3.141592653589793" z="1" zGroup="0">
+            <frame index="0" sprite="day-ammo-locker1"/>
+            <offset rotation="0"/>
+            <offset rotation="1"/>
+            <offset rotation="2" x="50"/>
+            <offset rotation="3" y="50"/>
+        </client>
+	    </object>
+
+    <object key="ammolocker2" itemKey="furniture" subtype="32" align="left" base="base_furniture">
+		<transform width="36" height="100" collision="true" blocksProjectiles="true" />
+        <storage slots="4" refrigeration="false">
+            <contents>
+                <item key="mp5" amount="1" chance="0.001" />
+                <item key="ak47" amount="1" chance="0.001" />
+                <item key="shotgun" amount="1" chance="0.001" />
+                <item key="sawed_off" amount="1" chance="0.001" />
+                <item key="desert_eagle" amount="1" chance="0.001" />
+                <item key="sniper" amount="1" chance="0.001" />
+                <item key="energy_cells" amount="20" chance="0.01" />
+                <item key="laser_pistol" amount="1" chance="0.0008" />
+                <item key="dynamite" amount="2" chance="0.005" />
+                <item key="c4" amount="1" chance="0.001" />
+                <item key="c4_trigger" amount="1" chance="0.001" />
+                <item key="landmine" amount="3" chance="0.005" />
+                <item key="12g_pellet" amount="30" chance="0.01" />
+                <item key="9mm_bullet" amount="50" chance="0.01" />
+                <item key="pistol" amount="1" chance="0.003" />
+                <item key="wood_crossbow" amount="1" chance="0.003" />
+                <item key="wood_crossarrow" amount="50" chance="0.01" />
+                <item key="stone_axe" amount="1" chance="0.005" />
+                <item key="metal_helmet" amount="1" chance="0.005" />
+                <item key="welding_helmet" amount="1" chance="0.002" />
+                <item key="gladiator_helmet" amount="1" chance="0.001" />
+                <item key="leather_jacket" amount="1" chance="0.005" />
+                <item key="kevlar_suit" amount="1" chance="0.002" />
+                <item key="swat_suit" amount="1" chance="0.001" />
+                <item key="power_armor" amount="1" chance="0.002" />
+                <item key="tesla_armor" amount="1" chance="0.001" />
+                <item key="lapadone" amount="1" chance="0.0005" />
+                <item key="laser_submachine" amount="1" chance="0.0005" />
+            </contents>
+        </storage>
+		<onDestroy>
+			<drops>
+				<item key="shaped_metal" amount="32" />
+                <item key="sulfur" amount="12" />
+			</drops>
+		</onDestroy>
+        <client render="furniture" impactSound="steel_impact" destroySound="steel_destroy" particles="grey_steel" particlesDistance="70" angle="3.141592653589793" z="1" zGroup="0">
+            <frame index="0" sprite="day-ammo-locker2"/>
+            <offset rotation="0"/>
+            <offset rotation="1"/>
+            <offset rotation="2" x="50"/>
+            <offset rotation="3" y="50"/>
+        </client>
+	    </object>
+
+    <object key="ammolocker0" itemKey="furniture" subtype="30" align="left" base="base_furniture">
+		<transform width="70" height="50" collision="true" blocksProjectiles="true" />
+        <storage slots="4" refrigeration="false">
+            <contents>
+                <item key="mp5" amount="1" chance="0.001" />
+                <item key="ak47" amount="1" chance="0.001" />
+                <item key="shotgun" amount="1" chance="0.001" />
+                <item key="sawed_off" amount="1" chance="0.001" />
+                <item key="desert_eagle" amount="1" chance="0.001" />
+                <item key="sniper" amount="1" chance="0.001" />
+                <item key="energy_cells" amount="20" chance="0.01" />
+                <item key="laser_pistol" amount="1" chance="0.0008" />
+                <item key="dynamite" amount="2" chance="0.005" />
+                <item key="c4" amount="1" chance="0.001" />
+                <item key="c4_trigger" amount="1" chance="0.001" />
+                <item key="landmine" amount="3" chance="0.005" />
+                <item key="12g_pellet" amount="30" chance="0.01" />
+                <item key="9mm_bullet" amount="50" chance="0.01" />
+                <item key="pistol" amount="1" chance="0.003" />
+                <item key="wood_crossbow" amount="1" chance="0.003" />
+                <item key="wood_crossarrow" amount="50" chance="0.01" />
+                <item key="stone_axe" amount="1" chance="0.005" />
+                <item key="metal_helmet" amount="1" chance="0.005" />
+                <item key="welding_helmet" amount="1" chance="0.002" />
+                <item key="gladiator_helmet" amount="1" chance="0.001" />
+                <item key="leather_jacket" amount="1" chance="0.005" />
+                <item key="kevlar_suit" amount="1" chance="0.002" />
+                <item key="swat_suit" amount="1" chance="0.001" />
+                <item key="power_armor" amount="1" chance="0.002" />
+                <item key="tesla_armor" amount="1" chance="0.001" />
+                <item key="lapadone" amount="1" chance="0.0005" />
+                <item key="laser_submachine" amount="1" chance="0.0005" />
+            </contents>
+        </storage>
+		<onDestroy>
+			<drops>
+				<item key="shaped_metal" amount="32" />
+                <item key="sulfur" amount="12" />
+			</drops>
+		</onDestroy>
+        <client render="furniture" impactSound="steel_impact" destroySound="steel_destroy" particles="blue_steel" particlesDistance="70" angle="3.141592653589793" z="1" zGroup="0">
+            <frame index="0" sprite="day-ammo-locker0"/>
+            <offset rotation="0" y="25"/>
+            <offset rotation="1" x="25"/>
+            <offset rotation="2" x="30" y="25"/>
+            <offset rotation="3" x="25" y="30"/>
+        </client>
+	    </object>
+
+    <object key="safe0" itemKey="furniture" subtype="18" align="left" base="base_furniture">
+		<transform width="36" height="100" collision="true" blocksProjectiles="true" />
+        <storage slots="4" refrigeration="false">
+            <contents>
+                <item key="chapka" amount="1" chance="0.008" />
+                <item key="winter_coat" amount="1" chance="0.002" />
+                <item key="radiation_suit" amount="1" chance="0.002" />
+                <item key="gaz_protection" amount="1" chance="0.02" />
+                <item key="sawed_off" amount="1" chance="0.002" />
+                <item key="mp5" amount="1" chance="0.002" />
+                <item key="ak47" amount="1" chance="0.002" />
+                <item key="shotgun" amount="1" chance="0.002" />
+                <item key="desert_eagle" amount="1" chance="0.002" />
+                <item key="sniper" amount="1" chance="0.002" />
+                <item key="762_round" amount="50" chance="0.02" />
+                <item key="12g_pellet" amount="30" chance="0.02" />
+                <item key="9mm_bullet" amount="40" chance="0.02" />
+                <item key="dynamite" amount="1" chance="0.01" />
+                <item key="landmine" amount="1" chance="0.01" />
+                <item key="pistol" amount="1" chance="0.04" />
+                <item key="wood_crossbow" amount="1" chance="0.05" />
+                <item key="wood_crossarrow" amount="50" chance="0.05" />
+            </contents>
+        </storage>
+		<onDestroy>
+			<drops>
+				<item key="shaped_metal" amount="32" />
+                <item key="sulfur" amount="32" />
+			</drops>
+		</onDestroy>
+        <client render="furniture" impactSound="steel_impact" destroySound="steel_destroy" particles="safe0" particlesDistance="70" angle="3.141592653589793" z="1" zGroup="0">
+            <frame index="0" sprite="day-safe0"/>
+            <offset rotation="0"/>
+            <offset rotation="1"/>
+            <offset rotation="2" x="50"/>
+            <offset rotation="3" y="50"/>
+        </client>
+	    </object>
+
+    <object key="small_light" itemKey="furniture" subtype="47" align="left" base="base_furniture">
+		<transform width="70" height="70" collision="true" blocksProjectiles="true" />
+        <storage slots="4" refrigeration="false">
+            <contents>
+                <item key="headscarf" amount="1" chance="0.004" />
+                <item key="gaz_mask" amount="1" chance="0.004" />
+                <item key="9mm_bullet" amount="30" chance="0.02" />
+                <item key="bandage" amount="2" chance="0.05" />
+                <item key="tomato_seed" amount="1" chance="0.08" />
+                <item key="nails" amount="40" chance="0.1" />
+                <item key="orange_seed" amount="1" chance="0.1" />
+                <item key="sleeping_bag" amount="1" chance="0.01" />
+                <item key="energy_cells" amount="4" chance="0.05" />
+                <item key="junk" amount="1" chance="0.2" />
+                <item key="string" amount="2" chance="0.1" />
+            </contents>
+        </storage>
+		<onDestroy>
+			<drops>
+				<item key="wood" amount="100" />
+			</drops>
+		</onDestroy>
+        <client render="furniture" impactSound="wood_impact" destroySound="wood_destroy" particles="grey_steel" particlesDistance="70" angle="3.141592653589793" z="1" zGroup="0">
+            <frame index="0" sprite="day-small-light-off"/>
+            <offset rotation="0" x="15" y="15"/>
+            <offset rotation="1" x="15" y="15"/>
+            <offset rotation="2" x="15" y="15"/>
+            <offset rotation="3" x="15" y="15"/>
+        </client>
+	    </object>
+
+    <object key="toilet0" itemKey="furniture" subtype="21" align="top" base="base_furniture">
+		<transform width="50" height="70" collision="true" blocksProjectiles="true" />
+        <storage slots="4" refrigeration="true">
+            <contents>
+                <item key="syringe" amount="1" chance="0.2" />
+                <item key="chemical_component" amount="1" chance="0.02" />
+                <item key="ghoul_blood" amount="1" chance="0.005" />
+                <item key="lapadone" amount="1" chance="0.002" />
+            </contents>
+        </storage>
+		<onDestroy>
+			<drops>
+				<item key="shaped_metal" amount="4" />
+                <item key="stone" amount="100" />
+			</drops>
+		</onDestroy>
+        <client render="furniture" impactSound="stone_impact" destroySound="stone_destroy" particles="toilet" particlesDistance="70" angle="3.141592653589793" z="1" zGroup="0">
+            <frame index="0" sprite="day-toilet0"/>
+            <offset rotation="0" x="25"/>
+            <offset rotation="1" x="30" y="25"/>
+            <offset rotation="2" x="25" y="30"/>
+            <offset rotation="3" y="25"/>
+        </client>
+	    </object>
+
+</objects>

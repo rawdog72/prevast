@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<npc key="quartermaster" id="3" name="Rook" invulnerable="true" script="rook.lua">
+  <client head="day-skin4" leftArm="day-left-arm4" rightArm="day-right-arm4" tint="#c5d7a2"/>
+  <body walkThrough="true"/>
+  <movement walkRadius="0"/>
+  <karma>
+    <rule min="4" max="5" trade="false" quests="false" reply="I have no work for outlaws."/>
+  </karma>
+  <dialogue greeting="We need help. Ask about {ghouls}, {medicine}, or a {delivery}." fallback="Ask about {ghouls}, {medicine}, {delivery}, or {rumours}."/>
+</npc>

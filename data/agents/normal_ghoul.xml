@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<agent key="normal_ghoul" family="ghoul" sprite="0">
+  <body radius="38" collision="true" separation="true"/>
+  <vitals health="160" experience="1200" lifetimeMs="0"/>
+  <daylight damage="5" intervalMs="1000"/>
+  <movement speed="250" nightSpeed="300"/>
+  <brain type="aggressive" vision="700" loseTarget="1000" leash="0" chase="true" roamRadius="1500" roamPauseMs="0" aggroAfterCycles="1" repelBreakMs="60000">
+    <target type="player" priority="100"/>
+    <target type="agent" priority="60"/>
+    <target type="object" priority="30"/>
+  </brain>
+  <!-- Reacts to about a third of the shots aimed at it: enough that a
+		     pack does not walk into fire like a queue, rare enough that it
+		     never feels like the ghoul is reading your mouse. -->
+  <dodge chance="0.3" reactionMs="240" speed="200" durationMs="280" cooldownMs="1600"/>
+  <abilities>
+    <ability type="melee" cooldownMs="700" impactMs="550" range="50" radius="34" staminaUsage="3" knockback="4">
+      <damage amount="8" amountMax="20"/>
+    </ability>
+  </abilities>
+  <onDeath>
+    <drops>
+      <item key="animal_fat" amount="1"/>
+    </drops>
+  </onDeath>
+  <client render="ghoul" breath="0.05" armMove="6" head="day-ghoul" hurt="ghoul-hurt" death="day-ghoul-death" light="1" hitAnimMs="550">
+    <leftArm sprite="day-ghoul-left-arm" angle="0" x="28" y="-50"/>
+    <rightArm sprite="day-ghoul-right-arm" angle="0" x="28" y="50"/>
+  </client>
+</agent>

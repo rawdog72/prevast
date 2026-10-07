@@ -1,0 +1,927 @@
+{
+  "name": "agents",
+  "version": 1,
+  "hash": "135395fc54a1d465",
+  "attributes": {},
+  "entries": {
+    "normal_ghoul": {
+      "key": "normal_ghoul",
+      "id": 0,
+      "sprite": 0,
+      "family": "ghoul",
+      "body": {
+        "radius": 38,
+        "collision": true,
+        "separation": true
+      },
+      "vitals": {
+        "health": 160,
+        "experience": 1200,
+        "lifetimeMs": 0
+      },
+      "client": {
+        "render": "ghoul",
+        "breath": 0.05,
+        "armMove": 6,
+        "head": "day-ghoul",
+        "hurt": "ghoul-hurt",
+        "death": "day-ghoul-death",
+        "light": 1,
+        "hitAnimMs": 550,
+        "leftArm": {
+          "sprite": "day-ghoul-left-arm",
+          "angle": 0,
+          "x": 28,
+          "y": -50
+        },
+        "rightArm": {
+          "sprite": "day-ghoul-right-arm",
+          "angle": 0,
+          "x": 28,
+          "y": 50
+        }
+      },
+      "daylight": {
+        "damage": 5,
+        "intervalMs": 1000
+      },
+      "movement": {
+        "speed": 250,
+        "nightSpeed": 300
+      },
+      "brain": {
+        "type": "aggressive",
+        "vision": 700,
+        "loseTarget": 1000,
+        "leash": 0,
+        "chase": true,
+        "roamRadius": 1500,
+        "roamPauseMs": 0,
+        "aggroAfterCycles": 1,
+        "repelBreakMs": 60000,
+        "target": [
+          {
+            "type": "player",
+            "priority": 100
+          },
+          {
+            "type": "agent",
+            "priority": 60
+          },
+          {
+            "type": "object",
+            "priority": 30
+          }
+        ]
+      },
+      "dodge": {
+        "chance": 0.3,
+        "reactionMs": 240,
+        "speed": 200,
+        "durationMs": 280,
+        "cooldownMs": 1600
+      },
+      "abilities": {
+        "ability": [
+          {
+            "type": "melee",
+            "cooldownMs": 700,
+            "impactMs": 550,
+            "range": 50,
+            "radius": 34,
+            "staminaUsage": 3,
+            "knockback": 4,
+            "damage": {
+              "amount": 8,
+              "amountMax": 20
+            }
+          }
+        ]
+      },
+      "onDeath": {
+        "drops": {
+          "item": [
+            {
+              "key": "animal_fat",
+              "amount": 1
+            }
+          ]
+        }
+      }
+    },
+    "explosive_ghoul": {
+      "key": "explosive_ghoul",
+      "id": 2,
+      "sprite": 2,
+      "family": "ghoul",
+      "body": {
+        "radius": 38,
+        "collision": true,
+        "separation": true
+      },
+      "vitals": {
+        "health": 100,
+        "experience": 500,
+        "lifetimeMs": 0
+      },
+      "client": {
+        "render": "ghoul",
+        "breath": 0.05,
+        "armMove": 6,
+        "head": "day-ghoul4",
+        "hurt": "ghoul4-hurt",
+        "death": "day-ghoul4-death",
+        "light": 1,
+        "hitAnimMs": 350,
+        "leftArm": {
+          "sprite": "day-ghoul4-left-arm",
+          "angle": 0,
+          "x": 28,
+          "y": -48
+        },
+        "rightArm": {
+          "sprite": "day-ghoul4-right-arm",
+          "angle": 0,
+          "x": 28,
+          "y": 48
+        }
+      },
+      "daylight": {
+        "damage": 5,
+        "intervalMs": 1000
+      },
+      "movement": {
+        "speed": 250,
+        "nightSpeed": 300
+      },
+      "brain": {
+        "type": "aggressive",
+        "vision": 700,
+        "loseTarget": 1000,
+        "leash": 0,
+        "chase": true,
+        "roamRadius": 1500,
+        "roamPauseMs": 0,
+        "aggroAfterCycles": 5,
+        "repelBreakMs": 60000,
+        "target": [
+          {
+            "type": "player",
+            "priority": 100
+          },
+          {
+            "type": "agent",
+            "priority": 60
+          },
+          {
+            "type": "object",
+            "priority": 60
+          }
+        ]
+      },
+      "abilities": {
+        "ability": [
+          {
+            "type": "melee",
+            "cooldownMs": 500,
+            "impactMs": 350,
+            "range": 50,
+            "radius": 30,
+            "staminaUsage": 2,
+            "knockback": 3,
+            "damage": {
+              "amount": 6,
+              "amountMax": 20
+            }
+          }
+        ]
+      },
+      "onDeath": {
+        "explosion": {
+          "radius": 40,
+          "playerDamage": 120,
+          "buildingDamage": 500
+        },
+        "drops": {
+          "item": [
+            {
+              "key": "sulfur",
+              "amount": 1
+            },
+            {
+              "key": "animal_fat",
+              "amount": 1
+            },
+            {
+              "key": "junk",
+              "amount": 1
+            }
+          ]
+        }
+      }
+    },
+    "fast_ghoul": {
+      "key": "fast_ghoul",
+      "id": 1,
+      "sprite": 1,
+      "family": "ghoul",
+      "body": {
+        "radius": 38,
+        "collision": true,
+        "separation": true
+      },
+      "vitals": {
+        "health": 100,
+        "experience": 1000,
+        "lifetimeMs": 0
+      },
+      "client": {
+        "render": "ghoul",
+        "breath": 0.05,
+        "armMove": 6,
+        "head": "day-ghoul3",
+        "hurt": "ghoul3-hurt",
+        "death": "day-ghoul3-death",
+        "light": 1,
+        "hitAnimMs": 150,
+        "leftArm": {
+          "sprite": "day-ghoul3-left-arm",
+          "angle": 0,
+          "x": 28,
+          "y": -40
+        },
+        "rightArm": {
+          "sprite": "day-ghoul3-right-arm",
+          "angle": 0,
+          "x": 28,
+          "y": 40
+        }
+      },
+      "daylight": {
+        "damage": 5,
+        "intervalMs": 1000
+      },
+      "movement": {
+        "speed": 250,
+        "nightSpeed": 330
+      },
+      "brain": {
+        "type": "aggressive",
+        "vision": 700,
+        "loseTarget": 1000,
+        "leash": 0,
+        "chase": true,
+        "roamRadius": 1500,
+        "roamPauseMs": 0,
+        "aggroAfterCycles": 3,
+        "repelBreakMs": 60000,
+        "target": [
+          {
+            "type": "player",
+            "priority": 100
+          },
+          {
+            "type": "agent",
+            "priority": 60
+          },
+          {
+            "type": "object",
+            "priority": 30
+          }
+        ]
+      },
+      "dodge": {
+        "chance": 0.65,
+        "reactionMs": 300,
+        "speed": 320,
+        "durationMs": 320,
+        "cooldownMs": 900
+      },
+      "abilities": {
+        "ability": [
+          {
+            "type": "melee",
+            "cooldownMs": 300,
+            "impactMs": 150,
+            "range": 50,
+            "radius": 26,
+            "staminaUsage": 2,
+            "knockback": 2,
+            "damage": {
+              "amount": 7,
+              "amountMax": 14
+            }
+          }
+        ]
+      },
+      "onDeath": {
+        "drops": {
+          "item": [
+            {
+              "key": "ghoul_blood",
+              "amount": 1
+            }
+          ]
+        }
+      }
+    },
+    "radioactive_ghoul": {
+      "key": "radioactive_ghoul",
+      "id": 3,
+      "sprite": 3,
+      "family": "ghoul",
+      "body": {
+        "radius": 38,
+        "collision": true,
+        "separation": true
+      },
+      "vitals": {
+        "health": 160,
+        "experience": 1500,
+        "lifetimeMs": 0
+      },
+      "client": {
+        "render": "ghoul",
+        "breath": 0.05,
+        "armMove": 6,
+        "head": "day-ghoul2",
+        "hurt": "ghoul2-hurt",
+        "death": "day-ghoul2-death",
+        "light": 1,
+        "hitAnimMs": 350,
+        "leftArm": {
+          "sprite": "day-ghoul2-left-arm",
+          "angle": 0,
+          "x": 28,
+          "y": -40
+        },
+        "rightArm": {
+          "sprite": "day-ghoul2-right-arm",
+          "angle": 0,
+          "x": 28,
+          "y": 40
+        }
+      },
+      "daylight": {
+        "damage": 5,
+        "intervalMs": 1000
+      },
+      "areaEffects": {
+        "areaEffect": [
+          {
+            "id": 2,
+            "type": "radiation",
+            "strength": 1,
+            "area": 2
+          }
+        ]
+      },
+      "movement": {
+        "speed": 250,
+        "nightSpeed": 300
+      },
+      "brain": {
+        "type": "aggressive",
+        "vision": 700,
+        "loseTarget": 1000,
+        "leash": 0,
+        "chase": true,
+        "roamRadius": 1500,
+        "roamPauseMs": 0,
+        "aggroAfterCycles": 7,
+        "repelBreakMs": 60000,
+        "target": [
+          {
+            "type": "player",
+            "priority": 100
+          },
+          {
+            "type": "agent",
+            "priority": 60
+          },
+          {
+            "type": "object",
+            "priority": 30
+          }
+        ]
+      },
+      "dodge": {
+        "chance": 0.35,
+        "reactionMs": 250,
+        "speed": 220,
+        "durationMs": 280,
+        "cooldownMs": 1400
+      },
+      "abilities": {
+        "ability": [
+          {
+            "type": "melee",
+            "cooldownMs": 500,
+            "impactMs": 350,
+            "range": 50,
+            "radius": 32,
+            "staminaUsage": 3,
+            "knockback": 3,
+            "damage": {
+              "amount": 5,
+              "amountMax": 15
+            }
+          }
+        ]
+      },
+      "onDeath": {
+        "drops": {
+          "item": [
+            {
+              "key": "uranium",
+              "amount": 1
+            }
+          ]
+        }
+      }
+    },
+    "armored_ghoul": {
+      "key": "armored_ghoul",
+      "id": 4,
+      "sprite": 4,
+      "family": "ghoul",
+      "body": {
+        "radius": 38,
+        "collision": true,
+        "separation": true
+      },
+      "vitals": {
+        "health": 800,
+        "experience": 5000,
+        "lifetimeMs": 0
+      },
+      "client": {
+        "render": "ghoul",
+        "breath": 0.05,
+        "armMove": 6,
+        "head": "day-ghoul1",
+        "hurt": "ghoul1-hurt",
+        "death": "day-ghoul1-death",
+        "light": 1,
+        "hitAnimMs": 550,
+        "leftArm": {
+          "sprite": "day-ghoul1-left-arm",
+          "angle": 0,
+          "x": 28,
+          "y": -50
+        },
+        "rightArm": {
+          "sprite": "day-ghoul1-right-arm",
+          "angle": 0,
+          "x": 28,
+          "y": 50
+        }
+      },
+      "daylight": {
+        "damage": 5,
+        "intervalMs": 1000
+      },
+      "resistances": {
+        "melee": 0.1,
+        "explosion": 0.1
+      },
+      "movement": {
+        "speed": 250,
+        "nightSpeed": 300
+      },
+      "brain": {
+        "type": "aggressive",
+        "vision": 700,
+        "loseTarget": 1000,
+        "leash": 0,
+        "chase": true,
+        "roamRadius": 1500,
+        "roamPauseMs": 0,
+        "aggroAfterCycles": 10,
+        "repelBreakMs": 60000,
+        "target": [
+          {
+            "type": "player",
+            "priority": 100
+          },
+          {
+            "type": "agent",
+            "priority": 60
+          },
+          {
+            "type": "object",
+            "priority": 30
+          }
+        ]
+      },
+      "abilities": {
+        "ability": [
+          {
+            "type": "melee",
+            "cooldownMs": 700,
+            "impactMs": 550,
+            "range": 50,
+            "radius": 40,
+            "staminaUsage": 5,
+            "knockback": 10,
+            "damage": {
+              "amount": 20,
+              "amountMax": 50
+            }
+          }
+        ]
+      },
+      "onDeath": {
+        "drops": {
+          "item": [
+            {
+              "key": "alloys",
+              "amount": 1
+            },
+            {
+              "key": "shaped_metal",
+              "amount": 1
+            }
+          ]
+        }
+      }
+    },
+    "lapabot": {
+      "key": "lapabot",
+      "id": 6,
+      "sprite": 6,
+      "family": "bot",
+      "body": {
+        "radius": 38,
+        "collision": true,
+        "separation": true,
+        "stackGroup": "bot"
+      },
+      "vitals": {
+        "health": 600,
+        "experience": 100,
+        "lifetimeMs": 0
+      },
+      "client": {
+        "render": "ghoul",
+        "breath": 0.05,
+        "armMove": 6,
+        "head": "day-lapabot",
+        "hurt": "lapabot-hurt",
+        "death": "day-lapabot-death",
+        "light": 0,
+        "hitAnimMs": 550,
+        "leftArm": {
+          "sprite": "day-lapabot-left-arm",
+          "angle": 0,
+          "x": 28,
+          "y": -50
+        },
+        "rightArm": {
+          "sprite": "day-lapabot-right-arm",
+          "angle": 0,
+          "x": 28,
+          "y": 50
+        }
+      },
+      "movement": {
+        "speed": 80
+      },
+      "brain": {
+        "type": "repair",
+        "vision": 700,
+        "loseTarget": 1000,
+        "leash": 0,
+        "chase": false,
+        "target": [
+          {
+            "type": "damaged_object",
+            "priority": 100,
+            "pursue": true
+          },
+          {
+            "type": "player",
+            "priority": 50,
+            "pursue": false
+          },
+          {
+            "type": "agent",
+            "priority": 40,
+            "pursue": false
+          }
+        ]
+      },
+      "abilities": {
+        "ability": [
+          {
+            "type": "melee",
+            "cooldownMs": 700,
+            "impactMs": 550,
+            "range": 40,
+            "knockback": 4,
+            "damage": {
+              "amount": 10,
+              "amountMax": 18
+            }
+          },
+          {
+            "type": "repair",
+            "cooldownMs": 700,
+            "impactMs": 550,
+            "range": 50,
+            "amount": 30
+          }
+        ]
+      },
+      "onDeath": {
+        "drops": {
+          "item": [
+            {
+              "key": "shaped_metal",
+              "amount": 1
+            }
+          ]
+        }
+      }
+    },
+    "halbot": {
+      "key": "halbot",
+      "id": 7,
+      "sprite": 7,
+      "family": "bot",
+      "body": {
+        "radius": 38,
+        "collision": true,
+        "separation": true
+      },
+      "vitals": {
+        "health": 800,
+        "experience": 500,
+        "lifetimeMs": 0
+      },
+      "client": {
+        "render": "ghoul",
+        "breath": 0.05,
+        "armMove": 6,
+        "head": "day-hal-bot",
+        "hurt": "hal-bot-hurt",
+        "death": "day-hal-bot-death",
+        "light": 0,
+        "hitAnimMs": 400,
+        "leftArm": {
+          "sprite": "day-hal-bot-left-arm",
+          "angle": 0,
+          "x": 8,
+          "y": -45
+        },
+        "rightArm": {
+          "sprite": "day-hal-bot-right-arm",
+          "angle": 0,
+          "x": 8,
+          "y": 45
+        }
+      },
+      "movement": {
+        "speed": 120
+      },
+      "brain": {
+        "type": "aggressive",
+        "vision": 500,
+        "loseTarget": 700,
+        "leash": 0,
+        "chase": true,
+        "target": [
+          {
+            "type": "player",
+            "priority": 100
+          },
+          {
+            "type": "agent",
+            "priority": 60
+          },
+          {
+            "type": "object",
+            "priority": 30
+          }
+        ]
+      },
+      "abilities": {
+        "ability": [
+          {
+            "type": "melee",
+            "cooldownMs": 550,
+            "impactMs": 400,
+            "range": 50,
+            "knockback": 3,
+            "damage": {
+              "amount": 30,
+              "amountMax": 30
+            }
+          }
+        ]
+      },
+      "onDeath": {
+        "drops": {
+          "item": [
+            {
+              "key": "shaped_metal",
+              "amount": 1
+            }
+          ]
+        }
+      }
+    },
+    "teslabot": {
+      "key": "teslabot",
+      "id": 8,
+      "sprite": 8,
+      "family": "bot",
+      "body": {
+        "radius": 38,
+        "collision": true,
+        "separation": true
+      },
+      "vitals": {
+        "health": 3000,
+        "experience": 3000,
+        "lifetimeMs": 0
+      },
+      "client": {
+        "render": "ghoul",
+        "breath": 0.05,
+        "armMove": 6,
+        "head": "day-tesla-bot",
+        "hurt": "tesla-bot-hurt",
+        "death": "day-tesla-bot-death",
+        "light": 0,
+        "hitAnimMs": 550,
+        "leftArm": {
+          "sprite": "day-tesla-bot-left-arm",
+          "angle": 0,
+          "x": 18,
+          "y": -60
+        },
+        "rightArm": {
+          "sprite": "day-tesla-bot-right-arm",
+          "angle": 0,
+          "x": 18,
+          "y": 60
+        }
+      },
+      "movement": {
+        "speed": 100
+      },
+      "brain": {
+        "type": "aggressive",
+        "vision": 500,
+        "loseTarget": 700,
+        "leash": 0,
+        "chase": true,
+        "target": [
+          {
+            "type": "player",
+            "priority": 100
+          },
+          {
+            "type": "agent",
+            "priority": 60
+          },
+          {
+            "type": "object",
+            "priority": 30
+          }
+        ]
+      },
+      "abilities": {
+        "ability": [
+          {
+            "type": "melee",
+            "cooldownMs": 700,
+            "impactMs": 550,
+            "range": 50,
+            "knockback": 10,
+            "damage": {
+              "amount": 80,
+              "amountMax": 80
+            }
+          }
+        ]
+      },
+      "onDeath": {
+        "explosion": {
+          "radius": 40,
+          "playerDamage": 100,
+          "buildingDamage": 100
+        },
+        "drops": {
+          "item": [
+            {
+              "key": "shaped_uranium",
+              "amount": 1
+            },
+            {
+              "key": "alloys",
+              "amount": 1
+            }
+          ]
+        }
+      }
+    },
+    "pumpkin_ghoul": {
+      "key": "pumpkin_ghoul",
+      "id": 5,
+      "sprite": 5,
+      "family": "ghoul",
+      "body": {
+        "radius": 38,
+        "collision": true,
+        "separation": true
+      },
+      "vitals": {
+        "health": 160,
+        "experience": 100,
+        "lifetimeMs": 0
+      },
+      "client": {
+        "render": "ghoul",
+        "breath": 0.05,
+        "armMove": 6,
+        "head": "day-ghoul5",
+        "hurt": "ghoul5-hurt",
+        "death": "day-ghoul5-death",
+        "light": 0,
+        "hitAnimMs": 550,
+        "leftArm": {
+          "sprite": "day-ghoul5-left-arm",
+          "angle": 0,
+          "x": 28,
+          "y": -50
+        },
+        "rightArm": {
+          "sprite": "day-ghoul5-right-arm",
+          "angle": 0,
+          "x": 28,
+          "y": 50
+        }
+      },
+      "daylight": {
+        "damage": 5,
+        "intervalMs": 1000
+      },
+      "movement": {
+        "speed": 60
+      },
+      "brain": {
+        "type": "aggressive",
+        "vision": 700,
+        "loseTarget": 1000,
+        "leash": 0,
+        "chase": true,
+        "roamRadius": 1500,
+        "roamPauseMs": 0,
+        "repelBreakMs": 60000,
+        "target": [
+          {
+            "type": "player",
+            "priority": 100
+          },
+          {
+            "type": "agent",
+            "priority": 60
+          },
+          {
+            "type": "object",
+            "priority": 30
+          }
+        ]
+      },
+      "abilities": {
+        "ability": [
+          {
+            "type": "melee",
+            "cooldownMs": 700,
+            "impactMs": 550,
+            "range": 50,
+            "radius": 34,
+            "staminaUsage": 3,
+            "knockback": 2,
+            "damage": {
+              "amount": 20,
+              "amountMax": 30
+            }
+          }
+        ]
+      },
+      "onDeath": {
+        "drops": {
+          "item": [
+            {
+              "key": "pumpkin",
+              "amount": 1
+            }
+          ]
+        }
+      }
+    }
+  }
+}

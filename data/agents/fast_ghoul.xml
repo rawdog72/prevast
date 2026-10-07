@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<agent key="fast_ghoul" family="ghoul" sprite="1">
+  <body radius="38" collision="true" separation="true"/>
+  <vitals health="100" experience="1000" lifetimeMs="0"/>
+  <daylight damage="5" intervalMs="1000"/>
+  <movement speed="250" nightSpeed="330"/>
+  <brain type="aggressive" vision="700" loseTarget="1000" leash="0" chase="true" roamRadius="1500" roamPauseMs="0" aggroAfterCycles="3" repelBreakMs="60000">
+    <target type="player" priority="100"/>
+    <target type="agent" priority="60"/>
+    <target type="object" priority="30"/>
+  </brain>
+  <!-- The one that actually jinks. Sees shots coming earlier, moves
+		     further sideways and can do it again within a second, which is what
+		     makes it the ghoul you have to lead. -->
+  <dodge chance="0.65" reactionMs="300" speed="320" durationMs="320" cooldownMs="900"/>
+  <abilities>
+    <ability type="melee" cooldownMs="300" impactMs="150" range="50" radius="26" staminaUsage="2" knockback="2">
+      <damage amount="7" amountMax="14"/>
+    </ability>
+  </abilities>
+  <onDeath>
+    <drops>
+      <item key="ghoul_blood" amount="1"/>
+    </drops>
+  </onDeath>
+  <client render="ghoul" breath="0.05" armMove="6" head="day-ghoul3" hurt="ghoul3-hurt" death="day-ghoul3-death" light="1" hitAnimMs="150">
+    <leftArm sprite="day-ghoul3-left-arm" angle="0" x="28" y="-40"/>
+    <rightArm sprite="day-ghoul3-right-arm" angle="0" x="28" y="40"/>
+  </client>
+</agent>

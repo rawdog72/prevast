@@ -1,0 +1,346 @@
+{
+  "name": "conditions",
+  "version": 1,
+  "hash": "72b156dfe98fbc70",
+  "attributes": {},
+  "entries": {
+    "ghoul_drug_effect": {
+      "key": "ghoul_drug_effect",
+      "name": "Ghoul Repellent Drug",
+      "stage": [
+        {
+          "key": "active",
+          "durationMs": 600000,
+          "visuals": {
+            "skin": 1
+          },
+          "repel": {
+            "families": "ghoul"
+          }
+        }
+      ],
+      "removeOnDeath": true,
+      "stacking": {
+        "mode": "refresh"
+      }
+    },
+    "lapadone_effect": {
+      "key": "lapadone_effect",
+      "name": "Lapadone",
+      "stage": [
+        {
+          "key": "boost",
+          "durationMs": 6000,
+          "nextStage": "withdrawal",
+          "modifiers": {
+            "speed": {
+              "multiplier": 1.35
+            },
+            "staminaRegen": {
+              "multiplier": 1.25
+            }
+          },
+          "visuals": {
+            "skin": 2
+          }
+        },
+        {
+          "key": "withdrawal",
+          "durationMs": 6000,
+          "modifiers": {
+            "speed": {
+              "multiplier": 0.7
+            },
+            "staminaRegen": {
+              "multiplier": 0.65
+            }
+          },
+          "visuals": {
+            "skin": 2,
+            "endSkin": 4
+          }
+        }
+      ],
+      "removeOnDeath": true,
+      "stacking": {
+        "mode": "refresh"
+      }
+    },
+    "toxic_poison": {
+      "key": "toxic_poison",
+      "name": "Toxic Poison",
+      "stage": [
+        {
+          "key": "active",
+          "durationMs": 60000,
+          "modifiers": {
+            "speed": {
+              "multiplier": 0.85
+            },
+            "healthTick": {
+              "amount": -5,
+              "intervalMs": 2000
+            }
+          },
+          "visuals": {
+            "poisonScreenEffect": true
+          }
+        }
+      ],
+      "tags": "poison",
+      "removeOnDeath": true,
+      "stacking": {
+        "mode": "refresh"
+      }
+    },
+    "stun": {
+      "key": "stun",
+      "name": "Stunned",
+      "stage": [
+        {
+          "key": "active",
+          "durationMs": 1200,
+          "modifiers": {
+            "control": {
+              "move": false,
+              "turn": false,
+              "attack": false,
+              "use": false,
+              "build": false
+            }
+          }
+        }
+      ],
+      "tags": "control",
+      "removeOnDeath": true,
+      "stacking": {
+        "mode": "refresh"
+      }
+    },
+    "paralysis": {
+      "key": "paralysis",
+      "name": "Paralysed",
+      "stage": [
+        {
+          "key": "active",
+          "durationMs": 2500,
+          "modifiers": {
+            "control": {
+              "move": false
+            }
+          }
+        }
+      ],
+      "tags": "control",
+      "removeOnDeath": true,
+      "stacking": {
+        "mode": "refresh"
+      }
+    },
+    "crippled": {
+      "key": "crippled",
+      "name": "Crippled",
+      "stage": [
+        {
+          "key": "active",
+          "durationMs": 15000,
+          "modifiers": {
+            "speed": {
+              "multiplier": 0.6
+            },
+            "control": {
+              "run": false
+            },
+            "healthRegen": {
+              "multiplier": 0.5
+            }
+          }
+        }
+      ],
+      "tags": "wound",
+      "removeOnDeath": true,
+      "stacking": {
+        "mode": "refresh"
+      }
+    },
+    "slowed": {
+      "key": "slowed",
+      "name": "Slowed",
+      "stage": [
+        {
+          "key": "active",
+          "durationMs": 4000,
+          "modifiers": {
+            "speed": {
+              "multiplier": 0.55
+            }
+          }
+        }
+      ],
+      "tags": "control,movement",
+      "removeOnDeath": true,
+      "stacking": {
+        "mode": "refresh"
+      }
+    },
+    "bleeding": {
+      "key": "bleeding",
+      "name": "Bleeding",
+      "stage": [
+        {
+          "key": "active",
+          "durationMs": 10000,
+          "modifiers": {
+            "healthTick": {
+              "amount": -3,
+              "intervalMs": 1000
+            }
+          }
+        }
+      ],
+      "tags": "wound,bleed",
+      "removeOnDeath": true,
+      "stacking": {
+        "mode": "refresh"
+      }
+    },
+    "adrenaline": {
+      "key": "adrenaline",
+      "name": "Adrenaline",
+      "stage": [
+        {
+          "key": "rush",
+          "durationMs": 8000,
+          "nextStage": "crash",
+          "modifiers": {
+            "speed": {
+              "multiplier": 1.25
+            },
+            "damageDealt": {
+              "multiplier": 1.3
+            },
+            "critChance": {
+              "add": 0.15
+            },
+            "staminaDrain": {
+              "multiplier": 0.5
+            },
+            "knockbackResist": {
+              "fraction": 0.5
+            }
+          }
+        },
+        {
+          "key": "crash",
+          "durationMs": 12000,
+          "modifiers": {
+            "speed": {
+              "multiplier": 0.8
+            },
+            "damageDealt": {
+              "multiplier": 0.8
+            },
+            "staminaTick": {
+              "amount": -2,
+              "intervalMs": 1000
+            }
+          }
+        }
+      ],
+      "tags": "drug",
+      "removeOnDeath": true,
+      "stacking": {
+        "mode": "refresh"
+      }
+    },
+    "vampirism": {
+      "key": "vampirism",
+      "name": "Vampirism",
+      "stage": [
+        {
+          "key": "active",
+          "durationMs": 20000,
+          "modifiers": {
+            "leech": {
+              "life": 0.2
+            }
+          }
+        }
+      ],
+      "tags": "drug",
+      "removeOnDeath": true,
+      "stacking": {
+        "mode": "refresh"
+      }
+    },
+    "fortified": {
+      "key": "fortified",
+      "name": "Fortified",
+      "stage": [
+        {
+          "key": "active",
+          "durationMs": 15000,
+          "modifiers": {
+            "damageTaken": {
+              "multiplier": 0.6
+            },
+            "speed": {
+              "multiplier": 0.85
+            },
+            "knockbackResist": {
+              "fraction": 0.8
+            }
+          }
+        }
+      ],
+      "tags": "buff",
+      "removeOnDeath": true,
+      "stacking": {
+        "mode": "refresh"
+      }
+    },
+    "antitoxin": {
+      "key": "antitoxin",
+      "name": "Antitoxin",
+      "stage": [
+        {
+          "key": "active",
+          "durationMs": 45000,
+          "modifiers": {
+            "resist": {
+              "conditions": "toxic_poison,bleeding",
+              "fraction": 1,
+              "all": 0.3
+            }
+          }
+        }
+      ],
+      "tags": "buff",
+      "removeOnDeath": true,
+      "stacking": {
+        "mode": "refresh"
+      }
+    },
+    "irradiated": {
+      "key": "irradiated",
+      "name": "Irradiated",
+      "stage": [
+        {
+          "key": "active",
+          "durationMs": 20000,
+          "modifiers": {
+            "radiationTick": {
+              "amount": 4,
+              "intervalMs": 1000
+            }
+          }
+        }
+      ],
+      "tags": "radiation",
+      "removeOnDeath": true,
+      "stacking": {
+        "mode": "extend"
+      }
+    }
+  }
+}

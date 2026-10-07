@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    What leaves the barrel. Thin on purpose: the BALLISTICS live on the weapon
+    (equipables.xml <fire> owns speed, spread, range, pellets, recoil), and this
+    file owns what is true of the ammunition wherever it is fired from. Nine
+    weapons share 9mm_bullet, so anything written here applies to all nine.
+
+    <physics baseSpeed="1.0"/>
+        How fast this round travels, as a factor of the reference speed. The
+        weapon's <fire speedMultiplier=> scales it: an arrow is slow whatever
+        fires it, and a stronger bow makes that same arrow faster.
+
+    <damage type="piercing|melee|explosion|energy"/>
+        Which resistance applies to it.
+
+    <lifetime durationMs="..."/>  <onDestroy><explosion .../></onDestroy>
+        Grenade-shaped rounds: how long before it goes off, and the blast.
+
+    <onHit condition="toxic_poison" chance="0.5" durationMs="0" chancePerDamage="0"/>
+        A CONDITION the round inflicts on a player it lands on (conditions.xml).
+        durationMs overrides the condition's own first-stage length for THIS
+        source (0 = use its own), so one `stun` can be brief from a dart and long
+        from a grenade. chancePerDamage adds to the chance per point of damage
+        that ACTUALLY landed, so a solid hit is likelier to land it than a graze
+        - and armour, which cut the damage, cuts the chance with it.
+        An <explosion> accepts the same element, for what the BLAST inflicts.
+        chance is 0..1 and defaults to 1. It only fires on a hit that actually
+        did damage, so a target protected by ghost mode or invincibility is not
+        poisoned either.
+
+        NOTHING SHIPPED USES THIS YET - the capability landed 2026-08-13 and
+        which round should poison is a balance decision. A key that names no
+        condition is reported at startup.
+-->
+<projectiles>
+
+    <projectile clientProjectileId="0" key="9mm_bullet">
+        <physics baseSpeed="1.0"/>
+        <damage type="piercing"/>
+        <client>
+            <frame index="0" sprite="day-bullet1"/>
+            <frame index="1" sprite="day-bullet2"/>
+            <frame index="2" sprite="day-bullet2l"/>
+        </client>
+    </projectile>
+
+    <projectile clientProjectileId="1" key="762_round">
+        <physics baseSpeed="1.0"/>
+        <damage type="piercing"/>
+        <client>
+            <frame index="0" sprite="day-bullet3"/>
+            <frame index="1" sprite="day-bullet4"/>
+            <frame index="2" sprite="day-bullet4l"/>
+        </client>
+    </projectile>
+
+    <projectile clientProjectileId="2" key="12g_pellet">
+        <physics baseSpeed="1.0"/>
+        <damage type="piercing"/>
+        <client>
+            <frame index="0" sprite="day-bullet5"/>
+            <frame index="1" sprite="day-bullet6"/>
+            <frame index="2" sprite="day-bullet6l"/>
+        </client>
+    </projectile>
+
+    <projectile clientProjectileId="3" key="wood_arrow">
+        <physics baseSpeed="1.0"/>
+        <damage type="piercing"/>
+        <client>
+            <frame index="0" sprite="day-wood-arrow"/>
+            <frame index="1" sprite="day-wood-arrow1"/>
+            <frame index="2" sprite="day-wood-arrowl"/>
+        </client>
+    </projectile>
+
+    <projectile clientProjectileId="4" key="spear">
+        <physics baseSpeed="1.0"/>
+        <damage type="piercing"/>
+        <client>
+            <frame index="0" sprite="day-wood-spear0"/>
+            <frame index="1" sprite="day-wood-spear1"/>
+            <frame index="2" sprite="day-wood-spearl"/>
+        </client>
+    </projectile>
+
+    <projectile clientProjectileId="5" key="wood_crossarrow">
+        <physics baseSpeed="1.0"/>
+        <damage type="piercing"/>
+        <client>
+            <frame index="0" sprite="day-wood-crossarrow"/>
+            <frame index="1" sprite="day-wood-crossarrow1"/>
+            <frame index="2" sprite="day-wood-crossarrowl"/>
+        </client>
+    </projectile>
+
+    <projectile clientProjectileId="6" key="nail">
+        <physics baseSpeed="1.0"/>
+        <damage type="piercing"/>
+        <client>
+            <frame index="0" sprite="day-nail1"/>
+            <frame index="1" sprite="day-nail2"/>
+            <frame index="2" sprite="day-nail2l"/>
+        </client>
+    </projectile>
+
+    <projectile clientProjectileId="7" key="energy">
+        <physics baseSpeed="1.0"/>
+        <damage type="energy"/>
+        <client>
+            <frame index="0" sprite="day-laser0"/>
+            <frame index="1" sprite="day-laser1"/>
+            <frame index="2" sprite="day-laser1l"/>
+        </client>
+    </projectile>
+
+    <projectile clientProjectileId="8" key="granade">
+        <physics baseSpeed="1.0"/>
+        <damage type="piercing"/>
+        <lifetime durationMs="3000" />
+        <onDestroy>
+            <explosion area="1" playerDamage="200" buildingDamage="400" knockback="10">
+                <onHit condition="slowed" chance="1" durationMs="600" strength="0.2"/>
+            </explosion>
+        </onDestroy>
+        <client>
+            <frame index="0" sprite="day-grenade0"/>
+            <frame index="1" sprite="day-grenade1"/>
+            <frame index="2" sprite="day-grenadel"/>
+        </client>
+    </projectile>
+
+
+</projectiles>

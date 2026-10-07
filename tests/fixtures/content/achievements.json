@@ -1,0 +1,180 @@
+{
+  "name": "achievements",
+  "version": 1,
+  "hash": "785c3c23d348eba4",
+  "attributes": {},
+  "entries": {
+    "ghoul_hunter": {
+      "key": "ghoul_hunter",
+      "id": 1,
+      "name": "Ghoul Hunter",
+      "description": "Kill 10 ghouls.",
+      "grade": 1,
+      "points": 5,
+      "requires": [
+        {
+          "stat": "kills_ghoul",
+          "atLeast": 10
+        }
+      ]
+    },
+    "ghoul_slayer": {
+      "key": "ghoul_slayer",
+      "id": 2,
+      "name": "Ghoul Slayer",
+      "description": "Kill 500 ghouls.",
+      "grade": 2,
+      "points": 15,
+      "requires": [
+        {
+          "stat": "kills_ghoul",
+          "atLeast": 500
+        }
+      ],
+      "reward": [
+        {
+          "item": "medkit",
+          "count": 1
+        }
+      ]
+    },
+    "scrap_collector": {
+      "key": "scrap_collector",
+      "id": 3,
+      "name": "Scrap Collector",
+      "description": "Destroy 25 robots.",
+      "grade": 2,
+      "points": 10,
+      "requires": [
+        {
+          "stat": "kills_bot",
+          "atLeast": 25
+        }
+      ]
+    },
+    "craftsman": {
+      "key": "craftsman",
+      "id": 4,
+      "name": "Craftsman",
+      "description": "Craft 100 items.",
+      "grade": 1,
+      "points": 5,
+      "requires": [
+        {
+          "stat": "crafted",
+          "atLeast": 100
+        }
+      ]
+    },
+    "lumberjack": {
+      "key": "lumberjack",
+      "id": 5,
+      "name": "Lumberjack",
+      "description": "Gather 1000 resources.",
+      "grade": 1,
+      "points": 5,
+      "requires": [
+        {
+          "stat": "gathered",
+          "atLeast": 1000
+        }
+      ]
+    },
+    "builder": {
+      "key": "builder",
+      "id": 6,
+      "name": "Builder",
+      "description": "Build 200 things.",
+      "grade": 1,
+      "points": 5,
+      "requires": [
+        {
+          "stat": "built",
+          "atLeast": 200
+        }
+      ]
+    },
+    "wrecker": {
+      "key": "wrecker",
+      "id": 7,
+      "name": "Wrecker",
+      "description": "Wreck 50 buildings that are not yours or your clan's.",
+      "grade": 2,
+      "points": 10,
+      "requires": [
+        {
+          "stat": "wrecked",
+          "atLeast": 50
+        }
+      ]
+    },
+    "helping_hand": {
+      "key": "helping_hand",
+      "id": 8,
+      "name": "Helping Hand",
+      "description": "Complete 5 quests.",
+      "grade": 1,
+      "points": 5,
+      "requires": [
+        {
+          "stat": "quests_completed",
+          "atLeast": 5
+        }
+      ],
+      "reward": [
+        {
+          "caps": 200
+        }
+      ]
+    },
+    "bounty_hunter": {
+      "key": "bounty_hunter",
+      "id": 9,
+      "name": "Bounty Hunter",
+      "description": "Bring down 10 outlaws.",
+      "grade": 2,
+      "points": 10,
+      "requires": [
+        {
+          "stat": "bounties",
+          "atLeast": 10
+        }
+      ]
+    },
+    "veteran": {
+      "key": "veteran",
+      "id": 10,
+      "name": "Veteran",
+      "description": "Stay alive for an hour in one life.",
+      "grade": 2,
+      "points": 15,
+      "requires": [
+        {
+          "stat": "longest_life",
+          "atLeast": 60
+        }
+      ]
+    },
+    "survivor": {
+      "key": "survivor",
+      "id": 11,
+      "name": "Survivor",
+      "description": "Survive 10 hours in total.",
+      "grade": 3,
+      "points": 30,
+      "requires": [
+        {
+          "stat": "minutes_survived",
+          "atLeast": 600
+        }
+      ]
+    },
+    "road_warden": {
+      "key": "road_warden",
+      "id": 12,
+      "grade": 1,
+      "points": 5,
+      "secret": true
+    }
+  }
+}

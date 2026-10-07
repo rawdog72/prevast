@@ -1,0 +1,110 @@
+{
+  "about": "Aimed views, as offsets from the player. Run by the C++ --selftest (aim_view_selftest.cpp) and by vitest (apps/client/src/world/aim-view.test.ts): what the server sends and what the client darkens around must agree. angleDeg is the facing (y grows downward, so 270 is north). cases: weak boxes; ex/ey are extend*cos/sin truncated toward zero. shapeCases: strong views; each point says whether the inner shape or rear circle holds it (what a new entity needs, and what the client lights) and whether the outer one does (what keeps an entity the client has, and what canSee answers). Points stay well clear of every edge. bounds and box are rounded outward from cos and sin, so the C++ check allows a unit either way; the client does not use them.",
+  "cases": [
+    {
+      "name": "not aiming with a view: the normal box",
+      "view": null, "viewX": 1400, "viewY": 900, "angleDeg": 0,
+      "expect": { "minDX": -1400, "maxDX": 1400, "minDY": -900, "maxDY": 900, "offX": 0, "offY": 0 }
+    },
+    {
+      "name": "stretch aiming east grows only the east edge",
+      "view": { "shape": "stretch", "ahead": 250, "zoom": 0.95, "extend": 250 }, "viewX": 1400, "viewY": 900, "angleDeg": 0,
+      "expect": { "minDX": -1400, "maxDX": 1650, "minDY": -900, "maxDY": 900, "offX": 250, "offY": 0 }
+    },
+    {
+      "name": "stretch aiming north grows only the north edge",
+      "view": { "shape": "stretch", "ahead": 250, "zoom": 0.95, "extend": 250 }, "viewX": 1400, "viewY": 900, "angleDeg": 270,
+      "expect": { "minDX": -1400, "maxDX": 1400, "minDY": -1150, "maxDY": 900, "offX": 0, "offY": -250 }
+    },
+    {
+      "name": "stretch aiming south-east splits the reach across both edges",
+      "view": { "shape": "stretch", "ahead": 250, "zoom": 0.95, "extend": 250 }, "viewX": 1400, "viewY": 900, "angleDeg": 45,
+      "expect": { "minDX": -1400, "maxDX": 1576, "minDY": -900, "maxDY": 1076, "offX": 176, "offY": 176 }
+    },
+    {
+      "name": "shift aiming north moves the whole box and gives up the south strip",
+      "view": { "shape": "shift", "ahead": 450, "zoom": 0.85, "extend": 500 }, "viewX": 1400, "viewY": 900, "angleDeg": 270,
+      "expect": { "minDX": -1400, "maxDX": 1400, "minDY": -1400, "maxDY": 400, "offX": 0, "offY": -500 }
+    },
+    {
+      "name": "shift aiming west",
+      "view": { "shape": "shift", "ahead": 450, "zoom": 0.85, "extend": 500 }, "viewX": 1400, "viewY": 900, "angleDeg": 180,
+      "expect": { "minDX": -1900, "maxDX": 900, "minDY": -900, "maxDY": 900, "offX": -500, "offY": 0 }
+    },
+    {
+      "name": "shift aiming south-west",
+      "view": { "shape": "shift", "ahead": 450, "zoom": 0.85, "extend": 500 }, "viewX": 1400, "viewY": 900, "angleDeg": 135,
+      "expect": { "minDX": -1753, "maxDX": 1047, "minDY": -547, "maxDY": 1253, "offX": -353, "offY": 353 }
+    }
+  ],
+  "shapeCases": [
+    {
+      "name": "the sniper's rect aiming east",
+      "view": { "shape": "rect", "length": 1900, "width": 500, "back": 100, "zoom": 0.55, "rearRadius": 250 },
+      "viewX": 1400, "viewY": 900, "angleDeg": 0,
+      "bounds": { "minDX": -250, "maxDX": 1995, "minDY": -270, "maxDY": 270 },
+      "box": { "minDX": -1400, "maxDX": 1995, "minDY": -900, "maxDY": 900 },
+      "points": [
+        { "at": [1800, 0], "inner": true, "outer": true, "why": "ahead, past the normal box" },
+        { "at": [1950, 0], "inner": false, "outer": true, "why": "past the length, inside the outer length" },
+        { "at": [2050, 0], "inner": false, "outer": false, "why": "past the outer length" },
+        { "at": [1000, 260], "inner": false, "outer": true, "why": "past the width, inside the outer width" },
+        { "at": [1000, -300], "inner": false, "outer": false, "why": "past the outer width" },
+        { "at": [-90, 245], "inner": true, "outer": true, "why": "the strip behind the player the rect starts from" },
+        { "at": [-200, 0], "inner": true, "outer": true, "why": "behind the rect, in the rear circle" },
+        { "at": [-300, 0], "inner": false, "outer": false, "why": "behind, past the rear circle" },
+        { "at": [0, 600], "inner": false, "outer": false, "why": "beside the player, inside the normal box" }
+      ]
+    },
+    {
+      "name": "the sniper's rect aiming north",
+      "view": { "shape": "rect", "length": 1900, "width": 500, "back": 100, "zoom": 0.55, "rearRadius": 250 },
+      "viewX": 1400, "viewY": 900, "angleDeg": 270,
+      "bounds": { "minDX": -270, "maxDX": 270, "minDY": -1995, "maxDY": 250 },
+      "box": { "minDX": -1400, "maxDX": 1400, "minDY": -1995, "maxDY": 900 },
+      "points": [
+        { "at": [0, -1800], "inner": true, "outer": true, "why": "ahead, past the normal box" },
+        { "at": [0, -1950], "inner": false, "outer": true, "why": "past the length, inside the outer length" },
+        { "at": [260, -1000], "inner": false, "outer": true, "why": "past the width, inside the outer width" },
+        { "at": [0, 200], "inner": true, "outer": true, "why": "behind, in the rear circle" },
+        { "at": [600, 0], "inner": false, "outer": false, "why": "beside the player, inside the normal box" },
+        { "at": [0, 1000], "inner": false, "outer": false, "why": "behind, inside the normal box" }
+      ]
+    },
+    {
+      "name": "a cone aiming east",
+      "view": { "shape": "cone", "reach": 1500, "halfAngleDeg": 20, "zoom": 0.7, "rearRadius": 250 },
+      "viewX": 1400, "viewY": 900, "angleDeg": 0,
+      "bounds": { "minDX": -250, "maxDX": 1575, "minDY": -641, "maxDY": 641 },
+      "box": { "minDX": -1400, "maxDX": 1575, "minDY": -900, "maxDY": 900 },
+      "points": [
+        { "at": [1450, 0], "inner": true, "outer": true, "why": "ahead, past the normal box" },
+        { "at": [1540, 0], "inner": false, "outer": true, "why": "past the reach, inside the outer reach" },
+        { "at": [1600, 0], "inner": false, "outer": false, "why": "past the outer reach" },
+        { "at": [1000, 400], "inner": false, "outer": true, "why": "22 degrees off: outside the 20, inside the 24" },
+        { "at": [1000, 500], "inner": false, "outer": false, "why": "27 degrees off" },
+        { "at": [1000, -300], "inner": true, "outer": true, "why": "17 degrees off" },
+        { "at": [-200, 0], "inner": true, "outer": true, "why": "behind, in the rear circle" },
+        { "at": [-300, 0], "inner": false, "outer": false, "why": "behind, past the rear circle" },
+        { "at": [100, 200], "inner": true, "outer": true, "why": "beside the player, in the rear circle" }
+      ]
+    },
+    {
+      "name": "a cone aiming south-west",
+      "view": { "shape": "cone", "reach": 1500, "halfAngleDeg": 20, "zoom": 0.7, "rearRadius": 250 },
+      "viewX": 1400, "viewY": 900, "angleDeg": 135,
+      "bounds": { "minDX": -1471, "maxDX": 250, "minDY": -250, "maxDY": 1471 },
+      "box": { "minDX": -1471, "maxDX": 1400, "minDY": -900, "maxDY": 1471 },
+      "points": [
+        { "at": [-1000, 1000], "inner": true, "outer": true, "why": "straight down the aim" },
+        { "at": [-1080, 1080], "inner": false, "outer": true, "why": "past the reach, inside the outer reach" },
+        { "at": [-1120, 1120], "inner": false, "outer": false, "why": "past the outer reach" },
+        { "at": [-700, 1000], "inner": true, "outer": true, "why": "10 degrees off" },
+        { "at": [-420, 1000], "inner": false, "outer": true, "why": "22 degrees off: outside the 20, inside the 24" },
+        { "at": [0, 1000], "inner": false, "outer": false, "why": "45 degrees off" },
+        { "at": [200, -100], "inner": true, "outer": true, "why": "behind, in the rear circle" },
+        { "at": [300, -300], "inner": false, "outer": false, "why": "behind, past the rear circle" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "name": "skills",
+  "version": 1,
+  "hash": "2ce19b4cfeb57e86",
+  "attributes": {},
+  "entries": {
+    "skill": {
+      "key": "skill",
+      "name": "Skills",
+      "icon": "skill-button"
+    },
+    "survival": {
+      "key": "survival",
+      "name": "Survival",
+      "icon": "survival-button"
+    },
+    "clothe": {
+      "key": "clothe",
+      "name": "Clothing",
+      "icon": "clothe-button"
+    },
+    "building": {
+      "key": "building",
+      "name": "Building",
+      "icon": "building-button"
+    },
+    "tool": {
+      "key": "tool",
+      "name": "Tools",
+      "icon": "tool-button"
+    },
+    "weapon": {
+      "key": "weapon",
+      "name": "Weapons",
+      "icon": "weapon-button"
+    },
+    "plant": {
+      "key": "plant",
+      "name": "Plants",
+      "icon": "plant-button"
+    },
+    "drug": {
+      "key": "drug",
+      "name": "Medicine",
+      "icon": "medecine-button"
+    },
+    "mineral": {
+      "key": "mineral",
+      "name": "Resources",
+      "icon": "resources-button"
+    },
+    "logic": {
+      "key": "logic",
+      "name": "Logic",
+      "icon": "cable-button"
+    }
+  }
+}

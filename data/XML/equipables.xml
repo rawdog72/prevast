@@ -1,0 +1,923 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	<timing> holds two different kinds of number, and the distinction matters:
+
+		attackDelayMs / shotDelayMs / consumeDelayMs
+		        COOLDOWNS. The minimum gap between one action and the next. The
+		        action itself happens immediately on the click.
+		impactMs
+		        A WIND-UP. The delay from the click until the projectile
+		        actually leaves: a bow being drawn, a spear wound back. The
+		        click still spends the ammo and stamina and starts the
+		        animation; only the shot waits. Omit it and the weapon fires
+		        inline on the click, which is what every gun does.
+		        Must be SHORTER than the weapon's own cooldown or a second shot
+		        could start before the first has left; the loader clamps it and
+		        warns rather than letting shots stack.
+
+	typeId is what makes a weapon a THROWABLE (3), not impactMs. A throwable is
+	spent to use it: it leaves the inventory on release and lands on the ground
+	as loot. A bow has a wind-up without being consumed, which is exactly why
+	the two are separate fields.
+
+	<remoteTrigger channel="NAME"/> makes an item a DETONATOR. Using it signals
+	every object the same player placed whose objects.xml entry carries a
+	matching <remote channel="NAME"/>, anywhere on the map. The two sides only
+	ever agree on the channel name, so a new charge or a new detonator can be
+	added without touching the other; what a signalled object DOES is its own
+	<remote action=>. The detonator is never consumed. impactMs, if present, is
+	the delay between the press and the signal.
+
+	<combat> describes a melee swing's hit area:
+		offset  where the swing starts, relative to the player, before rotation
+		range   how far forward it reaches
+		radius  how far to the SIDE of the aim line it still connects. The
+		        server sweeps a capsule of this half-width along the range, so a
+		        target beside what you are pointing at is hit rather than only
+		        one dead centre. Values match the client's own AI/weapon catalog
+		        (client.js `radius`, paired there with `distance` = range).
+		        Omit it and the swing falls back to a 15-unit hairline, which is
+		        the old behaviour.
+-->
+<equipables>
+	<equipable key="hand" typeId="0" idWeapon="0">
+		<timing attackDelayMs="300"/>
+		<damage amount="5" type="melee" knockback="3"/>
+		<usage stamina="2"/>
+		<combat range="38" radius="30">
+			<offset x="10" y="0"/>
+		</combat>
+		<client render="hand" breath="0.05" move="3" distance="47" soundDelay="0" soundVolume="0.5" hitAnimMs="150">
+			<rightArm angle="0" x="22" y="39"/>
+			<leftArm angle="0" x="22" y="-39"/>
+			<sound file="hand-swing0"/>
+			<sound file="hand-swing2"/>
+			<sound file="hand-swing3"/>
+		</client>
+	</equipable>
+
+	<equipable key="stone_pickaxe" typeId="1" idWeapon="1" clientOverrides="meleeRadius">
+		<timing attackDelayMs="800"/>
+		<damage amount="45" type="melee" knockback="5"/>
+		<usage stamina="5"/>
+		<combat range="40" radius="35">
+			<offset x="30" y="0"/>
+		</combat>
+		<client render="melee" breath="0.02" move="2" distance="56" soundDelay="0" soundVolume="0.8" hitAnimMs="650" swingAnimMs="800">
+			<held sprite="day-stone-pickaxe" angle="0" x="30" y="0" rotation="4" x2="20" y2="10"/>
+			<rightArm angle="0" x="33" y="28" distance="8" rotation="1.8"/>
+			<leftArm angle="0" x="30" y="-28" distance="-14" rotation="1"/>
+			<sound file="pickaxe-swing"/>
+		</client>
+	</equipable>
+
+	<equipable key="metal_pickaxe" typeId="1" idWeapon="2" clientOverrides="meleeRadius">
+		<timing attackDelayMs="800"/>
+		<damage amount="55" type="melee" knockback="5"/>
+		<usage stamina="5"/>
+		<combat range="40" radius="35">
+			<offset x="30" y="0"/>
+		</combat>
+		<client render="melee" breath="0.02" move="2" distance="56" soundDelay="0" soundVolume="0.8" hitAnimMs="650" swingAnimMs="800">
+			<held sprite="day-steel-pickaxe" angle="0" x="30" y="0" rotation="4" x2="20" y2="10"/>
+			<rightArm angle="0" x="33" y="28" distance="8" rotation="1.8"/>
+			<leftArm angle="0" x="30" y="-28" distance="-14" rotation="1"/>
+			<sound file="pickaxe-swing"/>
+		</client>
+	</equipable>
+
+	<equipable key="hatchet" typeId="1" idWeapon="3" clientOverrides="cooldown damage meleeRadius">
+		<timing attackDelayMs="600"/>
+		<damage amount="26" type="melee" knockback="4"/>
+		<usage stamina="4"/>
+		<combat range="35" radius="5">
+			<offset x="25" y="0"/>
+		</combat>
+		<client render="melee" breath="0.02" move="2" distance="59" soundDelay="0" soundVolume="0.8" hitAnimMs="350" swingAnimMs="500">
+			<held sprite="day-hachet" angle="0" x="30" y="0" rotation="4" x2="20" y2="10"/>
+			<rightArm angle="0" x="33" y="28" distance="8" rotation="1.8"/>
+			<leftArm angle="0" x="30" y="-28" distance="-14" rotation="1"/>
+			<sound file="hatchet-swing"/>
+		</client>
+	</equipable>
+
+	<equipable key="stone_axe" typeId="1" idWeapon="4" clientOverrides="meleeRadius">
+		<timing attackDelayMs="650"/>
+		<damage amount="50" type="melee" knockback="5"/>
+		<usage stamina="4"/>
+		<combat range="40" radius="35">
+			<offset x="30" y="0"/>
+		</combat>
+		<client render="melee" breath="0.05" move="3" distance="72" soundDelay="0" soundVolume="0.8" hitAnimMs="550">
+			<held sprite="day-stone-axe" angle="0" x="30" y="0" rotation="4" x2="20" y2="10"/>
+			<rightArm angle="0" x="33" y="28" distance="8" rotation="1.8"/>
+			<leftArm angle="0" x="30" y="-28" distance="-14" rotation="1"/>
+			<sound file="axe-swing"/>
+		</client>
+	</equipable>
+
+	<equipable key="wood_spear" typeId="3" idWeapon="5" clientOverrides="damage">
+		<muzzleOffset x="70" y="37"/>
+		<animOffset x="120" y="37"/>
+		<timing impactMs="850"/>
+		<damage amount="100" type="piercing" knockback="5"/>
+		<usage stamina="15"/>
+		<fire mode="semi" projectileKey="spear" speedMultiplier="0.6" spreadRadians="0.01" range="600"/>
+		<client render="throwable" breath="0.05" move="3" breathWeapon="2" x="-40" distance="60" soundDelay="0.75" soundVolume="1" hitAnimMs="100">
+			<held sprite="day-wood-spear" angle="0" x="25" y="40"/>
+			<rightArm angle="0" x="10" y="44"/>
+			<leftArm angle="0" x="22" y="-39"/>
+			<sound file="spear-shot"/>
+		</client>
+	</equipable>
+
+	<equipable key="wood_bow" typeId="2" idWeapon="6">
+		<muzzleOffset x="10" y="0"/>
+		<animOffset x="60" y="0"/>
+		<timing shotDelayMs="1200" impactMs="1080"/>
+		<damage amount="40" type="piercing" knockback="3"/>
+		<usage stamina="8"/>
+		<fire mode="semi" projectileKey="wood_arrow" speedMultiplier="0.75" spreadRadians="0.001" range="800"/>
+		<client render="bow" breath="0.5" move="1" breathWeapon="1" x="-1" distance="-8" soundDelay="1.08" soundVolume="1.4" hitAnimMs="100">
+			<held sprite="day-wood-bow" angle="0" x="44" y="0"/>
+			<projectileHeld sprite="day-wood-arrow1" x="50" y="0"/>
+			<rightArm angle="0" x="10" y="44"/>
+			<leftArm angle="0" x="40" y="-30"/>
+			<sound file="bow-shot"/>
+		</client>
+	</equipable>
+
+	<equipable key="shotgun" typeId="2" idWeapon="7">
+		<muzzleOffset x="60" y="0"/>
+		<animOffset x="150" y="0"/>
+		<timing shotDelayMs="900"/>
+		<damage amount="21" type="piercing" knockback="5"/>
+		<fire mode="semi" projectileKey="12g_pellet" speedMultiplier="1.3" spreadRadians="0.18" range="600" pellets="5" recoilKickback="5">
+			<damageFalloff start="250" end="600" minMultiplier="0.3"/>
+		</fire>
+		<ammo key="12g_pellet" magazineSize="8" reloadMs="1000" reloadPerShell="true"/>
+		<client render="gun" breath="1" move="2" x="0" distance="47" recoil="3" recoilHead="4" recoilGun="3" noEffect="0" cartridgeDelay="500" soundDelay="0" soundVolume="1" gunEffect="gun" cartridge="day-shotgun-cartridge">
+			<held sprite="day-shotgun" x="60" y="0"/>
+			<rightArm angle="0" x="32" y="15"/>
+			<leftArm angle="0" x="43" y="-13"/>
+			<sound file="shotgun-shot"/>
+		</client>
+	</equipable>
+
+	<equipable key="pistol" typeId="2" idWeapon="8">
+		<muzzleOffset x="30" y="0"/>
+		<animOffset x="100" y="0"/>
+		<timing shotDelayMs="400"/>
+		<damage amount="28" type="piercing" knockback="1.0"/>
+		<fire mode="semi" projectileKey="9mm_bullet" speedMultiplier="1.6" spreadRadians="0.06" range="800" recoilKickback="0.4"/>
+		<ammo key="9mm_bullet" magazineSize="20" reloadMs="2200" reloadPerShell="false"/>
+		<aim spreadPercent="-30" movePercent="-10" timeMs="200"/>
+		<client render="gun" breath="1" move="2" x="0" distance="47" recoil="2" recoilHead="1" recoilGun="2" noEffect="0" cartridgeDelay="400" soundDelay="0" soundVolume="1" gunEffect="gun" cartridge="day-9mm-cartridge">
+			<held sprite="day-9mm" x="50" y="0"/>
+			<rightArm angle="0" x="32" y="15"/>
+			<leftArm angle="0" x="32" y="-13"/>
+			<sound file="9mm-shot"/>
+		</client>
+	</equipable>
+
+	<equipable key="desert_eagle" typeId="2" idWeapon="9">
+		<muzzleOffset x="30" y="0"/>
+		<animOffset x="100" y="0"/>
+		<timing shotDelayMs="400"/>
+		<damage amount="40" type="piercing" knockback="1.5"/>
+		<fire mode="semi" projectileKey="9mm_bullet" speedMultiplier="1.6" spreadRadians="0.02" range="900" recoilKickback="0.7"/>
+		<ammo key="9mm_bullet" magazineSize="7" reloadMs="2200" reloadPerShell="false"/>
+		<aim spreadPercent="-30" movePercent="-15" timeMs="250"/>
+		<client render="gun" breath="1" move="2" x="0" distance="47" recoil="2" recoilHead="1" recoilGun="2" noEffect="0" cartridgeDelay="400" soundDelay="0" soundVolume="1.3" gunEffect="gun" cartridge="day-9mm-cartridge">
+			<held sprite="day-desert-eagle" x="50" y="0"/>
+			<rightArm angle="0" x="32" y="15"/>
+			<leftArm angle="0" x="32" y="-13"/>
+			<sound file="desert-eagle-shot"/>
+		</client>
+	</equipable>
+
+	<equipable key="ak47" typeId="2" idWeapon="10">
+		<muzzleOffset x="80" y="0"/>
+		<animOffset x="175" y="0"/>
+		<timing shotDelayMs="120"/>
+		<damage amount="30" type="piercing" knockback="2"/>
+		<fire mode="auto" projectileKey="762_round" speedMultiplier="2.0" spreadRadians="0.08" range="900" recoilKickback="0.8"/>
+		<ammo key="762_round" magazineSize="30" reloadMs="2500" reloadPerShell="false"/>
+		<aim spreadPercent="-35" movePercent="-25" timeMs="300"/>
+		<client render="gun" breath="1" move="2" x="0" distance="47" recoil="3" recoilHead="2" recoilGun="4" noEffect="0" cartridgeDelay="500" soundDelay="0" soundVolume="1" gunEffect="gun" cartridge="day-AK47-cartridge">
+			<held sprite="day-AK47" x="60" y="0"/>
+			<rightArm angle="0" x="32" y="15"/>
+			<leftArm angle="0" x="43" y="-13"/>
+			<sound file="ak47-shot"/>
+		</client>
+	</equipable>
+
+	<equipable key="sniper" typeId="2" idWeapon="11" clientOverrides="cooldown range reloadMs">
+		<muzzleOffset x="80" y="0"/>
+		<animOffset x="175" y="0"/>
+		<timing shotDelayMs="1200"/>
+		<damage amount="90" type="piercing" knockback="5">
+			<!-- The one weapon a critical hit is obviously FOR. No condition on
+			     it: at 90 damage the multiplier is the whole story. -->
+			<crit chance="0.2" multiplier="2.0"/>
+		</damage>
+		<fire mode="semi" projectileKey="762_round" speedMultiplier="3.0" spreadRadians="0.005" range="1200" recoilKickback="2">
+			<damageFalloff start="900" end="1100" minMultiplier="0.8"/>
+		</fire>
+		<ammo key="762_round" magazineSize="10" reloadMs="3000" reloadPerShell="false"/>
+		<aim spreadPercent="-60" movePercent="-40" timeMs="450"/>
+		<!-- A strong scope: while aimed, only this rect and the circle around
+		     the player are sent. Aimed up or down its far end is off screen;
+		     startup prints a note about it, on purpose. -->
+		<view shape="rect" length="1900" width="500" back="100" zoom="0.55" rearRadius="250"/>
+		<client render="gun" breath="1" move="2" x="0" distance="47" recoil="3" recoilHead="1" recoilGun="4" noEffect="0" cartridgeDelay="500" soundDelay="0" soundVolume="1" gunEffect="gun" cartridge="day-AK47-cartridge">
+			<held sprite="day-sniper" x="60" y="0"/>
+			<rightArm angle="0" x="32" y="15"/>
+			<leftArm angle="0" x="43" y="-13"/>
+			<sound file="sniper-shot"/>
+		</client>
+	</equipable>
+
+	<equipable key="raw_steak" typeId="5" idWeapon="12">
+		<timing consumeDelayMs="1000"/>
+		<consumable>
+			<effect type="food" amount="30"/>
+			<effect type="energy" amount="20"/>
+			<effect type="heal" amount="-10"/>
+		</consumable>
+		<client render="consumable" breath="0.02" move="2" recoil="3" soundDelay="0" soundVolume="1" consumeAnimMs="200">
+			<held sprite="day-hand-raw-steak" angle="1" x="50" y="0"/>
+			<rightArm angle="0" x="32" y="15"/>
+			<leftArm angle="0" x="32" y="-13"/>
+			<sound file="eat-1s-0"/>
+			<sound file="eat-1s-1"/>
+			<sound file="eat-1s-2"/>
+		</client>
+	</equipable>
+
+	<equipable key="cooked_steak" typeId="5" idWeapon="13">
+		<timing consumeDelayMs="1000"/>
+		<consumable>
+			<effect type="food" amount="127"/>
+			<effect type="energy" amount="80"/>
+		</consumable>
+		<client render="consumable" breath="0.4" move="0.8" recoil="4" soundDelay="0" soundVolume="1" consumeAnimMs="200">
+			<held sprite="day-hand-cooked-steak" angle="1" x="50" y="0"/>
+			<rightArm angle="0" x="32" y="15"/>
+			<leftArm angle="0" x="32" y="-13"/>
+			<sound file="eat-1s-0"/>
+			<sound file="eat-1s-1"/>
+			<sound file="eat-1s-2"/>
+		</client>
+	</equipable>
+
+	<equipable key="rotten_steak" typeId="5" idWeapon="14">
+		<timing consumeDelayMs="1000"/>
+		<consumable>
+			<effect type="food" amount="15"/>
+			<effect type="heal" amount="-40"/>
+		</consumable>
+		<client render="consumable" breath="0.02" move="2" recoil="3" soundDelay="0" soundVolume="1" consumeAnimMs="200">
+			<held sprite="day-hand-rotten-steak" angle="0" x="50" y="0"/>
+			<rightArm angle="0" x="32" y="15"/>
+			<leftArm angle="0" x="32" y="-13"/>
+			<sound file="eat-1s-0"/>
+			<sound file="eat-1s-1"/>
+			<sound file="eat-1s-2"/>
+		</client>
+	</equipable>
+
+	<equipable key="orange" typeId="5" idWeapon="15">
+		<timing consumeDelayMs="1000"/>
+		<consumable>
+			<effect type="food" amount="40"/>
+			<effect type="energy" amount="10"/>
+		</consumable>
+		<client render="consumable" breath="0.02" move="2" recoil="3" soundDelay="0" soundVolume="1" consumeAnimMs="200">
+			<held sprite="day-hand-orange" angle="0" x="50" y="0"/>
+			<rightArm angle="0" x="32" y="15"/>
+			<leftArm angle="0" x="32" y="-13"/>
+			<sound file="eat-1s-0"/>
+			<sound file="eat-1s-1"/>
+			<sound file="eat-1s-2"/>
+		</client>
+	</equipable>
+
+	<equipable key="rotten_orange" typeId="5" idWeapon="16">
+		<timing consumeDelayMs="1000"/>
+		<consumable>
+			<effect type="food" amount="5"/>
+			<effect type="heal" amount="-40"/>
+		</consumable>
+		<client render="consumable" breath="0.02" move="2" recoil="3" soundDelay="0" soundVolume="1" consumeAnimMs="200">
+			<held sprite="day-hand-rotten-orange" angle="0" x="50" y="0"/>
+			<rightArm angle="0" x="32" y="15"/>
+			<leftArm angle="0" x="32" y="-13"/>
+			<sound file="eat-1s-0"/>
+			<sound file="eat-1s-1"/>
+			<sound file="eat-1s-2"/>
+		</client>
+	</equipable>
+
+	<equipable key="medkit" typeId="5" idWeapon="17">
+		<timing consumeDelayMs="2500"/>
+		<consumable>
+			<effect type="heal" amount="200"/>
+		</consumable>
+		<client render="consumable" breath="0.02" move="2" recoil="3" consumeAnimMs="200">
+			<held sprite="day-hand-medikit" angle="0" x="55" y="0"/>
+			<rightArm angle="0" x="32" y="32"/>
+			<leftArm angle="0" x="32" y="-32"/>
+		</client>
+	</equipable>
+
+	<equipable key="bandage" typeId="5" idWeapon="18">
+		<timing consumeDelayMs="1000"/>
+		<consumable>
+			<effect type="heal" amount="60"/>
+			<!-- By TAG, not by key: a bandage stops bleeding and binds a
+			     cripple, and it keeps doing so when a second kind of wound is
+			     added. The key list is what rotted once already. -->
+			<cureCondition keys="wound"/>
+		</consumable>
+		<client render="consumable" breath="0.02" move="2" recoil="3" consumeAnimMs="200">
+			<held sprite="day-hand-bandage" angle="0" x="50" y="0"/>
+			<rightArm angle="0" x="32" y="15"/>
+			<leftArm angle="0" x="32" y="-13"/>
+		</client>
+	</equipable>
+
+	<equipable key="soda" typeId="5" idWeapon="19">
+		<timing consumeDelayMs="1000"/>
+		<consumable>
+			<effect type="food" amount="30"/>
+			<effect type="energy" amount="155"/>
+		</consumable>
+		<client render="consumable" breath="0.02" move="2" recoil="3" consumeAnimMs="200">
+			<held sprite="day-hand-soda" angle="0" x="50" y="0"/>
+			<rightArm angle="0" x="32" y="15"/>
+			<leftArm angle="0" x="32" y="-13"/>
+		</client>
+	</equipable>
+
+	<equipable key="mp5" typeId="2" idWeapon="20">
+		<muzzleOffset x="30" y="0"/>
+		<animOffset x="100" y="0"/>
+		<timing shotDelayMs="100"/>
+		<damage amount="18" type="piercing" knockback="1.2"/>
+		<fire mode="auto" projectileKey="9mm_bullet" speedMultiplier="1.7" spreadRadians="0.08" range="900" recoilKickback="0.7"/>
+		<ammo key="9mm_bullet" magazineSize="30" reloadMs="2600" reloadPerShell="false"/>
+		<aim spreadPercent="-35" movePercent="-20" timeMs="250"/>
+		<client render="gun" breath="1" move="2" x="0" distance="47" recoil="3" recoilHead="2" recoilGun="4" noEffect="0" cartridgeDelay="500" soundDelay="0" soundVolume="1" gunEffect="gun" cartridge="day-9mm-cartridge">
+			<held sprite="day-MP5" x="60" y="0"/>
+			<rightArm angle="0" x="32" y="15"/>
+			<leftArm angle="0" x="43" y="-13"/>
+			<sound file="mp5-shot"/>
+		</client>
+	</equipable>
+
+	<equipable key="place_object" typeId="6" idWeapon="21">
+		<client render="place" breath="0.05" move="3" blueprint="day-hand-craft" pencil="day-hand-craftpencil">
+			<rightArm angle="0" x="22" y="39"/>
+			<leftArm angle="0" x="22" y="-39"/>
+		</client>
+	</equipable>
+
+	<equipable key="sulfur_pickaxe" typeId="1" idWeapon="22" clientOverrides="meleeRadius">
+		<timing attackDelayMs="800"/>
+		<damage amount="65" type="melee" knockback="4"/>
+		<usage stamina="5"/>
+		<combat range="40" radius="35">
+			<offset x="30" y="0"/>
+		</combat>
+		<client render="melee" breath="0.02" move="2" distance="56" soundDelay="0" soundVolume="0.8" hitAnimMs="650" swingAnimMs="800">
+			<held sprite="day-sulfur-pickaxe" angle="0" x="20" y="0" rotation="4" x2="20" y2="10"/>
+			<rightArm angle="0" x="33" y="28" distance="8" rotation="1.8"/>
+			<leftArm angle="0" x="30" y="-28" distance="-14" rotation="1"/>
+			<sound file="pickaxe-swing"/>
+		</client>
+	</equipable>
+
+	<equipable key="hammer" typeId="1" idWeapon="23" clientOverrides="meleeRadius">
+		<timing attackDelayMs="1100"/>
+		<damage amount="120" type="melee" knockback="5"/>
+		<buildingDamage amount="250"/>
+		<damageModifiers>
+			<modifier target="building" ownership="own" multiplier="4"/>
+		</damageModifiers>
+		<usage stamina="15"/>
+		<combat range="40" radius="35">
+			<offset x="30" y="0"/>
+		</combat>
+		<client render="melee" breath="0.02" move="2" distance="56" soundDelay="0" soundVolume="0.8" hitAnimMs="950" swingAnimMs="1100">
+			<held sprite="day-hammer" angle="0" x="25" y="0" rotation="4" x2="20" y2="10"/>
+			<rightArm angle="0" x="33" y="28" distance="8" rotation="1.8"/>
+			<leftArm angle="0" x="30" y="-28" distance="-14" rotation="1"/>
+			<sound file="hammer-swing"/>
+		</client>
+	</equipable>
+
+	<equipable key="repair_hammer" typeId="1" idWeapon="24" clientOverrides="meleeRadius">
+		<timing attackDelayMs="700"/>
+		<damage amount="40" type="melee" knockback="4"/>
+		<usage stamina="6"/>
+		<repair amount="100" target="objects">
+			<consume key="nails" amountPerTarget="1" requireForSwing="false"/>
+		</repair>
+		<combat range="40" radius="35">
+			<offset x="30" y="0"/>
+		</combat>
+		<client render="melee" breath="0.02" move="2" distance="59" hitAnimMs="550" swingAnimMs="700">
+			<held sprite="day-repair-hammer" angle="0" x="20" y="0" rotation="4" x2="20" y2="10"/>
+			<rightArm angle="0" x="33" y="28" distance="8" rotation="1.8"/>
+			<leftArm angle="0" x="30" y="-28" distance="-14" rotation="1"/>
+		</client>
+	</equipable>
+
+	<equipable key="tomato_soup" typeId="5" idWeapon="25">
+		<timing consumeDelayMs="1000"/>
+		<consumable>
+			<effect type="food" amount="160"/>
+			<effect type="energy" amount="40"/>
+		</consumable>
+		<client render="consumable" breath="0.02" move="2" recoil="3" soundDelay="0" soundVolume="1" consumeAnimMs="200">
+			<held sprite="day-hand-tomato-soup" angle="0" x="50" y="0"/>
+			<rightArm angle="0" x="32" y="15"/>
+			<leftArm angle="0" x="32" y="-13"/>
+			<sound file="eat-1s-0"/>
+			<sound file="eat-1s-1"/>
+			<sound file="eat-1s-2"/>
+		</client>
+	</equipable>
+
+	<equipable key="radaway" typeId="5" idWeapon="26">
+		<timing consumeDelayMs="2500"/>
+		<consumable>
+			<effect type="radiation" amount="-255"/>
+			<effect type="energy" amount="30"/>
+		</consumable>
+		<client render="consumable" breath="0.02" move="2" recoil="3" consumeAnimMs="200">
+			<held sprite="day-hand-radaway" angle="0" x="50" y="0"/>
+			<rightArm angle="0" x="32" y="25"/>
+			<leftArm angle="0" x="32" y="-25"/>
+		</client>
+	</equipable>
+
+	<equipable key="tomato" typeId="5" idWeapon="27" clientOverrides="consume_food">
+		<timing consumeDelayMs="1000"/>
+		<consumable>
+			<effect type="food" amount="40"/>
+			<effect type="energy" amount="10"/>
+		</consumable>
+		<client render="consumable" breath="0.02" move="2" recoil="3" soundDelay="0" soundVolume="1" consumeAnimMs="200">
+			<held sprite="day-hand-tomato" angle="0" x="50" y="0"/>
+			<rightArm angle="0" x="32" y="15"/>
+			<leftArm angle="0" x="32" y="-13"/>
+			<sound file="eat-1s-0"/>
+			<sound file="eat-1s-1"/>
+			<sound file="eat-1s-2"/>
+		</client>
+	</equipable>
+
+	<equipable key="rotten_tomato" typeId="5" idWeapon="28">
+		<timing consumeDelayMs="1000"/>
+		<consumable>
+			<effect type="food" amount="5"/>
+			<effect type="heal" amount="-40"/>
+		</consumable>
+		<client render="consumable" breath="0.02" move="2" recoil="3" soundDelay="0" soundVolume="1" consumeAnimMs="200">
+			<held sprite="day-hand-rotten-tomato" angle="0" x="50" y="0"/>
+			<rightArm angle="0" x="32" y="15"/>
+			<leftArm angle="0" x="32" y="-13"/>
+			<sound file="eat-1s-0"/>
+			<sound file="eat-1s-1"/>
+			<sound file="eat-1s-2"/>
+		</client>
+	</equipable>
+
+	<equipable key="wood_crossbow" typeId="2" idWeapon="29" clientOverrides="cooldown reloadPerShell">
+		<muzzleOffset x="40" y="0"/>
+		<animOffset x="80" y="0"/>
+		<timing shotDelayMs="1200"/>
+		<damage amount="50" type="piercing" knockback="4"/>
+		<usage stamina="12"/>
+		<fire mode="semi" projectileKey="wood_crossarrow" speedMultiplier="0.9" spreadRadians="0" range="800"/>
+		<ammo key="wood_crossarrow" magazineSize="1" reloadMs="800" reloadPerShell="true"/>
+		<client render="gun" breath="1" move="2" x="0" distance="47" recoil="2" recoilHead="1" recoilGun="2" noEffect="1" cartridgeDelay="400" soundDelay="0" soundVolume="1" gunEffect="gun" cartridge="day-crossbow-cartridge">
+			<held sprite="day-wood-crossbow" x="50" y="0"/>
+			<rightArm angle="0" x="32" y="15"/>
+			<leftArm angle="0" x="32" y="-13"/>
+			<sound file="crossbow-shot"/>
+		</client>
+	</equipable>
+
+	<equipable key="nail_gun" typeId="2" idWeapon="30">
+		<muzzleOffset x="30" y="0"/>
+		<animOffset x="100" y="0"/>
+		<timing shotDelayMs="300"/>
+		<damage amount="6" type="piercing" knockback="0.5"/>
+		<fire mode="auto" projectileKey="nail" speedMultiplier="1.1" spreadRadians="0.02" range="500" recoilKickback="0"/>
+		<ammo key="nails" magazineSize="80" reloadMs="3000" reloadPerShell="false"/>
+		<repair amount="100" target="building" delivery="projectile"/>
+		<client render="gun" breath="1" move="2" x="0" distance="47" recoil="2" recoilHead="1" recoilGun="2" noEffect="0" cartridgeDelay="400" soundDelay="0" soundVolume="1" gunEffect="gun" cartridge="day-nails-cartridge">
+			<held sprite="day-nail-gun" x="50" y="0"/>
+			<rightArm angle="0" x="32" y="15"/>
+			<leftArm angle="0" x="32" y="-13"/>
+			<sound file="nail-gun-shot"/>
+		</client>
+	</equipable>
+
+	<equipable key="sawed_off" typeId="2" idWeapon="31">
+		<muzzleOffset x="60" y="0"/>
+		<animOffset x="150" y="0"/>
+		<timing shotDelayMs="900"/>
+		<damage amount="28" type="piercing" knockback="6"/>
+		<fire mode="semi" projectileKey="12g_pellet" speedMultiplier="1.2" spreadRadians="0.18" range="400" pellets="5" recoilKickback="6">
+			<damageFalloff start="250" end="600" minMultiplier="0.3"/>
+		</fire>
+		<ammo key="12g_pellet" magazineSize="8" reloadMs="1000" reloadPerShell="true"/>
+		<client render="gun" breath="1" move="2" x="0" distance="47" recoil="3" recoilHead="4" recoilGun="3" noEffect="0" cartridgeDelay="500" soundDelay="0" soundVolume="1" gunEffect="gun" cartridge="day-shotgun-cartridge">
+			<held sprite="day-sawed-off-shotgun" x="50" y="0"/>
+			<rightArm angle="0" x="32" y="15"/>
+			<leftArm angle="0" x="43" y="-13"/>
+			<sound file="shotgun-shot"/>
+		</client>
+	</equipable>
+
+	<equipable key="crisps" typeId="5" idWeapon="32">
+		<timing consumeDelayMs="1000"/>
+		<consumable>
+			<effect type="food" amount="90"/>
+			<effect type="energy" amount="50"/>
+		</consumable>
+		<client render="consumable" breath="0.4" move="0.8" recoil="4" soundDelay="0" soundVolume="1" consumeAnimMs="200">
+			<held sprite="day-hand-chips" angle="1" x="50" y="0"/>
+			<rightArm angle="0" x="32" y="15"/>
+			<leftArm angle="0" x="32" y="-13"/>
+			<sound file="eat-1s-0"/>
+			<sound file="eat-1s-1"/>
+			<sound file="eat-1s-2"/>
+		</client>
+	</equipable>
+
+	<equipable key="rotten_crisps" typeId="5" idWeapon="33">
+		<timing consumeDelayMs="1000"/>
+		<consumable>
+			<effect type="food" amount="5"/>
+			<effect type="heal" amount="-40"/>
+		</consumable>
+		<client render="consumable" breath="0.02" move="2" recoil="3" soundDelay="0" soundVolume="1" consumeAnimMs="200">
+			<held sprite="day-hand-rotten-chips" angle="0" x="50" y="0"/>
+			<rightArm angle="0" x="32" y="15"/>
+			<leftArm angle="0" x="32" y="-13"/>
+			<sound file="eat-1s-0"/>
+			<sound file="eat-1s-1"/>
+			<sound file="eat-1s-2"/>
+		</client>
+	</equipable>
+
+	<equipable key="laser_pistol" typeId="2" idWeapon="34">
+		<muzzleOffset x="40" y="0"/>
+		<animOffset x="100" y="0"/>
+		<timing shotDelayMs="400"/>
+		<damage amount="55" type="energy" knockback="0"/>
+		<fire mode="semi" projectileKey="energy" speedMultiplier="1.8" spreadRadians="0" range="900" recoilKickback="0"/>
+		<ammo key="energy_cells" magazineSize="12" reloadMs="2200" reloadPerShell="false"/>
+		<client render="gun" breath="1" move="2" x="0" distance="47" recoil="2" recoilHead="1" recoilGun="2" noEffect="0" cartridgeDelay="400" soundDelay="0" soundVolume="1" gunEffect="laser" cartridge="day-cells-cartridge">
+			<held sprite="day-laser-pistol" x="50" y="0"/>
+			<rightArm angle="0" x="32" y="15"/>
+			<leftArm angle="0" x="32" y="-13"/>
+			<sound file="laser-pistol-shot"/>
+		</client>
+	</equipable>
+
+	<!-- COMBAT EFFECTS (2026-08-15). sulfur_axe and sniper below are the first
+	     content to use <leech>, <crit> and a melee <onHit>. Every number is a
+	     FIRST GUESS and exists to make the mechanism reachable in play - tune
+	     them. Deleting a block leaves the weapon exactly as it was. -->
+	<equipable key="sulfur_axe" typeId="1" idWeapon="35" clientOverrides="meleeRadius">
+		<timing attackDelayMs="650"/>
+		<damage amount="50" type="melee" knockback="4">
+			<!-- Sulfur on the blade: it poisons, and it opens wounds that bleed.
+			     Melee could not inflict a condition AT ALL before this. -->
+			<onHit condition="toxic_poison" chance="0.25"/>
+			<crit chance="0.12" multiplier="1.8" condition="bleeding"/>
+		</damage>
+		<usage stamina="4"/>
+		<combat range="40" radius="35">
+			<offset x="30" y="0"/>
+		</combat>
+		<client render="melee" breath="0.05" move="3" distance="72" soundDelay="0" soundVolume="0.8" hitAnimMs="550">
+			<held sprite="day-sulfur-axe" angle="0" x="30" y="0" rotation="4" x2="20" y2="10"/>
+			<rightArm angle="0" x="33" y="28" distance="8" rotation="1.8"/>
+			<leftArm angle="0" x="30" y="-28" distance="-14" rotation="1"/>
+			<sound file="axe-swing"/>
+		</client>
+	</equipable>
+
+	<equipable key="c4_trigger" typeId="5" idWeapon="36">
+		<timing impactMs="200"/>
+		<remoteTrigger channel="c4"/>
+		<client render="consumable" breath="0.02" move="2" recoil="3" consumeAnimMs="200">
+			<held sprite="day-hand-joystick" angle="0" x="50" y="0"/>
+			<rightArm angle="0" x="32" y="15"/>
+			<leftArm angle="0" x="32" y="-13"/>
+		</client>
+	</equipable>
+
+	<equipable key="laser_submachine" typeId="2" idWeapon="37" clientOverrides="cooldown">
+		<muzzleOffset x="60" y="0"/>
+		<animOffset x="140" y="0"/>
+		<timing shotDelayMs="110"/>
+		<damage amount="45" type="energy" knockback="0"/>
+		<fire mode="auto" projectileKey="energy" speedMultiplier="2.1" spreadRadians="0" range="900" recoilKickback="0"/>
+		<ammo key="energy_cells" magazineSize="30" reloadMs="2500" reloadPerShell="false"/>
+		<client render="gun" breath="1" move="2" x="0" distance="47" recoil="3" recoilHead="2" recoilGun="4" noEffect="0" cartridgeDelay="500" soundDelay="0" soundVolume="1" gunEffect="laser" cartridge="day-cells-cartridge">
+			<held sprite="day-laser-submachine" x="50" y="0"/>
+			<rightArm angle="0" x="32" y="15"/>
+			<leftArm angle="0" x="32" y="-13"/>
+			<sound file="laser-submachine-shot"/>
+		</client>
+	</equipable>
+
+	<equipable key="granade" typeId="3" idWeapon="38">
+		<muzzleOffset x="70" y="37"/>
+		<animOffset x="80" y="37"/>
+		<timing impactMs="850"/>
+		<damage amount="15" type="piercing" knockback="5"/>
+		<usage stamina="15"/>
+		<fire mode="semi" projectileKey="granade" speedMultiplier="0.6" spreadRadians="0" range="380"/>
+		<client render="throwable" breath="0.05" move="3" breathWeapon="2" x="-50" distance="25" hitAnimMs="100">
+			<held sprite="day-hand-grenade" angle="0" x="25" y="50"/>
+			<rightArm angle="0" x="10" y="44"/>
+			<leftArm angle="0" x="22" y="-39"/>
+		</client>
+	</equipable>
+
+	<equipable key="super_hammer" typeId="1" idWeapon="39" clientOverrides="damage meleeRadius stamina">
+		<timing attackDelayMs="1100"/>
+		<damage amount="300" type="melee" knockback="0"/>
+		<buildingDamage amount="100000"/>
+		<usage stamina="0"/>
+		<combat range="40" radius="35">
+			<offset x="30" y="0"/>
+		</combat>
+		<client render="melee" breath="0.02" move="2" distance="56" hitAnimMs="950" swingAnimMs="1100">
+			<held sprite="day-super-hammer" angle="0" x="25" y="5" rotation="4" x2="20" y2="10"/>
+			<rightArm angle="0" x="33" y="28" distance="8" rotation="1.8"/>
+			<leftArm angle="0" x="30" y="-28" distance="-14" rotation="1"/>
+		</client>
+	</equipable>
+
+	<equipable key="ghoul_drug" typeId="5" idWeapon="40">
+		<timing consumeDelayMs="1000"/>
+		<consumable>
+			<effect type="heal" amount="-10"/>
+			<condition key="ghoul_drug_effect"/>
+		</consumable>
+		<client render="consumable" breath="0.02" move="2" recoil="3" consumeAnimMs="200">
+			<held sprite="day-hand-ghoul-drug" angle="0" x="50" y="0"/>
+			<rightArm angle="0" x="32" y="13"/>
+			<leftArm angle="0" x="32" y="-13"/>
+		</client>
+	</equipable>
+
+	<equipable key="mushroom1" typeId="5" idWeapon="41">
+		<timing consumeDelayMs="1000"/>
+		<consumable>
+			<effect type="heal" amount="-20"/>
+			<effect type="energy" amount="10"/>
+			<condition key="toxic_poison"/>
+		</consumable>
+		<client render="consumable" breath="0.02" move="2" recoil="3" soundDelay="0" soundVolume="1" consumeAnimMs="200">
+			<held sprite="day-hand-mushroom1" angle="0" x="50" y="0"/>
+			<rightArm angle="0" x="32" y="15"/>
+			<leftArm angle="0" x="32" y="-13"/>
+			<sound file="eat-1s-0"/>
+			<sound file="eat-1s-1"/>
+			<sound file="eat-1s-2"/>
+		</client>
+	</equipable>
+
+	<equipable key="mushroom2" typeId="5" idWeapon="42">
+		<timing consumeDelayMs="1000"/>
+		<consumable>
+			<effect type="food" amount="40"/>
+			<effect type="energy" amount="10"/>
+		</consumable>
+		<client render="consumable" breath="0.02" move="2" recoil="3" soundDelay="0" soundVolume="1" consumeAnimMs="200">
+			<held sprite="day-hand-mushroom2" angle="0" x="50" y="0"/>
+			<rightArm angle="0" x="32" y="15"/>
+			<leftArm angle="0" x="32" y="-13"/>
+			<sound file="eat-1s-0"/>
+			<sound file="eat-1s-1"/>
+			<sound file="eat-1s-2"/>
+		</client>
+	</equipable>
+
+	<equipable key="mushroom3" typeId="5" idWeapon="43">
+		<timing consumeDelayMs="1000"/>
+		<consumable>
+			<effect type="food" amount="40"/>
+			<effect type="energy" amount="10"/>
+		</consumable>
+		<client render="consumable" breath="0.02" move="2" recoil="3" soundDelay="0" soundVolume="1" consumeAnimMs="200">
+			<held sprite="day-hand-mushroom3" angle="0" x="50" y="0"/>
+			<rightArm angle="0" x="32" y="15"/>
+			<leftArm angle="0" x="32" y="-13"/>
+			<sound file="eat-1s-0"/>
+			<sound file="eat-1s-1"/>
+			<sound file="eat-1s-2"/>
+		</client>
+	</equipable>
+
+	<equipable key="rotten_mushroom1" typeId="5" idWeapon="44">
+		<timing consumeDelayMs="1000"/>
+		<consumable>
+			<effect type="heal" amount="-40"/>
+		</consumable>
+		<client render="consumable" breath="0.02" move="2" recoil="3" soundDelay="0" soundVolume="1" consumeAnimMs="200">
+			<held sprite="day-hand-rotten-mushroom1" angle="0" x="50" y="0"/>
+			<rightArm angle="0" x="32" y="15"/>
+			<leftArm angle="0" x="32" y="-13"/>
+			<sound file="eat-1s-0"/>
+			<sound file="eat-1s-1"/>
+			<sound file="eat-1s-2"/>
+		</client>
+	</equipable>
+
+	<equipable key="rotten_mushroom2" typeId="5" idWeapon="45" clientOverrides="consume_food">
+		<timing consumeDelayMs="1000"/>
+		<consumable>
+			<effect type="heal" amount="-40"/>
+		</consumable>
+		<client render="consumable" breath="0.02" move="2" recoil="3" soundDelay="0" soundVolume="1" consumeAnimMs="200">
+			<held sprite="day-hand-rotten-mushroom2" angle="0" x="50" y="0"/>
+			<rightArm angle="0" x="32" y="15"/>
+			<leftArm angle="0" x="32" y="-13"/>
+			<sound file="eat-1s-0"/>
+			<sound file="eat-1s-1"/>
+			<sound file="eat-1s-2"/>
+		</client>
+	</equipable>
+
+	<equipable key="rotten_mushroom3" typeId="5" idWeapon="46" clientOverrides="consume_food">
+		<timing consumeDelayMs="1000"/>
+		<consumable>
+			<effect type="heal" amount="-40"/>
+		</consumable>
+		<client render="consumable" breath="0.02" move="2" recoil="3" soundDelay="0" soundVolume="1" consumeAnimMs="200">
+			<held sprite="day-hand-rotten-mushroom3" angle="0" x="50" y="0"/>
+			<rightArm angle="0" x="32" y="15"/>
+			<leftArm angle="0" x="32" y="-13"/>
+			<sound file="eat-1s-0"/>
+			<sound file="eat-1s-1"/>
+			<sound file="eat-1s-2"/>
+		</client>
+	</equipable>
+
+	<equipable key="lapadone" typeId="5" idWeapon="47">
+		<timing consumeDelayMs="1000"/>
+		<consumable>
+			<effect type="heal" amount="-10"/>
+			<condition key="lapadone_effect"/>
+		</consumable>
+		<client render="consumable" breath="0.02" move="2" recoil="3" consumeAnimMs="200">
+			<held sprite="day-hand-lapadoine" angle="0" x="50" y="0"/>
+			<rightArm angle="0" x="32" y="13"/>
+			<leftArm angle="0" x="32" y="-13"/>
+		</client>
+	</equipable>
+
+	<equipable key="pumpkin" typeId="5" idWeapon="48">
+		<timing consumeDelayMs="1000"/>
+		<consumable>
+			<effect type="food" amount="90"/>
+			<effect type="energy" amount="20"/>
+		</consumable>
+		<client render="consumable" breath="0.02" move="2" recoil="3" soundDelay="0" soundVolume="1" consumeAnimMs="200">
+			<held sprite="day-hand-pumpkin" angle="0" x="50" y="0"/>
+			<rightArm angle="0" x="32" y="25"/>
+			<leftArm angle="0" x="32" y="-25"/>
+			<sound file="eat-1s-0"/>
+			<sound file="eat-1s-1"/>
+			<sound file="eat-1s-2"/>
+		</client>
+	</equipable>
+
+	<equipable key="rotten_pumpkin" typeId="5" idWeapon="49">
+		<timing consumeDelayMs="1000"/>
+		<consumable>
+			<effect type="food" amount="30"/>
+			<effect type="heal" amount="-40"/>
+		</consumable>
+		<client render="consumable" breath="0.02" move="2" recoil="3" soundDelay="0" soundVolume="1" consumeAnimMs="200">
+			<held sprite="day-hand-rotten-pumpkin" angle="0" x="50" y="0"/>
+			<rightArm angle="0" x="32" y="25"/>
+			<leftArm angle="0" x="32" y="-25"/>
+			<sound file="eat-1s-0"/>
+			<sound file="eat-1s-1"/>
+			<sound file="eat-1s-2"/>
+		</client>
+	</equipable>
+
+	<equipable key="antidote" typeId="5" idWeapon="50">
+		<timing consumeDelayMs="1000"/>
+		<consumable>
+			<effect type="heal" amount="50"/>
+			<!-- lapadone_effect by KEY (it is one specific drug), the poisons by
+			     TAG. Mixing the two is deliberate and supported: a name here is
+			     matched against condition keys and against tags alike. -->
+			<cureCondition keys="lapadone_effect,poison"/>
+		</consumable>
+		<client render="consumable" breath="0.02" move="2" recoil="3" consumeAnimMs="200">
+			<held sprite="day-hand-antidote" angle="0" x="50" y="0"/>
+			<rightArm angle="0" x="32" y="13"/>
+			<leftArm angle="0" x="32" y="-13"/>
+		</client>
+	</equipable>
+
+	<equipable key="acorn" typeId="5" idWeapon="51" clientOverrides="consume_energy">
+		<timing consumeDelayMs="1000"/>
+		<consumable>
+			<effect type="food" amount="15"/>
+			<effect type="energy" amount="1"/>
+		</consumable>
+		<client render="consumable" breath="0.02" move="2" recoil="3" soundDelay="0" soundVolume="1" consumeAnimMs="200">
+			<held sprite="day-hand-acorn" angle="0" x="50" y="0"/>
+			<rightArm angle="0" x="32" y="10"/>
+			<leftArm angle="0" x="32" y="-10"/>
+			<sound file="eat-1s-0"/>
+			<sound file="eat-1s-1"/>
+			<sound file="eat-1s-2"/>
+		</client>
+	</equipable>
+
+	<equipable key="rotten_acorn" typeId="5" idWeapon="52">
+		<timing consumeDelayMs="1000"/>
+		<consumable>
+			<effect type="food" amount="2"/>
+			<effect type="heal" amount="-20"/>
+		</consumable>
+		<client render="consumable" breath="0.02" move="2" recoil="3" soundDelay="0" soundVolume="1" consumeAnimMs="200">
+			<held sprite="day-hand-rotten-acorn" angle="0" x="50" y="0"/>
+			<rightArm angle="0" x="32" y="10"/>
+			<leftArm angle="0" x="32" y="-10"/>
+			<sound file="eat-1s-0"/>
+			<sound file="eat-1s-1"/>
+			<sound file="eat-1s-2"/>
+		</client>
+	</equipable>
+
+	<equipable key="laser_sniper" typeId="2" idWeapon="53">
+		<muzzleOffset x="80" y="0"/>
+		<animOffset x="175" y="0"/>
+		<timing shotDelayMs="1250"/>
+		<damage amount="100" type="energy" knockback="0"/>
+		<fire mode="semi" projectileKey="energy" speedMultiplier="2.3" spreadRadians="0" range="1100" recoilKickback="0"/>
+		<ammo key="energy_cells" magazineSize="10" reloadMs="2000" reloadPerShell="false"/>
+		<aim spreadPercent="-50" movePercent="-35" timeMs="400"/>
+		<client render="gun" breath="1" move="2" x="0" distance="47" recoil="3" recoilHead="1" recoilGun="4" noEffect="0" cartridgeDelay="500" soundDelay="0" soundVolume="1" gunEffect="laser" cartridge="day-cells-cartridge">
+			<held sprite="day-laser-sniper" x="55" y="0"/>
+			<rightArm angle="0" x="32" y="15"/>
+			<leftArm angle="0" x="43" y="-13"/>
+			<sound file="laser-sniper-shot"/>
+		</client>
+	</equipable>
+
+	<equipable key="mp5_tactical" typeId="2" idWeapon="54">
+		<muzzleOffset x="30" y="0"/>
+		<animOffset x="100" y="0"/>
+		<timing shotDelayMs="100"/>
+		<damage amount="18" type="piercing" knockback="1.2"/>
+		<fire mode="auto" projectileKey="9mm_bullet" speedMultiplier="1.7" spreadRadians="0.08" range="900" recoilKickback="0.7"/>
+		<!-- No magazineSize: the magazine fitted in the slot below sets the capacity. -->
+		<ammo key="9mm_bullet" reloadMs="2600" reloadPerShell="false"/>
+		<aim spreadPercent="-35" movePercent="-20" timeMs="250"/>
+		<mods>
+			<slot type="magazine" accepts="mp5_mag_15,mp5_mag_30,mp5_mag_40" default="mp5_mag_30"/>
+			<slot type="optic" accepts="reflex_sight,tube_scope"/>
+			<slot type="muzzle" accepts="suppressor_9mm"/>
+			<slot type="underbarrel" accepts="grip_vertical,grip_angled"/>
+			<slot type="stock" accepts="stock_solid,stock_open"/>
+			<slot type="handguard" accepts="handguard_standard,handguard_vented" default="handguard_standard"/>
+		</mods>
+		<client render="gun" breath="1" move="2" x="0" distance="47" recoil="3" recoilHead="2" recoilGun="4" noEffect="0" cartridgeDelay="500" soundDelay="0" soundVolume="1" gunEffect="gun" cartridge="day-9mm-cartridge">
+			<held sprite="day-MP5" x="60" y="0"/>
+			<rightArm angle="0" x="32" y="15"/>
+			<leftArm angle="0" x="43" y="-13"/>
+			<sound file="mp5-shot"/>
+			<!-- The Mods window's side view: boxes are "x y w h" in art units
+			     (tools/assets/mp5-mod-art.mjs), anchors are where each slot's part attaches. -->
+			<modArt frame="24 8 596 232" body="mods/gun-body.svg" bodyBox="176 34 322 180">
+				<anchor slot="magazine" x="318" y="101"/>
+				<anchor slot="optic" x="289" y="55"/>
+				<anchor slot="muzzle" x="489" y="76"/>
+				<anchor slot="underbarrel" x="403" y="97"/>
+				<anchor slot="stock" x="187" y="79"/>
+				<anchor slot="handguard" x="350" y="65"/>
+			</modArt>
+		</client>
+	</equipable>
+
+</equipables>

@@ -1,0 +1,406 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kits deathRewardExpiryMinutes="180" overflowStartLevelPercent="50">
+	<!--
+		Starting-item loadouts granted to a player when they begin a brand new
+		session with no character (login has no in-progress player):
+
+		- Never died before, ever (this client token has no death on record at
+		  all): they receive the kit marked firstSession="true" below, if one
+		  is defined. That kit is excluded from the level lookup and only ever
+		  applies to a token's very first session.
+		- Died before at least once (whether or not their most recent reward
+		  is still valid) and either have no pending reward or it expired:
+		  they receive the highest ordinary kit at or below level="0".
+		- Died previously and are still within deathRewardExpiryMinutes (root
+		  attribute above, in minutes; e.g. 180 = 3 hours) of that death,
+		  returning under the SAME client token: they get the highest defined
+		  ordinary kit at or below THE LEVEL THEY DIED AT. level is the death
+		  level, nothing is halved behind your back — dying at 30 grants the
+		  level="30" kit and its startLevel="15". Tiers do not need to be
+		  contiguous: with only level="0" and level="10" defined, dying at 7
+		  still resolves to the level="0" kit.
+		- The reward is one-time: it is consumed (or discarded, if expired)
+		  the moment a fresh login under that token happens, win or lose.
+
+		Deaths ABOVE the highest level defined here still grant that top kit's
+		items (there is no max-level setting to configure), but the level given
+		back keeps scaling instead of flat-lining at the top kit's startLevel:
+
+		  overflowStartLevelPercent - root attribute, percent of the death
+		      level granted back past the last tier. 50 (the default) means
+		      dying at 50 grants the level="30" kit's items plus level 25;
+		      dying at 80 grants the same items plus level 40. Set it to 0 to
+		      pin every such death to the top kit's own startLevel instead.
+		      Capped at the server's max player level (200).
+
+		Each <kit> may set:
+		  level      - required, the death level this kit is matched against,
+		               and the kit's identity: two kits at the same level are
+		               the same tier and the last one parsed wins. Ignored on
+		               the firstSession kit, which is not part of the lookup.
+		  startLevel - optional, the player level granted alongside the items
+		               (omit or 0 to leave the player at level 1)
+		  firstSession - optional, "true" marks the kit for a token that has
+		               never died before (see above). At most one; it takes no
+		               part in the level-based lookup.
+		Each <item> under <items> needs a valid item key from items.xml, and
+		may set:
+		  count      - optional, how many (default 1)
+		  ammo       - optional. For a FIREARM: how many rounds it arrives
+		               loaded with, e.g. <item key="pistol" ammo="20"/>. A
+		               value above the weapon's magazineSize (equipables.xml)
+		               is clamped at load with a console warning. For a
+		               PERISHABLE (food): freshness, 255 = brand new. Omit it
+		               and weapons arrive empty, food arrives fresh — the
+		               behaviour before this attribute existed.
+	-->
+	<kit firstSession="true" level="0">
+		<items>
+			<item key="stone" amount="2"/>
+		</items>
+	</kit>
+	<kit level="0" startLevel="0">
+		<items>
+			<item key="hatchet" amount="1"/>
+			<item key="stone" amount="20"/>
+			<item key="wood" amount="40"/>
+			<item key="orange" amount="1"/>
+		</items>
+	</kit>
+	<kit level="1" startLevel="0">
+		<items>
+			<item key="hatchet" amount="1"/>
+			<item key="stone" amount="20"/>
+			<item key="wood" amount="40"/>
+			<item key="orange" amount="3"/>
+		</items>
+	</kit>
+	<kit level="2" startLevel="1">
+		<items>
+			<item key="hatchet" amount="1"/>
+			<item key="stone" amount="20"/>
+			<item key="wood" amount="40"/>
+			<item key="campfire" amount="1"/>
+			<item key="orange" amount="4"/>
+		</items>
+	</kit>
+	<kit level="3" startLevel="1">
+		<items>
+			<item key="hatchet" amount="1"/>
+			<item key="stone" amount="20"/>
+			<item key="wood" amount="40"/>
+			<item key="campfire" amount="1"/>
+			<item key="workbench" amount="1"/>
+			<item key="orange" amount="3"/>
+		</items>
+	</kit>
+	<kit level="4" startLevel="2">
+		<items>
+			<item key="hatchet" amount="1"/>
+			<item key="stone" amount="20"/>
+			<item key="wood" amount="40"/>
+			<item key="campfire" amount="1"/>
+			<item key="workbench" amount="1"/>
+			<item key="raw_steak" amount="1"/>
+		</items>
+	</kit>
+	<kit level="5" startLevel="2">
+		<items>
+			<item key="hatchet" amount="1"/>
+			<item key="stone" amount="40"/>
+			<item key="wood" amount="150"/>
+			<item key="campfire" amount="1"/>
+			<item key="workbench" amount="1"/>
+			<item key="raw_steak" amount="1"/>
+		</items>
+	</kit>
+	<kit level="6" startLevel="3">
+		<items>
+			<item key="hatchet" amount="1"/>
+			<item key="stone_pickaxe" amount="1"/>
+			<item key="campfire" amount="1"/>
+			<item key="workbench" amount="1"/>
+			<item key="raw_steak" amount="2"/>
+		</items>
+	</kit>
+	<kit level="7" startLevel="3">
+		<items>
+			<item key="hatchet" amount="1"/>
+			<item key="stone_pickaxe" amount="1"/>
+			<item key="campfire" amount="1"/>
+			<item key="iron" amount="6"/>
+			<item key="workbench" amount="1"/>
+			<item key="raw_steak" amount="2"/>
+		</items>
+	</kit>
+	<kit level="8" startLevel="4">
+		<items>
+			<item key="hatchet" amount="1"/>
+			<item key="stone_pickaxe" amount="1"/>
+			<item key="firepit" amount="1"/>
+			<item key="wood_spear" amount="1"/>
+			<item key="workbench" amount="1"/>
+			<item key="raw_steak" amount="3"/>
+		</items>
+	</kit>
+	<kit level="9" startLevel="4">
+		<items>
+			<item key="hatchet" amount="1"/>
+			<item key="stone_pickaxe" amount="1"/>
+			<item key="firepit" amount="1"/>
+			<item key="wood_bow" amount="1"/>
+			<item key="wood_arrow" amount="20"/>
+			<item key="workbench" amount="1"/>
+			<item key="raw_steak" amount="4"/>
+		</items>
+	</kit>
+	<kit level="10" startLevel="5">
+		<items>
+			<item key="hatchet" amount="1"/>
+			<item key="stone_pickaxe" amount="1"/>
+			<item key="firepit" amount="1"/>
+			<item key="stone_wall" amount="10"/>
+			<item key="wood_low_door" amount="2"/>
+			<item key="workbench" amount="1"/>
+			<item key="raw_steak" amount="4"/>
+		</items>
+	</kit>
+	<kit level="11" startLevel="5">
+		<items>
+			<item key="hatchet" amount="1"/>
+			<item key="stone_pickaxe" amount="1"/>
+			<item key="firepit" amount="1"/>
+			<item key="stone_wall" amount="16"/>
+			<item key="stone_low_door" amount="2"/>
+			<item key="workbench" amount="2"/>
+			<item key="raw_steak" amount="4"/>
+		</items>
+	</kit>
+	<kit level="12" startLevel="6">
+		<items>
+			<item key="hatchet" amount="1"/>
+			<item key="stone_pickaxe" amount="1"/>
+			<item key="firepit" amount="1"/>
+			<item key="stone_wall" amount="14"/>
+			<item key="stone_low_door" amount="2"/>
+			<item key="workbench" amount="2"/>
+			<item key="raw_steak" amount="4"/>
+		</items>
+	</kit>
+	<kit level="13" startLevel="6">
+		<items>
+			<item key="hatchet" amount="1"/>
+			<item key="stone_pickaxe" amount="1"/>
+			<item key="firepit" amount="1"/>
+			<item key="landmine" amount="1"/>
+			<item key="stone_wall" amount="14"/>
+			<item key="stone_low_door" amount="2"/>
+			<item key="workbench" amount="2"/>
+			<item key="raw_steak" amount="4"/>
+		</items>
+	</kit>
+	<kit level="14" startLevel="7">
+		<items>
+			<item key="hatchet" amount="1"/>
+			<item key="stone_pickaxe" amount="1"/>
+			<item key="firepit" amount="1"/>
+			<item key="metal_helmet" amount="1"/>
+			<item key="stone_wall" amount="14"/>
+			<item key="stone_low_door" amount="2"/>
+			<item key="workbench" amount="2"/>
+			<item key="raw_steak" amount="4"/>
+		</items>
+	</kit>
+	<kit level="15" startLevel="7">
+		<items>
+			<item key="hatchet" amount="1"/>
+			<item key="stone_pickaxe" amount="1"/>
+			<item key="firepit" amount="1"/>
+			<item key="stone_wall" amount="16"/>
+			<item key="stone_low_door" amount="2"/>
+			<item key="wood_chest" amount="1"/>
+			<item key="workbench" amount="2"/>
+			<item key="raw_steak" amount="4"/>
+		</items>
+	</kit>
+	<kit level="16" startLevel="8">
+		<items>
+			<item key="hatchet" amount="1"/>
+			<item key="metal_pickaxe" amount="1"/>
+			<item key="firepit" amount="1"/>
+			<item key="stone_wall" amount="16"/>
+			<item key="stone_low_door" amount="2"/>
+			<item key="wood_chest" amount="1"/>
+			<item key="workbench" amount="2"/>
+			<item key="raw_steak" amount="4"/>
+		</items>
+	</kit>
+	<kit level="17" startLevel="8">
+		<items>
+			<item key="hatchet" amount="1"/>
+			<item key="metal_pickaxe" amount="1"/>
+			<item key="firepit" amount="1"/>
+			<item key="stone_wall" amount="16"/>
+			<item key="stone_low_door" amount="2"/>
+			<item key="wood_chest" amount="1"/>
+			<item key="research_bench" amount="1"/>
+			<item key="raw_steak" amount="4"/>
+		</items>
+	</kit>
+	<kit level="18" startLevel="9">
+		<items>
+			<item key="stone_axe" amount="1"/>
+			<item key="metal_pickaxe" amount="1"/>
+			<item key="firepit" amount="1"/>
+			<item key="stone_wall" amount="16"/>
+			<item key="stone_low_door" amount="2"/>
+			<item key="wood_chest" amount="1"/>
+			<item key="research_bench" amount="1"/>
+			<item key="raw_steak" amount="4"/>
+		</items>
+	</kit>
+	<kit level="19" startLevel="9">
+		<items>
+			<item key="stone_axe" amount="1"/>
+			<item key="metal_pickaxe" amount="1"/>
+			<item key="firepit" amount="2"/>
+			<item key="stone_wall" amount="20"/>
+			<item key="stone_low_door" amount="4"/>
+			<item key="wood_chest" amount="2"/>
+			<item key="research_bench" amount="1"/>
+			<item key="raw_steak" amount="4"/>
+		</items>
+	</kit>
+	<kit level="20" startLevel="10">
+		<items>
+			<item key="stone_axe" amount="1"/>
+			<item key="metal_pickaxe" amount="1"/>
+			<item key="firepit" amount="2"/>
+			<item key="stone_wall" amount="26"/>
+			<item key="stone_low_door" amount="6"/>
+			<item key="wood_chest" amount="3"/>
+			<item key="research_bench" amount="1"/>
+			<item key="orange_seed" amount="8"/>
+		</items>
+	</kit>
+	<kit level="21" startLevel="10">
+		<items>
+			<item key="stone_axe" amount="1"/>
+			<item key="metal_pickaxe" amount="1"/>
+			<item key="headscarf" amount="1"/>
+			<item key="stone_wall" amount="26"/>
+			<item key="stone_low_door" amount="6"/>
+			<item key="wood_chest" amount="3"/>
+			<item key="research_bench" amount="1"/>
+			<item key="orange_seed" amount="8"/>
+		</items>
+	</kit>
+	<kit level="22" startLevel="11">
+		<items>
+			<item key="stone_axe" amount="1"/>
+			<item key="metal_pickaxe" amount="1"/>
+			<item key="headscarf" amount="1"/>
+			<item key="stone_wall" amount="26"/>
+			<item key="stone_low_door" amount="6"/>
+			<item key="wood_chest" amount="3"/>
+			<item key="pistol" amount="1" ammo="20"/>
+			<item key="research_bench" amount="1"/>
+		</items>
+	</kit>
+	<kit level="23" startLevel="11">
+		<items>
+			<item key="stone_axe" amount="1"/>
+			<item key="sulfur_pickaxe" amount="1"/>
+			<item key="headscarf" amount="1"/>
+			<item key="stone_wall" amount="26"/>
+			<item key="stone_low_door" amount="6"/>
+			<item key="wood_chest" amount="3"/>
+			<item key="pistol" amount="1" ammo="20"/>
+			<item key="research_bench" amount="1"/>
+		</items>
+	</kit>
+	<kit level="24" startLevel="12">
+		<items>
+			<item key="stone_axe" amount="1"/>
+			<item key="sulfur_pickaxe" amount="1"/>
+			<item key="headscarf" amount="1"/>
+			<item key="stone_wall" amount="26"/>
+			<item key="smelter" amount="1"/>
+			<item key="wood_chest" amount="3"/>
+			<item key="pistol" amount="1" ammo="20"/>
+			<item key="research_bench" amount="1"/>
+		</items>
+	</kit>
+		<kit level="25" startLevel="12">
+		<items>
+			<item key="sulfur_axe" amount="1"/>
+			<item key="sulfur_pickaxe" amount="1"/>
+			<item key="headscarf" amount="1"/>
+			<item key="stone_wall" amount="26"/>
+			<item key="smelter" amount="1"/>
+			<item key="wood_chest" amount="3"/>
+			<item key="pistol" amount="1" ammo="20"/>
+			<item key="research_bench" amount="1"/>
+		</items>
+	</kit>
+	<kit level="26" startLevel="13">
+		<items>
+			<item key="sulfur_axe" amount="1"/>
+			<item key="sulfur_pickaxe" amount="1"/>
+			<item key="chapka" amount="1"/>
+			<item key="stone_wall" amount="26"/>
+			<item key="smelter" amount="1"/>
+			<item key="wood_chest" amount="3"/>
+			<item key="pistol" amount="1" ammo="20"/>
+			<item key="research_bench" amount="1"/>
+		</items>
+	</kit>
+	<kit level="27" startLevel="13">
+		<items>
+			<item key="sulfur_axe" amount="1"/>
+			<item key="sulfur_pickaxe" amount="1"/>
+			<item key="chapka" amount="1"/>
+			<item key="steel_wall" amount="14"/>
+			<item key="smelter" amount="1"/>
+			<item key="wood_chest" amount="3"/>
+			<item key="pistol" amount="1" ammo="20"/>
+			<item key="research_bench" amount="1"/>
+		</items>
+	</kit>
+	<kit level="28" startLevel="14">
+		<items>
+			<item key="sulfur_axe" amount="1"/>
+			<item key="sulfur_pickaxe" amount="1"/>
+			<item key="chapka" amount="1"/>
+			<item key="steel_wall" amount="14"/>
+			<item key="smelter" amount="1"/>
+			<item key="wood_chest" amount="3"/>
+			<item key="desert_eagle" amount="1" ammo="7"/>
+			<item key="research_bench" amount="1"/>
+		</items>
+	</kit>
+	<kit level="29" startLevel="14">
+		<items>
+			<item key="sulfur_axe" amount="1"/>
+			<item key="sulfur_pickaxe" amount="1"/>
+			<item key="chapka" amount="1"/>
+			<item key="steel_wall" amount="14"/>
+			<item key="smelter" amount="1"/>
+			<item key="dynamite" amount="6"/>
+			<item key="desert_eagle" amount="1" ammo="7"/>
+			<item key="research_bench" amount="1"/>
+		</items>
+	</kit>
+	<kit level="30" startLevel="15">
+		<items>
+			<item key="sulfur_axe" amount="1"/>
+			<item key="sulfur_pickaxe" amount="1"/>
+			<item key="chapka" amount="1"/>
+			<item key="steel_wall" amount="20"/>
+			<item key="smelter" amount="1"/>
+			<item key="landmine" amount="6"/>
+			<item key="desert_eagle" amount="1" ammo="7"/>
+			<item key="research_bench" amount="1"/>
+		</items>
+	</kit>
+</kits>

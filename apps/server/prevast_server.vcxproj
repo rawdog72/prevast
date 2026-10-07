@@ -1,0 +1,379 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>18.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{d2abab13-aed8-47ae-894e-509c576faf3b}</ProjectGuid>
+    <RootNamespace>prevastserver</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
+    <CharacterSet>NotSet</CharacterSet>
+    <EnableUnitySupport>true</EnableUnitySupport>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <!-- Full paths, without "..": vcpkg records the DLLs it deploys under the normalized
+         spelling and IncrementalClean compares paths as strings, so a ".." OutDir made it
+         delete every freshly deployed DLL as a stale write of some other path. -->
+    <OutDir>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..\..\dist\server\$(Configuration)\'))</OutDir>
+    <IntDir>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..\..\build\server\$(Platform)\$(Configuration)\'))</IntDir>
+    <LocalDebuggerWorkingDirectory>$(MSBuildProjectDirectory)\..\..\runtime\development</LocalDebuggerWorkingDirectory>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <Manifest>
+      <EnableSegmentHeap>true</EnableSegmentHeap>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <Manifest>
+      <EnableSegmentHeap>true</EnableSegmentHeap>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <SDLCheck>
+      </SDLCheck>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;NDEBUG;_CONSOLE;$(PREPROCESSOR_DEFS);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>Default</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>$(VcpkgRoot)installed\x64-windows\include;$(VcpkgRoot)installed\x64-windows\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>core/otpch.h</PrecompiledHeaderFile>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <SupportJustMyCode>false</SupportJustMyCode>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
+      <IncludeInUnityFile>true</IncludeInUnityFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <Manifest>
+      <EnableSegmentHeap>true</EnableSegmentHeap>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalOptions>/utf-8 /FS %(AdditionalOptions)</AdditionalOptions>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>core/otpch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <Manifest>
+      <EnableSegmentHeap>true</EnableSegmentHeap>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="src\gameplay\npc.cpp" />
+    <ClCompile Include="src\gameplay\npc_stock.cpp" />
+    <ClCompile Include="src\gameplay\npc_content.cpp" />
+    <ClCompile Include="src\gameplay\npc_economy.cpp" />
+    <ClCompile Include="src\gameplay\npc_script.cpp" />
+    <ClCompile Include="src\gameplay\agent.cpp" />
+    <ClCompile Include="src\persistence\ban.cpp" />
+    <ClCompile Include="src\content\configmanager.cpp" />
+    <ClCompile Include="src\network\account_ticket.cpp" />
+    <ClCompile Include="src\network\login_identity.cpp" />
+    <ClCompile Include="src\network\disconnect_reason.cpp" />
+    <ClCompile Include="src\network\connection.cpp" />
+    <ClCompile Include="src\gameplay\creature.cpp" />
+    <ClCompile Include="src\persistence\database.cpp" />
+    <ClCompile Include="src\persistence\databasetasks.cpp" />
+    <ClCompile Include="src\core\prevast_server.cpp" />
+    <ClCompile Include="src\gameplay\equipment.cpp" />
+    <ClCompile Include="src\gameplay\weapon_mods.cpp" />
+    <ClCompile Include="src\gameplay\weapon_mods_selftest.cpp" />
+    <ClCompile Include="src\gameplay\aim_view.cpp" />
+    <ClCompile Include="src\gameplay\aim_view_selftest.cpp" />
+    <ClCompile Include="src\gameplay\game.cpp" />
+    <ClCompile Include="src\gameplay\game_admin.cpp" />
+    <ClCompile Include="src\gameplay\game_agents.cpp" />
+    <ClCompile Include="src\gameplay\game_ghoul.cpp" />
+    <ClCompile Include="src\gameplay\game_clans.cpp" />
+    <ClCompile Include="src\gameplay\game_look.cpp" />
+    <ClCompile Include="src\gameplay\game_trade.cpp" />
+    <ClCompile Include="src\gameplay\groups.cpp" />
+    <ClCompile Include="src\gameplay\inventory.cpp" />
+    <ClCompile Include="src\gameplay\item.cpp" />
+    <ClCompile Include="src\gameplay\kit.cpp" />
+    <ClCompile Include="src\gameplay\loot.cpp" />
+    <ClCompile Include="src\gameplay\loot_placement.cpp" />
+    <ClCompile Include="src\gameplay\loot_placement_selftest.cpp" />
+    <ClCompile Include="src\core\main.cpp" />
+    <ClCompile Include="src\world\map.cpp" />
+    <ClCompile Include="src\world\mapimport.cpp" />
+    <ClCompile Include="src\world\mapsize.cpp" />
+    <ClCompile Include="src\network\networkmessage.cpp" />
+    <ClCompile Include="src\gameplay\object.cpp" />
+    <ClCompile Include="src\world\placement.cpp" />
+    <ClCompile Include="src\core\otpch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="src\network\outputmessage.cpp" />
+    <ClCompile Include="src\gameplay\player.cpp" />
+    <ClCompile Include="src\core\position.cpp" />
+    <ClCompile Include="src\gameplay\projectile.cpp" />
+    <ClCompile Include="src\network\protocol.cpp" />
+    <ClCompile Include="src\network\protocolgame.cpp" />
+    <ClCompile Include="src\network\protocolstatus.cpp" />
+    <ClCompile Include="src\gameplay\resource.cpp" />
+    <ClCompile Include="src\core\scheduler.cpp" />
+    <ClCompile Include="src\network\server.cpp" />
+    <ClCompile Include="src\network\serverinfo.cpp" />
+    <ClCompile Include="src\network\serverlisting.cpp" />
+    <ClCompile Include="src\network\http_client.cpp" />
+    <ClCompile Include="src\core\signals.cpp" />
+    <ClCompile Include="src\gameplay\condition.cpp" />
+    <ClCompile Include="src\gameplay\progress\game_event.cpp" />
+    <ClCompile Include="src\gameplay\quests\quest_loader.cpp" />
+    <ClCompile Include="src\gameplay\quests\quest_selftest.cpp" />
+    <ClCompile Include="src\gameplay\quests\quest_engine.cpp" />
+    <ClCompile Include="src\gameplay\quests\quest_system.cpp" />
+    <ClCompile Include="src\gameplay\scenarios\scenario_population.cpp" />
+    <ClCompile Include="src\gameplay\scenarios\scenario_regions.cpp" />
+    <ClCompile Include="src\gameplay\scenarios\scenario_runtime.cpp" />
+    <ClCompile Include="src\gameplay\quests\quest_journal.cpp" />
+    <ClCompile Include="src\gameplay\progress\progress_loader.cpp" />
+    <ClCompile Include="src\gameplay\progress\progress_system.cpp" />
+    <ClCompile Include="src\gameplay\progress\account_runs.cpp" />
+    <ClCompile Include="src\gameplay\progress\progress_selftest.cpp" />
+    <ClCompile Include="src\gameplay\scripts\lua_script.cpp" />
+    <ClCompile Include="src\gameplay\scripts\script_system.cpp" />
+    <ClCompile Include="src\content\contentexport.cpp" />
+    <ClCompile Include="src\content\scenario_compile.cpp" />
+    <ClCompile Include="src\content\scenario_project.cpp" />
+    <ClCompile Include="src\world\structure.cpp" />
+    <ClCompile Include="src\world\scenario_world.cpp" />
+    <ClCompile Include="src\core\tasks.cpp" />
+    <ClCompile Include="src\world\thing.cpp" />
+    <ClCompile Include="src\core\tools.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\content\content_files.h" />
+    <ClInclude Include="src\content\content_validation.h" />
+    <ClInclude Include="src\gameplay\npc.h" />
+    <ClInclude Include="src\gameplay\economy.h" />
+    <ClInclude Include="src\gameplay\agent.h" />
+    <ClInclude Include="src\persistence\ban.h" />
+    <ClInclude Include="src\content\configmanager.h" />
+    <ClInclude Include="src\network\account_ticket.h" />
+    <ClInclude Include="src\network\login_identity.h" />
+    <ClInclude Include="src\network\disconnect_reason.h" />
+    <ClInclude Include="src\network\connection.h" />
+    <ClInclude Include="src\core\const.h" />
+    <ClInclude Include="src\gameplay\creature.h" />
+    <ClInclude Include="src\persistence\database.h" />
+    <ClInclude Include="src\persistence\databasetasks.h" />
+    <ClInclude Include="src\core\definitions.h" />
+    <ClInclude Include="src\core\prevast_server.h" />
+    <ClInclude Include="src\core\enums.h" />
+    <ClInclude Include="src\gameplay\equipment.h" />
+    <ClInclude Include="src\gameplay\weapon_mod_types.h" />
+    <ClInclude Include="src\gameplay\weapon_mods.h" />
+    <ClInclude Include="src\gameplay\aim_view.h" />
+    <ClInclude Include="src\gameplay\game.h" />
+    <ClInclude Include="src\gameplay\groups.h" />
+    <ClInclude Include="src\gameplay\inventory.h" />
+    <ClInclude Include="src\gameplay\item.h" />
+    <ClInclude Include="src\gameplay\kit.h" />
+    <ClInclude Include="src\core\lockfree.h" />
+    <ClInclude Include="src\gameplay\loot.h" />
+    <ClInclude Include="src\gameplay\loot_placement.h" />
+    <ClInclude Include="src\world\map.h" />
+    <ClInclude Include="src\world\mapimport.h" />
+    <ClInclude Include="src\world\mapsize.h" />
+    <ClInclude Include="src\network\networkmessage.h" />
+    <ClInclude Include="src\network\opcodes.h" />
+    <ClInclude Include="src\world\placement.h" />
+    <ClInclude Include="src\core\otpch.h" />
+    <ClInclude Include="src\network\outputmessage.h" />
+    <ClInclude Include="src\gameplay\player.h" />
+    <ClInclude Include="src\core\position.h" />
+    <ClInclude Include="src\network\protocol.h" />
+    <ClInclude Include="src\network\protocolgame.h" />
+    <ClInclude Include="src\gameplay\object.h" />
+    <ClInclude Include="src\network\protocolstatus.h" />
+    <ClInclude Include="src\core\pugicast.h" />
+    <ClInclude Include="src\gameplay\resource.h" />
+    <ClInclude Include="src\core\scheduler.h" />
+    <ClInclude Include="src\network\server.h" />
+    <ClInclude Include="src\network\serverinfo.h" />
+    <ClInclude Include="src\network\serverlisting.h" />
+    <ClInclude Include="src\network\http_client.h" />
+    <ClInclude Include="src\core\signals.h" />
+    <ClInclude Include="src\gameplay\condition.h" />
+    <ClInclude Include="src\content\contentexport.h" />
+    <ClInclude Include="src\content\scenario_compile.h" />
+    <ClInclude Include="src\content\scenario_project.h" />
+    <ClInclude Include="src\world\structure.h" />
+    <ClInclude Include="src\world\scenario_world.h" />
+    <ClInclude Include="src\core\tasks.h" />
+    <ClInclude Include="src\world\thing.h" />
+    <ClInclude Include="src\core\thread_holder_base.h" />
+    <ClInclude Include="src\world\tile.h" />
+    <ClInclude Include="src\core\tools.h" />
+    <ClInclude Include="src\world\worldgen.h" />
+  </ItemGroup>
+  <ItemDefinitionGroup>
+    <ClCompile><AdditionalIncludeDirectories>$(MSBuildProjectDirectory)\src;$(PrevastGeneratedDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories></ClCompile>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+  <ItemGroup>
+    <ClInclude Include="src\world\collision.h" />
+    <ClInclude Include="src\core\perf.h" />
+    <ClInclude Include="src\gameplay\projectile.h" />
+    <ClInclude Include="src\core\security_budget.h" />
+    <ClInclude Include="src\gameplay\trade.h" />
+    <ClInclude Include="src\gameplay\progress\game_event.h" />
+    <ClInclude Include="src\gameplay\quests\quest_definition.h" />
+    <ClInclude Include="src\gameplay\quests\quest_loader.h" />
+    <ClInclude Include="src\gameplay\quests\quest_selftest.h" />
+    <ClInclude Include="src\gameplay\quests\quest_engine.h" />
+    <ClInclude Include="src\gameplay\quests\quest_system.h" />
+    <ClInclude Include="src\gameplay\scenarios\scenario_population.h" />
+    <ClInclude Include="src\gameplay\scenarios\scenario_regions.h" />
+    <ClInclude Include="src\gameplay\scenarios\scenario_rng.h" />
+    <ClInclude Include="src\gameplay\scenarios\scenario_runtime.h" />
+    <ClInclude Include="src\gameplay\quests\quest_journal.h" />
+    <ClInclude Include="src\gameplay\progress\progress_definition.h" />
+    <ClInclude Include="src\gameplay\progress\progress_loader.h" />
+    <ClInclude Include="src\gameplay\progress\progress_system.h" />
+    <ClInclude Include="src\gameplay\progress\account_runs.h" />
+    <ClInclude Include="src\gameplay\scripts\lua_script.h" />
+    <ClInclude Include="src\gameplay\scripts\script_system.h" />
+    <ClInclude Include="src\world\worldclock.h" />
+    <ClInclude Include="src\content\xml_utils.h" />
+  </ItemGroup>
+  <!-- Generated C++ view of shared/editor/limits.json (one limits source for C++ and TS).
+       Needs Node on PATH, as every other build step in this repository does. -->
+  <PropertyGroup>
+    <PrevastGeneratedDir>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..\..\build\generated\'))</PrevastGeneratedDir>
+    <PrevastLimitsJson>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..\..\shared\editor\limits.json'))</PrevastLimitsJson>
+    <PrevastContractScript>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..\..\tools\editor\generate-contract.mjs'))</PrevastContractScript>
+  </PropertyGroup>
+  <Target Name="PrevastEditorContract" BeforeTargets="ClCompile;PrepareForBuild"
+          Inputs="$(PrevastLimitsJson);$(PrevastContractScript)"
+          Outputs="$(PrevastGeneratedDir)contract\editor_limits.h">
+    <Exec Command="node &quot;$(PrevastContractScript)&quot; --out &quot;$(PrevastGeneratedDir)contract\editor_limits.h&quot;" />
+  </Target>
+  <!-- vcpkg deploys its DLLs (fmt, lua51, pugixml, libmariadb, boost_json, z)
+       only when the exe is relinked, so once they went missing a build with no
+       source change never brought them back and the server would not start.
+       Run vcpkg's own deploy script as the build's last step, every build: it
+       copies only what is missing or out of date, and it is not recorded as a
+       tracked write, so IncrementalClean has nothing of it to remove. -->
+  <Target Name="PrevastDeployVcpkgDlls" AfterTargets="Build"
+          Condition="'$(_ZVcpkgCurrentInstalledDir)' != '' and Exists('$(TargetPath)')">
+    <Exec Command="&quot;$(SystemRoot)\System32\WindowsPowerShell\v1.0\powershell.exe&quot; -ExecutionPolicy Bypass -NoProfile -File &quot;$(_ZVcpkgRoot)scripts\buildsystems\msbuild\applocal.ps1&quot; &quot;$(TargetPath)&quot; &quot;$(_ZVcpkgCurrentInstalledDir)$(_ZVcpkgConfigSubdir)bin&quot;"
+          StandardOutputImportance="low" />
+  </Target>
+</Project>

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "scorePerGoldenCap": 10000,
+  "clanCreationCost": 5,
+  "clanSwitchCooldownHours": 24,
+  "averageLeaderboardMinimumRuns": 10,
+  "rankedModes": [
+    "survival"
+  ],
+  "outlawMinKarma": 4,
+  "pvpRepeatVictimCooldownSeconds": 600,
+  "achievementRewards": {
+    "ghoul_hunter": 1,
+    "ghoul_slayer": 5,
+    "scrap_collector": 2,
+    "craftsman": 1,
+    "lumberjack": 1,
+    "builder": 1,
+    "wrecker": 2,
+    "helping_hand": 2,
+    "bounty_hunter": 3,
+    "veteran": 2,
+    "survivor": 5,
+    "road_warden": 2
+  },
+  "eventRewards": {}
+}

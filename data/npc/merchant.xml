@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<npc key="merchant" id="1" name="Mara" invulnerable="true" rangeTiles="2" timeoutSeconds="300">
+  <client head="day-skin0" leftArm="day-left-arm0" rightArm="day-right-arm0" tint="#e3c789" shop="true"/>
+  <body walkThrough="true"/>
+  <movement walkRadius="1" speed="50"/>
+  <shop stockScope="shared" restockSeconds="3600">
+    <offer key="wood" item="wood" buyPrice="3" sellPrice="1" unlimited="true"/>
+    <offer key="stone" item="stone" buyPrice="5" sellPrice="2" unlimited="true"/>
+    <offer key="bandage" item="bandage" buyPrice="40" stockMin="30" stockMax="30"/>
+    <offer key="hatchet" item="hatchet" buyPrice="120" stockMin="5" stockMax="5"/>
+    <rareOffer key="pistol" item="pistol" buyPrice="2500" chanceBps="1000" stockMin="1" stockMax="1" perLifeLimit="1"/>
+  </shop>
+  <karma>
+    <rule min="2" max="3" buyBps="12500" sellBps="8000"/>
+    <rule min="4" max="5" trade="false" quests="false" reply="I will not do business with outlaws."/>
+  </karma>
+  <dialogue greeting="Welcome. Looking to {trade}? I also have a {job}." fallback="Ask about {trade}, {job} or say {bye}."/>
+</npc>

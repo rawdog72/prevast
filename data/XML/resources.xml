@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+	<resource id="0" key="wood" experience="5" respawnDelayMs="60000">
+		<drops>
+			<item key="wood" chance="1.0" amountMax="3"/>
+		</drops>
+		<tools>
+			<tool key="hand" multiplier="0.3"/>
+			<tool key="hatchet" multiplier="2.0"/>
+			<tool key="stone_axe" multiplier="4.0"/>
+			<tool key="sulfur_axe" multiplier="5.0"/>
+		</tools>
+		<types>
+			<type id="0" life="200" radius="80" layer="top" collision="true" unitsMin="0" unitsMax="80"/>
+			<type id="1" life="150" radius="55" layer="top" collision="true" unitsMin="0" unitsMax="80"/>
+			<type id="2" life="120" radius="48" layer="top" collision="true" unitsMin="0" unitsMax="80"/>
+			<type id="3" life="100" radius="37" layer="top" collision="true" unitsMin="0" unitsMax="80"/>
+			<type id="4" life="75" radius="30" layer="top" collision="true" unitsMin="0" unitsMax="80"/>
+		</types>
+		<client render="resource" particles="wood" impactSound="wood_impact" destroySound="wood_destroy">
+			<type id="0" sprite="day-wood1" particleCount="5" particlesDistance="100"/>
+			<type id="1" sprite="day-wood0" particleCount="5" particlesDistance="75"/>
+			<type id="2" sprite="day-wood2" particleCount="5" particlesDistance="70"/>
+			<type id="3" sprite="day-wood3" particleCount="5" particlesDistance="60"/>
+			<type id="4" sprite="day-wood4" particleCount="5" particlesDistance="50"/>
+		</client>
+	</resource>
+	<resource id="1" key="stone" experience="15" respawnDelayMs="60000">
+		<drops>
+			<item key="stone" chance="1.0" amountMax="3"/>
+		</drops>
+		<tools>
+			<tool key="hatchet" multiplier="1.0"/>
+			<tool key="stone_pickaxe" multiplier="3.0"/>
+			<tool key="metal_pickaxe" multiplier="4.0"/>
+			<tool key="sulfur_pickaxe" multiplier="5.0"/>
+		</tools>
+		<types>
+			<type id="0" life="1000" radius="60" layer="mid" collision="true" unitsMin="0" unitsMax="115"/>
+			<type id="1" life="800" radius="58" layer="mid" collision="true" unitsMin="0" unitsMax="115"/>
+			<type id="2" life="600" radius="54" layer="mid" collision="true" unitsMin="0" unitsMax="115"/>
+			<type id="3" life="400" radius="45" layer="low" collision="true" unitsMin="0" unitsMax="115"/>
+			<type id="4" life="200" radius="43" layer="low" collision="true" unitsMin="0" unitsMax="115"/>
+			<type id="5" life="150" radius="41" layer="low" collision="true" unitsMin="0" unitsMax="115"/>
+		</types>
+		<client render="resource" particles="stone" impactSound="stone_impact_2" destroySound="stone_destroy">
+			<type id="0" sprite="day-stone0" particleCount="5" particlesDistance="80"/>
+			<type id="1" sprite="day-stone2" particleCount="5" particlesDistance="80"/>
+			<type id="2" sprite="day-stone1" particleCount="5" particlesDistance="74"/>
+			<type id="3" sprite="day-stone3" particleCount="5" particlesDistance="65"/>
+			<type id="4" sprite="day-stone4" particleCount="5" particlesDistance="63"/>
+			<type id="5" sprite="day-stone5" particleCount="5" particlesDistance="61"/>
+		</client>
+	</resource>
+	<resource id="2" key="steel" experience="40" respawnDelayMs="60000">
+		<drops>
+			<item key="stone" chance="1.0" amountMax="3"/>
+			<item key="iron" chance="0.7" amountMax="1"/>
+		</drops>
+		<tools>
+			<tool key="stone_pickaxe" multiplier="1.0"/>
+			<tool key="metal_pickaxe" multiplier="2.0"/>
+			<tool key="sulfur_pickaxe" multiplier="3.0"/>
+		</tools>
+		<types>
+			<type id="0" life="1200" radius="61" layer="mid" collision="true" unitsMin="0" unitsMax="22"/>
+			<type id="1" life="1000" radius="61" layer="mid" collision="true" unitsMin="0" unitsMax="22"/>
+			<type id="2" life="300" radius="42" layer="low" collision="true" unitsMin="0" unitsMax="22"/>
+			<type id="3" life="500" radius="50" layer="mid" collision="true" unitsMin="0" unitsMax="22"/>
+		</types>
+		<client render="resource" particles="steel" impactSound="stone_impact_2" destroySound="stone_destroy">
+			<type id="0" sprite="day-steel0" particleCount="5" particlesDistance="81"/>
+			<type id="1" sprite="day-steel1" particleCount="5" particlesDistance="81"/>
+			<type id="2" sprite="day-steel2" particleCount="5" particlesDistance="62"/>
+			<type id="3" sprite="day-steel3" particleCount="5" particlesDistance="70"/>
+		</client>
+	</resource>
+	<resource id="3" key="uranium" experience="140" respawnDelayMs="60000">
+		<drops>
+			<item key="stone" chance="1.0" amountMax="3"/>
+			<item key="uranium" chance="0.3" amountMax="1"/>
+		</drops>
+		<tools>
+			<tool key="sulfur_pickaxe" multiplier="1.0"/>
+		</tools>
+		<types>
+			<type id="0" life="6000" radius="75" layer="mid" collision="true" unitsMin="0" unitsMax="5"/>
+			<type id="1" life="4000" radius="55" layer="mid" collision="true" unitsMin="0" unitsMax="5"/>
+			<type id="2" life="2000" radius="42" layer="low" collision="true" unitsMin="0" unitsMax="5"/>
+		</types>
+		<areaEffects>
+			<areaEffect id="2" type="radiation" strength="1" area="2"/>
+		</areaEffects>
+		<client render="resource" particles="uranium" impactSound="stone_impact_2" destroySound="stone_destroy">
+			<type id="0" sprite="day-uranium0" particleCount="5" particlesDistance="104"/>
+			<type id="1" sprite="day-uranium1" particleCount="5" particlesDistance="75"/>
+			<type id="2" sprite="day-uranium2" particleCount="5" particlesDistance="62"/>
+		</client>
+	</resource>
+	<resource id="4" key="sulfur" experience="70" respawnDelayMs="60000">
+		<drops>
+			<item key="stone" chance="1.0" amountMax="3"/>
+			<item key="sulfur" chance="0.4" amountMax="1"/>
+		</drops>
+		<tools>
+			<tool key="metal_pickaxe" multiplier="1.0"/>
+			<tool key="sulfur_pickaxe" multiplier="2.0"/>
+		</tools>
+		<types>
+			<type id="0" life="1000" radius="42" layer="mid" collision="true" unitsMin="0" unitsMax="22"/>
+			<type id="1" life="400" radius="50" layer="low" collision="true" unitsMin="0" unitsMax="22"/>
+			<type id="2" life="400" radius="38" layer="low" collision="true" unitsMin="0" unitsMax="22"/>
+		</types>
+		<client render="resource" particles="sulfur" impactSound="stone_impact_2" destroySound="stone_destroy">
+			<type id="0" sprite="day-sulfur0" particleCount="5" particlesDistance="62"/>
+			<type id="1" sprite="day-sulfur1" particleCount="5" particlesDistance="70"/>
+			<type id="2" sprite="day-sulfur2" particleCount="5" particlesDistance="58"/>
+		</client>
+	</resource>
+	<resource id="5" key="leaf_tree" experience="5" respawnDelayMs="60000">
+		<drops>
+			<item key="wood" chance="1.0" amountMax="3"/>
+			<item key="acorn" chance="0.015" amountMax="1"/>
+		</drops>
+		<tools>
+			<tool key="hand" multiplier="1.0"/>
+			<tool key="hatchet" multiplier="2.0"/>
+			<tool key="stone_axe" multiplier="4.0"/>
+			<tool key="sulfur_axe" multiplier="5.0"/>
+		</tools>
+		<types>
+			<type id="0" life="250" radius="70" layer="above" collision="true" unitsMin="0" unitsMax="800"/>
+			<type id="1" life="250" radius="52" layer="above" collision="true" unitsMin="0" unitsMax="800"/>
+			<type id="2" life="150" radius="42" layer="above" collision="true" unitsMin="0" unitsMax="800"/>
+			<type id="3" life="75" radius="34" layer="above" collision="true" unitsMin="0" unitsMax="800"/>
+			<type id="4" life="250" radius="54" layer="above" collision="true" unitsMin="0" unitsMax="800"/>
+		</types>
+		<client render="resource" particles="leaftree" impactSound="wood_impact" destroySound="wood_destroy">
+			<type id="0" sprite="day-tree0" spriteTop="day-treeleaf0" spriteFull="day-tree-and-leaf0" particleCount="5" particlesDistance="145"/>
+			<type id="1" sprite="day-tree1" spriteTop="day-treeleaf1" spriteFull="day-tree-and-leaf1" particleCount="5" particlesDistance="128"/>
+			<type id="2" sprite="day-tree2" spriteTop="day-treeleaf2" spriteFull="day-tree-and-leaf2" particleCount="5" particlesDistance="114"/>
+			<type id="3" sprite="day-tree3" spriteTop="day-treeleaf3" spriteFull="day-tree-and-leaf3" particleCount="5" particlesDistance="90"/>
+			<type id="4" sprite="day-tree4" spriteTop="day-treeleaf4" spriteFull="day-tree-and-leaf4" particleCount="5" particlesDistance="147"/>
+		</client>
+	</resource>
+	<resource id="6" key="orange_tree" experience="50" respawnDelayMs="60000">
+		<drops>
+			<item key="orange" chance="1.0" amountMax="1" />
+			<item key="orange_seed" chance="0.05" amountMax="1" />
+		</drops>
+		<tools>
+			<tool key="hand" multiplier="1.0"/>
+		</tools>
+		<types>
+			<type id="0" life="15" radius="38" layer="low" collision="true" unitsMin="0" unitsMax="20" />
+			<type id="1" life="20" radius="37" layer="low" collision="true" unitsMin="0" unitsMax="20" />
+			<type id="2" life="20" radius="45" layer="low" collision="true" unitsMin="0" unitsMax="20" />
+		</types>
+		<client render="resource" particles="orange">
+			<type id="0" sprite="day-orange-tree-leaf0" spriteTop="day-orange0" spriteFull="day-orange-tree0" particleCount="5" particlesDistance="68"/>
+			<type id="1" sprite="day-orange-tree-leaf1" spriteTop="day-orange1" spriteFull="day-orange-tree1" particleCount="5" particlesDistance="70"/>
+			<type id="2" sprite="day-orange-tree-leaf2" spriteTop="day-orange2" spriteFull="day-orange-tree2" particleCount="5" particlesDistance="78"/>
+		</client>
+	</resource>
+	<resource id="7" key="tomato_tree" experience="50" respawnDelayMs="60000">
+		<drops>
+			<item key="tomato_seed" chance="0.05" amountMax="1" />
+			<item key="tomato" chance="1.0" amountMax="1" />
+		</drops>
+		<tools>
+			<tool key="hand" multiplier="1.0"/>
+		</tools>
+		<types>
+			<type id="0" life="15" radius="38" layer="low" collision="true" unitsMin="0" unitsMax="16" />
+			<type id="1" life="20" radius="37" layer="low" collision="true" unitsMin="0" unitsMax="16" />
+			<type id="2" life="20" radius="45" layer="low" collision="true" unitsMin="0" unitsMax="16" />
+		</types>
+		<client render="resource" particles="tomato">
+			<type id="0" sprite="day-tomato-tree-leaf0" spriteTop="day-tomato0" spriteFull="day-tomato-tree0" particleCount="5" particlesDistance="68"/>
+			<type id="1" sprite="day-tomato-tree-leaf1" spriteTop="day-tomato1" spriteFull="day-tomato-tree1" particleCount="5" particlesDistance="70"/>
+			<type id="2" sprite="day-tomato-tree-leaf2" spriteTop="day-tomato2" spriteFull="day-tomato-tree2" particleCount="5" particlesDistance="78"/>
+		</client>
+	</resource>
+	<resource id="8" key="boar" experience="40" respawnDelayMs="60000">
+		<drops>
+			<item key="animal_fat" chance="0.85" amountMax="1" />
+			<item key="leather" chance="1.0" amountMax="1" />
+			<item key="raw_steak" chance="0.25" amountMax="1" />
+		</drops>
+		<tools>
+			<tool key="hatchet" multiplier="1.0"/>
+			<tool key="stone_axe" multiplier="3.0"/>
+			<tool key="sulfur_axe" multiplier="4.0"/>
+		</tools>
+		<types>
+			<type id="0" life="250" radius="47" layer="low" collision="true" unitsMin="0" unitsMax="18" />
+		</types>
+		<client render="resource" particles="blood">
+			<type id="0" sprite="day-boar-dead" particleCount="5" particlesDistance="70"/>
+		</client>
+	</resource>
+	<resource id="9" key="deer" experience="40" respawnDelayMs="60000">
+		<drops>
+			<item key="animal_fat" chance="1.0" amountMax="1" />
+			<item key="animal_tendon" chance="0.7" amountMax="1" />
+			<item key="leather" chance="0.85" amountMax="1" />
+			<item key="raw_steak" chance="0.28" amountMax="1" />
+		</drops>
+		<tools>
+			<tool key="hatchet" multiplier="1.0"/>
+			<tool key="stone_axe" multiplier="3.0"/>
+			<tool key="sulfur_axe" multiplier="4.0"/>
+		</tools>
+		<types>
+			<type id="0" life="200" radius="53" layer="low" collision="true" unitsMin="0" unitsMax="18" />
+		</types>
+		<client render="resource" particles="blood">
+			<type id="0" sprite="day-deer-dead" particleCount="5" particlesDistance="73"/>
+		</client>
+	</resource>
+	<resource id="10" key="mushroom1" experience="40" respawnDelayMs="60000">
+		<drops>
+			<item key="mushroom1" chance="1.0" amountMax="1" />
+		</drops>
+		<tools>
+			<tool key="hand" multiplier="1.0"/>
+		</tools>
+		<types>
+			<type id="0" life="1" radius="32" layer="low" collision="false" unitsMin="0" unitsMax="2" />
+			<type id="1" life="1" radius="32" layer="low" collision="false" unitsMin="0" unitsMax="2" />
+			<type id="2" life="1" radius="32" layer="low" collision="false" unitsMin="0" unitsMax="2" />
+			<type id="3" life="1" radius="32" layer="low" collision="false" unitsMin="0" unitsMax="2" />
+		</types>
+		<client render="resource" particles="mushroom1">
+			<type id="0" sprite="day-mushroom1" particleCount="2" particlesDistance="18"/>
+			<type id="1" sprite="day-mushroom2" particleCount="2" particlesDistance="18"/>
+			<type id="2" sprite="day-mushroom3" particleCount="2" particlesDistance="18"/>
+			<type id="3" sprite="day-mushroom4" particleCount="2" particlesDistance="18"/>
+		</client>
+	</resource>
+	<resource id="11" key="mushroom2" experience="40" respawnDelayMs="60000">
+		<drops>
+			<item key="mushroom2" chance="1.0" amountMax="1" />
+		</drops>
+		<tools>
+			<tool key="hand" multiplier="1.0"/>
+		</tools>
+		<types>
+			<type id="0" life="1" radius="32" layer="low" collision="false" unitsMin="0" unitsMax="6" />
+			<type id="1" life="1" radius="32" layer="low" collision="false" unitsMin="0" unitsMax="6" />
+			<type id="2" life="1" radius="32" layer="low" collision="false" unitsMin="0" unitsMax="6" />
+			<type id="3" life="1" radius="32" layer="low" collision="false" unitsMin="0" unitsMax="6" />
+		</types>
+		<client render="resource" particles="mushroom2">
+			<type id="0" sprite="day-mushroom5" particleCount="2" particlesDistance="18"/>
+			<type id="1" sprite="day-mushroom6" particleCount="2" particlesDistance="18"/>
+			<type id="2" sprite="day-mushroom7" particleCount="2" particlesDistance="18"/>
+			<type id="3" sprite="day-mushroom8" particleCount="2" particlesDistance="18"/>
+		</client>
+	</resource>
+	<resource id="12" key="mushroom3" experience="40" respawnDelayMs="60000">
+		<drops>
+			<item key="mushroom3" chance="1.0" amountMax="1" />
+		</drops>
+		<tools>
+			<tool key="hand" multiplier="1.0"/>
+		</tools>
+		<types>
+			<type id="0" life="1" radius="32" layer="low" collision="false" unitsMin="0" unitsMax="6" />
+			<type id="1" life="1" radius="32" layer="low" collision="false" unitsMin="0" unitsMax="6" />
+			<type id="2" life="1" radius="32" layer="low" collision="false" unitsMin="0" unitsMax="6" />
+			<type id="3" life="1" radius="32" layer="low" collision="false" unitsMin="0" unitsMax="6" />
+		</types>
+		<client render="resource" particles="mushroom3">
+			<type id="0" sprite="day-mushroom9" particleCount="2" particlesDistance="18"/>
+			<type id="1" sprite="day-mushroom10" particleCount="2" particlesDistance="18"/>
+			<type id="2" sprite="day-mushroom11" particleCount="2" particlesDistance="18"/>
+			<type id="3" sprite="day-mushroom12" particleCount="2" particlesDistance="18"/>
+		</client>
+	</resource>
+	<resource id="13" key="rare_flower" experience="1000" respawnDelayMs="60000">
+		<drops>
+			<item key="rare_flower" chance="1.0" amountMax="1" />
+		</drops>
+		<tools>
+			<tool key="hand" multiplier="1.0"/>
+		</tools>
+		<types>
+			<type id="0" life="1" radius="32" layer="low" collision="false" unitsMin="0" unitsMax="1" />
+		</types>
+		<client render="resource">
+			<type id="0" sprite="day-antidote-tree" particleCount="2" particlesDistance="18"/>
+		</client>
+	</resource>
+</resources>

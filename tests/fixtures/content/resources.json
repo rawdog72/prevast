@@ -1,0 +1,1337 @@
+{
+  "name": "resources",
+  "version": 1,
+  "hash": "d63308a398482e1d",
+  "attributes": {},
+  "entries": {
+    "wood": {
+      "key": "wood",
+      "id": 0,
+      "experience": 5,
+      "respawnDelayMs": 60000,
+      "types": {
+        "type": [
+          {
+            "id": 0,
+            "life": 200,
+            "radius": 80,
+            "layer": "top",
+            "collision": true,
+            "unitsMin": 0,
+            "unitsMax": 80
+          },
+          {
+            "id": 1,
+            "life": 150,
+            "radius": 55,
+            "layer": "top",
+            "collision": true,
+            "unitsMin": 0,
+            "unitsMax": 80
+          },
+          {
+            "id": 2,
+            "life": 120,
+            "radius": 48,
+            "layer": "top",
+            "collision": true,
+            "unitsMin": 0,
+            "unitsMax": 80
+          },
+          {
+            "id": 3,
+            "life": 100,
+            "radius": 37,
+            "layer": "top",
+            "collision": true,
+            "unitsMin": 0,
+            "unitsMax": 80
+          },
+          {
+            "id": 4,
+            "life": 75,
+            "radius": 30,
+            "layer": "top",
+            "collision": true,
+            "unitsMin": 0,
+            "unitsMax": 80
+          }
+        ]
+      },
+      "client": {
+        "render": "resource",
+        "particles": "wood",
+        "impactSound": "wood_impact",
+        "destroySound": "wood_destroy",
+        "type": [
+          {
+            "id": 0,
+            "sprite": "day-wood1",
+            "particleCount": 5,
+            "particlesDistance": 100
+          },
+          {
+            "id": 1,
+            "sprite": "day-wood0",
+            "particleCount": 5,
+            "particlesDistance": 75
+          },
+          {
+            "id": 2,
+            "sprite": "day-wood2",
+            "particleCount": 5,
+            "particlesDistance": 70
+          },
+          {
+            "id": 3,
+            "sprite": "day-wood3",
+            "particleCount": 5,
+            "particlesDistance": 60
+          },
+          {
+            "id": 4,
+            "sprite": "day-wood4",
+            "particleCount": 5,
+            "particlesDistance": 50
+          }
+        ]
+      },
+      "drops": {
+        "item": [
+          {
+            "key": "wood",
+            "chance": 1,
+            "amountMax": 3
+          }
+        ]
+      },
+      "tools": {
+        "tool": [
+          {
+            "key": "hand",
+            "multiplier": 1
+          },
+          {
+            "key": "hatchet",
+            "multiplier": 2
+          },
+          {
+            "key": "stone_axe",
+            "multiplier": 4
+          },
+          {
+            "key": "sulfur_axe",
+            "multiplier": 5
+          }
+        ]
+      }
+    },
+    "stone": {
+      "key": "stone",
+      "id": 1,
+      "experience": 15,
+      "respawnDelayMs": 60000,
+      "types": {
+        "type": [
+          {
+            "id": 0,
+            "life": 1000,
+            "radius": 60,
+            "layer": "mid",
+            "collision": true,
+            "unitsMin": 0,
+            "unitsMax": 115
+          },
+          {
+            "id": 1,
+            "life": 800,
+            "radius": 58,
+            "layer": "mid",
+            "collision": true,
+            "unitsMin": 0,
+            "unitsMax": 115
+          },
+          {
+            "id": 2,
+            "life": 600,
+            "radius": 54,
+            "layer": "mid",
+            "collision": true,
+            "unitsMin": 0,
+            "unitsMax": 115
+          },
+          {
+            "id": 3,
+            "life": 400,
+            "radius": 45,
+            "layer": "low",
+            "collision": true,
+            "unitsMin": 0,
+            "unitsMax": 115
+          },
+          {
+            "id": 4,
+            "life": 200,
+            "radius": 43,
+            "layer": "low",
+            "collision": true,
+            "unitsMin": 0,
+            "unitsMax": 115
+          },
+          {
+            "id": 5,
+            "life": 150,
+            "radius": 41,
+            "layer": "low",
+            "collision": true,
+            "unitsMin": 0,
+            "unitsMax": 115
+          }
+        ]
+      },
+      "client": {
+        "render": "resource",
+        "particles": "stone",
+        "impactSound": "stone_impact_2",
+        "destroySound": "stone_destroy",
+        "type": [
+          {
+            "id": 0,
+            "sprite": "day-stone0",
+            "particleCount": 5,
+            "particlesDistance": 80
+          },
+          {
+            "id": 1,
+            "sprite": "day-stone2",
+            "particleCount": 5,
+            "particlesDistance": 80
+          },
+          {
+            "id": 2,
+            "sprite": "day-stone1",
+            "particleCount": 5,
+            "particlesDistance": 74
+          },
+          {
+            "id": 3,
+            "sprite": "day-stone3",
+            "particleCount": 5,
+            "particlesDistance": 65
+          },
+          {
+            "id": 4,
+            "sprite": "day-stone4",
+            "particleCount": 5,
+            "particlesDistance": 63
+          },
+          {
+            "id": 5,
+            "sprite": "day-stone5",
+            "particleCount": 5,
+            "particlesDistance": 61
+          }
+        ]
+      },
+      "drops": {
+        "item": [
+          {
+            "key": "stone",
+            "chance": 1,
+            "amountMax": 3
+          }
+        ]
+      },
+      "tools": {
+        "tool": [
+          {
+            "key": "hatchet",
+            "multiplier": 1
+          },
+          {
+            "key": "stone_pickaxe",
+            "multiplier": 3
+          },
+          {
+            "key": "metal_pickaxe",
+            "multiplier": 4
+          },
+          {
+            "key": "sulfur_pickaxe",
+            "multiplier": 5
+          }
+        ]
+      }
+    },
+    "steel": {
+      "key": "steel",
+      "id": 2,
+      "experience": 40,
+      "respawnDelayMs": 60000,
+      "types": {
+        "type": [
+          {
+            "id": 0,
+            "life": 1200,
+            "radius": 61,
+            "layer": "mid",
+            "collision": true,
+            "unitsMin": 0,
+            "unitsMax": 22
+          },
+          {
+            "id": 1,
+            "life": 1000,
+            "radius": 61,
+            "layer": "mid",
+            "collision": true,
+            "unitsMin": 0,
+            "unitsMax": 22
+          },
+          {
+            "id": 2,
+            "life": 300,
+            "radius": 42,
+            "layer": "low",
+            "collision": true,
+            "unitsMin": 0,
+            "unitsMax": 22
+          },
+          {
+            "id": 3,
+            "life": 500,
+            "radius": 50,
+            "layer": "mid",
+            "collision": true,
+            "unitsMin": 0,
+            "unitsMax": 22
+          }
+        ]
+      },
+      "client": {
+        "render": "resource",
+        "particles": "steel",
+        "impactSound": "stone_impact_2",
+        "destroySound": "stone_destroy",
+        "type": [
+          {
+            "id": 0,
+            "sprite": "day-steel0",
+            "particleCount": 5,
+            "particlesDistance": 81
+          },
+          {
+            "id": 1,
+            "sprite": "day-steel1",
+            "particleCount": 5,
+            "particlesDistance": 81
+          },
+          {
+            "id": 2,
+            "sprite": "day-steel2",
+            "particleCount": 5,
+            "particlesDistance": 62
+          },
+          {
+            "id": 3,
+            "sprite": "day-steel3",
+            "particleCount": 5,
+            "particlesDistance": 70
+          }
+        ]
+      },
+      "drops": {
+        "item": [
+          {
+            "key": "stone",
+            "chance": 1,
+            "amountMax": 3
+          },
+          {
+            "key": "iron",
+            "chance": 0.7,
+            "amountMax": 1
+          }
+        ]
+      },
+      "tools": {
+        "tool": [
+          {
+            "key": "stone_pickaxe",
+            "multiplier": 1
+          },
+          {
+            "key": "metal_pickaxe",
+            "multiplier": 2
+          },
+          {
+            "key": "sulfur_pickaxe",
+            "multiplier": 3
+          }
+        ]
+      }
+    },
+    "uranium": {
+      "key": "uranium",
+      "id": 3,
+      "experience": 140,
+      "respawnDelayMs": 60000,
+      "types": {
+        "type": [
+          {
+            "id": 0,
+            "life": 6000,
+            "radius": 75,
+            "layer": "mid",
+            "collision": true,
+            "unitsMin": 0,
+            "unitsMax": 5
+          },
+          {
+            "id": 1,
+            "life": 4000,
+            "radius": 55,
+            "layer": "mid",
+            "collision": true,
+            "unitsMin": 0,
+            "unitsMax": 5
+          },
+          {
+            "id": 2,
+            "life": 2000,
+            "radius": 42,
+            "layer": "low",
+            "collision": true,
+            "unitsMin": 0,
+            "unitsMax": 5
+          }
+        ]
+      },
+      "client": {
+        "render": "resource",
+        "particles": "uranium",
+        "impactSound": "stone_impact_2",
+        "destroySound": "stone_destroy",
+        "type": [
+          {
+            "id": 0,
+            "sprite": "day-uranium0",
+            "particleCount": 5,
+            "particlesDistance": 104
+          },
+          {
+            "id": 1,
+            "sprite": "day-uranium1",
+            "particleCount": 5,
+            "particlesDistance": 75
+          },
+          {
+            "id": 2,
+            "sprite": "day-uranium2",
+            "particleCount": 5,
+            "particlesDistance": 62
+          }
+        ]
+      },
+      "drops": {
+        "item": [
+          {
+            "key": "stone",
+            "chance": 1,
+            "amountMax": 3
+          },
+          {
+            "key": "uranium",
+            "chance": 0.3,
+            "amountMax": 1
+          }
+        ]
+      },
+      "tools": {
+        "tool": [
+          {
+            "key": "sulfur_pickaxe",
+            "multiplier": 1
+          }
+        ]
+      },
+      "areaEffects": {
+        "areaEffect": [
+          {
+            "id": 2,
+            "type": "radiation",
+            "strength": 1,
+            "area": 2
+          }
+        ]
+      }
+    },
+    "sulfur": {
+      "key": "sulfur",
+      "id": 4,
+      "experience": 70,
+      "respawnDelayMs": 60000,
+      "types": {
+        "type": [
+          {
+            "id": 0,
+            "life": 1000,
+            "radius": 42,
+            "layer": "mid",
+            "collision": true,
+            "unitsMin": 0,
+            "unitsMax": 22
+          },
+          {
+            "id": 1,
+            "life": 400,
+            "radius": 50,
+            "layer": "low",
+            "collision": true,
+            "unitsMin": 0,
+            "unitsMax": 22
+          },
+          {
+            "id": 2,
+            "life": 400,
+            "radius": 38,
+            "layer": "low",
+            "collision": true,
+            "unitsMin": 0,
+            "unitsMax": 22
+          }
+        ]
+      },
+      "client": {
+        "render": "resource",
+        "particles": "sulfur",
+        "impactSound": "stone_impact_2",
+        "destroySound": "stone_destroy",
+        "type": [
+          {
+            "id": 0,
+            "sprite": "day-sulfur0",
+            "particleCount": 5,
+            "particlesDistance": 62
+          },
+          {
+            "id": 1,
+            "sprite": "day-sulfur1",
+            "particleCount": 5,
+            "particlesDistance": 70
+          },
+          {
+            "id": 2,
+            "sprite": "day-sulfur2",
+            "particleCount": 5,
+            "particlesDistance": 58
+          }
+        ]
+      },
+      "drops": {
+        "item": [
+          {
+            "key": "stone",
+            "chance": 1,
+            "amountMax": 3
+          },
+          {
+            "key": "sulfur",
+            "chance": 0.4,
+            "amountMax": 1
+          }
+        ]
+      },
+      "tools": {
+        "tool": [
+          {
+            "key": "metal_pickaxe",
+            "multiplier": 1
+          },
+          {
+            "key": "sulfur_pickaxe",
+            "multiplier": 2
+          }
+        ]
+      }
+    },
+    "leaf_tree": {
+      "key": "leaf_tree",
+      "id": 5,
+      "experience": 5,
+      "respawnDelayMs": 60000,
+      "types": {
+        "type": [
+          {
+            "id": 0,
+            "life": 250,
+            "radius": 70,
+            "layer": "above",
+            "collision": true,
+            "unitsMin": 0,
+            "unitsMax": 800
+          },
+          {
+            "id": 1,
+            "life": 250,
+            "radius": 52,
+            "layer": "above",
+            "collision": true,
+            "unitsMin": 0,
+            "unitsMax": 800
+          },
+          {
+            "id": 2,
+            "life": 150,
+            "radius": 42,
+            "layer": "above",
+            "collision": true,
+            "unitsMin": 0,
+            "unitsMax": 800
+          },
+          {
+            "id": 3,
+            "life": 75,
+            "radius": 34,
+            "layer": "above",
+            "collision": true,
+            "unitsMin": 0,
+            "unitsMax": 800
+          },
+          {
+            "id": 4,
+            "life": 250,
+            "radius": 54,
+            "layer": "above",
+            "collision": true,
+            "unitsMin": 0,
+            "unitsMax": 800
+          }
+        ]
+      },
+      "client": {
+        "render": "resource",
+        "particles": "leaftree",
+        "impactSound": "wood_impact",
+        "destroySound": "wood_destroy",
+        "type": [
+          {
+            "id": 0,
+            "sprite": "day-tree0",
+            "spriteTop": "day-treeleaf0",
+            "spriteFull": "day-tree-and-leaf0",
+            "particleCount": 5,
+            "particlesDistance": 145
+          },
+          {
+            "id": 1,
+            "sprite": "day-tree1",
+            "spriteTop": "day-treeleaf1",
+            "spriteFull": "day-tree-and-leaf1",
+            "particleCount": 5,
+            "particlesDistance": 128
+          },
+          {
+            "id": 2,
+            "sprite": "day-tree2",
+            "spriteTop": "day-treeleaf2",
+            "spriteFull": "day-tree-and-leaf2",
+            "particleCount": 5,
+            "particlesDistance": 114
+          },
+          {
+            "id": 3,
+            "sprite": "day-tree3",
+            "spriteTop": "day-treeleaf3",
+            "spriteFull": "day-tree-and-leaf3",
+            "particleCount": 5,
+            "particlesDistance": 90
+          },
+          {
+            "id": 4,
+            "sprite": "day-tree4",
+            "spriteTop": "day-treeleaf4",
+            "spriteFull": "day-tree-and-leaf4",
+            "particleCount": 5,
+            "particlesDistance": 147
+          }
+        ]
+      },
+      "drops": {
+        "item": [
+          {
+            "key": "wood",
+            "chance": 1,
+            "amountMax": 3
+          },
+          {
+            "key": "acorn",
+            "chance": 0.015,
+            "amountMax": 1
+          }
+        ]
+      },
+      "tools": {
+        "tool": [
+          {
+            "key": "hand",
+            "multiplier": 1
+          },
+          {
+            "key": "hatchet",
+            "multiplier": 2
+          },
+          {
+            "key": "stone_axe",
+            "multiplier": 4
+          },
+          {
+            "key": "sulfur_axe",
+            "multiplier": 5
+          }
+        ]
+      }
+    },
+    "orange_tree": {
+      "key": "orange_tree",
+      "id": 6,
+      "experience": 50,
+      "respawnDelayMs": 60000,
+      "types": {
+        "type": [
+          {
+            "id": 0,
+            "life": 80,
+            "radius": 38,
+            "layer": "low",
+            "collision": true,
+            "unitsMin": 0,
+            "unitsMax": 20
+          },
+          {
+            "id": 1,
+            "life": 100,
+            "radius": 37,
+            "layer": "low",
+            "collision": true,
+            "unitsMin": 0,
+            "unitsMax": 20
+          },
+          {
+            "id": 2,
+            "life": 120,
+            "radius": 45,
+            "layer": "low",
+            "collision": true,
+            "unitsMin": 0,
+            "unitsMax": 20
+          }
+        ]
+      },
+      "client": {
+        "render": "resource",
+        "particles": "orange",
+        "type": [
+          {
+            "id": 0,
+            "sprite": "day-orange-tree-leaf0",
+            "spriteTop": "day-orange0",
+            "spriteFull": "day-orange-tree0",
+            "particleCount": 5,
+            "particlesDistance": 68
+          },
+          {
+            "id": 1,
+            "sprite": "day-orange-tree-leaf1",
+            "spriteTop": "day-orange1",
+            "spriteFull": "day-orange-tree1",
+            "particleCount": 5,
+            "particlesDistance": 70
+          },
+          {
+            "id": 2,
+            "sprite": "day-orange-tree-leaf2",
+            "spriteTop": "day-orange2",
+            "spriteFull": "day-orange-tree2",
+            "particleCount": 5,
+            "particlesDistance": 78
+          }
+        ]
+      },
+      "drops": {
+        "item": [
+          {
+            "key": "orange",
+            "chance": 1,
+            "amountMax": 1
+          },
+          {
+            "key": "orange_seed",
+            "chance": 0.05,
+            "amountMax": 1
+          }
+        ]
+      },
+      "tools": {
+        "tool": [
+          {
+            "key": "hand",
+            "multiplier": 1
+          }
+        ]
+      }
+    },
+    "tomato_tree": {
+      "key": "tomato_tree",
+      "id": 7,
+      "experience": 50,
+      "respawnDelayMs": 60000,
+      "types": {
+        "type": [
+          {
+            "id": 0,
+            "life": 80,
+            "radius": 38,
+            "layer": "low",
+            "collision": true,
+            "unitsMin": 0,
+            "unitsMax": 16
+          },
+          {
+            "id": 1,
+            "life": 100,
+            "radius": 37,
+            "layer": "low",
+            "collision": true,
+            "unitsMin": 0,
+            "unitsMax": 16
+          },
+          {
+            "id": 2,
+            "life": 120,
+            "radius": 45,
+            "layer": "low",
+            "collision": true,
+            "unitsMin": 0,
+            "unitsMax": 16
+          }
+        ]
+      },
+      "client": {
+        "render": "resource",
+        "particles": "tomato",
+        "type": [
+          {
+            "id": 0,
+            "sprite": "day-tomato-tree-leaf0",
+            "spriteTop": "day-tomato0",
+            "spriteFull": "day-tomato-tree0",
+            "particleCount": 5,
+            "particlesDistance": 68
+          },
+          {
+            "id": 1,
+            "sprite": "day-tomato-tree-leaf1",
+            "spriteTop": "day-tomato1",
+            "spriteFull": "day-tomato-tree1",
+            "particleCount": 5,
+            "particlesDistance": 70
+          },
+          {
+            "id": 2,
+            "sprite": "day-tomato-tree-leaf2",
+            "spriteTop": "day-tomato2",
+            "spriteFull": "day-tomato-tree2",
+            "particleCount": 5,
+            "particlesDistance": 78
+          }
+        ]
+      },
+      "drops": {
+        "item": [
+          {
+            "key": "tomato_seed",
+            "chance": 0.05,
+            "amountMax": 1
+          },
+          {
+            "key": "tomato",
+            "chance": 1,
+            "amountMax": 1
+          }
+        ]
+      },
+      "tools": {
+        "tool": [
+          {
+            "key": "hand",
+            "multiplier": 1
+          }
+        ]
+      }
+    },
+    "boar": {
+      "key": "boar",
+      "id": 8,
+      "experience": 40,
+      "respawnDelayMs": 60000,
+      "types": {
+        "type": [
+          {
+            "id": 0,
+            "life": 250,
+            "radius": 47,
+            "layer": "low",
+            "collision": true,
+            "unitsMin": 0,
+            "unitsMax": 18
+          }
+        ]
+      },
+      "client": {
+        "render": "resource",
+        "particles": "blood",
+        "type": [
+          {
+            "id": 0,
+            "sprite": "day-boar-dead",
+            "particleCount": 5,
+            "particlesDistance": 70
+          }
+        ]
+      },
+      "drops": {
+        "item": [
+          {
+            "key": "animal_fat",
+            "chance": 0.85,
+            "amountMax": 1
+          },
+          {
+            "key": "leather",
+            "chance": 1,
+            "amountMax": 1
+          },
+          {
+            "key": "raw_steak",
+            "chance": 0.25,
+            "amountMax": 1
+          }
+        ]
+      },
+      "tools": {
+        "tool": [
+          {
+            "key": "hatchet",
+            "multiplier": 1
+          },
+          {
+            "key": "stone_axe",
+            "multiplier": 3
+          },
+          {
+            "key": "sulfur_axe",
+            "multiplier": 4
+          }
+        ]
+      }
+    },
+    "deer": {
+      "key": "deer",
+      "id": 9,
+      "experience": 40,
+      "respawnDelayMs": 60000,
+      "types": {
+        "type": [
+          {
+            "id": 0,
+            "life": 200,
+            "radius": 53,
+            "layer": "low",
+            "collision": true,
+            "unitsMin": 0,
+            "unitsMax": 18
+          }
+        ]
+      },
+      "client": {
+        "render": "resource",
+        "particles": "blood",
+        "type": [
+          {
+            "id": 0,
+            "sprite": "day-deer-dead",
+            "particleCount": 5,
+            "particlesDistance": 73
+          }
+        ]
+      },
+      "drops": {
+        "item": [
+          {
+            "key": "animal_fat",
+            "chance": 1,
+            "amountMax": 1
+          },
+          {
+            "key": "animal_tendon",
+            "chance": 0.7,
+            "amountMax": 1
+          },
+          {
+            "key": "leather",
+            "chance": 0.85,
+            "amountMax": 1
+          },
+          {
+            "key": "raw_steak",
+            "chance": 0.28,
+            "amountMax": 1
+          }
+        ]
+      },
+      "tools": {
+        "tool": [
+          {
+            "key": "hatchet",
+            "multiplier": 1
+          },
+          {
+            "key": "stone_axe",
+            "multiplier": 3
+          },
+          {
+            "key": "sulfur_axe",
+            "multiplier": 4
+          }
+        ]
+      }
+    },
+    "mushroom1": {
+      "key": "mushroom1",
+      "id": 10,
+      "experience": 40,
+      "respawnDelayMs": 60000,
+      "types": {
+        "type": [
+          {
+            "id": 0,
+            "life": 1,
+            "radius": 32,
+            "layer": "low",
+            "collision": false,
+            "unitsMin": 0,
+            "unitsMax": 2
+          },
+          {
+            "id": 1,
+            "life": 1,
+            "radius": 32,
+            "layer": "low",
+            "collision": false,
+            "unitsMin": 0,
+            "unitsMax": 2
+          },
+          {
+            "id": 2,
+            "life": 1,
+            "radius": 32,
+            "layer": "low",
+            "collision": false,
+            "unitsMin": 0,
+            "unitsMax": 2
+          },
+          {
+            "id": 3,
+            "life": 1,
+            "radius": 32,
+            "layer": "low",
+            "collision": false,
+            "unitsMin": 0,
+            "unitsMax": 2
+          }
+        ]
+      },
+      "client": {
+        "render": "resource",
+        "particles": "mushroom1",
+        "type": [
+          {
+            "id": 0,
+            "sprite": "day-mushroom1",
+            "particleCount": 2,
+            "particlesDistance": 18
+          },
+          {
+            "id": 1,
+            "sprite": "day-mushroom2",
+            "particleCount": 2,
+            "particlesDistance": 18
+          },
+          {
+            "id": 2,
+            "sprite": "day-mushroom3",
+            "particleCount": 2,
+            "particlesDistance": 18
+          },
+          {
+            "id": 3,
+            "sprite": "day-mushroom4",
+            "particleCount": 2,
+            "particlesDistance": 18
+          }
+        ]
+      },
+      "drops": {
+        "item": [
+          {
+            "key": "mushroom1",
+            "chance": 1,
+            "amountMax": 1
+          }
+        ]
+      },
+      "tools": {
+        "tool": [
+          {
+            "key": "hand",
+            "multiplier": 1
+          }
+        ]
+      }
+    },
+    "mushroom2": {
+      "key": "mushroom2",
+      "id": 11,
+      "experience": 40,
+      "respawnDelayMs": 60000,
+      "types": {
+        "type": [
+          {
+            "id": 0,
+            "life": 1,
+            "radius": 32,
+            "layer": "low",
+            "collision": false,
+            "unitsMin": 0,
+            "unitsMax": 6
+          },
+          {
+            "id": 1,
+            "life": 1,
+            "radius": 32,
+            "layer": "low",
+            "collision": false,
+            "unitsMin": 0,
+            "unitsMax": 6
+          },
+          {
+            "id": 2,
+            "life": 1,
+            "radius": 32,
+            "layer": "low",
+            "collision": false,
+            "unitsMin": 0,
+            "unitsMax": 6
+          },
+          {
+            "id": 3,
+            "life": 1,
+            "radius": 32,
+            "layer": "low",
+            "collision": false,
+            "unitsMin": 0,
+            "unitsMax": 6
+          }
+        ]
+      },
+      "client": {
+        "render": "resource",
+        "particles": "mushroom2",
+        "type": [
+          {
+            "id": 0,
+            "sprite": "day-mushroom5",
+            "particleCount": 2,
+            "particlesDistance": 18
+          },
+          {
+            "id": 1,
+            "sprite": "day-mushroom6",
+            "particleCount": 2,
+            "particlesDistance": 18
+          },
+          {
+            "id": 2,
+            "sprite": "day-mushroom7",
+            "particleCount": 2,
+            "particlesDistance": 18
+          },
+          {
+            "id": 3,
+            "sprite": "day-mushroom8",
+            "particleCount": 2,
+            "particlesDistance": 18
+          }
+        ]
+      },
+      "drops": {
+        "item": [
+          {
+            "key": "mushroom2",
+            "chance": 1,
+            "amountMax": 1
+          }
+        ]
+      },
+      "tools": {
+        "tool": [
+          {
+            "key": "hand",
+            "multiplier": 1
+          }
+        ]
+      }
+    },
+    "mushroom3": {
+      "key": "mushroom3",
+      "id": 12,
+      "experience": 40,
+      "respawnDelayMs": 60000,
+      "types": {
+        "type": [
+          {
+            "id": 0,
+            "life": 1,
+            "radius": 32,
+            "layer": "low",
+            "collision": false,
+            "unitsMin": 0,
+            "unitsMax": 6
+          },
+          {
+            "id": 1,
+            "life": 1,
+            "radius": 32,
+            "layer": "low",
+            "collision": false,
+            "unitsMin": 0,
+            "unitsMax": 6
+          },
+          {
+            "id": 2,
+            "life": 1,
+            "radius": 32,
+            "layer": "low",
+            "collision": false,
+            "unitsMin": 0,
+            "unitsMax": 6
+          },
+          {
+            "id": 3,
+            "life": 1,
+            "radius": 32,
+            "layer": "low",
+            "collision": false,
+            "unitsMin": 0,
+            "unitsMax": 6
+          }
+        ]
+      },
+      "client": {
+        "render": "resource",
+        "particles": "mushroom3",
+        "type": [
+          {
+            "id": 0,
+            "sprite": "day-mushroom9",
+            "particleCount": 2,
+            "particlesDistance": 18
+          },
+          {
+            "id": 1,
+            "sprite": "day-mushroom10",
+            "particleCount": 2,
+            "particlesDistance": 18
+          },
+          {
+            "id": 2,
+            "sprite": "day-mushroom11",
+            "particleCount": 2,
+            "particlesDistance": 18
+          },
+          {
+            "id": 3,
+            "sprite": "day-mushroom12",
+            "particleCount": 2,
+            "particlesDistance": 18
+          }
+        ]
+      },
+      "drops": {
+        "item": [
+          {
+            "key": "mushroom3",
+            "chance": 1,
+            "amountMax": 1
+          }
+        ]
+      },
+      "tools": {
+        "tool": [
+          {
+            "key": "hand",
+            "multiplier": 1
+          }
+        ]
+      }
+    },
+    "rare_flower": {
+      "key": "rare_flower",
+      "id": 13,
+      "experience": 1000,
+      "respawnDelayMs": 60000,
+      "types": {
+        "type": [
+          {
+            "id": 0,
+            "life": 1,
+            "radius": 32,
+            "layer": "low",
+            "collision": false,
+            "unitsMin": 0,
+            "unitsMax": 1
+          }
+        ]
+      },
+      "client": {
+        "render": "resource",
+        "type": [
+          {
+            "id": 0,
+            "sprite": "day-antidote-tree",
+            "particleCount": 2,
+            "particlesDistance": 18
+          }
+        ]
+      },
+      "drops": {
+        "item": [
+          {
+            "key": "rare_flower",
+            "chance": 1,
+            "amountMax": 1
+          }
+        ]
+      },
+      "tools": {
+        "tool": [
+          {
+            "key": "hand",
+            "multiplier": 1
+          }
+        ]
+      }
+    }
+  }
+}

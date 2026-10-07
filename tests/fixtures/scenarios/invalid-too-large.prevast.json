@@ -1,0 +1,26 @@
+{
+  "format": "prevast-scenario",
+  "schemaVersion": 1,
+  "id": "prj-corpus",
+  "title": "Corpus",
+  "revision": 1,
+  "nextId": 20,
+  "requiredFeatures": [
+    "world.v1"
+  ],
+  "world": {
+    "tilesX": 20,
+    "tilesY": 656,
+    "seed": 7,
+    "time": "day",
+    "population": {
+      "resources": false,
+      "structures": false,
+      "agents": false
+    }
+  },
+  "entities": [],
+  "groups": [],
+  "regions": [],
+  "templates": []
+}

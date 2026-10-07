@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    ACHIEVEMENTS: unlocked once per account, forever (ProgressSystem).
+
+    id=           stored in the account database. NEVER change or reuse one;
+                  retire an achievement with retired="true" instead.
+    grade=        1..3; points= 0..100 (the Achievements tab adds them up).
+    secret=       name and description stay hidden ("???") until unlocked;
+                  the client content table does not even carry them.
+    announce=     tell the whole server on unlock (default: grade 3 only).
+
+    <requires stat= atLeast=/>  every one must hold (up to 4). Without any,
+                  the achievement is granted only by a quest outcome
+                  (<achievement key=.../> in data/quests), or !achievement.
+    <reward caps=/> <reward item= count=/>  paid once to the character that
+                  unlocks it. Items that do not fit are dropped at their feet.
+-->
+<achievements>
+    <achievement id="1" key="ghoul_hunter" name="Ghoul Hunter" description="Kill 10 ghouls." grade="1" points="5">
+        <requires stat="kills_ghoul" atLeast="10"/>
+    </achievement>
+    <achievement id="2" key="ghoul_slayer" name="Ghoul Slayer" description="Kill 500 ghouls." grade="2" points="15">
+        <requires stat="kills_ghoul" atLeast="500"/>
+        <reward item="medkit" count="1"/>
+    </achievement>
+    <achievement id="3" key="scrap_collector" name="Scrap Collector" description="Destroy 25 robots." grade="2" points="10">
+        <requires stat="kills_bot" atLeast="25"/>
+    </achievement>
+    <achievement id="4" key="craftsman" name="Craftsman" description="Craft 100 items." grade="1" points="5">
+        <requires stat="crafted" atLeast="100"/>
+    </achievement>
+    <achievement id="5" key="lumberjack" name="Lumberjack" description="Gather 1000 resources." grade="1" points="5">
+        <requires stat="gathered" atLeast="1000"/>
+    </achievement>
+    <achievement id="6" key="builder" name="Builder" description="Build 200 things." grade="1" points="5">
+        <requires stat="built" atLeast="200"/>
+    </achievement>
+    <achievement id="7" key="wrecker" name="Wrecker" description="Wreck 50 buildings that are not yours or your clan's." grade="2" points="10">
+        <requires stat="wrecked" atLeast="50"/>
+    </achievement>
+    <achievement id="8" key="helping_hand" name="Helping Hand" description="Complete 5 quests." grade="1" points="5">
+        <requires stat="quests_completed" atLeast="5"/>
+        <reward caps="200"/>
+    </achievement>
+    <achievement id="9" key="bounty_hunter" name="Bounty Hunter" description="Bring down 10 outlaws." grade="2" points="10">
+        <requires stat="bounties" atLeast="10"/>
+    </achievement>
+    <achievement id="10" key="veteran" name="Veteran" description="Stay alive for an hour in one life." grade="2" points="15">
+        <requires stat="longest_life" atLeast="60"/>
+    </achievement>
+    <achievement id="11" key="survivor" name="Survivor" description="Survive 10 hours in total." grade="3" points="30">
+        <requires stat="minutes_survived" atLeast="600"/>
+    </achievement>
+    <!-- Granted by the ghouls quest (data/quests/ghouls.xml). -->
+    <achievement id="12" key="road_warden" name="Road Warden" description="Clear the road for Rook." grade="1" points="5" secret="true">
+        <reward caps="50"/>
+    </achievement>
+</achievements>

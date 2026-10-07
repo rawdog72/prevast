@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<agent key="pumpkin_ghoul" family="ghoul" sprite="5">
+  <body radius="38" collision="true" separation="true"/>
+  <vitals health="160" experience="100" lifetimeMs="0"/>
+  <daylight damage="5" intervalMs="1000"/>
+  <movement speed="60"/>
+  <brain type="aggressive" vision="700" loseTarget="1000" leash="0" chase="true" roamRadius="1500" roamPauseMs="0" repelBreakMs="60000">
+    <target type="player" priority="100"/>
+    <target type="agent" priority="60"/>
+    <target type="object" priority="30"/>
+  </brain>
+  <abilities>
+    <ability type="melee" cooldownMs="700" impactMs="550" range="50" radius="34" staminaUsage="3" knockback="2">
+      <damage amount="20" amountMax="30"/>
+    </ability>
+  </abilities>
+  <onDeath>
+    <drops>
+      <item key="pumpkin" amount="1"/>
+    </drops>
+  </onDeath>
+  <client render="ghoul" breath="0.05" armMove="6" head="day-ghoul5" hurt="ghoul5-hurt" death="day-ghoul5-death" light="0" hitAnimMs="550">
+    <leftArm sprite="day-ghoul5-left-arm" angle="0" x="28" y="-50"/>
+    <rightArm sprite="day-ghoul5-right-arm" angle="0" x="28" y="50"/>
+  </client>
+</agent>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<quest key="bounty" name="An Outlaw's Contract" category="side"
+       description="Vex has offered a contract on an outlaw.">
+  <start>
+    <talk npc="smuggler" keyword="contract" text="Take down one outlaw with karma 4 or 5, then tell me about the {contract}. The reward is 500 caps."/>
+  </start>
+  <stage key="hunt" journal="Defeat an outlaw with karma 4 or 5, then report to Vex.">
+    <objective key="outlaw" type="bounty" minVictimKarma="4" text="Defeat an eligible outlaw"/>
+    <objective key="report" type="talk" npc="smuggler" keyword="contract" after="outlaw"
+               text="Report to Vex" reply="Contract settled. Here are 500 caps."/>
+    <outcome when="all" next="end:settled"><reward caps="500"/></outcome>
+  </stage>
+  <ending key="settled" journal="Vex settled the contract and paid you 500 caps."/>
+  <dialogue npc="smuggler">
+    <reply keyword="contract" stage="hunt" text="The contract is still open."/>
+    <reply keyword="contract" state="completed" text="We are settled. Browse my {trade} stock."/>
+  </dialogue>
+</quest>

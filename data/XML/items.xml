@@ -1,0 +1,2714 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<items>
+	<item clientItemId="1" key="wood" name="Wood">
+		<properties stack="255" lootId="2" score="10"/>
+		<client icon="inv-wood" description="Chop it from trees or pick it up off the ground.">
+			<loot id="0" sprite="day-ground-wood0" scale="0.85" angle="0" amount="1"/>
+			<loot id="1" sprite="day-ground-wood1" scale="0.85" angle="0" amount="2"/>
+			<loot id="2" sprite="day-ground-wood2" scale="0.85" angle="0" amount="3"/>
+		</client>
+	</item>
+	<item clientItemId="2" key="stone" name="Stone">
+		<properties stack="255" lootId="5" score="14"/>
+		<skill type="mineral" />
+		<crafting>
+			<extractor timeMs="80000" outputMin="50" outputMax="250" />
+		</crafting>
+		<client icon="inv-stone" description="Mine it from rocks or pick it up off the ground.">
+			<loot id="3" sprite="day-ground-stone0" scale="1.2" angle="0" amount="1"/>
+			<loot id="4" sprite="day-ground-stone1" scale="1.2" angle="0" amount="2"/>
+			<loot id="5" sprite="day-ground-stone2" scale="1.2" angle="0" amount="3"/>
+		</client>
+	</item>
+	<item clientItemId="3" key="iron" name="Iron">
+		<properties stack="255" lootId="6" score="28"/>
+		<skill type="mineral" />
+		<crafting>
+			<extractor timeMs="120000" outputMin="4" outputMax="12" />
+		</crafting>
+		<client icon="inv-steel" description="Smelt it in a firepit or a smelter.">
+			<loot id="6" sprite="day-ground-steel" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="4" key="animal_fat" name="Animal Fat">
+		<properties stack="255" lootId="7" score="32"/>
+		<client icon="inv-animal-fat" description="Goes into bullets and clothing.">
+			<loot id="7" sprite="day-ground-animal-fat" scale="1" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="5" key="animal_tendon" name="Animal Tendon">
+		<properties stack="255" lootId="8" score="100"/>
+		<client icon="inv-animal-tendon" description="Twist it into string.">
+			<loot id="8" sprite="day-ground-animal-tendon" scale="1" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="6" key="string" name="String">
+		<properties stack="255" lootId="9" score="0"/>
+		<skill type="survival" />
+		<crafting>
+			<recipe>
+				<ingredient itemKey="animal_tendon" amount="2" />
+			</recipe>
+			<stations>
+				<station key="workbench" timeMs="20000" />
+			</stations>
+		</crafting>
+		<client icon="inv-string" description="Goes into a lot of crafting recipes.">
+			<loot id="9" sprite="day-ground-string" scale="0.7" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="7" key="leather" name="Leather">
+		<properties stack="255" lootId="10" score="32"/>
+		<client icon="inv-leather-boar" description="Sew it into clothing.">
+			<loot id="10" sprite="day-ground-leather-boar" scale="0.9" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="8" key="shaped_metal" name="Shaped Metal">
+		<properties stack="255" lootId="11" score="0"/>
+		<skill type="mineral" />
+		<crafting>
+			<recipe>
+				<ingredient itemKey="iron" amount="2" />
+			</recipe>
+			<stations>
+				<station key="firepit" timeMs="30000" />
+				<station key="smelter" timeMs="3000" />
+			</stations>
+		</crafting>
+		<client icon="inv-shaped-metal" description="For crafting sturdier gear.">
+			<loot id="11" sprite="day-ground-shaped-metal" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="9" key="raw_steak" name="Raw Steak">
+		<properties stack="10" lootId="12" score="28"/>
+		<decay transformTo="rotten_steak" timeMs="160000"/>
+		<equipable key="raw_steak" equipTimeMs="500" />
+		<client icon="inv-raw-steak" description="Cook it first. Trust me.">
+			<loot id="12" sprite="day-ground-raw-steak" scale="0.9" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="10" key="cooked_steak" name="Cooked Steak">
+		<properties stack="10" lootId="13" score="0"/>
+		<decay transformTo="rotten_steak" timeMs="840000"/>
+		<equipable key="cooked_steak" equipTimeMs="500" />
+		<skill type="survival" />
+		<crafting>
+			<recipe>
+				<ingredient itemKey="raw_steak" amount="1" />
+			</recipe>
+			<stations>
+				<station key="campfire" timeMs="20000" />
+				<station key="firepit" timeMs="10000" />
+			</stations>
+		</crafting>
+		<client icon="inv-cooked-steak" description="Hot off the fire.">
+			<loot id="13" sprite="day-ground-cooked-steak" scale="0.9" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="11" key="rotten_steak" name="Rotten Steak">
+		<properties stack="10" lootId="14" score="20"/>
+		<equipable key="rotten_steak" equipTimeMs="500" />
+		<client icon="inv-rotten-steak" description="Long past its best. Leave it.">
+			<loot id="14" sprite="day-ground-rotten-steak" scale="0.9" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="12" key="orange" name="Orange">
+		<properties stack="20" lootId="15" score="24"/>
+		<decay transformTo="rotten_orange" timeMs="240000"/>
+		<equipable key="orange" equipTimeMs="500" />
+		<client icon="inv-orange" description="A quick snack.">
+			<loot id="15" sprite="day-ground-orange" scale="1" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="13" key="rotten_orange" name="Rotten Orange">
+		<properties stack="20" lootId="16" score="20"/>
+		<equipable key="rotten_orange" equipTimeMs="500" />
+		<skill type="plant" />
+		<crafting yield="8">
+			<recipe>
+				<ingredient itemKey="orange" amount="4" />
+			</recipe>
+			<stations>
+				<station key="compost" timeMs="40000" />
+			</stations>
+		</crafting>
+		<client icon="inv-rotten-orange" description="Gone bad. Eat at your own risk.">
+			<loot id="16" sprite="day-ground-rotten-orange" scale="1" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="14" key="orange_seed" name="Orange Seed">
+		<properties stack="40" lootId="17" score="0"/>
+		<equipable key="place_object" equipTimeMs="1000" />
+		<skill type="plant" />
+		<crafting>
+			<recipe>
+				<ingredient itemKey="orange" amount="4" />
+			</recipe>
+			<stations>
+				<station key="campfire" timeMs="20000" />
+				<station key="firepit" timeMs="15000" />
+			</stations>
+		</crafting>
+		<client icon="inv-orange-seed" description="Plant it to grow oranges.">
+			<loot id="17" sprite="day-ground-seed-orange" scale="0.9" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="15" key="hatchet" name="Hatchet">
+		<properties stack="1" lootId="18" score="0"/>
+		<equipable key="hatchet" equipTimeMs="1000"/>
+		<skill type="tool" />
+		<crafting>
+			<recipe>
+				<ingredient itemKey="wood" amount="10" />
+				<ingredient itemKey="stone" amount="2" />
+			</recipe>
+			<stations>
+				<station key="player" timeMs="5000" />
+				<station key="workbench" timeMs="10000" />
+			</stations>
+		</crafting>
+		<client icon="inv-hachet" description="Chops wood and breaks stone.">
+			<loot id="18" sprite="day-ground-hachet" scale="0.9" angle="0.5" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="16" key="stone_pickaxe" name="Stone Pickaxe">
+		<properties stack="1" lootId="19" score="0"/>
+		<equipable key="stone_pickaxe" equipTimeMs="1000"/>
+		<skill type="tool" />
+		<crafting>
+			<recipe>
+				<ingredient itemKey="wood" amount="100" />
+				<ingredient itemKey="stone" amount="30" />
+			</recipe>
+			<stations>
+				<station key="workbench" timeMs="30000" />
+			</stations>
+		</crafting>
+		<client icon="inv-stone-pickaxe" description="Breaks stone and digs iron.">
+			<loot id="19" sprite="day-ground-stone-pickaxe" scale="0.7" angle="0.3" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="17" key="metal_pickaxe" name="Metal Pickaxe">
+		<properties stack="1" lootId="20" score="0"/>
+		<equipable key="metal_pickaxe" equipTimeMs="1000"/>
+		<skill type="tool" requiredLevel="6" skillCost="1" />
+		<crafting>
+			<recipe>
+				<ingredient itemKey="shaped_metal" amount="6" />
+				<ingredient itemKey="stone" amount="150" />
+			</recipe>
+			<stations>
+				<station key="research_bench" timeMs="60000" />
+			</stations>
+		</crafting>
+		<client icon="inv-steel-pickaxe" description="Digs sulfur as well.">
+			<loot id="20" sprite="day-ground-steel-pickaxe" scale="0.7" angle="0.3" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="18" key="stone_axe" name="Metal Axe">
+		<properties stack="1" lootId="21" score="0"/>
+		<equipable key="stone_axe" equipTimeMs="1000"/>
+		<skill type="tool" requiredLevel="5" skillCost="1"/>
+		<crafting>
+			<recipe>
+				<ingredient itemKey="wood" amount="150" />
+				<ingredient itemKey="shaped_metal" amount="7" />
+			</recipe>
+			<stations>
+				<station key="research_bench" timeMs="80000" />
+			</stations>
+		</crafting>
+		<client icon="inv-stone-axe" description="Chops wood fast.">
+			<loot id="21" sprite="day-ground-stone-axe" scale="0.7" angle="0.5" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="19" key="workbench" name="Workbench">
+		<properties stack="255" lootId="22" score="0"/>
+		<equipable key="place_object" equipTimeMs="1000" />
+		<skill type="survival" />
+		<crafting>
+			<recipe>
+				<ingredient itemKey="wood" amount="40" />
+				<ingredient itemKey="stone" amount="20" />
+			</recipe>
+			<stations>
+				<station key="player" timeMs="15000" />
+				<station key="workbench" timeMs="15000" />
+			</stations>
+		</crafting>
+		<client icon="inv-workbench" description="Unlocks new crafting recipes.">
+			<loot id="22" sprite="day-ground-workbench" scale="0.7" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="20" key="wood_spear" name="Wood Spear">
+		<properties stack="1" lootId="23" score="0"/>
+		<equipable key="wood_spear" equipTimeMs="1000"/>
+		<skill type="weapon" />
+		<crafting>
+			<recipe>
+				<ingredient itemKey="wood" amount="70" />
+			</recipe>
+			<stations>
+				<station key="player" timeMs="15000" />
+				<station key="workbench" timeMs="20000" />
+			</stations>
+		</crafting>
+		<client icon="inv-wood-spear" description="Thrown, not kept. Go and fetch it.">
+			<loot id="23" sprite="day-ground-wood-spear" scale="0.6" angle="0.6" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="21" key="wood_bow" name="Wood Bow">
+		<properties stack="1" lootId="24" score="0"/>
+		<equipable key="wood_bow" equipTimeMs="1000"/>
+		<skill type="weapon" />
+		<crafting>
+			<recipe>
+				<ingredient itemKey="wood" amount="60" />
+				<ingredient itemKey="animal_tendon" amount="2" />
+			</recipe>
+			<stations>
+				<station key="player" timeMs="35000" />
+				<station key="workbench" timeMs="50000" />
+			</stations>
+		</crafting>
+		<client icon="inv-wood-bow" description="Quiet, slow and as old as the hills.">
+			<loot id="24" sprite="day-ground-wood-bow" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="22" key="pistol" name="9MM">
+		<properties stack="1" lootId="25" score="0"/>
+		<equipable key="pistol" equipTimeMs="1000"/>
+		<skill type="weapon" requiredLevel="7" skillCost="1"/>
+		<crafting>
+			<recipe>
+				<ingredient itemKey="junk" amount="6" />
+				<ingredient itemKey="shaped_metal" amount="9" />
+			</recipe>
+			<stations>
+				<station key="research_bench" timeMs="160000" />
+			</stations>
+		</crafting>
+		<client icon="inv-9mm" description="A small sidearm. Aim carefully.">
+			<loot id="25" sprite="day-ground-9mm" scale="1" angle="-0.1" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="23" key="desert_eagle" name="Hand Cannon">
+		<properties stack="1" lootId="26" score="0"/>
+		<equipable key="desert_eagle" equipTimeMs="1000"/>
+		<skill type="weapon" requiredLevel="9" skillCost="1" prerequisite="pistol"/>
+		<crafting>
+			<recipe>
+				<ingredient itemKey="alloys" amount="4" />
+				<ingredient itemKey="shaped_metal" amount="2" />
+			</recipe>
+			<stations>
+				<station key="research_bench" timeMs="180000" />
+			</stations>
+		</crafting>
+		<client icon="inv-desert-eagle" description="A heavy pistol that hits hard.">
+			<loot id="26" sprite="day-ground-desert-eagle" scale="1" angle="-0.1" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="24" key="shotgun" name="Shotgun">
+		<properties stack="1" lootId="27" score="0"/>
+		<equipable key="shotgun" equipTimeMs="1000"/>
+		<skill type="weapon" requiredLevel="11" skillCost="1"/>
+		<crafting>
+			<recipe>
+				<ingredient itemKey="shaped_metal" amount="6" />
+				<ingredient itemKey="alloys" amount="6" />
+			</recipe>
+			<stations>
+				<station key="research_bench" timeMs="200000" />
+			</stations>
+		</crafting>
+		<client icon="inv-shotgun" description="Brutal up close.">
+			<loot id="27" sprite="day-ground-shotgun" scale="0.7" angle="-0.5" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="25" key="ak47" name="Assault Rifle">
+		<properties stack="1" lootId="28" score="0"/>
+		<equipable key="ak47" equipTimeMs="1000"/>
+		<skill type="weapon" requiredLevel="12" skillCost="1" prerequisite="mp5"/>
+		<crafting>
+			<recipe>
+				<ingredient itemKey="shaped_metal" amount="8" />
+				<ingredient itemKey="alloys" amount="14" />
+			</recipe>
+			<stations>
+				<station key="research_bench" timeMs="180000" />
+			</stations>
+		</crafting>
+		<client icon="inv-ak47" description="Full auto with plenty of punch.">
+			<loot id="28" sprite="day-ground-ak47" scale="0.7" angle="-0.5" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="26" key="sniper" name="Sniper">
+		<properties stack="1" lootId="29" score="0"/>
+		<equipable key="sniper" equipTimeMs="1000"/>
+		<skill type="weapon" requiredLevel="13" skillCost="1"/>
+		<crafting>
+			<recipe>
+				<ingredient itemKey="shaped_metal" amount="8" />
+				<ingredient itemKey="alloys" amount="10" />
+			</recipe>
+			<stations>
+				<station key="research_bench" timeMs="180000" />
+			</stations>
+		</crafting>
+		<client icon="inv-sniper" description="For patient players who stay out of sight.">
+			<loot id="29" sprite="day-ground-sniper" scale="0.7" angle="-0.5" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="27" key="wood_wall" name="Wooden Wall">
+		<properties stack="255" lootId="30" score="0"/>
+		<equipable key="place_object" equipTimeMs="1000" />
+		<skill type="building" />
+		<crafting>
+			<recipe>
+				<ingredient itemKey="wood" amount="20" />
+			</recipe>
+			<stations>
+				<station key="workbench" timeMs="10000" />
+			</stations>
+		</crafting>
+		<client icon="inv-wood-wall" description="Keeps the wind and the ghouls out.">
+			<loot id="30" sprite="day-ground-wood-wall" scale="0.9" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="28" key="stone_wall" name="Stone Wall">
+		<properties stack="255" lootId="31" score="0"/>
+		<equipable key="place_object" equipTimeMs="1000" />
+		<skill type="building" requiredLevel="3" skillCost="1"/>
+		<crafting>
+			<recipe>
+				<ingredient itemKey="stone" amount="20" />
+			</recipe>
+			<stations>
+				<station key="workbench" timeMs="15000" />
+			</stations>
+		</crafting>
+		<client icon="inv-stone-wall" description="Tougher than wood.">
+			<loot id="31" sprite="day-ground-stone-wall" scale="0.9" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="29" key="steel_wall" name="Metal Wall">
+		<properties stack="255" lootId="32" score="0"/>
+		<equipable key="place_object" equipTimeMs="1000" />
+		<skill type="building" requiredLevel="6" skillCost="1" prerequisite="stone_wall"/>
+		<crafting>
+			<recipe>
+				<ingredient itemKey="shaped_metal" amount="3" />
+			</recipe>
+			<stations>
+				<station key="research_bench" timeMs="20000" />
+			</stations>
+		</crafting>
+		<client icon="inv-steel-wall" description="The strongest wall you can build.">
+			<loot id="32" sprite="day-ground-steel-wall" scale="0.9" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="30" key="wood_low_door" name="Wooden Low Door">
+		<properties stack="255" lootId="33" score="0"/>
+		<equipable key="place_object" equipTimeMs="1000" />
+		<skill type="building" />
+		<crafting>
+			<recipe>
+				<ingredient itemKey="wood" amount="40" />
+			</recipe>
+			<stations>
+				<station key="workbench" timeMs="15000" />
+			</stations>
+		</crafting>
+		<client icon="inv-wood-door" description="Waist-high: bullets go over it.">
+			<loot id="33" sprite="day-ground-wood-door" scale="0.9" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="31" key="stone_low_door" name="Stone Low Door">
+		<properties stack="255" lootId="34" score="0"/>
+		<equipable key="place_object" equipTimeMs="1000" />
+		<skill type="building" requiredLevel="3" skillCost="1"/>
+		<crafting>
+			<recipe>
+				<ingredient itemKey="stone" amount="40" />
+			</recipe>
+			<stations>
+				<station key="workbench" timeMs="15000" />
+			</stations>
+		</crafting>
+		<client icon="inv-stone-door" description="Waist-high: bullets go over it.">
+			<loot id="34" sprite="day-ground-stone-door" scale="0.9" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="32" key="steel_low_door" name="Metal Low Door">
+		<properties stack="255" lootId="35" score="0"/>
+		<equipable key="place_object" equipTimeMs="1000" />
+		<skill type="building" requiredLevel="6" skillCost="1" prerequisite="stone_low_door"/>
+		<crafting>
+			<recipe>
+				<ingredient itemKey="shaped_metal" amount="6" />
+			</recipe>
+			<stations>
+				<station key="research_bench" timeMs="30000" />
+			</stations>
+		</crafting>
+		<client icon="inv-steel-door" description="Waist-high and tough. Bullets go over it.">
+			<loot id="35" sprite="day-ground-steel-door" scale="0.9" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="33" key="campfire" name="Campfire">
+		<properties stack="255" lootId="36" score="0"/>
+		<equipable key="place_object" equipTimeMs="1000" />
+		<skill type="survival" />
+		<crafting>
+			<recipe>
+				<ingredient itemKey="wood" amount="30" />
+				<ingredient itemKey="stone" amount="5" />
+			</recipe>
+			<stations>
+				<station key="player" timeMs="8000" />
+				<station key="workbench" timeMs="15000" />
+			</stations>
+		</crafting>
+		<client icon="inv-campfire" description="Warms you up on cold nights.">
+			<loot id="36" sprite="day-ground-campfire" scale="0.7" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="34" key="9mm_bullet" name="Bullet">
+		<properties stack="255" lootId="37" score="0"/>
+		<skill type="weapon" requiredLevel="6" skillCost="1"/>
+		<crafting yield="30">
+			<recipe>
+				<ingredient itemKey="sulfur" amount="3" />
+				<ingredient itemKey="shaped_metal" amount="3" />
+				<ingredient itemKey="animal_fat" amount="3" />
+			</recipe>
+			<stations>
+				<station key="research_bench" timeMs="10000" />
+			</stations>
+		</crafting>
+		<client icon="inv-bullet-9mm" description="Ammo for the 9MM, Hand Cannon and SMG.">
+			<loot id="37" sprite="day-ground-bullet-9mm" scale="1" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="35" key="12g_pellet" name="Cartridge">
+		<properties stack="255" lootId="38" score="0"/>
+		<skill type="weapon" requiredLevel="10" skillCost="1"/>
+		<crafting yield="15">
+			<recipe>
+				<ingredient itemKey="alloys" amount="1" />
+				<ingredient itemKey="shaped_metal" amount="4" />
+				<ingredient itemKey="animal_fat" amount="4" />
+			</recipe>
+			<stations>
+				<station key="research_bench" timeMs="10000" />
+			</stations>
+		</crafting>
+		<client icon="inv-bullet-shotgun" description="Shotgun shells.">
+			<loot id="38" sprite="day-ground-bullet-shotgun" scale="1" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="36" key="762_round" name="Heavy Bullet">
+		<properties stack="255" lootId="39" score="0"/>
+		<skill type="weapon" requiredLevel="11" skillCost="1"/>
+		<crafting yield="30">
+			<recipe>
+				<ingredient itemKey="alloys" amount="1" />
+				<ingredient itemKey="shaped_metal" amount="4" />
+				<ingredient itemKey="animal_fat" amount="4" />
+			</recipe>
+			<stations>
+				<station key="research_bench" timeMs="10000" />
+			</stations>
+		</crafting>
+		<client icon="inv-bullet-sniper" description="Ammo for the Sniper and Assault Rifle.">
+			<loot id="39" sprite="day-ground-bullet-sniper" scale="1.1" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="37" key="medkit" name="Medkit">
+		<properties stack="2" lootId="40" score="0"/>
+		<equipable key="medkit" equipTimeMs="1000" />
+		<skill type="drug" requiredLevel="10" skillCost="1"/>
+		<crafting>
+			<recipe>
+				<ingredient itemKey="string" amount="2" />
+				<ingredient itemKey="bandage" amount="1" />
+				<ingredient itemKey="leather" amount="2" />
+				<ingredient itemKey="shaped_metal" amount="2" />
+			</recipe>
+			<stations>
+				<station key="research_bench" timeMs="80000" />
+			</stations>
+		</crafting>
+		<client icon="inv-medikit" description="Restores a lot of health.">
+			<loot id="40" sprite="day-ground-medikit" scale="0.9" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="38" key="bandage" name="Bandage">
+		<properties stack="5" lootId="41" score="0"/>
+		<equipable key="bandage" equipTimeMs="1000" />
+		<skill type="drug" />
+		<crafting>
+			<recipe>
+				<ingredient itemKey="string" amount="1" />
+				<ingredient itemKey="leather" amount="2" />
+			</recipe>
+			<stations>
+				<station key="weaving" timeMs="20000" />
+			</stations>
+		</crafting>
+		<client icon="inv-bandage" description="Patches up small wounds.">
+			<loot id="41" sprite="day-ground-bandage" scale="1" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="39" key="soda" name="Soda">
+		<properties stack="5" lootId="42" score="0"/>
+		<decay transformTo="can" timeMs="960000"/>
+		<equipable key="soda" equipTimeMs="1000" />
+		<skill type="survival" requiredLevel="5" skillCost="1"/>
+		<crafting>
+			<recipe>
+				<ingredient itemKey="can" amount="1" />
+				<ingredient itemKey="ghoul_blood" amount="1" />
+				<ingredient itemKey="chemical_component" amount="1" />
+			</recipe>
+			<stations>
+				<station key="campfire" timeMs="40000" />
+				<station key="firepit" timeMs="40000" />
+			</stations>
+		</crafting>
+		<client icon="inv-soda" description="A sugary energy boost.">
+			<loot id="42" sprite="day-ground-soda" scale="1.2" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="40" key="mp5" name="SMG">
+		<properties stack="1" lootId="43" score="0"/>
+		<equipable key="mp5" equipTimeMs="1000"/>
+		<skill type="weapon" requiredLevel="10" skillCost="1"/>
+		<crafting>
+			<recipe>
+				<ingredient itemKey="shaped_metal" amount="6" />
+				<ingredient itemKey="alloys" amount="6" />
+			</recipe>
+			<stations>
+				<station key="research_bench" timeMs="200000" />
+			</stations>
+		</crafting>
+		<client icon="inv-MP5" description="Fast-firing and reliable.">
+			<loot id="43" sprite="day-ground-MP5" scale="0.8" angle="-0.5" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="41" key="headscarf" name="Headscarf">
+		<properties stack="1" lootId="44" score="0"/>
+		<wearable key="headscarf" equipTimeMs="1000"/>
+		<skill type="clothe" />
+		<crafting>
+			<recipe>
+				<ingredient itemKey="string" amount="1" />
+				<ingredient itemKey="leather" amount="1" />
+			</recipe>
+			<stations>
+				<station key="weaving" timeMs="60000" />
+			</stations>
+		</crafting>
+		<client icon="inv-headscarf" description="Keeps your head warm.">
+			<loot id="44" sprite="day-ground-headscarf" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="42" key="chapka" name="Chapka">
+		<properties stack="1" lootId="45" score="0"/>
+		<wearable key="chapka" equipTimeMs="1000"/>
+		<skill type="clothe" requiredLevel="7" skillCost="1"/>
+		<crafting>
+			<recipe>
+				<ingredient itemKey="string" amount="6" />
+				<ingredient itemKey="leather" amount="8" />
+				<ingredient itemKey="headscarf" amount="1" />
+			</recipe>
+			<stations>
+				<station key="weaving" timeMs="120000" />
+			</stations>
+		</crafting>
+		<client icon="inv-chapka" description="A fur hat for the deep cold.">
+			<loot id="45" sprite="day-ground-chapka" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="43" key="winter_coat" name="Winter Coat">
+		<properties stack="1" lootId="46" score="0"/>
+		<wearable key="winter_coat" equipTimeMs="1000"/>
+		<skill type="clothe" requiredLevel="9" skillCost="1" prerequisite="chapka"/>
+		<crafting>
+			<recipe>
+				<ingredient itemKey="string" amount="15" />
+				<ingredient itemKey="leather" amount="20" />
+				<ingredient itemKey="chapka" amount="1" />
+			</recipe>
+			<stations>
+				<station key="weaving" timeMs="180000" />
+			</stations>
+		</crafting>
+		<client icon="inv-coat" description="A heavy coat for freezing weather.">
+			<loot id="46" sprite="day-ground-coat" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="44" key="gaz_mask" name="Radiation Mask">
+		<properties stack="1" lootId="47" score="0"/>
+		<wearable key="gaz_mask" equipTimeMs="1000"/>
+		<skill type="clothe" />
+		<crafting>
+			<recipe>
+				<ingredient itemKey="string" amount="1" />
+				<ingredient itemKey="leather" amount="2" />
+				<ingredient itemKey="shaped_metal" amount="1" />
+			</recipe>
+			<stations>
+				<station key="weaving" timeMs="60000" />
+			</stations>
+		</crafting>
+		<client icon="inv-gaz-mask" description="Filters out radiation.">
+			<loot id="47" sprite="day-ground-gaz-mask" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="45" key="gaz_protection" name="Min. Radiation Suit">
+		<properties stack="1" lootId="48" score="0"/>
+		<wearable key="gaz_protection" equipTimeMs="1000"/>
+		<skill type="clothe" requiredLevel="8" skillCost="1"/>
+		<crafting>
+			<recipe>
+				<ingredient itemKey="gaz_mask" amount="1" />
+				<ingredient itemKey="leather" amount="4" />
+				<ingredient itemKey="string" amount="4" />
+				<ingredient itemKey="shaped_metal" amount="2" />
+				<ingredient itemKey="alloys" amount="2" />
+			</recipe>
+			<stations>
+				<station key="weaving" timeMs="90000" />
+			</stations>
+		</crafting>
+		<client icon="inv-gaz-protection" description="Light protection against radiation.">
+			<loot id="48" sprite="day-ground-gaz-protection" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="46" key="radiation_suit" name="Radiation Suit">
+		<properties stack="1" lootId="49" score="0"/>
+		<wearable key="radiation_suit" equipTimeMs="1000"/>
+		<skill type="clothe" requiredLevel="10" skillCost="1" prerequisite="gaz_protection"/>
+		<crafting>
+			<recipe>
+				<ingredient itemKey="gaz_protection" amount="1" />
+				<ingredient itemKey="leather" amount="20" />
+				<ingredient itemKey="string" amount="8" />
+				<ingredient itemKey="shaped_metal" amount="4" />
+				<ingredient itemKey="alloys" amount="6" />
+			</recipe>
+			<stations>
+				<station key="weaving" timeMs="180000" />
+			</stations>
+		</crafting>
+		<client icon="inv-radiation-suit" description="Full protection against radiation.">
+			<loot id="49" sprite="day-ground-radiation-suit" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="47" key="wood_arrow" name="Wood Arrow">
+		<properties stack="255" lootId="50" score="0"/>
+		<skill type="weapon" />
+		<crafting yield="5">
+			<recipe>
+				<ingredient itemKey="wood" amount="40" />
+			</recipe>
+			<stations>
+				<station key="player" timeMs="15000" />
+				<station key="workbench" timeMs="10000" />
+			</stations>
+		</crafting>
+		<client icon="inv-wood-arrow" description="Ammo for the bow.">
+			<loot id="50" sprite="day-ground-wood-arrow" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="48" key="firepit" name="Firepit">
+		<properties stack="255" lootId="51" score="0"/>
+		<equipable key="place_object" equipTimeMs="1000" />
+		<skill type="survival" requiredLevel="3" skillCost="1"/>
+		<crafting>
+			<recipe>
+				<ingredient itemKey="wood" amount="120" />
+				<ingredient itemKey="stone" amount="20" />
+				<ingredient itemKey="iron" amount="4" />
+			</recipe>
+			<stations>
+				<station key="workbench" timeMs="20000" />
+			</stations>
+		</crafting>
+		<client icon="inv-campfire-bbq" description="Warms you and slowly smelts iron.">
+			<loot id="51" sprite="day-ground-campfire-bbq" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="49" key="smelter" name="Smelter">
+		<properties stack="255" lootId="52" score="0"/>
+		<equipable key="place_object" equipTimeMs="1000" />
+		<skill type="survival" requiredLevel="10" skillCost="1"/>
+		<crafting>
+			<recipe>
+				<ingredient itemKey="shaped_metal" amount="6" />
+				<ingredient itemKey="electronics" amount="1" />
+			</recipe>
+			<stations>
+				<station key="research_bench" timeMs="100000" />
+			</stations>
+		</crafting>
+		<client icon="inv-smelter" description="Smelts iron, uranium and alloys.">
+			<loot id="52" sprite="day-ground-smelter" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="50" key="wood_door" name="Wooden Door">
+		<properties stack="255" lootId="53" score="0"/>
+		<equipable key="place_object" equipTimeMs="1000" />
+		<skill type="building" />
+		<crafting>
+			<recipe>
+				<ingredient itemKey="wood" amount="60" />
+			</recipe>
+			<stations>
+				<station key="workbench" timeMs="20000" />
+			</stations>
+		</crafting>
+		<client icon="inv-wood-door1" description="A simple door. It won't hold forever.">
+			<loot id="53" sprite="day-ground-wood-door1" scale="0.9" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="51" key="stone_door" name="Stone Door">
+		<properties stack="255" lootId="54" score="0"/>
+		<equipable key="place_object" equipTimeMs="1000" />
+		<skill type="building" requiredLevel="3" skillCost="1"/>
+		<crafting>
+			<recipe>
+				<ingredient itemKey="stone" amount="60" />
+			</recipe>
+			<stations>
+				<station key="workbench" timeMs="20000" />
+			</stations>
+		</crafting>
+		<client icon="inv-stone-door1" description="A solid stone door.">
+			<loot id="54" sprite="day-ground-stone-door1" scale="0.9" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="52" key="steel_door" name="Metal Door">
+		<properties stack="255" lootId="55" score="0"/>
+		<equipable key="place_object" equipTimeMs="1000" />
+		<skill type="building" requiredLevel="6" skillCost="1" prerequisite="stone_door"/>
+		<crafting>
+			<recipe>
+				<ingredient itemKey="shaped_metal" amount="9" />
+			</recipe>
+			<stations>
+				<station key="research_bench" timeMs="40000" />
+			</stations>
+		</crafting>
+		<client icon="inv-steel-door1" description="The toughest door around.">
+			<loot id="55" sprite="day-ground-steel-door1" scale="0.9" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="53" key="sulfur" name="Sulfur">
+		<properties stack="255" lootId="56" score="32"/>
+		<skill type="mineral" />
+		<crafting>
+			<extractor timeMs="240000" outputMin="4" outputMax="12" />
+		</crafting>
+		<client icon="inv-sulfur" description="A yellow mineral used in explosives.">
+			<loot id="56" sprite="day-ground-sulfur" scale="1" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="54" key="shaped_uranium" name="Shaped Uranium">
+		<properties stack="255" lootId="57" score="0"/>
+		<crafting>
+			<recipe>
+				<ingredient itemKey="uranium" amount="1" />
+			</recipe>
+			<stations>
+				<station key="smelter" timeMs="20000" />
+			</stations>
+		</crafting>
+		<client icon="inv-shaped-uranium" description="Refined uranium. Handle with care.">
+			<loot id="57" sprite="day-ground-shaped-uranium" scale="1" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="55" key="research_bench" name="Research Bench">
+		<properties stack="255" lootId="58" score="0"/>
+		<equipable key="place_object" equipTimeMs="1000" />
+		<skill type="survival" requiredLevel="6" skillCost="1"/>
+		<crafting>
+			<recipe>
+				<ingredient itemKey="shaped_metal" amount="6" />
+				<ingredient itemKey="electronics" amount="1" />
+			</recipe>
+			<stations>
+				<station key="workbench" timeMs="50000" />
+			</stations>
+		</crafting>
+		<client icon="inv-workbench2" description="Unlocks advanced crafting recipes.">
+			<loot id="58" sprite="day-ground-workbench2" scale="1" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="56" key="uranium" name="Uranium">
+		<properties stack="255" lootId="59" score="45"/>
+		<skill type="mineral" />
+		<crafting>
+			<extractor timeMs="240000" outputMin="2" outputMax="6" />
+		</crafting>
+		<client icon="inv-uranium" description="Radioactive ore. Keep your distance.">
+			<loot id="59" sprite="day-ground-uranium" scale="1" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="57" key="weaving" name="Weaving Machine">
+		<properties stack="255" lootId="60" score="0"/>
+		<equipable key="place_object" equipTimeMs="1000" />
+		<skill type="survival" />
+		<crafting>
+			<recipe>
+				<ingredient itemKey="wood" amount="80" />
+				<ingredient itemKey="stone" amount="20" />
+				<ingredient itemKey="string" amount="2" />
+			</recipe>
+			<stations>
+				<station key="workbench" timeMs="60000" />
+			</stations>
+		</crafting>
+		<client icon="inv-weaving-machine" description="Sews clothing.">
+			<loot id="60" sprite="day-ground-weaving-machine" scale="1" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="58" key="gasoline" name="Gasoline">
+		<properties stack="255" lootId="61" score="0"/>
+		<skill type="survival" />
+		<crafting>
+			<recipe>
+				<ingredient itemKey="rotten_orange" amount="4" />
+				<ingredient itemKey="sulfur" amount="1" />
+			</recipe>
+			<stations>
+				<station key="research_bench" timeMs="20000" />
+			</stations>
+		</crafting>
+		<client icon="inv-gasoline" description="Fuel for the smelter.">
+			<loot id="61" sprite="day-ground-gasoline" scale="1" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="59" key="sulfur_pickaxe" name="Sulfur Pickaxe">
+		<properties stack="1" lootId="62" score="0"/>
+		<equipable key="sulfur_pickaxe" equipTimeMs="1000"/>
+		<skill type="tool" requiredLevel="9" skillCost="1" prerequisite="metal_pickaxe"/>
+		<crafting>
+			<recipe>
+				<ingredient itemKey="shaped_metal" amount="6" />
+				<ingredient itemKey="sulfur" amount="6" />
+				<ingredient itemKey="alloys" amount="2" />
+			</recipe>
+			<stations>
+				<station key="research_bench" timeMs="90000" />
+			</stations>
+		</crafting>
+		<client icon="inv-sulfur-pickaxe" description="Digs uranium as well.">
+			<loot id="62" sprite="day-ground-sulfur-pickaxe" scale="0.7" angle="0.3" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="60" key="wood_chest" name="Wood chest">
+		<properties stack="255" lootId="63" score="0"/>
+		<equipable key="place_object" equipTimeMs="1000" />
+		<skill type="building" requiredLevel="8" skillCost="1"/>
+		<crafting>
+			<recipe>
+				<ingredient itemKey="wood" amount="50" />
+				<ingredient itemKey="stone" amount="20" />
+			</recipe>
+			<stations>
+				<station key="workbench" timeMs="30000" />
+			</stations>
+		</crafting>
+		<client icon="inv-chest" description="Stores items, but not food.">
+			<loot id="63" sprite="day-ground-chest" scale="0.7" angle="0.3" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="61" key="fridge" name="Fridge">
+		<properties stack="255" lootId="64" score="0"/>
+		<equipable key="place_object" equipTimeMs="1000" />
+		<skill type="building" requiredLevel="9" skillCost="1"/>
+		<crafting>
+			<recipe>
+				<ingredient itemKey="shaped_metal" amount="5" />
+				<ingredient itemKey="energy_cells" amount="4" />
+			</recipe>
+			<stations>
+				<station key="research_bench" timeMs="90000" />
+			</stations>
+		</crafting>
+		<client icon="inv-fridge" description="Keeps food from rotting.">
+			<loot id="64" sprite="day-ground-fridge" scale="0.7" angle="0.3" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="62" key="wood_floor" name="Wood floor">
+		<properties stack="255" lootId="65" score="0"/>
+		<equipable key="place_object" equipTimeMs="1000" />
+		<skill type="building" />
+		<crafting yield="2">
+			<recipe>
+				<ingredient itemKey="wood" amount="15" />
+			</recipe>
+			<stations>
+				<station key="workbench" timeMs="15000" />
+			</stations>
+		</crafting>
+		<client icon="inv-wood-floor" description="Nobody can spawn on top of it.">
+			<loot id="65" sprite="day-ground-wood-floor" scale="0.9" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="63" key="hammer" name="Hammer">
+		<properties stack="1" lootId="66" score="0"/>
+		<equipable key="hammer" equipTimeMs="1000"/>
+		<skill type="tool" requiredLevel="7" skillCost="1"/>
+		<crafting>
+			<recipe>
+				<ingredient itemKey="shaped_metal" amount="10" />
+				<ingredient itemKey="wood" amount="100" />
+			</recipe>
+			<stations>
+				<station key="research_bench" timeMs="30000" />
+			</stations>
+		</crafting>
+		<client icon="inv-hammer" description="Knocks walls down fast.">
+			<loot id="66" sprite="day-ground-hammer" scale="0.7" angle="0.3" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="64" key="sleeping_bag" name="Sleeping Bag">
+		<properties stack="255" lootId="67" score="0"/>
+		<equipable key="place_object" equipTimeMs="1000" />
+		<skill type="survival" requiredLevel="9" skillCost="1"/>
+		<crafting>
+			<recipe>
+				<ingredient itemKey="string" amount="7" />
+				<ingredient itemKey="animal_fat" amount="7" />
+				<ingredient itemKey="leather" amount="7" />
+			</recipe>
+			<stations>
+				<station key="weaving" timeMs="20000" />
+			</stations>
+		</crafting>
+		<client icon="inv-sleeping-bag" description="Respawn at your base after you die.">
+			<loot id="67" sprite="day-ground-sleeping-bag" scale="0.7" angle="0.3" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="65" key="repair_hammer" name="Repair Hammer">
+		<properties stack="1" lootId="68" score="0"/>
+		<equipable key="repair_hammer" equipTimeMs="1000"/>
+		<skill type="tool" requiredLevel="5" skillCost="1"/>
+		<crafting>
+			<recipe>
+				<ingredient itemKey="shaped_metal" amount="2" />
+				<ingredient itemKey="wood" amount="120" />
+			</recipe>
+			<stations>
+				<station key="workbench" timeMs="30000" />
+			</stations>
+		</crafting>
+		<client icon="inv-repair-hammer" description="Fixes walls. Uses nails.">
+			<loot id="68" sprite="day-ground-repair-hammer" scale="0.7" angle="0.3" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="66" key="nails" name="Nails">
+		<properties stack="255" lootId="69" score="0"/>
+		<skill type="survival"/>
+		<crafting yield="85">
+			<recipe>
+				<ingredient itemKey="shaped_metal" amount="2" />
+			</recipe>
+			<stations>
+				<station key="workbench" timeMs="20000" />
+			</stations>
+		</crafting>
+		<client icon="inv-nails" description="The repair hammer runs on these.">
+			<loot id="69" sprite="day-ground-nails" scale="0.7" angle="0.3" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="67" key="woodlight_floor" name="Light Wood Floor">
+		<properties stack="255" lootId="70" score="0"/>
+		<equipable key="place_object" equipTimeMs="1000" />
+		<skill type="building" />
+		<crafting yield="2">
+			<recipe>
+				<ingredient itemKey="wood" amount="15" />
+			</recipe>
+			<stations>
+				<station key="workbench" timeMs="15000" />
+			</stations>
+		</crafting>
+		<client icon="inv-wood-floor-light" description="Nobody can spawn on top of it.">
+			<loot id="70" sprite="day-ground-wood-floor-light" scale="0.7" angle="0.3" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="68" key="wood_low_wall" name="Wooden Low Wall">
+		<properties stack="255" lootId="71" score="0"/>
+		<equipable key="place_object" equipTimeMs="1000" />
+		<skill type="building" />
+		<crafting>
+			<recipe>
+				<ingredient itemKey="wood" amount="10" />
+			</recipe>
+			<stations>
+				<station key="workbench" timeMs="10000" />
+			</stations>
+		</crafting>
+		<client icon="inv-wood-smallwall" description="Waist-high: bullets go over it.">
+			<loot id="71" sprite="day-ground-wood-smallwall" scale="0.9" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="69" key="stone_low_wall" name="Stone Low Wall">
+		<properties stack="255" lootId="72" score="0"/>
+		<equipable key="place_object" equipTimeMs="1000" />
+		<skill type="building" requiredLevel="3" skillCost="1"/>
+		<crafting>
+			<recipe>
+				<ingredient itemKey="stone" amount="10" />
+			</recipe>
+			<stations>
+				<station key="workbench" timeMs="15000" />
+			</stations>
+		</crafting>
+		<client icon="inv-stone-smallwall" description="Waist-high: bullets go over it.">
+			<loot id="72" sprite="day-ground-stone-smallwall" scale="0.9" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="70" key="steel_low_wall" name="Metal Low Wall">
+		<properties stack="255" lootId="73" score="0"/>
+		<equipable key="place_object" equipTimeMs="1000" />
+		<skill type="building" requiredLevel="6" skillCost="1" prerequisite="stone_low_wall"/>
+		<crafting>
+			<recipe>
+				<ingredient itemKey="shaped_metal" amount="2" />
+			</recipe>
+			<stations>
+				<station key="research_bench" timeMs="20000" />
+			</stations>
+		</crafting>
+		<client icon="inv-steel-smallwall" description="Waist-high: bullets go over it.">
+			<loot id="73" sprite="day-ground-steel-smallwall" scale="0.9" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="71" key="furniture" name="Furniture">
+		<client/>
+	</item>
+	<item clientItemId="72" key="tomato_soup" name="Tomato Soup">
+		<properties stack="5" lootId="74" score="0"/>
+		<decay transformTo="can" timeMs="840000"/>
+		<equipable key="tomato_soup" equipTimeMs="500" />
+		<skill type="survival" />
+		<crafting>
+			<recipe>
+				<ingredient itemKey="can" amount="1" />
+				<ingredient itemKey="tomato" amount="2" />
+			</recipe>
+			<stations>
+				<station key="campfire" timeMs="15000" />
+				<station key="firepit" timeMs="7000" />
+			</stations>
+		</crafting>
+		<client icon="inv-tomato-soup" description="Still sealed. Open it and eat.">
+			<loot id="74" sprite="day-ground-tomato-soup" scale="0.9" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="73" key="syringe" name="Syringe">
+		<properties stack="20" lootId="75" score="50"/>
+		<skill type="drug" />
+		<crafting>
+			<recipe>
+				<ingredient itemKey="junk" amount="1" />
+			</recipe>
+			<stations>
+				<station key="research_bench" timeMs="30000" />
+			</stations>
+		</crafting>
+		<client icon="inv-syringe" description="Used to make drugs.">
+			<loot id="75" sprite="day-ground-syringe" scale="0.9" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="74" key="chemical_component" name="Chemical Component">
+		<properties stack="20" lootId="76" score="50"/>
+		<client icon="inv-chemical-component" description="An ingredient for drugs.">
+			<loot id="76" sprite="day-ground-chemical-component" scale="0.9" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="75" key="radaway" name="Rad Flush">
+		<properties stack="5" lootId="77" score="0"/>
+		<equipable key="radaway" equipTimeMs="1000" />
+		<skill type="drug"/>
+		<crafting>
+			<recipe>
+				<ingredient itemKey="syringe" amount="1" />
+				<ingredient itemKey="chemical_component" amount="1" />
+				<ingredient itemKey="mushroom2" amount="1" />
+			</recipe>
+			<stations>
+				<station key="agitator" timeMs="45000" />
+			</stations>
+		</crafting>
+		<client icon="inv-radaway" description="Flushes out most of your radiation.">
+			<loot id="77" sprite="day-ground-radaway" scale="0.9" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="76" key="tomato_seed" name="Tomato Seed">
+		<properties stack="40" lootId="78" score="0"/>
+		<equipable key="place_object" equipTimeMs="1000" />
+		<skill type="plant" />
+		<crafting>
+			<recipe>
+				<ingredient itemKey="tomato" amount="4" />
+			</recipe>
+			<stations>
+				<station key="campfire" timeMs="30000" />
+				<station key="firepit" timeMs="20000" />
+			</stations>
+		</crafting>
+		<client icon="inv-tomato-seed" description="Plant it to grow tomatoes.">
+			<loot id="78" sprite="day-ground-seed-tomato" scale="0.9" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="77" key="tomato" name="Tomato">
+		<properties stack="20" lootId="79" score="24"/>
+		<decay transformTo="rotten_tomato" timeMs="240000"/>
+		<equipable key="tomato" equipTimeMs="500" />
+		<client icon="inv-tomato" description="Fresh and juicy.">
+			<loot id="79" sprite="day-ground-tomato" scale="0.9" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="78" key="rotten_tomato" name="Rotten Tomato">
+		<properties stack="20" lootId="80" score="20"/>
+		<equipable key="rotten_tomato" equipTimeMs="500" />
+		<client icon="inv-rotten-tomato" description="Gone bad. Eat at your own risk.">
+			<loot id="80" sprite="day-ground-rotten-tomato" scale="0.9" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="79" key="can" name="Can">
+		<properties stack="255" lootId="81" score="0"/>
+		<skill type="survival" />
+		<crafting>
+			<recipe>
+				<ingredient itemKey="shaped_metal" amount="1" />
+			</recipe>
+			<stations>
+				<station key="workbench" timeMs="20000" />
+			</stations>
+		</crafting>
+		<client icon="inv-can" description="Used to make canned food.">
+			<loot id="81" sprite="day-ground-can" scale="0.9" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="80" key="wood_crossbow" name="Wood Crossbow">
+		<properties stack="1" lootId="82" score="0"/>
+		<equipable key="wood_crossbow" equipTimeMs="1000"/>
+		<skill type="weapon" requiredLevel="6" skillCost="1" />
+		<crafting>
+			<recipe>
+				<ingredient itemKey="wood" amount="200" />
+				<ingredient itemKey="string" amount="2" />
+				<ingredient itemKey="shaped_metal" amount="1" />
+			</recipe>
+			<stations>
+				<station key="workbench" timeMs="50000" />
+			</stations>
+		</crafting>
+		<client icon="inv-wood-crossbow" description="Fires faster than a bow, reloads slower.">
+			<loot id="82" sprite="day-ground-wood-crossbow" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="81" key="wood_crossarrow" name="Crossbow Arrows">
+		<properties stack="255" lootId="83" score="0"/>
+		<skill type="weapon" />
+		<crafting yield="10">
+			<recipe>
+				<ingredient itemKey="wood" amount="40" />
+				<ingredient itemKey="shaped_metal" amount="1" />
+			</recipe>
+			<stations>
+				<station key="workbench" timeMs="30000" />
+			</stations>
+		</crafting>
+		<client icon="inv-wood-crossarrow" description="Ammo for the crossbow.">
+			<loot id="83" sprite="day-ground-wood-crossarrow" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="82" key="nail_gun" name="Nail Gun">
+		<properties stack="1" lootId="84" score="0"/>
+		<equipable key="nail_gun" equipTimeMs="1000"/>
+		<skill type="tool" requiredLevel="7" skillCost="1"/>
+		<crafting>
+			<recipe>
+				<ingredient itemKey="shaped_metal" amount="3" />
+				<ingredient itemKey="small_wire" amount="1" />
+				<ingredient itemKey="junk" amount="1" />
+				<ingredient itemKey="energy_cells" amount="4" />
+			</recipe>
+			<stations>
+				<station key="research_bench" timeMs="30000" />
+			</stations>
+		</crafting>
+		<client icon="inv-nail-gun" description="Repairs walls from range.">
+			<loot id="84" sprite="day-ground-nail-gun" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="83" key="sawed_off" name="Sawed Off">
+		<properties stack="1" lootId="85" score="0"/>
+		<equipable key="sawed_off" equipTimeMs="1000"/>
+		<skill type="weapon" requiredLevel="13" skillCost="1" prerequisite="shotgun"/>
+		<crafting>
+			<recipe>
+				<ingredient itemKey="shotgun" amount="1" />
+				<ingredient itemKey="shaped_metal" amount="6" />
+				<ingredient itemKey="alloys" amount="6" />
+			</recipe>
+			<stations>
+				<station key="research_bench" timeMs="200000" />
+			</stations>
+		</crafting>
+		<client icon="inv-sawed-off-shotgun" description="Shorter range, bigger hit.">
+			<loot id="85" sprite="day-ground-sawed-off-shotgun" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="84" key="stone_floor" name="Stone floor">
+		<properties stack="255" lootId="86" score="0"/>
+		<equipable key="place_object" equipTimeMs="1000" />
+		<skill type="building" requiredLevel="4" skillCost="1"/>
+		<crafting yield="2">
+			<recipe>
+				<ingredient itemKey="stone" amount="15" />
+			</recipe>
+			<stations>
+				<station key="workbench" timeMs="15000" />
+			</stations>
+		</crafting>
+		<client icon="inv-stone-floor" description="Nobody can spawn on top of it.">
+			<loot id="86" sprite="day-ground-stone-floor" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="85" key="tiling_floor" name="Tiling floor">
+		<properties stack="255" lootId="87" score="0"/>
+		<equipable key="place_object" equipTimeMs="1000" />
+		<skill type="building" requiredLevel="4" skillCost="1"/>
+		<crafting yield="2">
+			<recipe>
+				<ingredient itemKey="stone" amount="15" />
+			</recipe>
+			<stations>
+				<station key="workbench" timeMs="15000" />
+			</stations>
+		</crafting>
+		<client icon="inv-tiling-floor" description="Nobody can spawn on top of it.">
+			<loot id="87" sprite="day-ground-tiling-floor" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="86" key="road" name="Road">
+		<client/>
+	</item>
+	<item clientItemId="87" key="crisps" name="Crisps">
+		<properties stack="5" lootId="88"/>
+		<decay transformTo="rotten_crisps" timeMs="240000"/>
+		<equipable key="crisps" equipTimeMs="500" />
+		<client icon="inv-chips" description="A salty snack.">
+			<loot id="88" sprite="day-ground-chips" scale="0.9" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="88" key="rotten_crisps" name="Expired Crisps">
+		<properties stack="5" lootId="89" score="20"/>
+		<equipable key="rotten_crisps" equipTimeMs="500" />
+		<client icon="inv-rotten-chips" description="Gone bad. Eat at your own risk.">
+			<loot id="89" sprite="day-ground-rotten-chips" scale="0.9" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="89" key="electronics" name="Electronic Parts">
+		<properties stack="255" lootId="90" score="100"/>
+		<client icon="inv-electronic-part" description="Salvage it from TVs and computers.">
+			<loot id="90" sprite="day-ground-electronic-part" scale="1" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="90" key="junk" name="Junk">
+		<properties stack="255" lootId="91" score="40"/>
+		<client icon="inv-junk" description="Scavenge it in houses.">
+			<loot id="91" sprite="day-ground-junk" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="91" key="wire" name="Big Wire">
+		<properties stack="255" lootId="92" score="40"/>
+		<client icon="inv-wires" description="Salvage it from the big computers in the city's power areas.">
+			<loot id="92" sprite="day-ground-wires" scale="1" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="92" key="energy_cells" name="Energy Cells">
+		<properties stack="255" lootId="93" score="0"/>
+		<skill type="survival" requiredLevel="6" skillCost="1"/>
+		<crafting yield="30">
+				<recipe>
+					<ingredient itemKey="alloys" amount="1" />
+					<ingredient itemKey="shaped_uranium" amount="1" />
+				</recipe>
+				<stations>
+					<station key="tesla" timeMs="28000" />
+				</stations>
+		</crafting>
+		<client icon="inv-small-energy-cells" description="Powers energy weapons and machines.">
+			<loot id="93" sprite="day-ground-small-energy-cells" scale="1" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="93" key="laser_pistol" name="Laser Pistol">
+		<properties stack="1" lootId="94" score="0"/>
+		<equipable key="laser_pistol" equipTimeMs="1000"/>
+		<skill type="weapon" requiredLevel="14" skillCost="1"/>
+		<crafting>
+			<recipe>
+				<ingredient itemKey="shaped_uranium" amount="2" />
+				<ingredient itemKey="wire" amount="1" />
+				<ingredient itemKey="electronics" amount="2" />
+				<ingredient itemKey="alloys" amount="1" />
+				<ingredient itemKey="shaped_metal" amount="4" />
+			</recipe>
+			<stations>
+				<station key="tesla" timeMs="180000" />
+			</stations>
+		</crafting>
+		<client icon="inv-laser-pistol" description="Its shots travel faster than bullets.">
+			<loot id="94" sprite="day-ground-laser-pistol" scale="1" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="94" key="tesla" name="Tesla Bench">
+		<properties stack="255" lootId="95" score="0"/>
+		<equipable key="place_object" equipTimeMs="1000" />
+		<skill type="survival" requiredLevel="10" skillCost="1" prerequisite="research_bench"/>
+		<crafting>
+			<recipe>
+				<ingredient itemKey="shaped_uranium" amount="2" />
+				<ingredient itemKey="wire" amount="4" />
+				<ingredient itemKey="electronics" amount="3" />
+				<ingredient itemKey="alloys" amount="4" />
+				<ingredient itemKey="shaped_metal" amount="6" />
+			</recipe>
+			<stations>
+				<station key="research_bench" timeMs="120000" />
+			</stations>
+		</crafting>
+		<client icon="inv-workbench3" description="Unlocks the most powerful recipes.">
+			<loot id="95" sprite="day-ground-workbench3" scale="0.9" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="95" key="alloys" name="Alloys">
+		<properties stack="255" lootId="96" score="0"/>
+		<skill type="mineral" />
+		<crafting>
+				<recipe>
+					<ingredient itemKey="iron" amount="1" />
+					<ingredient itemKey="junk" amount="1" />
+					<ingredient itemKey="sulfur" amount="1" />
+				</recipe>
+				<stations>
+					<station key="smelter" timeMs="10000" />
+				</stations>
+		</crafting>
+		<client icon="inv-alloys" description="For crafting top-tier gear.">
+			<loot id="96" sprite="day-ground-alloys" scale="1" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="96" key="sulfur_axe" name="Sulfur Axe">
+		<properties stack="1" lootId="97" score="0"/>
+		<equipable key="sulfur_axe" equipTimeMs="1000"/>
+		<skill type="tool" requiredLevel="10" skillCost="1" prerequisite="stone_axe"/>
+		<crafting>
+			<recipe>
+				<ingredient itemKey="stone_axe" amount="1" />
+				<ingredient itemKey="shaped_metal" amount="10" />
+				<ingredient itemKey="alloys" amount="8" />
+				<ingredient itemKey="sulfur" amount="20" />
+			</recipe>
+			<stations>
+				<station key="research_bench" timeMs="200000" />
+			</stations>
+		</crafting>
+		<client icon="inv-sulfur-axe" description="Chops wood fast and looks good doing it.">
+			<loot id="97" sprite="day-ground-sulfur-axe" scale="0.7" angle="0.5" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="97" key="landmine" name="Landmine">
+		<properties stack="20" lootId="98" score="0"/>
+		<equipable key="place_object" equipTimeMs="1000" />
+		<skill type="weapon" requiredLevel="9" skillCost="1"/>
+		<crafting>
+			<recipe>
+				<ingredient itemKey="shaped_metal" amount="4" />
+				<ingredient itemKey="junk" amount="1" />
+				<ingredient itemKey="sulfur" amount="2" />
+				<ingredient itemKey="animal_fat" amount="2" />
+			</recipe>
+			<stations>
+				<station key="research_bench" timeMs="40000" />
+			</stations>
+		</crafting>
+		<client icon="inv-landmine" description="Hidden until someone steps on it.">
+			<loot id="98" sprite="day-ground-landmine" scale="0.7" angle="0.5" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="98" key="dynamite" name="Dynamite">
+		<properties stack="10" lootId="99" score="0"/>
+		<equipable key="place_object" equipTimeMs="1000" />
+		<skill type="weapon" requiredLevel="9" skillCost="1"/>
+		<crafting>
+			<recipe>
+				<ingredient itemKey="string" amount="1" />
+				<ingredient itemKey="junk" amount="1" />
+				<ingredient itemKey="sulfur" amount="2" />
+				<ingredient itemKey="animal_fat" amount="2" />
+			</recipe>
+			<stations>
+				<station key="research_bench" timeMs="40000" />
+			</stations>
+		</crafting>
+		<client icon="inv-dynamite" description="Light it and run.">
+			<loot id="99" sprite="day-ground-dynamite" scale="0.7" angle="0.5" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="99" key="c4" name="C4">
+		<properties stack="5" lootId="100" score="0"/>
+		<equipable key="place_object" equipTimeMs="1000" />
+		<skill type="weapon" requiredLevel="16" skillCost="1" prerequisite="dynamite"/>
+		<crafting>
+			<recipe>
+				<ingredient itemKey="dynamite" amount="2" />
+				<ingredient itemKey="small_wire" amount="1" />
+				<ingredient itemKey="alloys" amount="2" />
+				<ingredient itemKey="electronics" amount="1" />
+			</recipe>
+			<stations>
+				<station key="research_bench" timeMs="60000" />
+			</stations>
+		</crafting>
+		<client icon="inv-C4" description="Blows up when you press the trigger.">
+			<loot id="100" sprite="day-ground-C4" scale="0.7" angle="0.5" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="100" key="c4_trigger" name="C4 Trigger">
+		<properties stack="1" lootId="101" score="0"/>
+		<equipable key="c4_trigger" equipTimeMs="500" />
+		<skill type="weapon" requiredLevel="16" skillCost="1" prerequisite="c4"/>
+		<crafting>
+			<recipe>
+				<ingredient itemKey="shaped_metal" amount="5" />
+				<ingredient itemKey="electronics" amount="1" />
+				<ingredient itemKey="energy_cells" amount="8" />
+				<ingredient itemKey="small_wire" amount="1" />
+			</recipe>
+			<stations>
+				<station key="research_bench" timeMs="100000" />
+			</stations>
+		</crafting>
+		<client icon="inv-joystick" description="Sets off your C4.">
+			<loot id="101" sprite="day-ground-joystick" scale="0.7" angle="0.5" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="101" key="compost" name="Compost">
+		<properties stack="255" lootId="102" score="0"/>
+		<equipable key="place_object" equipTimeMs="1000" />
+		<skill type="survival" requiredLevel="8" skillCost="1"/>
+		<crafting>
+			<recipe>
+				<ingredient itemKey="electronics" amount="1" />
+				<ingredient itemKey="shaped_metal" amount="4" />
+			</recipe>
+			<stations>
+				<station key="research_bench" timeMs="100000" />
+			</stations>
+		</crafting>
+		<client icon="inv-composter" description="Speeds up rotting.">
+			<loot id="102" sprite="day-ground-composter" scale="0.7" angle="0.5" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="102" key="metal_helmet" name="Metal Helmet">
+		<properties stack="1" lootId="103" score="0"/>
+		<wearable key="metal_helmet" equipTimeMs="1000"/>
+		<skill type="clothe"/>
+		<crafting>
+			<recipe>
+				<ingredient itemKey="shaped_metal" amount="3" />
+				<ingredient itemKey="animal_tendon" amount="3" />
+				<ingredient itemKey="leather" amount="3" />
+				<ingredient itemKey="nails" amount="80" />
+			</recipe>
+			<stations>
+				<station key="workbench" timeMs="70000" />
+			</stations>
+		</crafting>
+		<client icon="inv-metal-helmet" description="Guards against melee hits.">
+			<loot id="103" sprite="day-ground-metal-helmet" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="103" key="welding_helmet" name="Welding Helmet">
+		<properties stack="1" lootId="104" score="0"/>
+		<wearable key="welding_helmet" equipTimeMs="1000"/>
+		<skill type="clothe" requiredLevel="7" skillCost="1"/>
+		<crafting>
+			<recipe>
+				<ingredient itemKey="metal_helmet" amount="1" />
+				<ingredient itemKey="shaped_metal" amount="10" />
+				<ingredient itemKey="alloys" amount="2" />
+				<ingredient itemKey="leather" amount="3" />
+				<ingredient itemKey="nails" amount="160" />
+			</recipe>
+			<stations>
+				<station key="research_bench" timeMs="140000" />
+			</stations>
+		</crafting>
+		<client icon="inv-welding-helmet" description="Guards against melee hits.">
+			<loot id="104" sprite="day-ground-welding-helmet" scale="0.7" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="104" key="gladiator_helmet" name="Gladiator Helmet">
+		<properties stack="1" lootId="105" score="0"/>
+		<wearable key="gladiator_helmet" equipTimeMs="1000"/>
+		<skill type="clothe" requiredLevel="17" skillCost="1"  prerequisite="welding_helmet"/>
+		<crafting>
+			<recipe>
+				<ingredient itemKey="welding_helmet" amount="1" />
+				<ingredient itemKey="shaped_metal" amount="12" />
+				<ingredient itemKey="alloys" amount="6" />
+				<ingredient itemKey="leather" amount="4" />
+				<ingredient itemKey="nails" amount="255" />
+			</recipe>
+			<stations>
+				<station key="research_bench" timeMs="300000" />
+			</stations>
+		</crafting>
+		<client icon="inv-gladiator-helmet" description="Heavy, proud and very shiny.">
+			<loot id="105" sprite="day-ground-gladiator-helmet" scale="0.7" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="105" key="leather_jacket" name="Leather Jacket">
+		<properties stack="1" lootId="106" score="0"/>
+		<wearable key="leather_jacket" equipTimeMs="1000"/>
+		<skill type="clothe"/>
+		<crafting>
+			<recipe>
+				<ingredient itemKey="string" amount="2" />
+				<ingredient itemKey="leather" amount="4" />
+			</recipe>
+			<stations>
+				<station key="weaving" timeMs="70000" />
+			</stations>
+		</crafting>
+		<client icon="inv-leather-jacket" description="Guards against gunfire.">
+			<loot id="106" sprite="day-ground-leather-jacket" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="106" key="kevlar_suit" name="Kevlar Suit">
+		<properties stack="1" lootId="107" score="0"/>
+		<wearable key="kevlar_suit" equipTimeMs="1000"/>
+		<skill type="clothe" requiredLevel="12" skillCost="1"/>
+		<crafting>
+			<recipe>
+				<ingredient itemKey="leather_jacket" amount="1" />
+				<ingredient itemKey="shaped_metal" amount="6" />
+				<ingredient itemKey="alloys" amount="2" />
+				<ingredient itemKey="string" amount="4" />
+				<ingredient itemKey="leather" amount="6" />
+			</recipe>
+			<stations>
+				<station key="weaving" timeMs="100000" />
+			</stations>
+		</crafting>
+		<client icon="inv-kevlar-suit" description="Guards against gunfire.">
+			<loot id="107" sprite="day-ground-kevlar-suit" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="107" key="swat_suit" name="SWAT Suit">
+		<properties stack="1" lootId="108" score="0"/>
+		<wearable key="swat_suit" equipTimeMs="1000"/>
+		<skill type="clothe" requiredLevel="18" skillCost="1" prerequisite="kevlar_suit"/>
+		<crafting>
+			<recipe>
+				<ingredient itemKey="kevlar_suit" amount="1" />
+				<ingredient itemKey="shaped_metal" amount="10" />
+				<ingredient itemKey="alloys" amount="4" />
+				<ingredient itemKey="string" amount="10" />
+				<ingredient itemKey="leather" amount="10" />
+			</recipe>
+			<stations>
+				<station key="weaving" timeMs="200000" />
+			</stations>
+		</crafting>
+		<client icon="inv-SWAT-suit" description="Guards against gunfire.">
+			<loot id="108" sprite="day-ground-SWAT-suit" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="108" key="protective_suit" name="Protective Suit">
+		<properties stack="1" lootId="109" score="0"/>
+		<wearable key="protective_suit" equipTimeMs="1000"/>
+		<skill type="clothe" requiredLevel="12" skillCost="1" prerequisite="featherweight"/>
+		<crafting>
+			<recipe>
+				<ingredient itemKey="shaped_metal" amount="6" />
+				<ingredient itemKey="alloys" amount="2" />
+				<ingredient itemKey="string" amount="6" />
+				<ingredient itemKey="leather" amount="6" />
+			</recipe>
+			<stations>
+				<station key="weaving" timeMs="200000" />
+			</stations>
+		</crafting>
+		<client icon="inv-protective-suit" description="Guards against explosions.">
+			<loot id="109" sprite="day-ground-protective-suit" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="109" key="power_armor" name="Power Armor">
+		<properties stack="1" lootId="110" score="0"/>
+		<wearable key="power_armor" equipTimeMs="1000"/>
+		<skill type="clothe" requiredLevel="10" skillCost="1" />
+		<crafting>
+			<recipe>
+				<ingredient itemKey="shaped_metal" amount="20" />
+				<ingredient itemKey="alloys" amount="2" />
+				<ingredient itemKey="shaped_uranium" amount="2" />
+				<ingredient itemKey="electronics" amount="1" />
+				<ingredient itemKey="wire" amount="2" />
+			</recipe>
+			<stations>
+				<station key="tesla" timeMs="150000" />
+			</stations>
+		</crafting>
+		<client icon="inv-tesla-0" description="Guards against energy weapons.">
+			<loot id="110" sprite="day-ground-tesla-0" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="110" key="tesla_armor" name="Tesla Armor">
+		<properties stack="1" lootId="111" score="0"/>
+		<wearable key="tesla_armor" equipTimeMs="1000"/>
+		<skill type="clothe" requiredLevel="18" skillCost="3" prerequisite="power_armor"/>
+		<crafting>
+			<recipe>
+				<ingredient itemKey="power_armor" amount="1" />
+				<ingredient itemKey="alloys" amount="10" />
+				<ingredient itemKey="shaped_uranium" amount="10" />
+				<ingredient itemKey="electronics" amount="5" />
+				<ingredient itemKey="wire" amount="5" />
+			</recipe>
+			<stations>
+				<station key="tesla" timeMs="300000" />
+			</stations>
+		</crafting>
+		<client icon="inv-tesla-armor" description="Guards against energy weapons.">
+			<loot id="111" sprite="day-ground-tesla-armor" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="111" key="wood_spike" name="Wooden Spike">
+		<properties stack="40" lootId="112" score="0"/>
+		<equipable key="place_object" equipTimeMs="1000" />
+		<skill type="building"/>
+		<crafting>
+			<recipe>
+				<ingredient itemKey="wood" amount="80" />
+			</recipe>
+			<stations>
+				<station key="workbench" timeMs="25000" />
+			</stations>
+		</crafting>
+		<client icon="inv-wood-spike" description="Hurts and slows whoever walks into it.">
+			<loot id="112" sprite="day-ground-wood-spike" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="112" key="laser_submachine" name="Laser Submachine">
+		<properties stack="1" lootId="113" score="0"/>
+		<equipable key="laser_submachine" equipTimeMs="1000"/>
+		<skill type="weapon" requiredLevel="14" skillCost="2" prerequisite="laser_pistol"/>
+		<crafting>
+			<recipe>
+				<ingredient itemKey="shaped_uranium" amount="6" />
+				<ingredient itemKey="wire" amount="2" />
+				<ingredient itemKey="electronics" amount="3" />
+				<ingredient itemKey="alloys" amount="10" />
+				<ingredient itemKey="shaped_metal" amount="6" />
+			</recipe>
+			<stations>
+				<station key="tesla" timeMs="180000" />
+			</stations>
+		</crafting>
+		<client icon="inv-laser-submachine" description="The best weapon there is.">
+			<loot id="113" sprite="day-ground-laser-submachine" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="113" key="granade" name="Grenade">
+		<properties stack="10" lootId="114" score="0"/>
+		<equipable key="granade" equipTimeMs="1000"/>
+		<skill type="weapon" requiredLevel="10" skillCost="1"/>
+		<crafting yield="2">
+			<recipe>
+				<ingredient itemKey="junk" amount="2" />
+				<ingredient itemKey="sulfur" amount="2" />
+				<ingredient itemKey="animal_fat" amount="2" />
+				<ingredient itemKey="shaped_metal" amount="2" />
+			</recipe>
+			<stations>
+				<station key="research_bench" timeMs="30000" />
+			</stations>
+		</crafting>
+		<client icon="inv-grenade" description="Throw it and it explodes.">
+			<loot id="114" sprite="day-ground-grenade" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="114" key="super_hammer" name="Super Hammer">
+		<properties stack="1" lootId="115" score="0"/>
+		<equipable key="super_hammer" equipTimeMs="1000"/>
+		<client icon="inv-super-hammer" description="Breaks even indestructible walls.">
+			<loot id="115" sprite="day-ground-super-hammer" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="115" key="ghoul_blood" name="Ghoul Blood">
+		<properties stack="255" lootId="116" score="100"/>
+		<client icon="inv-ghoul-blood" description="Dropped by fast ghouls.">
+			<loot id="116" sprite="day-ground-ghoul-blood" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="116" key="camouflage_gear" name="Camouflage Gear">
+		<properties stack="1" lootId="117" score="0"/>
+		<wearable key="camouflage_gear" equipTimeMs="1000"/>
+		<skill type="clothe" />
+		<crafting>
+			<recipe>
+				<ingredient itemKey="wood" amount="90" />
+				<ingredient itemKey="string" amount="2" />
+				<ingredient itemKey="leather" amount="2" />
+			</recipe>
+			<stations>
+				<station key="weaving" timeMs="40000" />
+			</stations>
+		</crafting>
+		<client icon="inv-camouflage-gear" description="Helps you hide among the trees.">
+			<loot id="117" sprite="day-ground-camouflage-gear" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="117" key="agitator" name="Agitator">
+		<properties stack="255" lootId="118" score="0"/>
+		<equipable key="place_object" equipTimeMs="1000" />
+		<skill type="survival" requiredLevel="8" skillCost="1"/>
+		<crafting>
+			<recipe>
+				<ingredient itemKey="shaped_metal" amount="6" />
+				<ingredient itemKey="electronics" amount="1" />
+			</recipe>
+			<stations>
+				<station key="research_bench" timeMs="100000" />
+			</stations>
+		</crafting>
+		<client icon="inv-agitator" description="Mixes drugs.">
+			<loot id="118" sprite="day-ground-agitator" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="118" key="ghoul_drug" name="Ghoul Drug">
+		<properties stack="5" lootId="119" score="0"/>
+		<equipable key="ghoul_drug" equipTimeMs="1000" />
+		<skill type="drug" requiredLevel="10" skillCost="1"/>
+		<crafting>
+			<recipe>
+				<ingredient itemKey="syringe" amount="1" />
+				<ingredient itemKey="chemical_component" amount="1" />
+				<ingredient itemKey="mushroom2" amount="1" />
+				<ingredient itemKey="mushroom3" amount="1" />
+				<ingredient itemKey="ghoul_blood" amount="1" />
+			</recipe>
+			<stations>
+				<station key="agitator" timeMs="30000" />
+			</stations>
+		</crafting>
+		<client icon="inv-ghoul-drug" description="Ghouls leave you alone.">
+			<loot id="119" sprite="day-ground-ghoul-drug" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="119" key="mushroom1" name="Amanita">
+		<properties stack="20" lootId="120" score="24"/>
+		<decay transformTo="rotten_mushroom1" timeMs="240000"/>
+		<equipable key="mushroom1" equipTimeMs="500" />
+		<client icon="inv-mushroom1" description="Poisonous. Do not eat.">
+			<loot id="120" sprite="day-ground-mushroom1" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="120" key="mushroom2" name="Boletus">
+		<properties stack="20" lootId="121" score="24"/>
+		<decay transformTo="rotten_mushroom2" timeMs="240000"/>
+		<equipable key="mushroom2" equipTimeMs="500" />
+		<client icon="inv-mushroom2" description="Safe to eat.">
+			<loot id="121" sprite="day-ground-mushroom2" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="121" key="mushroom3" name="Russula">
+		<properties stack="20" lootId="122" score="24"/>
+		<decay transformTo="rotten_mushroom3" timeMs="240000"/>
+		<equipable key="mushroom3" equipTimeMs="500" />
+		<client icon="inv-mushroom3" description="Safe to eat.">
+			<loot id="122" sprite="day-ground-mushroom3" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="122" key="rotten_mushroom1" name="Rotten Mushroom">
+		<properties stack="20" lootId="123" score="24"/>
+		<equipable key="rotten_mushroom1" equipTimeMs="500" />
+		<client icon="inv-rotten-mushroom1" description="Gone bad. Eat at your own risk.">
+			<loot id="123" sprite="day-ground-rotten-mushroom1" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="123" key="rotten_mushroom2" name="Rotten Mushroom">
+		<properties stack="20" lootId="124" score="24"/>
+		<equipable key="rotten_mushroom2" equipTimeMs="500" />
+		<client icon="inv-rotten-mushroom2" description="Gone bad. Eat at your own risk.">
+			<loot id="124" sprite="day-ground-rotten-mushroom2" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="124" key="rotten_mushroom3" name="Rotten Mushroom">
+		<properties stack="20" lootId="125" score="24"/>
+		<equipable key="rotten_mushroom3" equipTimeMs="500" />
+		<client icon="inv-rotten-mushroom3" description="Gone bad. Eat at your own risk.">
+			<loot id="125" sprite="day-ground-rotten-mushroom3" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="125" key="lapadone" name="Lapadone">
+		<properties stack="5" lootId="126" score="0"/>
+		<equipable key="lapadone" equipTimeMs="1000" />
+		<skill type="drug" requiredLevel="14" skillCost="1"/>
+		<crafting>
+			<recipe>
+				<ingredient itemKey="syringe" amount="1" />
+				<ingredient itemKey="chemical_component" amount="1" />
+				<ingredient itemKey="mushroom1" amount="1" />
+				<ingredient itemKey="ghoul_blood" amount="1" />
+			</recipe>
+			<stations>
+				<station key="agitator" timeMs="45000" />
+			</stations>
+		</crafting>
+		<client icon="inv-lapadoine" description="Makes you faster for a while.">
+			<loot id="126" sprite="day-ground-lapadoine" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="126" key="lapabot" name="LapaBot">
+		<properties stack="5" lootId="127" score="0"/>
+		<equipable key="place_object" equipTimeMs="1000" />
+		<skill type="survival" requiredLevel="8" skillCost="1"/>
+		<crafting>
+			<recipe>
+				<ingredient itemKey="shaped_metal" amount="6" />
+				<ingredient itemKey="electronics" amount="1" />
+				<ingredient itemKey="small_wire" amount="1" />
+				<ingredient itemKey="alloys" amount="1" />
+			</recipe>
+			<stations>
+				<station key="research_bench" timeMs="100000" />
+			</stations>
+		</crafting>
+		<client icon="inv-lapabot" description="A robot that repairs your base.">
+			<loot id="127" sprite="day-ground-lapabot" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="127" key="small_wire" name="Small Wire">
+		<properties stack="255" lootId="128" score="40"/>
+		<client icon="inv-small-wire" description="Salvage it from TVs and computers in abandoned houses.">
+			<loot id="128" sprite="day-ground-small-wire" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="128" key="pumpkin" name="Pumpkin">
+		<properties stack="20" lootId="129" score="24"/>
+		<decay transformTo="rotten_pumpkin" timeMs="240000"/>
+		<equipable key="pumpkin" equipTimeMs="500" />
+		<client icon="inv-pumpkin" description="Eat it, or use it to make a pumpkin ghoul.">
+			<loot id="129" sprite="day-ground-pumpkin" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="129" key="rotten_pumpkin" name="Rotten Pumpkin">
+		<properties stack="20" lootId="130" score="20"/>
+		<equipable key="rotten_pumpkin" equipTimeMs="500" />
+		<client icon="inv-rotten-pumpkin" description="Gone bad. Eat at your own risk.">
+			<loot id="130" sprite="day-ground-rotten-pumpkin" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="130" key="ghoul_seed" name="Ghoul Seed">
+		<properties stack="40" lootId="131" score="0"/>
+		<equipable key="place_object" equipTimeMs="1000" />
+		<skill type="plant" requiredLevel="99" skillCost="1"/>
+		<crafting>
+			<recipe>
+				<ingredient itemKey="pumpkin" amount="1" />
+				<ingredient itemKey="ghoul_blood" amount="1" />
+			</recipe>
+			<stations>
+				<station key="campfire" timeMs="30000" />
+				<station key="firepit" timeMs="20000" />
+			</stations>
+		</crafting>
+		<client icon="inv-ghoul5" description="Grows a pumpkin pet.">
+			<loot id="131" sprite="day-ground-ghoul5" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="131" key="extractor" name="Extractor">
+		<properties stack="255" lootId="132" score="0"/>
+		<equipable key="place_object" equipTimeMs="1000" />
+		<skill type="survival" requiredLevel="12" skillCost="1"/>
+		<crafting>
+			<recipe>
+				<ingredient itemKey="alloys" amount="2" />
+				<ingredient itemKey="shaped_metal" amount="10" />
+				<ingredient itemKey="shaped_uranium" amount="2" />
+				<ingredient itemKey="small_wire" amount="2" />
+				<ingredient itemKey="electronics" amount="1" />
+			</recipe>
+			<stations>
+				<station key="research_bench" timeMs="100000" />
+			</stations>
+		</crafting>
+		<client icon="inv-extractor" description="Pulls minerals out of the ground.">
+			<loot id="132" sprite="day-ground-extractor" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="132" key="antidote" name="Antidote">
+		<properties stack="5" lootId="133" score="0"/>
+		<equipable key="antidote" equipTimeMs="1000" />
+		<skill type="drug" requiredLevel="14" skillCost="1"/>
+		<crafting>
+			<recipe>
+				<ingredient itemKey="syringe" amount="1" />
+				<ingredient itemKey="chemical_component" amount="1" />
+				<ingredient itemKey="mushroom1" amount="1" />
+				<ingredient itemKey="rare_flower" amount="1" />
+			</recipe>
+			<stations>
+				<station key="agitator" timeMs="45000" />
+			</stations>
+		</crafting>
+		<client icon="inv-antidote" description="Cures drug withdrawal (the pink skin).">
+			<loot id="133" sprite="day-ground-antidote" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="133" key="rare_flower" name="Rare Flower">
+		<properties stack="5" lootId="134" score="400"/>
+		<client icon="inv-antidote-flower" description="An ingredient for the antidote.">
+			<loot id="134" sprite="day-ground-antidote-flower" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="134" key="tree_seed" name="Tree Seed">
+		<properties stack="100" lootId="135" score="0"/>
+		<equipable key="place_object" equipTimeMs="1000" />
+		<skill type="plant" />
+		<crafting yield="5">
+			<recipe>
+				<ingredient itemKey="acorn" amount="1" />
+			</recipe>
+			<stations>
+				<station key="campfire" timeMs="60000" />
+				<station key="firepit" timeMs="40000" />
+			</stations>
+		</crafting>
+		<client icon="inv-seed-tree" description="Plant it to grow a tree.">
+			<loot id="135" sprite="day-ground-seed-tree" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="135" key="acorn" name="Acorn">
+		<properties stack="20" lootId="136" score="24"/>
+		<decay transformTo="rotten_acorn" timeMs="240000"/>
+		<equipable key="acorn" equipTimeMs="500" />
+		<client icon="inv-acorn" description="Eat it, or plant it to grow a tree.">
+			<loot id="136" sprite="day-ground-acorn" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="136" key="rotten_acorn" name="Rotten Acorn">
+		<properties stack="20" lootId="137" score="20"/>
+		<equipable key="rotten_acorn" equipTimeMs="500" />
+		<client icon="inv-rotten-acorn" description="Gone bad. Eat at your own risk.">
+			<loot id="137" sprite="day-ground-rotten-acorn" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="137" key="laser_sniper" name="Laser Sniper">
+		<properties stack="1" lootId="138" score="0"/>
+		<equipable key="laser_sniper" equipTimeMs="1000"/>
+		<skill type="weapon" requiredLevel="14" skillCost="2" prerequisite="laser_pistol"/>
+		<crafting>
+			<recipe>
+				<ingredient itemKey="shaped_uranium" amount="5" />
+				<ingredient itemKey="wire" amount="3" />
+				<ingredient itemKey="electronics" amount="3" />
+				<ingredient itemKey="alloys" amount="8" />
+				<ingredient itemKey="shaped_metal" amount="6" />
+			</recipe>
+			<stations>
+				<station key="tesla" timeMs="180000" />
+			</stations>
+		</crafting>
+		<client icon="inv-laser-sniper" description="Faster shots than the regular sniper.">
+			<loot id="138" sprite="day-ground-laser-sniper" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="138" key="halbot" name="HAL Bot">
+		<properties stack="5" lootId="139" score="0"/>
+		<equipable key="place_object" equipTimeMs="1000" />
+		<skill type="survival" requiredLevel="8" skillCost="1"/>
+		<crafting>
+			<recipe>
+				<ingredient itemKey="shaped_metal" amount="6" />
+				<ingredient itemKey="electronics" amount="1" />
+				<ingredient itemKey="small_wire" amount="1" />
+				<ingredient itemKey="alloys" amount="1" />
+			</recipe>
+			<stations>
+				<station key="research_bench" timeMs="100000" />
+			</stations>
+		</crafting>
+		<client icon="inv-hal-bot" description="A robot that defends you.">
+			<loot id="139" sprite="day-ground-hal-bot" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="139" key="teslabot" name="Tesla Bot">
+		<properties stack="5" lootId="140" score="0"/>
+		<equipable key="place_object" equipTimeMs="1000" />
+		<skill type="survival" requiredLevel="16" skillCost="1"/>
+		<crafting>
+			<recipe>
+				<ingredient itemKey="shaped_uranium" amount="3" />
+				<ingredient itemKey="electronics" amount="1" />
+				<ingredient itemKey="small_wire" amount="3" />
+				<ingredient itemKey="wire" amount="3" />
+				<ingredient itemKey="alloys" amount="3" />
+			</recipe>
+			<stations>
+				<station key="tesla" timeMs="200000" />
+			</stations>
+		</crafting>
+		<client icon="inv-tesla-bot" description="A robot that defends you.">
+			<loot id="140" sprite="day-ground-tesla-bot" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="140" key="cable0" name="Cable">
+		<properties stack="255" lootId="141" score="0"/>
+		<equipable key="place_object" equipTimeMs="1000" />
+		<skill type="logic"/>
+		<crafting yield="3">
+			<recipe>
+				<ingredient itemKey="small_wire" amount="1" />
+			</recipe>
+			<stations>
+				<station key="welding_machine" timeMs="15000" />
+			</stations>
+		</crafting>
+		<client icon="inv-wire0" description="Wires up automatic mechanisms.">
+			<loot id="141" sprite="day-ground-wire0" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="141" key="cable1" name="Cable">
+		<properties stack="255" lootId="142" score="0"/>
+		<equipable key="place_object" equipTimeMs="1000" />
+		<skill type="logic"/>
+		<crafting yield="3">
+			<recipe>
+				<ingredient itemKey="small_wire" amount="1" />
+			</recipe>
+			<stations>
+				<station key="welding_machine" timeMs="15000" />
+			</stations>
+		</crafting>
+		<client icon="inv-wire1" description="Wires up automatic mechanisms.">
+			<loot id="142" sprite="day-ground-wire1" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="142" key="cable2" name="Cable">
+		<properties stack="255" lootId="143" score="0"/>
+		<equipable key="place_object" equipTimeMs="1000" />
+		<skill type="logic"/>
+		<crafting yield="3">
+			<recipe>
+				<ingredient itemKey="small_wire" amount="1" />
+			</recipe>
+			<stations>
+				<station key="welding_machine" timeMs="15000" />
+			</stations>
+		</crafting>
+		<client icon="inv-wire2" description="Wires up automatic mechanisms.">
+			<loot id="143" sprite="day-ground-wire2" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="143" key="cable3" name="Cable">
+		<properties stack="255" lootId="144" score="0"/>
+		<equipable key="place_object" equipTimeMs="1000" />
+		<skill type="logic"/>
+		<crafting yield="3">
+			<recipe>
+				<ingredient itemKey="small_wire" amount="1" />
+			</recipe>
+			<stations>
+				<station key="welding_machine" timeMs="15000" />
+			</stations>
+		</crafting>
+		<client icon="inv-wire3" description="Wires up automatic mechanisms.">
+			<loot id="144" sprite="day-ground-wire3" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="144" key="switch" name="Switch">
+		<properties stack="255" lootId="145" score="0"/>
+		<equipable key="place_object" equipTimeMs="1000" />
+		<skill type="logic"/>
+		<crafting yield="3">
+			<recipe>
+				<ingredient itemKey="small_wire" amount="1" />
+				<ingredient itemKey="shaped_metal" amount="1" />
+			</recipe>
+			<stations>
+				<station key="welding_machine" timeMs="15000" />
+			</stations>
+		</crafting>
+		<client icon="inv-switch" description="Turns connected mechanisms on and off.">
+			<loot id="145" sprite="day-ground-switch" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="145" key="gate_or" name="Gate OR">
+		<properties stack="255" lootId="146" score="0"/>
+		<equipable key="place_object" equipTimeMs="1000" />
+		<skill type="logic"/>
+		<crafting yield="3">
+			<recipe>
+				<ingredient itemKey="small_wire" amount="1" />
+				<ingredient itemKey="shaped_metal" amount="1" />
+			</recipe>
+			<stations>
+				<station key="welding_machine" timeMs="15000" />
+			</stations>
+		</crafting>
+		<client icon="inv-switch-or" description="Outputs on when any input is on.">
+			<loot id="146" sprite="day-ground-switch-or" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="146" key="gate_and" name="Gate AND">
+		<properties stack="255" lootId="147" score="0"/>
+		<equipable key="place_object" equipTimeMs="1000" />
+		<skill type="logic"/>
+		<crafting yield="3">
+			<recipe>
+				<ingredient itemKey="small_wire" amount="1" />
+				<ingredient itemKey="shaped_metal" amount="1" />
+			</recipe>
+			<stations>
+				<station key="welding_machine" timeMs="15000" />
+			</stations>
+		</crafting>
+		<client icon="inv-switch-and" description="Outputs on when every input is on.">
+			<loot id="147" sprite="day-ground-switch-and" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="147" key="gate_not" name="Gate NOT">
+		<properties stack="255" lootId="148" score="0"/>
+		<equipable key="place_object" equipTimeMs="1000" />
+		<skill type="logic"/>
+		<crafting yield="3">
+			<recipe>
+				<ingredient itemKey="small_wire" amount="1" />
+				<ingredient itemKey="shaped_metal" amount="1" />
+			</recipe>
+			<stations>
+				<station key="welding_machine" timeMs="15000" />
+			</stations>
+		</crafting>
+		<client icon="inv-switch-reverse" description="Outputs on when no input is on.">
+			<loot id="148" sprite="day-ground-switch-reverse" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="148" key="lamp" name="Lamp">
+		<properties stack="255" lootId="149" score="0"/>
+		<equipable key="place_object" equipTimeMs="1000" />
+		<skill type="logic"/>
+		<crafting yield="3">
+			<recipe>
+				<ingredient itemKey="small_wire" amount="1" />
+				<ingredient itemKey="shaped_metal" amount="1" />
+			</recipe>
+			<stations>
+				<station key="welding_machine" timeMs="15000" />
+			</stations>
+		</crafting>
+		<client icon="inv-lamp-white" description="Lights up when powered and hurts ghouls.">
+			<loot id="149" sprite="day-ground-lamp-white" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="149" key="cable_wall" name="Cable  - Wall">
+		<properties stack="255" lootId="150" score="0"/>
+		<equipable key="place_object" equipTimeMs="1000" />
+		<skill type="logic" requiredLevel="7" skillCost="1" />
+		<crafting>
+			<recipe>
+				<ingredient itemKey="shaped_metal" amount="8" />
+				<ingredient itemKey="small_wire" amount="1" />
+			</recipe>
+			<stations>
+				<station key="welding_machine" timeMs="15000" />
+			</stations>
+		</crafting>
+		<client icon="inv-cable-wall" description="A wall that cables can connect to.">
+			<loot id="150" sprite="day-ground-cable-wall" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="150" key="automatic_door" name="Automatic Door">
+		<properties stack="255" lootId="151" score="0"/>
+		<equipable key="place_object" equipTimeMs="1000" />
+		<skill type="logic" requiredLevel="7" skillCost="1" />
+		<crafting>
+			<recipe>
+				<ingredient itemKey="shaped_metal" amount="8" />
+				<ingredient itemKey="small_wire" amount="2" />
+				<ingredient itemKey="electronics" amount="1" />
+			</recipe>
+			<stations>
+				<station key="welding_machine" timeMs="15000" />
+			</stations>
+		</crafting>
+		<client icon="inv-automatic-door" description="Wire it to a switch to open and close it.">
+			<loot id="151" sprite="day-ground-automatic-door" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="151" key="platform" name="Platform">
+		<properties stack="255" lootId="152" score="0"/>
+		<equipable key="place_object" equipTimeMs="1000" />
+		<skill type="logic"/>
+		<crafting yield="3">
+			<recipe>
+				<ingredient itemKey="small_wire" amount="1" />
+				<ingredient itemKey="shaped_metal" amount="1" />
+			</recipe>
+			<stations>
+				<station key="welding_machine" timeMs="15000" />
+			</stations>
+		</crafting>
+		<client icon="inv-platform" description="Detects weight standing on it.">
+			<loot id="152" sprite="day-ground-platform" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="152" key="stone_cave" name="Stone Cave">
+		<properties stack="255" lootId="153" score="0"/>
+		<equipable key="place_object" equipTimeMs="1000" />
+		<skill type="building" requiredLevel="99" skillCost="1"/>
+		<crafting>
+			<recipe>
+				<ingredient itemKey="stone" amount="140" />
+			</recipe>
+			<stations>
+				<station key="workbench" timeMs="30000" />
+			</stations>
+		</crafting>
+		<client icon="inv-stone-cave" description="Builds rocky hills.">
+			<loot id="153" sprite="day-ground-stone-cave" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="153" key="bunker_wall" name="Bunker Wall">
+		<properties stack="255" lootId="154" score="0"/>
+		<equipable key="place_object" equipTimeMs="1000" />
+		<skill type="building" requiredLevel="99" skillCost="1"/>
+		<crafting>
+			<recipe>
+				<ingredient itemKey="stone" amount="150" />
+				<ingredient itemKey="shaped_metal" amount="12" />
+			</recipe>
+			<stations>
+				<station key="workbench" timeMs="30000" />
+			</stations>
+		</crafting>
+		<client icon="inv-bunker-wall" description="A wall from the old world.">
+			<loot id="154" sprite="day-ground-bunker-wall" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="154" key="gold_floor" name="Golden Floor">
+		<properties stack="255" lootId="155" score="0"/>
+		<equipable key="place_object" equipTimeMs="1000" />
+		<skill type="building"/>
+		<crafting yield="2">
+			<recipe>
+				<ingredient itemKey="leather" amount="2" />
+			</recipe>
+			<stations>
+				<station key="workbench" timeMs="15000" />
+			</stations>
+		</crafting>
+		<client icon="inv-mustard-floor" description="Nobody can spawn on top of it.">
+			<loot id="155" sprite="day-ground-mustard-floor" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="155" key="red_floor" name="Red floor">
+		<properties stack="255" lootId="156" score="0"/>
+		<equipable key="place_object" equipTimeMs="1000" />
+		<skill type="building"/>
+		<crafting yield="2">
+			<recipe>
+				<ingredient itemKey="leather" amount="2" />
+			</recipe>
+			<stations>
+				<station key="workbench" timeMs="15000" />
+			</stations>
+		</crafting>
+		<client icon="inv-red-floor" description="Nobody can spawn on top of it.">
+			<loot id="156" sprite="day-ground-red-floor" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="156" key="welding_machine" name="Welding Machine">
+		<properties stack="255" lootId="157" score="0"/>
+		<equipable key="place_object" equipTimeMs="1000" />
+		<skill type="survival" />
+		<crafting>
+			<recipe>
+				<ingredient itemKey="junk" amount="2" />
+				<ingredient itemKey="shaped_metal" amount="4" />
+				<ingredient itemKey="electronics" amount="1" />
+			</recipe>
+			<stations>
+				<station key="workbench" timeMs="50000" />
+			</stations>
+		</crafting>
+		<client icon="inv-welding-machine" description="Unlocks logic gate recipes.">
+			<loot id="157" sprite="day-ground-welding-machine" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="157" key="cable4" name="Cable  - Bridge">
+		<properties stack="255" lootId="158" score="0"/>
+		<equipable key="place_object" equipTimeMs="1000" />
+		<skill type="logic"/>
+		<crafting yield="3">
+			<recipe>
+				<ingredient itemKey="small_wire" amount="1" />
+			</recipe>
+			<stations>
+				<station key="welding_machine" timeMs="15000" />
+			</stations>
+		</crafting>
+		<client icon="inv-wire4" description="Wires up automatic mechanisms.">
+			<loot id="158" sprite="day-ground-wire4" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="158" key="gate_timer" name="Gate Timer">
+		<properties stack="255" lootId="159" score="0"/>
+		<equipable key="place_object" equipTimeMs="1000" />
+		<skill type="logic"/>
+		<crafting yield="3">
+			<recipe>
+				<ingredient itemKey="small_wire" amount="1" />
+				<ingredient itemKey="shaped_metal" amount="1" />
+			</recipe>
+			<stations>
+				<station key="welding_machine" timeMs="15000" />
+			</stations>
+		</crafting>
+		<client icon="inv-timer" description="Sends a signal at regular intervals.">
+			<loot id="159" sprite="day-ground-timer" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="159" key="gate_xor" name="Gate Xor">
+		<properties stack="255" lootId="160" score="0"/>
+		<equipable key="place_object" equipTimeMs="1000" />
+		<skill type="logic"/>
+		<crafting yield="3">
+			<recipe>
+				<ingredient itemKey="small_wire" amount="1" />
+				<ingredient itemKey="shaped_metal" amount="1" />
+			</recipe>
+			<stations>
+				<station key="welding_machine" timeMs="15000" />
+			</stations>
+		</crafting>
+		<client icon="inv-xor" description="Outputs on when exactly one input is on.">
+			<loot id="160" sprite="day-ground-xor" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="160" key="builder1" name="Builder 1">
+		<skill type="skill" requiredLevel="6" skillCost="2"/>
+		<craftBonus>
+            <item key="wood_wall" multiplier="2"/>
+            <item key="wood_door" multiplier="2"/>
+			<item key="wood_floor" multiplier="2"/>
+        </craftBonus>
+		<client icon="skill-builder1" description="Doubles the output of some recipes."/>
+	</item>
+	<item clientItemId="161" key="builder2" name="Builder 2">
+		<skill type="skill" requiredLevel="18" skillCost="1" prerequisite="builder1"/>
+		<client icon="skill-builder2" description="Makes repairs much faster.">
+			<loot id="161" sprite="day-ground-feeder" scale="0.8" angle="0" amount="1"/>
+		</client>
+	</item>
+	<item clientItemId="162" key="inv1" name="Inventory 1">
+		<skill type="skill" requiredLevel="0" skillCost="1"/>
+		<bag addSlots="1"/>
+		<client icon="skill-inv1" description="One more inventory slot."/>
+	</item>
+	<item clientItemId="163" key="inv2" name="Inventory 2">
+		<skill type="skill" requiredLevel="5" skillCost="1" prerequisite="inv1"/>
+		<bag addSlots="1"/>
+		<client icon="skill-inv2" description="One more inventory slot."/>
+	</item>
+		<item clientItemId="164" key="inv3" name="Inventory 3">
+		<skill type="skill" requiredLevel="7" skillCost="1" prerequisite="inv2"/>
+		<bag addSlots="1"/>
+				<client icon="skill-inv3" description="One more bag slot."/>
+	</item>
+	<item clientItemId="165" key="inv4" name="Inventory 4">
+		<skill type="skill" requiredLevel="10" skillCost="2" prerequisite="inv3"/>
+		<bag addSlots="2"/>
+		<client icon="skill-inv4" description="Two more bag slots."/>
+	</item>
+	<item clientItemId="166" key="inv5" name="Inventory 5">
+		<skill type="skill" requiredLevel="12" skillCost="3" prerequisite="inv4"/>
+		<bag addSlots="3"/>
+		<client icon="skill-inv5" description="Three more bag slots."/>
+	</item>
+	<item clientItemId="167" key="featherweight" name="Light Weight">
+		<skill type="skill" requiredLevel="8" skillCost="1"/>
+		<client icon="skill-lightweight" description="You trigger traps less often."/>
+	</item>
+	<item clientItemId="168" key="feeder" name="Feeder">
+		<properties stack="255" lootId="161" score="0"/>
+		<equipable key="place_object" equipTimeMs="1000" />
+		<skill type="survival" requiredLevel="12" skillCost="1" />
+		<crafting>
+			<recipe>
+				<ingredient itemKey="shaped_uranium" amount="8" />
+				<ingredient itemKey="small_wire" amount="4" />
+				<ingredient itemKey="electronics" amount="2" />
+				<ingredient itemKey="alloys" amount="4" />
+				<ingredient itemKey="shaped_metal" amount="20" />
+			</recipe>
+			<stations>
+				<station key="tesla" timeMs="100000" />
+			</stations>
+		</crafting>
+		<client icon="inv-feeder" description="Feeds you automatically."/>
+	</item>
+  <item clientItemId="169" key="bottle_cap" name="Bottle Cap">
+    <properties stack="255" lootId="162" score="0"/>
+    <currency value="1"/>
+    <client icon="inv-npc-cap" description="Currency worth 1 bottle cap.">
+      <loot id="162" sprite="day-ground-npc-cap" scale="0.65" angle="0" amount="1"/>
+    </client>
+  </item>
+  <item clientItemId="170" key="banknote" name="Banknote">
+    <properties stack="255" lootId="163" score="0"/>
+    <currency value="255"/>
+    <client icon="inv-npc-note" description="Worth 255 bottle caps. Exchange 255 banknotes for one gold bar.">
+      <loot id="163" sprite="day-ground-npc-note" scale="0.65" angle="0" amount="1"/>
+    </client>
+  </item>
+  <item clientItemId="171" key="gold_bar" name="Gold Bar">
+    <properties stack="255" lootId="164" score="0"/>
+    <currency value="65025"/>
+    <client icon="inv-npc-gold" description="Worth 255 banknotes, or 65,025 bottle caps.">
+      <loot id="164" sprite="day-ground-npc-gold" scale="0.65" angle="0" amount="1"/>
+    </client>
+  </item>
+  <item clientItemId="172" key="mp5_tactical" name="SMG Tactical">
+    <properties stack="1" lootId="165" score="0"/>
+    <equipable key="mp5_tactical" equipTimeMs="1000"/>
+    <skill type="weapon" requiredLevel="10" skillCost="1"/>
+    <crafting>
+      <recipe>
+        <ingredient itemKey="shaped_metal" amount="8" />
+        <ingredient itemKey="alloys" amount="8" />
+      </recipe>
+      <stations>
+        <station key="research_bench" timeMs="200000" />
+      </stations>
+    </crafting>
+    <client icon="inv-mp5-tactical" description="An SMG with mod slots. Right-click it and choose Mods.">
+      <loot id="165" sprite="day-ground-MP5" scale="0.8" angle="-0.5" amount="1"/>
+    </client>
+  </item>
+  <item clientItemId="173" key="mp5_mag_15" name="SMG 15-round magazine">
+    <properties stack="1" lootId="166" score="0"/>
+    <weaponMod key="mp5_mag_15"/>
+    <skill type="weapon"/>
+    <crafting>
+      <recipe>
+        <ingredient itemKey="shaped_metal" amount="2" />
+      </recipe>
+      <stations>
+        <station key="research_bench" timeMs="30000" />
+      </stations>
+    </crafting>
+    <client icon="inv-mp5-mag-15" description="Holds 15 rounds. Quick to reload and draw.">
+      <loot id="166" sprite="day-ground-mp5-mag-15" scale="0.6" angle="0" amount="1"/>
+    </client>
+  </item>
+  <item clientItemId="174" key="mp5_mag_30" name="SMG 30-round magazine">
+    <properties stack="1" lootId="167" score="0"/>
+    <weaponMod key="mp5_mag_30"/>
+    <skill type="weapon"/>
+    <crafting>
+      <recipe>
+        <ingredient itemKey="shaped_metal" amount="3" />
+      </recipe>
+      <stations>
+        <station key="research_bench" timeMs="30000" />
+      </stations>
+    </crafting>
+    <client icon="inv-mp5-mag-30" description="The standard magazine: 30 rounds.">
+      <loot id="167" sprite="day-ground-mp5-mag-30" scale="0.6" angle="0" amount="1"/>
+    </client>
+  </item>
+  <item clientItemId="175" key="mp5_mag_40" name="SMG 40-round magazine">
+    <properties stack="1" lootId="168" score="0"/>
+    <weaponMod key="mp5_mag_40"/>
+    <skill type="weapon"/>
+    <crafting>
+      <recipe>
+        <ingredient itemKey="shaped_metal" amount="4" />
+        <ingredient itemKey="alloys" amount="1" />
+      </recipe>
+      <stations>
+        <station key="research_bench" timeMs="40000" />
+      </stations>
+    </crafting>
+    <client icon="inv-mp5-mag-40" description="Holds 40 rounds. Slower to reload and draw.">
+      <loot id="168" sprite="day-ground-mp5-mag-40" scale="0.6" angle="0" amount="1"/>
+    </client>
+  </item>
+  <item clientItemId="176" key="reflex_sight" name="Reflex sight">
+    <properties stack="1" lootId="169" score="0"/>
+    <weaponMod key="reflex_sight"/>
+    <skill type="weapon"/>
+    <crafting>
+      <recipe>
+        <ingredient itemKey="shaped_metal" amount="2" />
+        <ingredient itemKey="alloys" amount="2" />
+      </recipe>
+      <stations>
+        <station key="research_bench" timeMs="60000" />
+      </stations>
+    </crafting>
+    <client icon="inv-reflex-sight" description="A red-dot sight for quick target pickup.">
+      <loot id="169" sprite="day-ground-reflex-sight" scale="0.6" angle="0" amount="1"/>
+    </client>
+  </item>
+  <item clientItemId="177" key="tube_scope" name="Tube scope">
+    <properties stack="1" lootId="170" score="0"/>
+    <weaponMod key="tube_scope"/>
+    <skill type="weapon"/>
+    <crafting>
+      <recipe>
+        <ingredient itemKey="shaped_metal" amount="3" />
+        <ingredient itemKey="alloys" amount="3" />
+      </recipe>
+      <stations>
+        <station key="research_bench" timeMs="90000" />
+      </stations>
+    </crafting>
+    <client icon="inv-tube-scope" description="A magnified scope.">
+      <loot id="170" sprite="day-ground-tube-scope" scale="0.6" angle="0" amount="1"/>
+    </client>
+  </item>
+  <item clientItemId="178" key="suppressor_9mm" name="9mm suppressor">
+    <properties stack="1" lootId="171" score="0"/>
+    <weaponMod key="suppressor_9mm"/>
+    <skill type="weapon"/>
+    <crafting>
+      <recipe>
+        <ingredient itemKey="shaped_metal" amount="3" />
+        <ingredient itemKey="alloys" amount="2" />
+      </recipe>
+      <stations>
+        <station key="research_bench" timeMs="60000" />
+      </stations>
+    </crafting>
+    <client icon="inv-suppressor-9mm" description="Tames recoil. Costs a little range.">
+      <loot id="171" sprite="day-ground-suppressor-9mm" scale="0.6" angle="0" amount="1"/>
+    </client>
+  </item>
+  <item clientItemId="179" key="grip_vertical" name="Vertical grip">
+    <properties stack="1" lootId="172" score="0"/>
+    <weaponMod key="grip_vertical"/>
+    <skill type="weapon"/>
+    <crafting>
+      <recipe>
+        <ingredient itemKey="shaped_metal" amount="2" />
+      </recipe>
+      <stations>
+        <station key="research_bench" timeMs="40000" />
+      </stations>
+    </crafting>
+    <client icon="inv-grip-vertical" description="Steadies the gun against recoil.">
+      <loot id="172" sprite="day-ground-grip-vertical" scale="0.6" angle="0" amount="1"/>
+    </client>
+  </item>
+  <item clientItemId="180" key="grip_angled" name="Angled grip">
+    <properties stack="1" lootId="173" score="0"/>
+    <weaponMod key="grip_angled"/>
+    <skill type="weapon"/>
+    <crafting>
+      <recipe>
+        <ingredient itemKey="shaped_metal" amount="2" />
+      </recipe>
+      <stations>
+        <station key="research_bench" timeMs="40000" />
+      </stations>
+    </crafting>
+    <client icon="inv-grip-angled" description="Some recoil control and a faster draw.">
+      <loot id="173" sprite="day-ground-grip-angled" scale="0.6" angle="0" amount="1"/>
+    </client>
+  </item>
+  <item clientItemId="181" key="stock_solid" name="Solid stock">
+    <properties stack="1" lootId="174" score="0"/>
+    <weaponMod key="stock_solid"/>
+    <skill type="weapon"/>
+    <crafting>
+      <recipe>
+        <ingredient itemKey="shaped_metal" amount="4" />
+      </recipe>
+      <stations>
+        <station key="research_bench" timeMs="50000" />
+      </stations>
+    </crafting>
+    <client icon="inv-stock-solid" description="The most recoil control. Slower to draw.">
+      <loot id="174" sprite="day-ground-stock-solid" scale="0.6" angle="0" amount="1"/>
+    </client>
+  </item>
+  <item clientItemId="182" key="stock_open" name="Folding stock">
+    <properties stack="1" lootId="175" score="0"/>
+    <weaponMod key="stock_open"/>
+    <skill type="weapon"/>
+    <crafting>
+      <recipe>
+        <ingredient itemKey="shaped_metal" amount="3" />
+      </recipe>
+      <stations>
+        <station key="research_bench" timeMs="50000" />
+      </stations>
+    </crafting>
+    <client icon="inv-stock-open" description="Lighter recoil control, no drawback.">
+      <loot id="175" sprite="day-ground-stock-open" scale="0.6" angle="0" amount="1"/>
+    </client>
+  </item>
+  <item clientItemId="183" key="handguard_standard" name="Standard handguard">
+    <properties stack="1" lootId="176" score="0"/>
+    <weaponMod key="handguard_standard"/>
+    <skill type="weapon"/>
+    <crafting>
+      <recipe>
+        <ingredient itemKey="shaped_metal" amount="1" />
+      </recipe>
+      <stations>
+        <station key="research_bench" timeMs="20000" />
+      </stations>
+    </crafting>
+    <client icon="inv-handguard-standard" description="The SMG's stock handguard.">
+      <loot id="176" sprite="day-ground-handguard-standard" scale="0.6" angle="0" amount="1"/>
+    </client>
+  </item>
+  <item clientItemId="184" key="handguard_vented" name="Vented handguard">
+    <properties stack="1" lootId="177" score="0"/>
+    <weaponMod key="handguard_vented"/>
+    <skill type="weapon"/>
+    <crafting>
+      <recipe>
+        <ingredient itemKey="shaped_metal" amount="2" />
+        <ingredient itemKey="alloys" amount="1" />
+      </recipe>
+      <stations>
+        <station key="research_bench" timeMs="40000" />
+      </stations>
+    </crafting>
+    <client icon="inv-handguard-vented" description="Slightly tighter hip fire.">
+      <loot id="177" sprite="day-ground-handguard-vented" scale="0.6" angle="0" amount="1"/>
+    </client>
+  </item>
+</items>

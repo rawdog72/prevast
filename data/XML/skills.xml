@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    The craft window's skill tabs, in the order they are drawn. An item joins a
+    tab through its <skill type="..."> in items.xml, which must name a key here;
+    ItemManager reports one that does not. `icon` names the img/<icon>-out.png
+    button sprite (the -in / -click variants sit beside it).
+
+    Nothing on the server reads this beyond that check: it is exported to the
+    client with the other tables so the tab list, its order and its names are
+    content, not client code.
+-->
+<skills>
+	<skill key="skill" name="Skills" icon="skill-button"/>
+	<skill key="survival" name="Survival" icon="survival-button"/>
+	<skill key="clothe" name="Clothing" icon="clothe-button"/>
+	<skill key="building" name="Building" icon="building-button"/>
+	<skill key="tool" name="Tools" icon="tool-button"/>
+	<skill key="weapon" name="Weapons" icon="weapon-button"/>
+	<skill key="plant" name="Plants" icon="plant-button"/>
+	<skill key="drug" name="Medicine" icon="medecine-button"/>
+	<skill key="mineral" name="Resources" icon="resources-button"/>
+	<skill key="logic" name="Logic" icon="cable-button"/>
+</skills>

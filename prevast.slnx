@@ -1,0 +1,7 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="apps/server/prevast_server.vcxproj" Id="d2abab13-aed8-47ae-894e-509c576faf3b" />
+</Solution>

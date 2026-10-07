@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    ACCOUNT STATS: what is counted for a player with an account, forever
+    (ProgressSystem, gameplay/progress/). Guests and servers with
+    recordAccountProgress = false count nothing.
+
+    id=      stored in the account database. NEVER change or reuse one; a stat
+             that is no longer wanted gets retired="true" and stays here.
+    key=     what achievements.xml names it by.
+    public=  shown on the Achievements tab (and later the account page).
+    aggregate="sum" (default) adds up forever; "max" is a record for one
+             life (counted from the start of a life, kept when beaten).
+
+    <count event= target= family= owner=/>: which events add to it.
+      event:  kill, player_kill, bounty, craft, gather, destroy, build, pickup, use,
+              quest_complete, death, survived_minute
+      target: the event's subject key (agent, item, resource, object, quest)
+      family: kill only, an agents.xml family (ghoul, bot)
+      owner:  destroy/build only: any, self, clan, other, none
+    One event adds to a stat once, however many of its counts match.
+-->
+<stats>
+    <stat id="1" key="kills_ghoul" name="Ghouls killed"><count event="kill" family="ghoul"/></stat>
+    <stat id="2" key="kills_bot" name="Robots destroyed"><count event="kill" family="bot"/></stat>
+    <stat id="3" key="crafted" name="Items crafted"><count event="craft"/></stat>
+    <stat id="4" key="gathered" name="Resources gathered"><count event="gather"/></stat>
+    <stat id="5" key="built" name="Things built"><count event="build"/></stat>
+    <stat id="6" key="wrecked" name="Others' buildings wrecked"><count event="destroy" owner="other"/></stat>
+    <stat id="7" key="quests_completed" name="Quests completed"><count event="quest_complete"/></stat>
+    <stat id="8" key="bounties" name="Outlaws brought down"><count event="bounty"/></stat>
+    <stat id="9" key="deaths" name="Deaths"><count event="death"/></stat>
+    <stat id="10" key="minutes_survived" name="Minutes survived"><count event="survived_minute"/></stat>
+    <stat id="11" key="longest_life" name="Longest life (minutes)" aggregate="max"><count event="survived_minute"/></stat>
+    <stat id="12" key="kills_player" name="Player kills"><count event="player_kill"/></stat>
+</stats>

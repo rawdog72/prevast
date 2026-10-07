@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<content>
+    <!--
+        The content set, and the order it loads in.
+
+        This file does not cause anything to load. It DECLARES what the server
+        is expected to read and in what order, and the server checks itself
+        against it at startup: a file that loads but is not listed here, one
+        listed here that never loads, and one that loads before something its
+        after= names are all reported.
+
+        That check exists because the order is load-bearing and used to be
+        recorded only in comments spread across two C++ functions. Anything that
+        names an item resolves the key AT LOAD, so items.xml has to be there
+        first; resources.xml sat ahead of it for a long time and nobody noticed,
+        because its drop table kept the key as a string and looked it up later.
+        A comment cannot catch that. This can.
+
+        after= is a dependency, not decoration: it means "this file reads
+        something that file defines".
+
+        TO ADD A CONTENT FILE
+          Add a <file> here, and load it from the matching place in C++
+          (loadContentFiles in prevast_server.cpp for the managers Game does not
+          own, Game::loadContentDefinitions for the ones it does). The startup
+          check will tell you if you did only one of the two.
+    -->
+
+    <!-- the craft window's skill tabs, in tab order. A pure declaration that
+         references nothing, which is why it may sit ahead of items.xml: an
+         item's <skill type=> must name a tab here, and ItemManager checks
+         that as it loads. -->
+    <file name="skills.xml" root="skills"/>
+
+    <!-- items, recipes, skills; the client's IID space. THE HUB: every other
+         file binds to an item by key, and most resolve that key while parsing,
+         so nothing but skills.xml (a declaration items bind to) loads before
+         this. -->
+    <file name="items.xml" root="items" after="skills.xml"/>
+
+    <!-- harvestable trees/rocks/animals; drops resolve item keys -->
+    <file name="resources.xml" root="resources" after="items.xml"/>
+
+    <!-- weapon mods: each is an item (key resolved at load); weapons name them -->
+    <file name="mods.xml" root="mods" after="items.xml"/>
+
+    <!-- what an item DOES in the hand; ammo and consume name items, <mods>
+         slots name mods -->
+    <file name="equipables.xml" root="equipables" after="mods.xml"/>
+
+    <!-- what an item does when worn; skinId is the client's clothes index -->
+    <file name="wearables.xml" root="wearables" after="items.xml"/>
+
+    <!-- starting loadouts; ammo is clamped against magazineSize -->
+    <file name="kits.xml" root="kits" after="equipables.xml"/>
+
+    <!-- placeable world objects; itemKey, fuel and drops name items -->
+    <file name="objects.xml" root="objects" after="items.xml"/>
+
+    <!-- same schema and loader as objects.xml, kept apart because all 61 share one item id and differ only by subtype -->
+    <file name="furnitures.xml" root="objects" after="objects.xml"/>
+
+    <!-- what leaves the barrel; the weapon in equipables.xml scales it -->
+    <file name="projectiles.xml" root="projectiles" after="items.xml"/>
+
+    <!-- monsters and bots; onDeath drops name items -->
+    <file name="agents.xml" root="agents" after="items.xml"/>
+
+    <!-- buildings worldgen stamps; every tile names an object -->
+    <file name="structures.xml" root="structures" after="objects.xml"/>
+
+    <!-- timed buffs, debuffs and afflictions an item or the world can apply;
+         repel targets name agent families -->
+    <file name="conditions.xml" root="conditions" after="agents.xml"/>
+
+    <!-- game modes; spawn tables name agents and structures -->
+    <file name="modes.xml" root="modes" after="agents.xml"/>
+
+    <!--
+        maps.xml is GONE as of 2026-08-13. Editor maps are now one
+        self-describing file each, in maps/ beside this one: a small
+        `key = value` header above the editor's own record string, discovered
+        automatically in sorted file-name order. There is nothing to declare
+        and nothing to keep in sync, which is why they are not listed here -
+        the same as the structure template files that came before them.
+
+        A leftover maps.xml is converted to those files once, on the next boot,
+        and then does nothing. See MapImportManager::convertLegacyDefinitions.
+    -->
+    <!-- NPCs: appearance, shops, dialogue; offers and coins name items -->
+    <file name="npcs.xml" root="npcs" after="items.xml"/>
+
+    <!-- account stats and achievements (ProgressSystem): counts name agents,
+         families, items, objects and resources; rewards name items -->
+    <file name="stats.xml" root="stats" after="agents.xml"/>
+    <file name="achievements.xml" root="achievements" after="stats.xml"/>
+
+    <!-- quests are a DIRECTORY, data/quests/*.xml, one quest per file named
+         after its key and loaded in file-name order (QuestSystem::load). They
+         name NPCs, agents, items, objects and resources, so they load last. -->
+    <file name="quests" root="quest" after="achievements.xml"/>
+
+    <!-- staff groups: ranks, flags and badges (gameplay/groups.cpp). Server
+         only; the client learns badges from ServerOpcode::GROUPS. -->
+    <file name="groups.xml" root="groups"/>
+
+    <!-- the rank each !command needs. Checked against groups.xml ranks as it
+         loads, and against game_admin.cpp by commands-coverage.test.ts. -->
+    <file name="commands.xml" root="commands" after="groups.xml"/>
+</content>

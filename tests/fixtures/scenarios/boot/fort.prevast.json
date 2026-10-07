@@ -1,0 +1,745 @@
+{
+ "format": "prevast-scenario",
+ "schemaVersion": 1,
+ "id": "prj-runtime-fort",
+ "title": "Runtime fort",
+ "revision": 1,
+ "nextId": 500,
+ "requiredFeatures": [
+  "overrides.destructible",
+  "overrides.door",
+  "overrides.health",
+  "world.v1"
+ ],
+ "world": {
+  "tilesX": 40,
+  "tilesY": 40,
+  "seed": 7,
+  "time": "day",
+  "population": {
+   "resources": false,
+   "structures": false,
+   "agents": false
+  }
+ },
+ "entities": [
+  {
+   "id": "e1",
+   "kind": "object",
+   "ref": "wood_floor",
+   "x": 550,
+   "y": 550,
+   "rotation": 0
+  },
+  {
+   "id": "e2",
+   "kind": "object",
+   "ref": "wood_floor",
+   "x": 550,
+   "y": 650,
+   "rotation": 0
+  },
+  {
+   "id": "e3",
+   "kind": "object",
+   "ref": "wood_floor",
+   "x": 550,
+   "y": 750,
+   "rotation": 0
+  },
+  {
+   "id": "e4",
+   "kind": "object",
+   "ref": "wood_floor",
+   "x": 550,
+   "y": 850,
+   "rotation": 0
+  },
+  {
+   "id": "e5",
+   "kind": "object",
+   "ref": "wood_floor",
+   "x": 550,
+   "y": 950,
+   "rotation": 0
+  },
+  {
+   "id": "e6",
+   "kind": "object",
+   "ref": "wood_floor",
+   "x": 550,
+   "y": 1050,
+   "rotation": 0
+  },
+  {
+   "id": "e7",
+   "kind": "object",
+   "ref": "wood_floor",
+   "x": 650,
+   "y": 550,
+   "rotation": 0
+  },
+  {
+   "id": "e8",
+   "kind": "object",
+   "ref": "wood_floor",
+   "x": 650,
+   "y": 650,
+   "rotation": 0
+  },
+  {
+   "id": "e9",
+   "kind": "object",
+   "ref": "wood_floor",
+   "x": 650,
+   "y": 750,
+   "rotation": 0
+  },
+  {
+   "id": "e10",
+   "kind": "object",
+   "ref": "wood_floor",
+   "x": 650,
+   "y": 850,
+   "rotation": 0
+  },
+  {
+   "id": "e11",
+   "kind": "object",
+   "ref": "wood_floor",
+   "x": 650,
+   "y": 950,
+   "rotation": 0
+  },
+  {
+   "id": "e12",
+   "kind": "object",
+   "ref": "wood_floor",
+   "x": 650,
+   "y": 1050,
+   "rotation": 0
+  },
+  {
+   "id": "e13",
+   "kind": "object",
+   "ref": "wood_floor",
+   "x": 750,
+   "y": 550,
+   "rotation": 0
+  },
+  {
+   "id": "e14",
+   "kind": "object",
+   "ref": "wood_floor",
+   "x": 750,
+   "y": 650,
+   "rotation": 0
+  },
+  {
+   "id": "e15",
+   "kind": "object",
+   "ref": "wood_floor",
+   "x": 750,
+   "y": 750,
+   "rotation": 0
+  },
+  {
+   "id": "e16",
+   "kind": "object",
+   "ref": "wood_floor",
+   "x": 750,
+   "y": 850,
+   "rotation": 0
+  },
+  {
+   "id": "e17",
+   "kind": "object",
+   "ref": "wood_floor",
+   "x": 750,
+   "y": 950,
+   "rotation": 0
+  },
+  {
+   "id": "e18",
+   "kind": "object",
+   "ref": "wood_floor",
+   "x": 750,
+   "y": 1050,
+   "rotation": 0
+  },
+  {
+   "id": "e19",
+   "kind": "object",
+   "ref": "wood_floor",
+   "x": 850,
+   "y": 550,
+   "rotation": 0
+  },
+  {
+   "id": "e20",
+   "kind": "object",
+   "ref": "wood_floor",
+   "x": 850,
+   "y": 650,
+   "rotation": 0
+  },
+  {
+   "id": "e21",
+   "kind": "object",
+   "ref": "wood_floor",
+   "x": 850,
+   "y": 750,
+   "rotation": 0
+  },
+  {
+   "id": "e22",
+   "kind": "object",
+   "ref": "wood_floor",
+   "x": 850,
+   "y": 850,
+   "rotation": 0
+  },
+  {
+   "id": "e23",
+   "kind": "object",
+   "ref": "wood_floor",
+   "x": 850,
+   "y": 950,
+   "rotation": 0
+  },
+  {
+   "id": "e24",
+   "kind": "object",
+   "ref": "wood_floor",
+   "x": 850,
+   "y": 1050,
+   "rotation": 0
+  },
+  {
+   "id": "e25",
+   "kind": "object",
+   "ref": "wood_floor",
+   "x": 950,
+   "y": 550,
+   "rotation": 0
+  },
+  {
+   "id": "e26",
+   "kind": "object",
+   "ref": "wood_floor",
+   "x": 950,
+   "y": 650,
+   "rotation": 0
+  },
+  {
+   "id": "e27",
+   "kind": "object",
+   "ref": "wood_floor",
+   "x": 950,
+   "y": 750,
+   "rotation": 0
+  },
+  {
+   "id": "e28",
+   "kind": "object",
+   "ref": "wood_floor",
+   "x": 950,
+   "y": 850,
+   "rotation": 0
+  },
+  {
+   "id": "e29",
+   "kind": "object",
+   "ref": "wood_floor",
+   "x": 950,
+   "y": 950,
+   "rotation": 0
+  },
+  {
+   "id": "e30",
+   "kind": "object",
+   "ref": "wood_floor",
+   "x": 950,
+   "y": 1050,
+   "rotation": 0
+  },
+  {
+   "id": "e31",
+   "kind": "object",
+   "ref": "wood_floor",
+   "x": 1050,
+   "y": 550,
+   "rotation": 0
+  },
+  {
+   "id": "e32",
+   "kind": "object",
+   "ref": "wood_floor",
+   "x": 1050,
+   "y": 650,
+   "rotation": 0
+  },
+  {
+   "id": "e33",
+   "kind": "object",
+   "ref": "wood_floor",
+   "x": 1050,
+   "y": 750,
+   "rotation": 0
+  },
+  {
+   "id": "e34",
+   "kind": "object",
+   "ref": "wood_floor",
+   "x": 1050,
+   "y": 850,
+   "rotation": 0
+  },
+  {
+   "id": "e35",
+   "kind": "object",
+   "ref": "wood_floor",
+   "x": 1050,
+   "y": 950,
+   "rotation": 0
+  },
+  {
+   "id": "e36",
+   "kind": "object",
+   "ref": "wood_floor",
+   "x": 1050,
+   "y": 1050,
+   "rotation": 0
+  },
+  {
+   "id": "e37",
+   "kind": "object",
+   "ref": "wood_floor",
+   "x": 1150,
+   "y": 550,
+   "rotation": 0
+  },
+  {
+   "id": "e38",
+   "kind": "object",
+   "ref": "wood_floor",
+   "x": 1150,
+   "y": 650,
+   "rotation": 0
+  },
+  {
+   "id": "e39",
+   "kind": "object",
+   "ref": "wood_floor",
+   "x": 1150,
+   "y": 750,
+   "rotation": 0
+  },
+  {
+   "id": "e40",
+   "kind": "object",
+   "ref": "wood_floor",
+   "x": 1150,
+   "y": 850,
+   "rotation": 0
+  },
+  {
+   "id": "e41",
+   "kind": "object",
+   "ref": "wood_floor",
+   "x": 1150,
+   "y": 950,
+   "rotation": 0
+  },
+  {
+   "id": "e42",
+   "kind": "object",
+   "ref": "wood_floor",
+   "x": 1150,
+   "y": 1050,
+   "rotation": 0
+  },
+  {
+   "id": "e43",
+   "kind": "object",
+   "ref": "wood_floor",
+   "x": 1250,
+   "y": 550,
+   "rotation": 0
+  },
+  {
+   "id": "e44",
+   "kind": "object",
+   "ref": "wood_floor",
+   "x": 1250,
+   "y": 650,
+   "rotation": 0
+  },
+  {
+   "id": "e45",
+   "kind": "object",
+   "ref": "wood_floor",
+   "x": 1250,
+   "y": 750,
+   "rotation": 0
+  },
+  {
+   "id": "e46",
+   "kind": "object",
+   "ref": "wood_floor",
+   "x": 1250,
+   "y": 850,
+   "rotation": 0
+  },
+  {
+   "id": "e47",
+   "kind": "object",
+   "ref": "wood_floor",
+   "x": 1250,
+   "y": 950,
+   "rotation": 0
+  },
+  {
+   "id": "e48",
+   "kind": "object",
+   "ref": "wood_floor",
+   "x": 1250,
+   "y": 1050,
+   "rotation": 0
+  },
+  {
+   "id": "w0",
+   "kind": "object",
+   "ref": "wood_wall",
+   "x": 450,
+   "y": 450,
+   "rotation": 0,
+   "parent": "g1",
+   "overrides": {
+    "healthMax": 9000
+   }
+  },
+  {
+   "id": "w1",
+   "kind": "object",
+   "ref": "wood_wall",
+   "x": 450,
+   "y": 1150,
+   "rotation": 0,
+   "parent": "g1",
+   "overrides": {
+    "healthMax": 9000
+   }
+  },
+  {
+   "id": "w2",
+   "kind": "object",
+   "ref": "wood_wall",
+   "x": 550,
+   "y": 450,
+   "rotation": 0,
+   "parent": "g1",
+   "overrides": {
+    "healthMax": 9000
+   }
+  },
+  {
+   "id": "w3",
+   "kind": "object",
+   "ref": "wood_wall",
+   "x": 550,
+   "y": 1150,
+   "rotation": 0,
+   "parent": "g1",
+   "overrides": {
+    "destructible": false
+   }
+  },
+  {
+   "id": "w4",
+   "kind": "object",
+   "ref": "wood_wall",
+   "x": 650,
+   "y": 450,
+   "rotation": 0,
+   "parent": "g1"
+  },
+  {
+   "id": "w5",
+   "kind": "object",
+   "ref": "wood_wall",
+   "x": 650,
+   "y": 1150,
+   "rotation": 0,
+   "parent": "g1"
+  },
+  {
+   "id": "w6",
+   "kind": "object",
+   "ref": "wood_wall",
+   "x": 750,
+   "y": 450,
+   "rotation": 0,
+   "parent": "g1"
+  },
+  {
+   "id": "w7",
+   "kind": "object",
+   "ref": "wood_wall",
+   "x": 750,
+   "y": 1150,
+   "rotation": 0,
+   "parent": "g1"
+  },
+  {
+   "id": "w8",
+   "kind": "object",
+   "ref": "wood_wall",
+   "x": 850,
+   "y": 450,
+   "rotation": 0,
+   "parent": "g1"
+  },
+  {
+   "id": "w10",
+   "kind": "object",
+   "ref": "wood_wall",
+   "x": 950,
+   "y": 450,
+   "rotation": 0,
+   "parent": "g1"
+  },
+  {
+   "id": "w11",
+   "kind": "object",
+   "ref": "wood_wall",
+   "x": 950,
+   "y": 1150,
+   "rotation": 0,
+   "parent": "g1"
+  },
+  {
+   "id": "w12",
+   "kind": "object",
+   "ref": "wood_wall",
+   "x": 1050,
+   "y": 450,
+   "rotation": 0,
+   "parent": "g1"
+  },
+  {
+   "id": "w13",
+   "kind": "object",
+   "ref": "wood_wall",
+   "x": 1050,
+   "y": 1150,
+   "rotation": 0,
+   "parent": "g1"
+  },
+  {
+   "id": "w14",
+   "kind": "object",
+   "ref": "wood_wall",
+   "x": 1150,
+   "y": 450,
+   "rotation": 0,
+   "parent": "g1"
+  },
+  {
+   "id": "w15",
+   "kind": "object",
+   "ref": "wood_wall",
+   "x": 1150,
+   "y": 1150,
+   "rotation": 0,
+   "parent": "g1"
+  },
+  {
+   "id": "w16",
+   "kind": "object",
+   "ref": "wood_wall",
+   "x": 1250,
+   "y": 450,
+   "rotation": 0,
+   "parent": "g1"
+  },
+  {
+   "id": "w17",
+   "kind": "object",
+   "ref": "wood_wall",
+   "x": 1250,
+   "y": 1150,
+   "rotation": 0,
+   "parent": "g1"
+  },
+  {
+   "id": "w18",
+   "kind": "object",
+   "ref": "wood_wall",
+   "x": 1350,
+   "y": 450,
+   "rotation": 0,
+   "parent": "g1"
+  },
+  {
+   "id": "w19",
+   "kind": "object",
+   "ref": "wood_wall",
+   "x": 1350,
+   "y": 1150,
+   "rotation": 0,
+   "parent": "g1"
+  },
+  {
+   "id": "w20",
+   "kind": "object",
+   "ref": "wood_wall",
+   "x": 450,
+   "y": 550,
+   "rotation": 0,
+   "parent": "g1"
+  },
+  {
+   "id": "w21",
+   "kind": "object",
+   "ref": "wood_wall",
+   "x": 1350,
+   "y": 550,
+   "rotation": 0,
+   "parent": "g1"
+  },
+  {
+   "id": "w22",
+   "kind": "object",
+   "ref": "wood_wall",
+   "x": 450,
+   "y": 650,
+   "rotation": 0,
+   "parent": "g1"
+  },
+  {
+   "id": "w23",
+   "kind": "object",
+   "ref": "wood_wall",
+   "x": 1350,
+   "y": 650,
+   "rotation": 0,
+   "parent": "g1"
+  },
+  {
+   "id": "w24",
+   "kind": "object",
+   "ref": "wood_wall",
+   "x": 450,
+   "y": 750,
+   "rotation": 0,
+   "parent": "g1"
+  },
+  {
+   "id": "w25",
+   "kind": "object",
+   "ref": "wood_wall",
+   "x": 1350,
+   "y": 750,
+   "rotation": 0,
+   "parent": "g1"
+  },
+  {
+   "id": "w26",
+   "kind": "object",
+   "ref": "wood_wall",
+   "x": 450,
+   "y": 850,
+   "rotation": 0,
+   "parent": "g1"
+  },
+  {
+   "id": "w27",
+   "kind": "object",
+   "ref": "wood_wall",
+   "x": 1350,
+   "y": 850,
+   "rotation": 0,
+   "parent": "g1"
+  },
+  {
+   "id": "w28",
+   "kind": "object",
+   "ref": "wood_wall",
+   "x": 450,
+   "y": 950,
+   "rotation": 0,
+   "parent": "g1"
+  },
+  {
+   "id": "w29",
+   "kind": "object",
+   "ref": "wood_wall",
+   "x": 1350,
+   "y": 950,
+   "rotation": 0,
+   "parent": "g1"
+  },
+  {
+   "id": "w30",
+   "kind": "object",
+   "ref": "wood_wall",
+   "x": 450,
+   "y": 1050,
+   "rotation": 0,
+   "parent": "g1"
+  },
+  {
+   "id": "w31",
+   "kind": "object",
+   "ref": "wood_wall",
+   "x": 1350,
+   "y": 1050,
+   "rotation": 0,
+   "parent": "g1"
+  },
+  {
+   "id": "d1",
+   "kind": "object",
+   "ref": "wood_door",
+   "x": 850,
+   "y": 1150,
+   "rotation": 0,
+   "parent": "g1",
+   "overrides": {
+    "doorOpen": true
+   }
+  },
+  {
+   "id": "r1",
+   "kind": "resource",
+   "ref": "stone",
+   "variant": 0,
+   "x": 2050,
+   "y": 2050,
+   "angle": 40
+  },
+  {
+   "id": "r2",
+   "kind": "resource",
+   "ref": "wood",
+   "variant": 1,
+   "x": 2250,
+   "y": 1850,
+   "angle": 0
+  }
+ ],
+ "groups": [
+  {
+   "id": "g1",
+   "name": "Fort",
+   "kind": "house",
+   "pivot": {
+    "x": 900,
+    "y": 800
+   }
+  }
+ ],
+ "regions": [],
+ "templates": []
+}

@@ -1,0 +1,568 @@
+{
+  "name": "modes",
+  "version": 1,
+  "hash": "36afa38f2794118d",
+  "attributes": {},
+  "entries": {
+    "survival": {
+      "key": "survival",
+      "id": 0,
+      "clientModeId": 0,
+      "dayNightCycle": 960000,
+      "craftSpeed": 1,
+      "clans": {
+        "enabled": true,
+        "canCreate": true,
+        "maxMembers": 9,
+        "maxClans": 18
+      },
+      "karma": {
+        "level": [
+          {
+            "id": 0,
+            "xpMultiplier": 1.25,
+            "maxKills": 0
+          },
+          {
+            "id": 1,
+            "xpMultiplier": 1,
+            "maxKills": 3
+          },
+          {
+            "id": 2,
+            "xpMultiplier": 0.95,
+            "maxKills": 5
+          },
+          {
+            "id": 3,
+            "xpMultiplier": 0.9,
+            "maxKills": 7
+          },
+          {
+            "id": 4,
+            "xpMultiplier": 0.85,
+            "maxKills": 10
+          },
+          {
+            "id": 5,
+            "xpMultiplier": 0.8,
+            "maxKills": 999999
+          }
+        ]
+      },
+      "gauges": {
+        "gauge": [
+          {
+            "key": "life",
+            "max": 255,
+            "speedInc": 50,
+            "speedDec": 50
+          },
+          {
+            "key": "food",
+            "max": 255,
+            "speedInc": 12,
+            "speedDec": 12,
+            "lifeDecBelowPct": 0,
+            "lifeRegenAbovePct": 30
+          },
+          {
+            "key": "warmth",
+            "max": 255,
+            "speedInc": 50,
+            "speedDec": 35,
+            "lifeDecBelowPct": 0,
+            "lifeRegenAbovePct": 30
+          },
+          {
+            "key": "stamina",
+            "max": 255,
+            "speedInc": 150,
+            "speedDec": 300
+          },
+          {
+            "key": "radiation",
+            "max": 255,
+            "speedInc": 30,
+            "speedDec": 240,
+            "lifeDecAbovePct": 70,
+            "lifeRegenBelowPct": 50
+          }
+        ]
+      },
+      "spawns": {
+        "spawn": [
+          {
+            "type": "resources",
+            "respawnDelayMs": 60000,
+            "respawnDelayMultiplier": 1,
+            "rateExperience": 1,
+            "rateItem": 1
+          },
+          {
+            "type": "structures",
+            "respawnDelayMs": 480000,
+            "structure": [
+              {
+                "key": "house0",
+                "amount": 1,
+                "isCity": 0
+              },
+              {
+                "key": "house1",
+                "amount": 1,
+                "isCity": 0
+              },
+              {
+                "key": "house2",
+                "amount": 1,
+                "isCity": 0
+              },
+              {
+                "key": "house3",
+                "amount": 1,
+                "isCity": 0
+              },
+              {
+                "key": "house4",
+                "amount": 1,
+                "isCity": 0
+              },
+              {
+                "key": "house5",
+                "amount": 1,
+                "isCity": 0
+              },
+              {
+                "key": "house6",
+                "amount": 1,
+                "isCity": 0
+              },
+              {
+                "key": "house7",
+                "amount": 1,
+                "isCity": 0
+              },
+              {
+                "key": "house8",
+                "amount": 1,
+                "isCity": 0
+              },
+              {
+                "key": "house9",
+                "amount": 1,
+                "isCity": 0
+              },
+              {
+                "key": "city0",
+                "amount": 1,
+                "isCity": 1
+              },
+              {
+                "key": "bunker0",
+                "amount": 1,
+                "isCity": 0
+              }
+            ]
+          },
+          {
+            "type": "agents",
+            "respawnDelayMs": 5000,
+            "maxTotal": 200,
+            "agent": [
+              {
+                "key": "normal_ghoul",
+                "maxAlive": 50,
+                "weight": 100,
+                "time": "night"
+              },
+              {
+                "key": "explosive_ghoul",
+                "maxAlive": 50,
+                "weight": 60,
+                "time": "night"
+              },
+              {
+                "key": "fast_ghoul",
+                "maxAlive": 40,
+                "weight": 50,
+                "time": "night"
+              },
+              {
+                "key": "radioactive_ghoul",
+                "maxAlive": 30,
+                "weight": 30,
+                "time": "night"
+              },
+              {
+                "key": "armored_ghoul",
+                "maxAlive": 30,
+                "weight": 20,
+                "time": "night"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "ghoul": {
+      "key": "ghoul",
+      "id": 2,
+      "clientModeId": 2,
+      "dayNightCycle": 960000,
+      "craftSpeed": 0.4,
+      "clans": {
+        "enabled": true,
+        "canCreate": true,
+        "maxMembers": 9,
+        "maxClans": 18
+      },
+      "karma": {
+        "level": [
+          {
+            "id": 0,
+            "xpMultiplier": 1.25,
+            "maxKills": 0
+          },
+          {
+            "id": 1,
+            "xpMultiplier": 1,
+            "maxKills": 3
+          },
+          {
+            "id": 2,
+            "xpMultiplier": 0.95,
+            "maxKills": 5
+          },
+          {
+            "id": 3,
+            "xpMultiplier": 0.9,
+            "maxKills": 7
+          },
+          {
+            "id": 4,
+            "xpMultiplier": 0.85,
+            "maxKills": 10
+          },
+          {
+            "id": 5,
+            "xpMultiplier": 0.8,
+            "maxKills": 999999
+          }
+        ]
+      },
+      "gauges": {
+        "gauge": [
+          {
+            "key": "life",
+            "max": 255,
+            "speedInc": 50,
+            "speedDec": 50
+          },
+          {
+            "key": "food",
+            "max": 255,
+            "speedInc": 12,
+            "speedDec": 12,
+            "lifeDecBelowPct": 0,
+            "lifeRegenAbovePct": 30
+          },
+          {
+            "key": "warmth",
+            "max": 255,
+            "speedInc": 50,
+            "speedDec": 35,
+            "lifeDecBelowPct": 0,
+            "lifeRegenAbovePct": 30
+          },
+          {
+            "key": "stamina",
+            "max": 255,
+            "speedInc": 150,
+            "speedDec": 300
+          },
+          {
+            "key": "radiation",
+            "max": 255,
+            "speedInc": 30,
+            "speedDec": 240,
+            "lifeDecAbovePct": 70,
+            "lifeRegenBelowPct": 50
+          }
+        ]
+      },
+      "ghoulRules": {
+        "lockDelayMs": 48000,
+        "extendPlayerCount": 60,
+        "extendMultiplier": 2,
+        "revealIntervalMs": 5000,
+        "shiftSpeedBonus": 92,
+        "daylightDamage": false,
+        "ghoul": [
+          {
+            "key": "normal_ghoul",
+            "weight": 100
+          },
+          {
+            "key": "explosive_ghoul",
+            "weight": 60
+          },
+          {
+            "key": "fast_ghoul",
+            "weight": 50
+          },
+          {
+            "key": "radioactive_ghoul",
+            "weight": 30
+          },
+          {
+            "key": "armored_ghoul",
+            "weight": 20
+          }
+        ]
+      },
+      "spawns": {
+        "spawn": [
+          {
+            "type": "resources",
+            "respawnDelayMs": 60000,
+            "respawnDelayMultiplier": 1,
+            "rateExperience": 2,
+            "rateItem": 1
+          },
+          {
+            "type": "structures",
+            "respawnDelayMs": 480000,
+            "structure": [
+              {
+                "key": "house0",
+                "amount": 1,
+                "isCity": 0
+              },
+              {
+                "key": "house1",
+                "amount": 1,
+                "isCity": 0
+              },
+              {
+                "key": "house2",
+                "amount": 1,
+                "isCity": 0
+              },
+              {
+                "key": "house3",
+                "amount": 1,
+                "isCity": 0
+              },
+              {
+                "key": "house4",
+                "amount": 1,
+                "isCity": 0
+              },
+              {
+                "key": "house5",
+                "amount": 1,
+                "isCity": 0
+              },
+              {
+                "key": "house6",
+                "amount": 1,
+                "isCity": 0
+              },
+              {
+                "key": "house7",
+                "amount": 1,
+                "isCity": 0
+              },
+              {
+                "key": "house8",
+                "amount": 1,
+                "isCity": 0
+              },
+              {
+                "key": "house9",
+                "amount": 1,
+                "isCity": 0
+              },
+              {
+                "key": "city0",
+                "amount": 1,
+                "isCity": 1
+              },
+              {
+                "key": "bunker0",
+                "amount": 1,
+                "isCity": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "benchmark": {
+      "key": "benchmark",
+      "id": 0,
+      "clientModeId": 0,
+      "dayNightCycle": 960000,
+      "craftSpeed": 1,
+      "clans": {
+        "enabled": true,
+        "canCreate": true,
+        "maxMembers": 9,
+        "maxClans": 18
+      },
+      "karma": {
+        "level": [
+          {
+            "id": 0,
+            "xpMultiplier": 1.25,
+            "maxKills": 0
+          },
+          {
+            "id": 1,
+            "xpMultiplier": 1,
+            "maxKills": 3
+          },
+          {
+            "id": 2,
+            "xpMultiplier": 0.95,
+            "maxKills": 5
+          },
+          {
+            "id": 3,
+            "xpMultiplier": 0.9,
+            "maxKills": 7
+          },
+          {
+            "id": 4,
+            "xpMultiplier": 0.85,
+            "maxKills": 10
+          },
+          {
+            "id": 5,
+            "xpMultiplier": 0.8,
+            "maxKills": 999999
+          }
+        ]
+      },
+      "gauges": {
+        "gauge": [
+          {
+            "key": "life",
+            "max": 255,
+            "speedInc": 50,
+            "speedDec": 0
+          },
+          {
+            "key": "food",
+            "max": 255,
+            "speedInc": 12,
+            "speedDec": 0,
+            "lifeDecBelowPct": 0,
+            "lifeRegenAbovePct": 30
+          },
+          {
+            "key": "warmth",
+            "max": 255,
+            "speedInc": 50,
+            "speedDec": 0,
+            "lifeDecBelowPct": 0,
+            "lifeRegenAbovePct": 30
+          },
+          {
+            "key": "stamina",
+            "max": 255,
+            "speedInc": 150,
+            "speedDec": 0
+          },
+          {
+            "key": "radiation",
+            "max": 255,
+            "speedInc": 30,
+            "speedDec": 0,
+            "lifeDecAbovePct": 70,
+            "lifeRegenBelowPct": 50
+          }
+        ]
+      },
+      "benchmark": true,
+      "spawns": {
+        "spawn": [
+          {
+            "type": "resources",
+            "respawnDelayMs": 60000,
+            "respawnDelayMultiplier": 1,
+            "rateExperience": 1,
+            "rateItem": 1
+          },
+          {
+            "type": "structures",
+            "respawnDelayMs": 480000,
+            "structure": [
+              {
+                "key": "house0",
+                "amount": 1,
+                "isCity": 0
+              },
+              {
+                "key": "house1",
+                "amount": 1,
+                "isCity": 0
+              },
+              {
+                "key": "house2",
+                "amount": 1,
+                "isCity": 0
+              },
+              {
+                "key": "house3",
+                "amount": 1,
+                "isCity": 0
+              },
+              {
+                "key": "house4",
+                "amount": 1,
+                "isCity": 0
+              },
+              {
+                "key": "house5",
+                "amount": 1,
+                "isCity": 0
+              },
+              {
+                "key": "house6",
+                "amount": 1,
+                "isCity": 0
+              },
+              {
+                "key": "house7",
+                "amount": 1,
+                "isCity": 0
+              },
+              {
+                "key": "house8",
+                "amount": 1,
+                "isCity": 0
+              },
+              {
+                "key": "house9",
+                "amount": 1,
+                "isCity": 0
+              },
+              {
+                "key": "city0",
+                "amount": 1,
+                "isCity": 1
+              },
+              {
+                "key": "bunker0",
+                "amount": 1,
+                "isCity": 0
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

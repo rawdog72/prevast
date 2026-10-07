@@ -1,0 +1,9 @@
+/*
+ * Copyright (c) 2026 rawdog72 and Prevast Open Server Contributors
+ * SPDX-License-Identifier: GPL-2.0-only
+ */
+
+/* Page frame. The game draws into #can; the home screen is a DOM overlay. */
+html, body { margin: 0; height: 100%; overflow: hidden; background: #1b2026; }
+body { font-family: 'Viga', sans-serif; }
+#can { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }

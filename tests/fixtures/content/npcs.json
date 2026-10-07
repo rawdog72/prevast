@@ -1,0 +1,55 @@
+{
+  "name": "npcs",
+  "version": 1,
+  "hash": "ee4d0abd8737826d",
+  "attributes": {},
+  "entries": {
+    "merchant": {
+      "key": "merchant",
+      "id": 1,
+      "name": "Mara",
+      "rangeTiles": 2,
+      "client": {
+        "head": "day-skin0",
+        "leftArm": "day-left-arm0",
+        "rightArm": "day-right-arm0",
+        "shop": true,
+        "tint": "#e3c789"
+      }
+    },
+    "banker": {
+      "key": "banker",
+      "id": 2,
+      "name": "Elias",
+      "client": {
+        "head": "day-skin2",
+        "leftArm": "day-left-arm2",
+        "rightArm": "day-right-arm2",
+        "tint": "#a4c6dd"
+      }
+    },
+    "quartermaster": {
+      "key": "quartermaster",
+      "id": 3,
+      "name": "Rook",
+      "client": {
+        "head": "day-skin4",
+        "leftArm": "day-left-arm4",
+        "rightArm": "day-right-arm4",
+        "tint": "#c5d7a2"
+      }
+    },
+    "smuggler": {
+      "key": "smuggler",
+      "id": 4,
+      "name": "Vex",
+      "client": {
+        "head": "day-skin0",
+        "leftArm": "day-left-arm0",
+        "rightArm": "day-right-arm0",
+        "shop": true,
+        "tint": "#cfaaa5"
+      }
+    }
+  }
+}

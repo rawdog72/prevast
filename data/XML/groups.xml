@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Staff groups. Loaded by gameplay/groups.cpp.
+
+    id     1-255, stable: accounts store it (web host accounts.group_id).
+    rank   0-255, unique. A higher rank passes every check a lower one does,
+           and may kick/ban/!setgroup only players of strictly lower rank.
+           Exactly one group has rank 0 and it must be id 1: guests and new
+           accounts are in it.
+    badge  icon key the client draws next to the name (verified is separate
+           and automatic). Empty = no badge.
+    flags  staffChat        admin chat tab and highlighted chat lines
+           immortal         takes no damage, gauges pinned
+           bypassInvincible may hurt invincible players, ignores no-PvP
+           noRateLimit      exempt from the packet limiter
+           noIdleKick       exempt from the idle kick
+           alwaysLogin      may join a closed or full server
+    The adminPassword login always gets the highest-ranked group.
+-->
+<groups>
+    <group id="1" name="player" rank="0"/>
+    <group id="2" name="tutor" rank="1" badge="tutor" flags="staffChat"/>
+    <group id="3" name="gamemaster" rank="2" badge="gamemaster"
+           flags="staffChat noRateLimit noIdleKick alwaysLogin immortal"/>
+    <group id="4" name="admin" rank="3" badge="admin"
+           flags="staffChat noRateLimit noIdleKick alwaysLogin immortal bypassInvincible"/>
+</groups>

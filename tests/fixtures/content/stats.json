@@ -1,0 +1,64 @@
+{
+  "name": "stats",
+  "version": 1,
+  "hash": "6eb1d74ba2e7b50c",
+  "attributes": {},
+  "entries": {
+    "kills_ghoul": {
+      "key": "kills_ghoul",
+      "id": 1,
+      "name": "Ghouls killed"
+    },
+    "kills_bot": {
+      "key": "kills_bot",
+      "id": 2,
+      "name": "Robots destroyed"
+    },
+    "crafted": {
+      "key": "crafted",
+      "id": 3,
+      "name": "Items crafted"
+    },
+    "gathered": {
+      "key": "gathered",
+      "id": 4,
+      "name": "Resources gathered"
+    },
+    "built": {
+      "key": "built",
+      "id": 5,
+      "name": "Things built"
+    },
+    "wrecked": {
+      "key": "wrecked",
+      "id": 6,
+      "name": "Others' buildings wrecked"
+    },
+    "quests_completed": {
+      "key": "quests_completed",
+      "id": 7,
+      "name": "Quests completed"
+    },
+    "bounties": {
+      "key": "bounties",
+      "id": 8,
+      "name": "Outlaws brought down"
+    },
+    "deaths": {
+      "key": "deaths",
+      "id": 9,
+      "name": "Deaths"
+    },
+    "minutes_survived": {
+      "key": "minutes_survived",
+      "id": 10,
+      "name": "Minutes survived"
+    },
+    "longest_life": {
+      "key": "longest_life",
+      "id": 11,
+      "name": "Longest life (minutes)",
+      "aggregate": "max"
+    }
+  }
+}

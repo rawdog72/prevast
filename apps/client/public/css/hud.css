@@ -1,0 +1,1714 @@
+/*
+ * Copyright (c) 2026 rawdog72 and Prevast Open Server Contributors
+ * SPDX-License-Identifier: GPL-2.0-only
+ */
+
+/* In-game HUD & windows. DOM + CSS overlay above #can (the world canvas).
+   The look is the old site's generated GameUI layer (game-ui.js / ui.css):
+   dark glass panels on the --dv-* palette from ui.css, Viga everywhere,
+   monochrome text with the off-white accent for the one thing that matters.
+   Root and non-interactive wrappers are pointer-events:none so empty space
+   lets clicks reach the game canvas; only real controls opt back in.
+   Sizes: every region root carries `zoom: var(--hud-z-<region>)` -- the
+   window fit x Options > Interface size, written by ui-scale.ts (1 = the
+   old client's 1280x880 view). zoom, not transform, so layout follows: the
+   bottom grid, max-width clamps and pointer hit-testing all stay honest. */
+
+:root {
+  --dv-surface-opaque: rgba(19, 23, 28, 0.9);
+  --dv-primary-text: #20262b;
+  --dv-ghost: rgba(210, 225, 240, 0.09);
+  --dv-ghost-hover: rgba(225, 235, 245, 0.22);
+  --dv-danger: rgba(210, 75, 75, 0.18);
+  --dv-danger-hover: rgba(210, 75, 75, 0.36);
+  --dv-danger-text: #f0a6a6;
+  --dv-warn-text: #ffd799;
+  --dv-slot-active: rgba(225, 235, 240, 0.14);
+  --dv-slot-active-edge: rgba(235, 242, 250, 0.55);
+  --dv-font: 'Viga', sans-serif;
+  /* Corner sizes: small controls, slots and buttons, inset cards, panels. */
+  --dv-r-sm: 7px;
+  --dv-r: 9px;
+  --dv-r-md: 12px;
+  --dv-r-lg: 16px;
+  --dv-ok-text: #a6ebb3;
+  --dv-ok-edge: rgba(111, 220, 124, 0.45);
+  --dv-mention: rgba(255, 215, 153, 0.1);
+
+  /* The old client's exact bar colors; the only chroma in the HUD. */
+  --dv-life: #70bd56;
+  --dv-food: #e58833;
+  --dv-cold: #55b7bc;
+  --dv-stamina: #d7c83a;
+  --dv-xp: #ffffff;
+  /* Chat names, after Tibia: a player speaks in yellow, an admin in its own colour. */
+  --dv-chat-player: #ffe66d;
+  --dv-chat-admin: #ff8a65;
+  /* The clock ring's two halves, after the old day-clock / night-clock art, kept faint. */
+  --dv-day: rgba(243, 226, 160, 0.85);
+  --dv-night: rgba(111, 134, 168, 0.8);
+}
+
+.hud-root {
+  position: fixed;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  font: 13px/1.35 var(--dv-font);
+  color: var(--dv-text);
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+}
+.hud-root[hidden] { display: none; }
+.hud-root *, .dv-modal-root * { box-sizing: border-box; }
+
+.dv-icon { display: inline-block; width: 1em; height: 1em; vertical-align: -0.15em; }
+
+/* Item icons (/icons/<name>.png via --icon): frameless art, the slot is the frame.
+   A soft shadow lifts it off the glass; hover and the selected slot nudge it up. */
+.hud-slot.has-item::after,
+.dv-item-slot.has-item::after,
+.dv-craft-cell.has-item::after,
+.dv-craft-preview-sprite.has-item::after {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  background: var(--icon) center / contain no-repeat;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.45));
+  transition: transform 0.12s ease-out;
+  pointer-events: none;
+}
+.hud-slot.has-item:hover::after,
+.dv-item-slot.has-item:hover::after,
+.dv-craft-cell.has-item:hover::after { transform: translateY(-1px) scale(1.06); }
+.hud-slot.has-item.is-active::after,
+.dv-craft-cell.is-selected.has-item::after { transform: scale(1.04); }
+
+@keyframes dv-rise { from { opacity: 0; transform: translateY(6px); } }
+@keyframes dv-fade-in { from { opacity: 0; } }
+
+/* ---------------------------------------------------------------------- *
+ * Shared surfaces (GameUI box / panel / slot / button)
+ * ---------------------------------------------------------------------- */
+
+/* No backdrop-filter on anything that sits over the world canvas: every
+   blurred element makes the compositor copy and blur its backdrop again on
+   every frame the canvas changes, i.e. every frame -- measured at ~30% of
+   frame time on a 2-core box.
+   The glass is a little more opaque instead; the start screen (static
+   background) keeps the real blur from ui.css. */
+.dv-panel {
+  position: relative;
+  background: var(--dv-surface-opaque);
+  border: 1px solid var(--dv-edge);
+  border-radius: var(--dv-r-lg);
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+/* A restrained top reflection gives depth without a heavy double frame. */
+.dv-panel::before {
+  content: '';
+  position: absolute;
+  inset: 1px 1px auto 1px;
+  height: min(100px, 40%);
+  border-radius: inherit;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0));
+  pointer-events: none;
+}
+.dv-panel > * { position: relative; }
+
+.dv-label {
+  font-size: 11px;
+  letter-spacing: 0.35px;
+  text-transform: uppercase;
+  color: var(--dv-muted);
+}
+.dv-muted { color: var(--dv-muted); }
+.dv-rule { height: 1px; background: var(--dv-highlight); margin: 12px 0; }
+
+.dv-slot {
+  position: relative;
+  background: var(--dv-inset);
+  border: 1px solid var(--dv-edge);
+  border-radius: var(--dv-r);
+}
+.dv-slot.is-active {
+  background: var(--dv-slot-active);
+  border-color: var(--dv-slot-active-edge);
+}
+
+.dv-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 16px;
+  border: 1px solid var(--dv-edge);
+  border-radius: var(--dv-r);
+  background: var(--dv-ghost);
+  color: var(--dv-text);
+  font: 15px var(--dv-font);
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s, border-color 0.15s;
+  pointer-events: auto;
+}
+/* Scoped to in-game windows: the start screen has its own .is-small (ui.css). */
+.dv-modal-root .dv-btn.is-small { min-height: 30px; padding: 0 10px; font-size: 13px; }
+.dv-modal-root .dv-btn.is-icon.is-small { width: 30px; padding: 0; }
+.dv-modal-root .dv-btn.is-icon.is-small .dv-icon { width: 16px; height: 16px; }
+.dv-btn:hover:not(:disabled) { background: var(--dv-ghost-hover); }
+.dv-btn:active:not(:disabled) { transform: translateY(2px); }
+.dv-btn:disabled { opacity: 0.35; cursor: default; }
+.dv-btn:focus-visible { outline: 3px solid var(--dv-accent); outline-offset: 3px; }
+.dv-btn.is-primary, .dv-btn-amber, .dv-btn-cyan, .dv-btn-emerald {
+  background: var(--dv-accent);
+  border-color: rgba(255, 255, 255, 0.6);
+  color: var(--dv-primary-text);
+}
+.dv-btn.is-primary:hover:not(:disabled), .dv-btn-amber:hover:not(:disabled),
+.dv-btn-cyan:hover:not(:disabled), .dv-btn-emerald:hover:not(:disabled) { background: #ffffff; }
+.dv-btn.is-danger, .dv-btn-crimson { background: var(--dv-danger); color: var(--dv-danger-text); }
+.dv-btn.is-danger:hover:not(:disabled), .dv-btn-crimson:hover:not(:disabled) { background: var(--dv-danger-hover); }
+.dv-btn.is-icon { width: 40px; padding: 0; flex: none; }
+.dv-btn.is-icon .dv-icon { width: 22px; height: 22px; }
+
+.dv-input {
+  display: block;
+  width: 100%;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--dv-edge);
+  border-radius: var(--dv-r);
+  background: rgba(5, 9, 13, 0.32);
+  color: var(--dv-text);
+  font: 17px var(--dv-font);
+  outline: none;
+  pointer-events: auto;
+}
+.dv-input::placeholder { color: #a7b0bd; }
+.dv-input:hover { border-color: rgba(240, 245, 250, 0.3); }
+.dv-input:focus { background: rgba(5, 9, 13, 0.5); border-color: rgba(240, 245, 250, 0.55); }
+.dv-input:disabled { opacity: 0.5; }
+select.dv-input option { background: #252c35; }
+/* Number fields: the stepper buttons beside them do the stepping. */
+.dv-input[type='number'] { -moz-appearance: textfield; appearance: textfield; text-align: center; }
+.dv-input[type='number']::-webkit-inner-spin-button,
+.dv-input[type='number']::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+.dv-spinner.is-on { display: inline-block; flex: none; width: 16px; height: 16px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: dv-spin 0.7s linear infinite; opacity: 0.7; }
+
+/* ---------------------------------------------------------------------- *
+ * Controls strip (under the minimap: Craft, Clan, Map, Options)
+ * ---------------------------------------------------------------------- */
+
+.hud-controls {
+  display: flex;
+  justify-content: space-between;
+  gap: 4px;
+  width: 190px;
+  padding: 6px;
+  /* Joined to the minimap panel above: square top corners, shared edge. */
+  border-top: 0;
+  border-radius: 0 0 var(--dv-r-lg) var(--dv-r-lg);
+  pointer-events: auto;
+}
+.hud-controls::before { display: none; }
+/* Five buttons (Craft, Clan, Quests, Map, Options) across the 190px strip. */
+.hud-controls .hud-btn { width: 32px; height: 36px; }
+/* Hints hang under the strip; anchor them to the right so the last one stays on screen. */
+.hud-controls .hud-btn[data-hint]:hover::after { left: auto; right: 0; }
+/* Unspent skill points on the craft button (the old bouncing skillPointIcon). */
+.hud-btn-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: var(--dv-r);
+  background: var(--dv-accent);
+  color: var(--dv-primary-text);
+  font: 11px/18px var(--dv-font);
+  text-align: center;
+  animation: hud-badge-bounce 1s ease-in-out infinite;
+}
+@keyframes hud-badge-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+.hud-btn {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--dv-r);
+  border: 1px solid var(--dv-edge);
+  background: var(--dv-surface-opaque);
+  color: var(--dv-text);
+  font-size: 18px;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+}
+.hud-btn:hover { background: rgba(110, 125, 145, 0.45); }
+.hud-btn:active { transform: translateY(2px); }
+.hud-btn.is-on { background: var(--dv-accent); border-color: rgba(255, 255, 255, 0.6); color: var(--dv-primary-text); }
+.hud-btn.is-on:hover { background: #ffffff; }
+/* GameUI.hudHint: a small label under the hovered button. */
+.hud-btn[data-hint]:hover::after {
+  content: attr(data-hint);
+  position: absolute;
+  top: 42px;
+  left: 0;
+  white-space: nowrap;
+  padding: 5px 10px;
+  border-radius: var(--dv-r-sm);
+  border: 1px solid var(--dv-edge);
+  background: var(--dv-surface);
+  color: var(--dv-text);
+  font: 12px var(--dv-font);
+  pointer-events: none;
+  z-index: 2;
+  animation: dv-fade-in 0.12s 0.35s both;
+}
+
+/* ---------------------------------------------------------------------- *
+ * Alerts (top-center) and the clan request card
+ * ---------------------------------------------------------------------- */
+
+.hud-alerts {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  zoom: var(--hud-z-hud, 1);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: min(320px, 80vw);
+  align-items: center;
+}
+.hud-alert {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 14px 7px 10px;
+  border-radius: var(--dv-r);
+  border: 1px solid var(--dv-edge);
+  background: var(--dv-surface-opaque);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+  animation: dv-rise 0.18s ease-out;
+}
+.hud-alert-glyph { color: var(--c, var(--dv-accent)); font-size: 20px; flex: none; }
+.hud-alert.pulse .hud-alert-glyph { animation: hud-pulse 1.4s ease-in-out infinite; }
+.hud-alert-title { font-size: 12px; letter-spacing: 0.3px; color: var(--dv-text); }
+.hud-alert-sub { font-size: 11px; color: var(--dv-muted); margin-top: 1px; }
+@keyframes hud-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+/* ---------------------------------------------------------------------- *
+ * Vitals: a compact instrument panel. Color belongs to the gauges; the
+ * neutral frame stays quiet against both day and night game scenes.
+ * ---------------------------------------------------------------------- */
+
+.hud-gauges {
+  --dv-life: #cb786e;
+  --dv-food: #c9a16a;
+  --dv-cold: #7aaebc;
+  --dv-stamina: #c9be79;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 250px;
+  padding: 12px;
+  margin-bottom: 4px;
+  border: 1px solid #42454b;
+  border-radius: 8px;
+  background: linear-gradient(145deg, rgba(36, 38, 43, 0.97), rgba(23, 25, 29, 0.97));
+  box-shadow: 0 2px 0 #111216, 0 6px 18px rgba(0, 0, 0, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  color: #e4e5e8;
+  pointer-events: none;
+}
+.hud-gauges::before { display: none; }
+.hud-gauges .hud-gauge-unit { margin-left: 2px; font-size: 9px; color: #a6a9af; }
+
+/* Life leads, with a slightly deeper track and the existing damage trail. */
+.hud-life { --c: var(--dv-life); display: flex; align-items: center; gap: 10px; padding-bottom: 2px; }
+.hud-life-icon { flex: none; width: 23px; color: var(--c); font-size: 22px; line-height: 1; }
+.hud-life-body { display: flex; flex-direction: column; flex: 1; min-width: 0; gap: 6px; }
+.hud-life-heading { display: flex; align-items: baseline; justify-content: space-between; }
+.hud-life-label { font-size: 12px; }
+.hud-life-value { line-height: 1; }
+.hud-life-val { font-size: 17px; font-variant-numeric: tabular-nums; }
+.hud-life-track {
+  position: relative;
+  height: 11px;
+  border: 1px solid #101115;
+  border-radius: 3px;
+  background: #101216;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.07);
+  overflow: hidden;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+.hud-life-track::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(90deg, transparent 0, transparent calc(20% - 1px), rgba(13, 14, 17, 0.28) calc(20% - 1px), rgba(13, 14, 17, 0.28) 20%);
+}
+.hud-life-trail { position: absolute; inset: 0; width: var(--val, 100%); background: #d8c5b7; border-radius: 2px; }
+.hud-life-fill {
+  position: absolute;
+  inset: 0;
+  width: var(--val, 100%);
+  border-radius: 2px;
+  background: linear-gradient(180deg, var(--c), color-mix(in srgb, var(--c), #16181c 15%));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  transition: width 0.12s linear;
+}
+.hud-life.is-critical { --c: #f08d7e; }
+.hud-life.is-critical .hud-life-value { color: #ffb7ab; }
+.hud-life.is-critical .hud-life-track { border-color: #89534d; }
+.hud-life.is-critical .hud-life-fill { animation: hud-pulse 1s ease-in-out infinite; }
+.hud-life.is-hit .hud-life-track { border-color: #f2c5b9; box-shadow: 0 0 0 2px rgba(222, 128, 111, 0.25); }
+.hud-life.is-hit .hud-life-fill { filter: brightness(1.45); }
+
+/* Aligned rows are readable without nested cards or decorative badges. */
+.hud-tiles { display: flex; flex-direction: column; gap: 8px; }
+.hud-tile { display: grid; grid-template-columns: 18px 48px minmax(0, 1fr) 43px; align-items: center; gap: 6px; min-width: 0; min-height: 18px; }
+.hud-tile-icon { grid-column: 1; grid-row: 1; color: var(--c); font-size: 16px; line-height: 1; }
+.hud-tile-label { grid-column: 2; grid-row: 1; color: #bfc2c8; font-size: 11px; }
+.hud-tile-value { grid-column: 4; grid-row: 1; display: flex; align-items: baseline; justify-content: flex-end; line-height: 1; }
+.hud-tile-val { font-size: 12px; font-variant-numeric: tabular-nums; }
+.hud-tile-track { grid-column: 3; grid-row: 1; position: relative; height: 6px; border-radius: 2px; background: #101216; box-shadow: 0 1px 0 rgba(255, 255, 255, 0.07); overflow: hidden; }
+.hud-tile-fill { position: absolute; inset: 0; width: var(--val, 100%); border-radius: inherit; background: var(--c); transition: width 0.12s linear; }
+.hud-tile-dir { width: 5px; height: 4px; flex: none; margin-left: 4px; align-self: center; background: var(--c); opacity: 0; transition: opacity 0.3s; }
+.hud-tile[data-dir="rise"] .hud-tile-dir { clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+.hud-tile[data-dir="fall"] .hud-tile-dir { clip-path: polygon(0 0, 100% 0, 50% 100%); }
+.hud-tile[data-dir="rise"] .hud-tile-dir, .hud-tile[data-dir="fall"] .hud-tile-dir { opacity: 0.8; }
+.hud-tile.is-critical .hud-tile-label, .hud-tile.is-critical .hud-tile-val { color: #ffb7ab; }
+.hud-tile.is-critical .hud-tile-track { box-shadow: 0 0 0 1px #89534d; }
+.hud-tile.is-critical .hud-tile-fill { background: #f08d7e; animation: hud-pulse 1s ease-in-out infinite; }
+
+/* Clock and exposure: compact instruments with explicit labels. */
+.hud-vit-environment { display: grid; grid-template-columns: 1.1fr 1fr; align-items: center; padding-top: 9px; border-top: 1px solid rgba(211, 216, 226, 0.1); }
+.hud-time, .hud-rad { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.hud-time-body, .hud-rad-body { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.hud-time-phase, .hud-rad-label { color: #a6a9af; font-size: 10px; line-height: 1; }
+.hud-time-countdown { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 3px; }
+.hud-time-left, .hud-rad-val { font-size: 12px; line-height: 1.2; font-variant-numeric: tabular-nums; }
+.hud-time-until { font-size: 8px; color: #a6a9af; white-space: nowrap; }
+.hud-clock { position: relative; width: 30px; height: 30px; flex: none; }
+.hud-clock-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.hud-clock-day { fill: none; stroke: #c9b887; stroke-width: 4; transition: opacity 0.6s; }
+.hud-clock-night { fill: none; stroke: #8ca2c2; stroke-width: 4; transition: opacity 0.6s; }
+.hud-clock.is-night .hud-clock-day, .hud-clock:not(.is-night) .hud-clock-night { opacity: 0.25; }
+.hud-clock-sun, .hud-clock-moon { fill: none; stroke: #c9b887; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.hud-clock-moon { stroke: #9db4d5; }
+.hud-clock .hud-clock-moon, .hud-clock.is-night .hud-clock-sun { display: none; }
+.hud-clock.is-night .hud-clock-moon { display: block; }
+.hud-clock-marker { fill: #e4e5e8; stroke: #24262b; stroke-width: 2; }
+
+/* Radiation rises as cleanliness falls. */
+.hud-rad { padding-left: 9px; border-left: 1px solid rgba(211, 216, 226, 0.1); }
+.hud-rad-dial { position: relative; width: 30px; height: 30px; flex: none; color: #a6a9af; }
+.hud-rad-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.hud-rad-ticks line { stroke: #777b84; stroke-width: 1.5; stroke-linecap: round; }
+.hud-rad-track { fill: none; stroke: #3e4148; stroke-width: 5; stroke-linecap: round; }
+.hud-rad-arc { fill: none; stroke: currentColor; stroke-width: 5; stroke-linecap: round; stroke-dasharray: 100; stroke-dashoffset: calc(100 - 100 * var(--p, 0)); transition: stroke 0.3s; }
+.hud-rad-needle { stroke: currentColor; stroke-width: 2; stroke-linecap: round; transition: stroke 0.3s; }
+.hud-rad-icon { position: absolute; left: 50%; top: 57%; transform: translate(-50%, -50%); font-size: 13px; line-height: 1; }
+.hud-rad.is-warn .hud-rad-dial, .hud-rad.is-warn .hud-rad-val { color: #d8b682; }
+.hud-rad.is-critical .hud-rad-dial, .hud-rad.is-critical .hud-rad-val { color: #ffb7ab; }
+.hud-rad.is-draining .hud-rad-icon, .hud-rad.is-draining .hud-rad-arc { animation: hud-pulse 1s ease-in-out infinite; }
+
+/* Progress earns only a single compact row at the bottom. */
+.hud-xp { display: flex; align-items: center; gap: 9px; padding-top: 8px; border-top: 1px solid rgba(211, 216, 226, 0.1); }
+.hud-level-badge { display: flex; align-items: baseline; gap: 4px; flex: none; }
+.hud-level-label { color: #a6a9af; font-size: 9px; letter-spacing: 0.3px; }
+.hud-level { font-size: 13px; line-height: 1; font-variant-numeric: tabular-nums; }
+.hud-xp-body { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0; }
+.hud-xp-text { color: #a6a9af; font-size: 9px; line-height: 1; text-align: right; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.hud-xp-track { position: relative; height: 3px; border-radius: 1px; background: #101216; overflow: hidden; }
+.hud-xp-fill { position: absolute; inset: 0; width: var(--val, 0%); border-radius: inherit; background: #969faa; transition: width 0.25s ease-out; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hud-gauges *, .hud-gauges *::after { animation: none !important; transition: none !important; }
+}
+
+
+/* ---------------------------------------------------------------------- *
+ * Chat (bottom-left, above gauges)
+ * ---------------------------------------------------------------------- */
+
+.hud-chat {
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + 6px);
+  width: 440px;
+  height: 260px;
+  min-width: min(300px, 100%);
+  min-height: min(180px, var(--chat-available-height, 600px));
+  resize: both;
+  display: flex;
+  flex-direction: column;
+  pointer-events: auto;
+  overflow: hidden;
+  font: var(--chat-font-size, 14px)/1.45 var(--chat-font, Arial, sans-serif);
+  background: rgba(19, 23, 28, var(--chat-opacity, .94));
+  zoom: var(--hud-z-chat, 1);
+}
+.hud-chat.is-collapsed {
+  height: auto !important;
+  min-height: 0;
+  resize: none;
+}
+.hud-chat.is-collapsed > :not(.hud-chat-tabs) {
+  display: none;
+}
+.hud-chat-tabs {
+  display: flex;
+  gap: 2px;
+  padding: 4px 6px 0;
+  border-bottom: 1px solid var(--dv-edge);
+  flex: none;
+  align-items: center;
+  flex-wrap: nowrap;
+  min-width: 0;
+}
+.hud-chat-tab {
+  padding: 7px 8px;
+  border-radius: 8px 8px 0 0;
+  border: 1px solid transparent;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--dv-muted);
+  font: 13px var(--dv-font);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+.hud-chat-tab:hover {
+  background: var(--dv-ghost);
+  color: var(--dv-text);
+}
+.hud-chat-tab.is-active {
+  background: var(--dv-slot-active);
+  border-bottom-color: var(--dv-cold);
+  color: var(--dv-text);
+}
+.hud-chat-tab.is-muted {
+  opacity: 0.45;
+}
+.hud-chat-tab.is-pm, .hud-chat-tab.is-npc {
+  color: var(--dv-cold);
+}
+.hud-chat-tab .badge {
+  min-width: 15px;
+  padding: 0 4px;
+  border-radius: var(--dv-r-sm);
+  background: var(--dv-accent);
+  color: var(--dv-primary-text);
+  font-size: 10px;
+  line-height: 15px;
+  text-align: center;
+}
+.hud-chat-tab .close {
+  display: inline-flex;
+  margin-left: 2px;
+  opacity: 0.6;
+  font-size: 12px;
+  line-height: 1;
+}
+.hud-chat-tab .close:hover {
+  opacity: 1;
+  color: var(--dv-danger-text);
+}
+.hud-chat-collapse {
+  margin-left: auto;
+  font: 12px var(--dv-font);
+  border: none;
+  background: transparent;
+  color: var(--dv-muted);
+  padding: 0 6px;
+}
+.hud-chat-collapse:hover {
+  color: var(--dv-text);
+}
+.hud-chat-log {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 6px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow-anchor: none;
+  user-select: text;
+  scrollbar-width: thin;
+  scrollbar-color: var(--dv-ghost-hover) transparent;
+  overscroll-behavior: contain;
+}
+.hud-chat-log::-webkit-scrollbar {
+  width: 6px;
+  background: transparent;
+}
+.hud-chat-log::-webkit-scrollbar-thumb {
+  background: var(--dv-ghost-hover);
+}
+.hud-chat-line {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr);
+  gap: 8px;
+  flex: none;
+  line-height: 1.45;
+  color: var(--dv-text);
+  overflow-wrap: anywhere;
+}
+.hud-chat-line .time {
+  color: var(--dv-muted);
+  font-size: 11px;
+  padding-top: 3px;
+  font-variant-numeric: tabular-nums;
+}
+.hud-chat-line .who {
+  display: inline;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  color: var(--dv-chat-player);
+  margin-right: 5px;
+  cursor: pointer;
+  user-select: none;
+}
+.hud-chat-line .who:hover {
+  text-decoration: underline;
+}
+.hud-chat-line.is-admin .who {
+  color: var(--dv-chat-admin);
+}
+.dv-badge { display: inline-flex; margin-left: 4px; font-size: .9em; font-weight: normal; vertical-align: -0.1em; }
+.dv-badge .dv-icon { filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.6)); }
+.hud-chat-line.kind-system,
+.hud-chat-line.kind-system .text {
+  color: var(--dv-muted);
+  font-style: italic;
+}
+.hud-chat-line.kind-log {
+  color: var(--dv-muted);
+}
+.hud-chat-line.kind-broadcast,
+.hud-chat-line.kind-broadcast .who {
+  color: var(--dv-warn-text);
+}
+.hud-chat-line.is-mention {
+  background: var(--dv-mention);
+  border-left: 2px solid var(--dv-warn-text);
+  padding-left: 6px;
+  border-radius: 0 var(--dv-r-sm) var(--dv-r-sm) 0;
+}
+.hud-chat-console [hidden] { display: none !important; }
+.hud-chat-tabstrip { display: flex; align-items: stretch; flex: 1; min-width: 65px; overflow-x: auto; scrollbar-width: thin; }
+.hud-chat-tab { flex: none; }
+.hud-chat-conversations { width: 112px; min-width: 75px; max-width: 32%; border: 0; border-radius: 4px; padding: 6px 2px; color: var(--dv-cold); background: #171d23; font: 12px var(--dv-font); }
+.hud-chat-tool, .hud-chat-collapse { flex: none; min-width: 25px; height: 30px; margin: 0; border: 0; padding: 4px; color: var(--dv-muted); background: transparent; cursor: pointer; }
+.hud-chat-tool:hover { background: var(--dv-ghost); color: var(--dv-text); }
+.hud-chat-context { display: flex; flex: none; align-items: center; gap: 8px; padding: 5px 10px; min-height: 28px; color: var(--dv-cold); font: 11px/1.4 var(--dv-font); }
+.hud-chat-destination { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hud-chat-context-action { padding: 2px 4px; border: 0; background: transparent; color: var(--dv-muted); font: inherit; cursor: pointer; }
+.hud-chat-context-action:hover { color: var(--dv-text); text-decoration: underline; }
+.hud-chat-tab .unread-dot { color: var(--dv-cold); }
+.hud-chat-footer { display: flex; flex: none; justify-content: space-between; gap: 6px; padding: 0 12px 8px; color: var(--dv-muted); font: 11px/1.3 Arial, sans-serif; }
+.hud-chat-count { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.hud-chat-count.is-over { color: var(--dv-danger-text); }
+.hud-chat-send { height: 32px; padding: 0 8px; border: 1px solid var(--dv-edge); border-radius: var(--dv-r-sm); background: var(--dv-ghost); color: var(--dv-text); font: 12px var(--dv-font); cursor: pointer; }
+.hud-chat-send:disabled { opacity: .5; cursor: default; }
+.hud-chat-jump { flex: none; align-self: center; margin: 2px 8px 5px; padding: 4px 12px; border: 1px solid var(--dv-edge); border-radius: var(--dv-r-sm); color: var(--dv-cold); background: #202a32; font: 12px var(--dv-font); cursor: pointer; }
+.hud-chat-suggestions { flex: none; max-height: 110px; overflow-y: auto; display: flex; flex-wrap: wrap; gap: 4px; padding: 6px 8px; background: #171d23; }
+.hud-chat-suggestion { border: 1px solid var(--dv-edge); border-radius: 4px; padding: 4px 6px; color: var(--dv-text); background: transparent; font: 12px Arial, sans-serif; cursor: pointer; }
+.hud-chat-suggestion.is-active, .hud-chat-suggestion:hover { background: var(--dv-slot-active); border-color: var(--dv-cold); }
+.hud-chat.hide-timestamps .hud-chat-line { grid-template-columns: minmax(0, 1fr); }
+.hud-chat.hide-timestamps .time { display: none; }
+.hud-chat.is-settings > :not(.hud-chat-tabs):not(.hud-chat-settings-host) { display: none; }
+.hud-chat-settings-host { flex: 1; min-height: 0; overflow-y: auto; background: #171d23; scrollbar-width: thin; }
+.hud-chat-settings { padding: 10px; display: grid; gap: 9px; font: 12px/1.4 Arial, sans-serif; }
+.hud-chat-settings strong { color: var(--dv-text); font-weight: 500; }
+.hud-chat-setting { display: flex; justify-content: space-between; align-items: center; gap: 8px; color: var(--dv-muted); }
+.hud-chat-setting-range { display: flex; align-items: center; gap: 5px; width: 54%; }
+.hud-chat-setting-range input { flex: 1; min-width: 0; width: 65px; }
+.hud-chat-setting-range output { width: 42px; text-align: right; }
+.hud-chat-setting-notice { display: flex; align-items: center; gap: 6px; }
+.hud-chat-settings select, .hud-chat-settings button { border: 1px solid var(--dv-edge); border-radius: 4px; padding: 4px; background: #202a32; color: var(--dv-text); font: inherit; }
+.hud-chat-settings input { accent-color: var(--dv-cold); }
+.hud-chat-sound { display: inline-flex; align-items: center; gap: 3px; }
+.hud-chat-console :is(button, input, select):focus-visible { outline: 2px solid var(--dv-cold); outline-offset: -2px; }
+/* Conversation notices stay outside the console; clicking opens the conversation. */
+.hud-chat-notices {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: var(--hud-notice-y, 80px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  pointer-events: none;
+  z-index: 5;
+  zoom: var(--hud-z-notices, var(--hud-z-chat, 1));
+}
+.hud-chat-notice {
+  text-align: left;
+  pointer-events: auto;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 220px;
+  max-width: min(460px, 90vw);
+  padding: 9px 14px 10px;
+  border: 1px solid var(--dv-edge);
+  border-left: 3px solid var(--dv-cold);
+  border-radius: var(--dv-r);
+  background: var(--dv-surface-opaque);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  font: 13px/1.35 var(--dv-font);
+  color: var(--dv-text);
+  animation: hud-chat-notice-in 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition: background 0.15s;
+}
+.hud-chat-notice:hover { background: rgba(32, 38, 45, 0.95); }
+.hud-chat-notice .head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.hud-chat-notice .title { color: var(--dv-cold); font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hud-chat-notice .kicker { flex: none; font-size: 10px; letter-spacing: 0.5px; text-transform: uppercase; color: var(--dv-muted); }
+.hud-chat-notice .text {
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+@keyframes hud-chat-notice-in {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: none; }
+}
+.hud-chat-inputrow {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 8px 6px;
+  border-top: 1px solid var(--dv-edge);
+}
+.hud-chat-target {
+  color: var(--dv-muted);
+  font-size: 11px;
+  white-space: nowrap;
+  max-width: 90px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.hud-chat-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 32px;
+  padding: 0 8px;
+  border-radius: var(--dv-r-sm);
+  border: 1px solid var(--dv-edge);
+  background: var(--dv-inset);
+  color: var(--dv-text);
+  font: inherit;
+}
+.hud-chat-input:focus {
+  border-color: var(--dv-slot-active-edge);
+}
+.hud-chat-input::placeholder {
+  color: var(--dv-muted);
+  opacity: 0.8;
+}
+.hud-chat-input[readonly] {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* ---------------------------------------------------------------------- *
+ * Bottom row: vitals | hotbar | bag. Hotbar (bottom-center) and bag
+ * ---------------------------------------------------------------------- */
+
+/* 1fr auto 1fr keeps the hotbar centred under the player while the side
+   columns fit; a side column never shrinks under its content (auto minimum),
+   so a scaled-up vitals panel pushes the hotbar right instead of under it. */
+.hud-bottom {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 12px;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: end;
+  gap: 12px;
+  pointer-events: none;
+}
+.hud-bottomleft { position: relative; justify-self: start; }
+.hud-gauges { zoom: var(--hud-z-vitals, 1); }
+.hud-hotbar {
+  position: relative;
+  justify-self: center;
+  min-width: 0;
+  pointer-events: none;
+  zoom: var(--hud-z-inventory, 1);
+  z-index: 10;
+}
+.hud-bag-corner {
+  position: relative;
+  justify-self: end;
+  zoom: var(--hud-z-inventory, 1);
+  z-index: 5;
+}
+.hud-hotbar-row {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+  pointer-events: auto;
+  margin: 0 auto;
+  width: max-content;
+}
+.hud-slot {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  border-radius: var(--dv-r);
+  background: var(--dv-inset);
+  border: 1px solid var(--dv-edge);
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s, transform 0.08s;
+  touch-action: none;
+}
+.hud-slot[hidden] { display: none; }
+.hud-slot:hover { background: rgba(225, 235, 240, 0.08); }
+.hud-slot:active { transform: scale(0.96); }
+.hud-slot.is-active { background: var(--dv-slot-active); border-color: var(--dv-slot-active-edge); }
+.hud-slot-key { position: absolute; top: 4px; left: 6px; font-size: 11px; color: var(--dv-muted); z-index: 1; }
+.hud-slot-count { position: absolute; right: 5px; bottom: 3px; font: 13px var(--dv-font); color: #fff; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9); z-index: 1; }
+/* Freshness bar on food that rots (old _buttonInv rotten<stage>.png, a 66x14 strip drawn along the slot's top). */
+.hud-slot-rot { position: absolute; top: 4px; right: 5px; width: 42px; height: 9px; background: center / contain no-repeat; z-index: 1; pointer-events: none; }
+.hud-slot-rot[hidden] { display: none; }
+/* A gun's magazine (old _buttonInv's yellow "x<ammo>" spot): rounds/capacity, off-white past half, amber to half, red near empty. */
+.hud-slot-ammo, .dv-item-slot .dv-slot-ammo { position: absolute; right: 5px; bottom: 3px; font: 12px var(--dv-font); letter-spacing: 0.2px; color: var(--dv-accent); text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9); z-index: 1; pointer-events: none; font-variant-numeric: tabular-nums; }
+.hud-slot-ammo[hidden], .dv-item-slot .dv-slot-ammo[hidden] { display: none; }
+.hud-slot-ammo[data-level='low'], .dv-item-slot .dv-slot-ammo[data-level='low'] { color: var(--dv-warn-text); }
+.hud-slot-ammo[data-level='empty'], .dv-item-slot .dv-slot-ammo[data-level='empty'] { color: var(--dv-danger-text); }
+
+/* Bag: a button in the bottom-right corner cell; open, its slots climb above it in columns of three. */
+.hud-bag { display: block; width: 64px; height: 64px; margin-bottom: 4px; pointer-events: auto; }
+.hud-bag[hidden] { display: none; }
+.hud-bag-area { position: absolute; right: 0; bottom: calc(100% + 5px); display: flex; flex-direction: row-reverse; gap: 5px; pointer-events: auto; animation: dv-rise 0.14s ease-out; }
+.hud-bag-area[hidden] { display: none; }
+.hud-bag-column { display: flex; flex-direction: column; gap: 5px; }
+
+.hud-drag-ghost {
+  position: fixed;
+  z-index: 40;
+  width: 80px;
+  height: 80px;
+  transform: translate(-50%, -50%);
+  background: center / contain no-repeat;
+  opacity: 0.85;
+  filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.5));
+  pointer-events: none;
+}
+.hud-drag-ghost[hidden] { display: none; }
+/* Status line over the hotbar ("You see a wooden wall."): text only, fades out. */
+.hud-status-line {
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  transform: translateX(-50%);
+  margin-bottom: 10px;
+  width: max-content;
+  max-width: 720px;
+  text-align: center;
+  font: 14px var(--dv-font);
+  color: var(--dv-text);
+  text-shadow: 0 1px 2px #000, 0 0 4px #000;
+  opacity: 0;
+  transition: opacity 0.4s;
+  pointer-events: none;
+}
+.hud-status-line.is-visible { opacity: 1; }
+.hud-status-line.is-failure { color: var(--dv-danger-text); }
+
+/* The old client's dark box over the selected slot: name, description, one stat line. */
+.hud-item-tooltip {
+  position: fixed;
+  bottom: 74px;
+  transform: translateX(-50%);
+  width: 220px;
+  padding: 10px 12px;
+  border-radius: var(--dv-r);
+  pointer-events: none;
+  z-index: 30;
+  animation: dv-fade-in 0.12s ease-out;
+}
+.hud-item-tooltip[hidden] { display: none; }
+.hud-item-tooltip-name { font-size: 16px; color: var(--dv-accent); }
+.hud-item-tooltip-desc { font-size: 12px; color: var(--dv-text); margin-top: 2px; }
+.hud-item-tooltip-stat { font-size: 13px; color: var(--dv-accent); margin-top: 4px; }
+.hud-item-tooltip-stat:empty { display: none; }
+.hud-item-tooltip-line { font-size: 12px; opacity: 0.85; }
+/* The chest / trade card lives on <body>, outside .hud-root, so it carries the HUD's
+   text context itself (colour, font, border-box); the width stays the tooltip's 220px. */
+.dv-hover-card {
+  position: fixed;
+  transform: translateX(-50%);
+  z-index: 60;
+  pointer-events: none;
+  box-sizing: border-box;
+  font: 13px/1.35 var(--dv-font);
+  color: var(--dv-text);
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+}
+.dv-hover-card * { box-sizing: border-box; }
+
+/* ---------------------------------------------------------------------- *
+ * Top-left: leaderboard. Top-right: minimap cluster (map + button strip)
+ * ---------------------------------------------------------------------- */
+
+.hud-topleft {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  zoom: var(--hud-z-leaderboard, 1);
+}
+.hud-topright {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  zoom: var(--hud-z-minimap, 1);
+}
+.hud-minimap-cluster { display: flex; flex-direction: column; }
+/* Options > Stats: "60 fps · 42 ms" under the cluster, faint and out of the way; leaves room for the hovered button's hint label. */
+.hud-stats { margin-top: 14px; padding-right: 4px; font: 12px var(--dv-font); letter-spacing: 0.3px; color: var(--dv-text); opacity: 0.55; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8); font-variant-numeric: tabular-nums; pointer-events: none; user-select: none; }
+.hud-stats[hidden] { display: none; }
+
+/* ---------------------------------------------------------------------- *
+ * Quest tracker (under the minimap cluster) and the quest journal (J)
+ * ---------------------------------------------------------------------- */
+
+.hud-quests { width: 190px; padding: 6px 8px 8px; pointer-events: auto; display: flex; flex-direction: column; gap: 6px; }
+.hud-quests[hidden] { display: none; }
+.hud-quests-head { display: flex; align-items: center; gap: 4px; padding: 0; border: 0; background: none; color: var(--dv-muted); font: 11px var(--dv-font); letter-spacing: 0.6px; text-transform: uppercase; cursor: pointer; }
+.hud-quests-head .dv-icon { width: 10px; height: 10px; }
+.hud-quest { display: flex; flex-direction: column; gap: 2px; }
+.hud-quest-name { padding: 0; border: 0; background: none; color: var(--dv-text); font: 13px var(--dv-font); text-align: left; cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hud-quest-name:hover { text-decoration: underline; }
+.hud-quest .dv-quest-objective { font-size: 11px; }
+
+.dv-modal-quests { width: 640px; }
+.dv-quest-tabs { display: flex; gap: 6px; margin-bottom: 12px; }
+.dv-quest-tabs .dv-btn { min-height: 34px; padding: 0 12px; font-size: 14px; background: transparent; color: var(--dv-muted); }
+.dv-quest-tabs .dv-btn:hover:not(:disabled) { background: var(--dv-ghost); color: var(--dv-text); }
+.dv-quest-tabs .dv-btn.is-active { background: var(--dv-slot-active); border-color: var(--dv-slot-active-edge); color: var(--dv-text); }
+.dv-quest-empty { color: var(--dv-muted); font-size: 13px; margin: 8px 0 4px; }
+.dv-quest-columns { display: grid; grid-template-columns: 190px 1fr; gap: 12px; min-height: 260px; }
+.dv-quest-list { display: flex; flex-direction: column; gap: 4px; max-height: 380px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--dv-ghost-hover) transparent; }
+.dv-quest-row { display: flex; align-items: center; gap: 6px; min-height: 36px; padding: 6px 10px; border: 1px solid var(--dv-edge); border-radius: var(--dv-r); background: var(--dv-inset); color: var(--dv-text); font: 13px var(--dv-font); text-align: left; cursor: pointer; }
+.dv-quest-row:hover { background: var(--dv-ghost); }
+.dv-quest-row.is-selected { background: var(--dv-slot-active); border-color: var(--dv-slot-active-edge); }
+.dv-quest-row.is-failed .dv-quest-row-name { color: var(--dv-danger-text); }
+.dv-quest-row-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dv-quest-tag { padding: 1px 6px; border-radius: var(--dv-r-sm); background: var(--dv-mention); color: var(--dv-warn-text); font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+.dv-quest-pin { display: inline-flex; color: var(--dv-ok-text); }
+.dv-quest-pin .dv-icon { width: 14px; height: 14px; }
+.dv-quest-detail { display: flex; flex-direction: column; gap: 8px; max-height: 380px; overflow-y: auto; padding-right: 4px; scrollbar-width: thin; scrollbar-color: var(--dv-ghost-hover) transparent; }
+.dv-quest-title { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 18px; font-weight: normal; }
+.dv-quest-state { padding: 1px 7px; border-radius: var(--dv-r-sm); font-size: 11px; }
+.dv-quest-state.is-completed { color: var(--dv-ok-text); border: 1px solid var(--dv-ok-edge); }
+.dv-quest-state.is-failed { color: var(--dv-danger-text); background: var(--dv-danger); }
+.dv-quest-description { margin: 0; color: var(--dv-muted); font-size: 12px; line-height: 1.5; }
+.dv-quest-current { display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; border: 1px solid var(--dv-edge); border-radius: var(--dv-r); background: var(--dv-inset); }
+.dv-quest-journal, .dv-quest-ending { margin: 0 0 4px; font-size: 13px; line-height: 1.5; }
+.dv-quest-ending { color: var(--dv-ok-text); }
+.dv-quest-keyword { font-weight: normal; color: var(--dv-warn-text); }
+.dv-quest-objective { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--dv-text); border-radius: var(--dv-r-sm); transition: background 0.4s; }
+.dv-quest-objective.is-done { color: var(--dv-ok-text); }
+.dv-quest-objective.is-locked { color: var(--dv-muted); opacity: 0.6; }
+.dv-quest-objective.is-flash { background: rgba(111, 220, 124, 0.2); }
+.dv-quest-mark { display: inline-flex; width: 14px; height: 14px; flex: none; align-items: center; justify-content: center; border: 1px solid var(--dv-edge); border-radius: 4px; }
+.dv-quest-objective.is-done .dv-quest-mark { border-color: var(--dv-ok-edge); }
+.dv-quest-mark .dv-icon { width: 11px; height: 11px; }
+.dv-quest-objective-text { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dv-quest-count { flex: none; font-variant-numeric: tabular-nums; color: var(--dv-muted); }
+.dv-quest-bag { flex: none; margin-left: 6px; padding: 0 5px; border-radius: var(--dv-r-sm); background: var(--dv-ghost); color: var(--dv-muted); font-size: 10px; font-variant-numeric: tabular-nums; }
+.dv-quest-bag.is-enough { background: rgba(111, 220, 124, 0.16); color: var(--dv-ok-text); }
+.dv-quest-objective.is-done .dv-quest-count { color: inherit; }
+.dv-quest-subhead { margin: 6px 0 0; font-size: 11px; font-weight: normal; color: var(--dv-muted); letter-spacing: 0.6px; text-transform: uppercase; }
+.dv-quest-story { margin: 0; padding: 0 0 0 18px; display: flex; flex-direction: column; gap: 6px; color: var(--dv-muted); font-size: 12px; line-height: 1.45; }
+.dv-quest-story p { margin: 0; }
+.dv-quest-paid { display: block; color: var(--dv-ok-text); font-size: 11px; }
+.dv-quest-actions { display: flex; gap: 6px; margin-top: auto; padding-top: 6px; }
+.dv-quest-actions .dv-btn { min-height: 34px; padding: 0 12px; font-size: 14px; }
+
+.dv-achievements { display: flex; flex-direction: column; gap: 10px; max-height: 430px; overflow-y: auto; padding-right: 4px; scrollbar-width: thin; scrollbar-color: var(--dv-ghost-hover) transparent; }
+.dv-achievements-summary { display: flex; align-items: baseline; gap: 10px; color: var(--dv-muted); font-size: 12px; }
+.dv-achievements-points { color: var(--dv-warn-text); font-size: 18px; font-weight: normal; }
+.dv-achievements-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 8px; }
+.dv-achievement { display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; border: 1px solid var(--dv-edge); border-radius: var(--dv-r); background: var(--dv-inset); opacity: 0.7; }
+.dv-achievement.is-unlocked { opacity: 1; border-color: var(--dv-ok-edge); }
+.dv-achievement.is-fresh { box-shadow: 0 0 0 1px var(--dv-ok-edge), 0 0 12px rgba(111, 220, 124, 0.25); }
+.dv-achievement.is-secret .dv-achievement-name { color: var(--dv-muted); letter-spacing: 2px; }
+.dv-achievement-head { display: flex; align-items: center; gap: 6px; }
+.dv-achievement-mark { display: inline-flex; color: var(--dv-muted); }
+.dv-achievement.is-unlocked .dv-achievement-mark { color: var(--dv-ok-text); }
+.dv-achievement-mark .dv-icon { width: 14px; height: 14px; }
+.dv-achievement-name { flex: 1; margin: 0; font-size: 14px; font-weight: normal; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dv-achievement-points { padding: 0 6px; border-radius: var(--dv-r-sm); background: var(--dv-mention); color: var(--dv-warn-text); font-size: 11px; }
+.dv-achievement-text { margin: 0; color: var(--dv-muted); font-size: 12px; line-height: 1.4; }
+.dv-achievement-date { color: var(--dv-ok-text); font-size: 11px; }
+.dv-achievement-bar { height: 4px; border-radius: 2px; background: var(--dv-ghost); overflow: hidden; }
+.dv-achievement-fill { display: block; height: 100%; background: var(--dv-accent); }
+.dv-achievement-progress { color: var(--dv-muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+.dv-stats-list { display: grid; grid-template-columns: 1fr auto; gap: 4px 16px; margin: 0; font-size: 12px; }
+.dv-stats-list dt { color: var(--dv-muted); }
+.dv-stats-list dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
+/* GameUI.minimapPanel: 190x190 -- full square 178x178 map with floating sector badge. */
+.hud-minimap-panel { position: relative; width: 190px; height: 190px; padding: 6px; border-radius: var(--dv-r-lg) var(--dv-r-lg) 0 0; }
+.hud-minimap-panel::after {
+  /* The divider between the map and the strip below it. */
+  content: '';
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 0;
+  height: 1px;
+  background: var(--dv-highlight);
+}
+.hud-minimap { width: 178px; height: 178px; border-radius: 10px; background: var(--dv-inset); display: block; }
+.hud-sector {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  padding: 2px 7px;
+  font: 14px var(--dv-font);
+  color: var(--dv-text);
+  letter-spacing: 0.5px;
+  background: rgba(10, 15, 20, 0.78);
+  border: 1px solid var(--dv-border);
+  border-radius: var(--dv-r-sm);
+  backdrop-filter: blur(6px);
+  pointer-events: none;
+  user-select: none;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+.hud-sector:empty { display: none; }
+.hud-leaderboard { width: 233px; padding: 12px 16px 10px; pointer-events: auto; }
+.hud-leaderboard[hidden] { display: none; }
+.hud-leaderboard-title { font-size: 16px; color: var(--dv-text); padding-bottom: 8px; margin-bottom: 6px; border-bottom: 1px solid var(--dv-highlight); }
+.hud-leaderboard-row { display: flex; align-items: center; gap: 8px; font-size: 12px; height: 20px; color: var(--dv-text); }
+.hud-leaderboard-row.is-me { color: var(--dv-accent); }
+.hud-leaderboard-row .rank { width: 16px; color: var(--dv-muted); flex: none; }
+.hud-leaderboard-row .name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hud-leaderboard-row .score { flex: none; font-variant-numeric: tabular-nums; }
+.hud-leaderboard-row .karma { width: 14px; height: 14px; flex: none; background-size: contain; background-repeat: no-repeat; background-position: center; }
+.hud-leaderboard-own { margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--dv-highlight); }
+
+/* ---------------------------------------------------------------------- *
+ * Floating windows (GameUI windowLayout)
+ * ---------------------------------------------------------------------- */
+
+/* The root is pointer-transparent: only the panel takes clicks, so the HUD under it (hotbar, buttons) keeps working. */
+.dv-modal-root { position: fixed; inset: 0; z-index: 10; pointer-events: none; font: 15px/1.4 var(--dv-font); color: var(--dv-text); user-select: none; }
+.dv-modal-root .dv-window { backdrop-filter: none; background: var(--dv-surface-opaque); }
+.dv-modal-root[hidden] { display: none; }
+.dv-modal {
+  pointer-events: auto;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  width: 560px;
+  /* Viewport units are zoomed with the element, so the clamp divides the zoom back out. */
+  max-width: calc((100vw - 24px) / var(--hud-z-windows, 1));
+  max-height: calc((100vh - 24px) / var(--hud-z-windows, 1));
+  border-radius: var(--dv-radius);
+  zoom: var(--hud-z-windows, 1);
+  animation: dv-window-in 0.16s ease-out;
+}
+@keyframes dv-window-in {
+  from { opacity: 0; transform: translate(-50%, calc(-50% + 10px)) scale(0.985); }
+}
+.dv-modal-clan { width: 560px; }
+.dv-modal-clan.is-browse { width: 360px; }
+.dv-modal-clan.is-browse.is-wide { width: 560px; }
+.dv-modal-craft {
+  width: 640px;
+  container-type: inline-size;
+  /* Anchor the recipe area; an expanding footer must not recenter the panel. */
+  --craft-top: max(calc(12px / var(--hud-z-windows, 1)), calc(50vh / var(--hud-z-windows, 1) - 310px));
+  top: var(--craft-top);
+  transform: translateX(-50%);
+  max-height: calc((100vh - 12px) / var(--hud-z-windows, 1) - var(--craft-top));
+  animation-name: dv-craft-window-in;
+}
+@keyframes dv-craft-window-in { from { opacity: 0; translate: 0 8px; } }
+.dv-modal-craft .dv-window-head { padding: 12px 16px 10px; }
+.dv-modal-craft .dv-window-body { padding: 4px 16px 16px; scrollbar-gutter: stable; }
+/* Container: bare glass hugging the slot grid, a floating round close on its corner, the capacity in plain text under it. */
+.dv-modal-chest { width: auto; }
+.dv-modal.is-bare { overflow: visible; }
+.dv-modal.is-bare .dv-window-head { position: absolute; top: -12px; right: -12px; padding: 0; z-index: 1; }
+.dv-modal.is-bare .dv-window-titles { display: none; }
+.dv-modal.is-bare .dv-close { width: 30px; height: 30px; border-radius: 50%; background: rgba(19, 23, 28, 0.88); font-size: 15px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45); }
+.dv-modal.is-bare .dv-close:hover { background: rgba(60, 68, 76, 0.95); }
+.dv-modal.is-bare .dv-window-body { padding: 12px; overflow: visible; }
+.dv-modal.is-bare .dv-slot-grid { margin-bottom: 0; }
+.dv-chest-capacity { position: absolute; top: calc(100% + 8px); left: 0; right: 0; text-align: center; font-size: 13px; color: rgba(227, 231, 223, 0.45); text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6); pointer-events: none; }
+.dv-modal-death { width: 520px; }
+/* The map sizes itself to the world's aspect (canvas + label margins); the window hugs it. */
+.dv-modal-map { width: auto; min-width: 300px; }
+/* GameUI.settings: 480 wide, rows of label + choices. */
+.dv-modal-options { width: 480px; }
+
+/* Attachment containers use the player's existing hotbar and bag underneath.
+   Reserve room for that inventory even when the stats require scrolling. */
+.dv-modal-mods {
+  width: 900px;
+  container-type: inline-size;
+  top: calc(50% - 38px);
+  max-height: max(220px, calc((100vh - 120px) / var(--hud-z-windows, 1)));
+}
+.dv-modal-mods .dv-window-body { padding: 0; }
+.dv-mods { --dv-mods-stage-height: clamp(400px, calc((100vh - 240px) / var(--hud-z-windows, 1)), 580px);
+  display: grid; grid-template-columns: minmax(0, 1fr) 340px;
+  grid-template-rows: var(--dv-mods-stage-height) auto auto; }
+.dv-mods-stage { position: relative; min-height: 400px; background: var(--dv-inset); overflow: hidden; }
+.dv-mods-stage-label { position: absolute; top: 12px; left: 14px; right: 14px; color: var(--dv-muted); font-size: 11px; }
+.dv-mods-picture { position: absolute; width: min(92%, calc((var(--dv-mods-stage-height) - 310px) * var(--dv-mods-aspect, 2)));
+  left: 50%; top: 50%; transform: translate(-50%, -50%); pointer-events: none; }
+.dv-mods-picture img { position: absolute; pointer-events: none; }
+.dv-mods-picture .dv-mods-fallback { width: 45%; height: 100%; left: 27.5%; object-fit: contain; }
+.dv-mods-connectors { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.dv-mods-connectors path { fill: none; stroke: var(--dv-muted); stroke-width: 1; opacity: 0.4; }
+.dv-mods-connectors path.is-preview { stroke: var(--dv-warn-text); opacity: 0.85; }
+.dv-mods-slot { position: absolute; bottom: 16px; transform: translateX(-50%); width: 88px; padding: 0;
+  border: 0; background: transparent; color: var(--dv-text); font: inherit; text-align: center; cursor: grab; touch-action: none; }
+.dv-mods-slot.is-upper { top: 42px; bottom: auto; }
+.dv-mods-slot-label { display: block; margin-bottom: 5px; font-size: 11px; color: var(--dv-muted); }
+.dv-mods-slot-well { position: relative; display: flex; align-items: center; justify-content: center; height: 64px;
+  border: 1px solid var(--dv-border); border-radius: var(--dv-r-sm); background: var(--dv-ghost); }
+.dv-mods-slot-well img { width: 76px; height: 48px; object-fit: contain; pointer-events: none; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.4)); }
+.dv-mods-slot-name { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  margin-top: 5px; height: 30px; font-size: 11px; line-height: 15px; font-weight: normal; }
+.dv-mods-slot.is-empty .dv-mods-slot-well { border-style: dashed; }
+.dv-mods-empty { color: var(--dv-muted); font-size: 11px; }
+.dv-mods-slot.is-preview .dv-mods-slot-well, .dv-mods-slot[aria-pressed="true"] .dv-mods-slot-well {
+  border-color: var(--dv-warn-text); background: var(--dv-mention); }
+.dv-mods-slot.is-compatible .dv-mods-slot-well { border-color: var(--dv-ok-edge); }
+.dv-mods-slot[aria-disabled="true"] { opacity: 0.65; cursor: wait; }
+.dv-mods-slot:focus-visible { outline: 2px solid var(--dv-accent); outline-offset: 3px; border-radius: var(--dv-r-sm); }
+.dv-mods-ammo { position: absolute; bottom: 3px; right: 5px; padding: 0 3px; background: var(--dv-surface-opaque); font-size: 11px; font-variant-numeric: tabular-nums; }
+.dv-mods-side { min-width: 0; min-height: 0; overflow: auto; padding: 14px; border-left: 1px solid var(--dv-border);
+  scrollbar-width: thin; scrollbar-color: #7b8593 transparent; }
+.dv-mods-side h3 { margin: 0 0 8px; font-size: 15px; font-weight: normal; }
+.dv-mods-summary { min-height: 36px; margin-bottom: 8px; font-size: 11px; color: var(--dv-muted); }
+.dv-mods-table { width: 100%; font-size: 12px; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.dv-mods-table th { padding: 4px 2px 8px; font-size: 11px; font-weight: normal; color: var(--dv-muted); text-align: right; white-space: nowrap; }
+.dv-mods-table th:first-child { text-align: left; }
+.dv-mods-table td { padding: 7px 2px; border-top: 1px solid var(--dv-border); }
+.dv-mods-table td:not(:first-child) { white-space: nowrap; text-align: right; }
+.dv-mods-table tr.is-affected { background: var(--dv-mention); }
+.dv-mods-table .is-better { color: var(--dv-ok-text); }
+.dv-mods-table .is-worse { color: var(--dv-danger-text); }
+.dv-mods-total, .dv-mods-delta { font-size: 11px; color: var(--dv-muted); }
+.dv-mods-view { margin: 10px 0 0; font-size: 11px; color: var(--dv-muted); }
+.dv-mods-footer { grid-column: 1 / -1; display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-top: 1px solid var(--dv-border); }
+.dv-mods-status { flex: 1; font-size: 11px; color: var(--dv-muted); }
+.dv-mods-footer button { flex-shrink: 0; }
+.dv-mods [hidden] { display: none; }
+.dv-mods-progress { grid-column: 1 / -1; height: 3px; background: var(--dv-ghost); }
+.dv-mods-progress span { display: block; height: 100%; width: 0; background: var(--dv-warn-text); }
+@container (max-width: 680px) {
+  .dv-mods { --dv-mods-stage-height: 420px; grid-template-columns: minmax(0, 1fr); grid-template-rows: none; }
+  .dv-mods-stage { height: 420px; }
+  .dv-mods-side { border-left: 0; border-top: 1px solid var(--dv-border); }
+}
+@container (max-width: 390px) {
+  .dv-mods { --dv-mods-stage-height: 380px; }
+  .dv-mods-slot { width: 66px; }
+  .dv-mods-slot-well img { width: 58px; }
+  .dv-mods-stage { height: 380px; min-height: 380px; }
+  .dv-mods-side { padding: 10px; }
+  .dv-mods-footer { flex-wrap: wrap; }
+}
+
+.dv-map { display: flex; justify-content: center; }
+.dv-map-canvas { display: block; }
+
+.dv-settings { display: flex; flex-direction: column; }
+.dv-settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 59px;
+  border-bottom: 1px solid var(--dv-highlight);
+}
+.dv-settings-row:last-child { border-bottom: 0; }
+.dv-settings-label { font-size: 15px; color: var(--dv-text); }
+.dv-settings-choices { display: flex; gap: 6px; width: 260px; }
+.dv-settings-choices .dv-btn { flex: 1; min-height: 39px; padding: 0 8px; font-size: 14px; }
+.dv-settings-value { flex: 1; align-self: center; text-align: center; font-variant-numeric: tabular-nums; color: var(--dv-text); }
+/* Interface size: a heading with Reset, then compact rows (six of them; the body scrolls on a short window). */
+.dv-settings-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 18px; padding-bottom: 6px; border-bottom: 1px solid var(--dv-highlight); }
+.dv-settings-head-title { font-size: 12px; letter-spacing: 0.8px; text-transform: uppercase; color: var(--dv-muted); }
+.dv-settings-head .dv-btn { min-height: 30px; padding: 0 12px; font-size: 13px; }
+/* Options tabs: General | Interface, a row of pills over the pane. */
+.dv-options-tabs { display: flex; gap: 6px; margin-bottom: 10px; }
+.dv-options-tabs .dv-tab {
+  justify-content: center;
+  min-height: 32px;
+  padding: 0 16px;
+  background: transparent;
+  color: var(--dv-muted);
+  font-size: 14px;
+}
+.dv-options-tabs .dv-tab:hover { background: var(--dv-ghost); color: var(--dv-text); }
+.dv-options-tabs .dv-tab.is-active { background: var(--dv-slot-active); border-color: var(--dv-slot-active-edge); color: var(--dv-text); }
+.dv-options-pane[hidden] { display: none; }
+.dv-settings-head.is-first { margin-top: 4px; }
+.dv-settings-row.is-size { min-height: 42px; }
+/* Options > Privacy: the line under the row saying who gets through anyway. */
+.dv-settings-note { margin: 12px 0 0; font-size: 12px; line-height: 1.45; }
+.dv-settings-row.is-size .dv-settings-label { font-size: 14px; }
+.dv-settings-row.is-size .dv-settings-choices { width: 200px; }
+.dv-settings-row.is-size .dv-settings-choices .dv-btn { min-height: 30px; }
+.dv-range {
+  -webkit-appearance: none;
+  appearance: none;
+  background: var(--dv-inset);
+  border: 1px solid var(--dv-edge);
+  border-radius: 4px;
+  height: 8px;
+  outline: none;
+  cursor: pointer;
+}
+.dv-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--dv-accent);
+  border: 2px solid var(--dv-surface-opaque);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.5), 0 2px 4px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+}
+.dv-range::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--dv-accent);
+  border: 2px solid var(--dv-surface-opaque);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.5), 0 2px 4px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+}
+.dv-range:focus-visible { outline: 2px solid var(--dv-accent); outline-offset: 4px; }
+.dv-window-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 16px 0 24px;
+  flex: none;
+}
+.dv-window-titles { min-width: 0; padding-top: 4px; }
+.dv-window-title { margin: 0; font: 23px var(--dv-font); color: var(--dv-text); }
+.dv-window-sub { font-size: 12px; color: var(--dv-muted); margin-top: 2px; }
+.dv-window-sub:empty { display: none; }
+.dv-close {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--dv-r);
+  border: 1px solid var(--dv-edge);
+  background: var(--dv-ghost);
+  color: var(--dv-text);
+  font-size: 18px;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+}
+.dv-close:hover { background: var(--dv-ghost-hover); }
+.dv-close:active { transform: translateY(2px); }
+.dv-close[hidden] { display: none; }
+.dv-window-body { padding: 14px 24px 24px; overflow: auto; scrollbar-color: #7b8593 rgba(8, 12, 18, 0.3); }
+
+/* Crafting: original category artwork above a compact grid and detail pane.
+   The body keeps its height across categories; only an open station adds a footer. */
+.dv-craft { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; height: 300px; }
+.dv-craft-main, .dv-craft-side-wrap { position: relative; min-width: 0; min-height: 0; }
+.dv-craft-toolbar { margin-bottom: 10px; }
+.dv-craft-unlock-tabs { display: flex; flex-wrap: wrap; gap: 6px; padding: 2px 0 10px; }
+.dv-craft-context { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; min-height: 30px; padding-top: 8px; border-top: 1px solid var(--dv-highlight); }
+.dv-craft-category { font-size: 13px; color: var(--dv-text); margin-right: 2px; }
+.dv-craft-where { display: flex; flex-wrap: wrap; gap: 4px; }
+.dv-tab {
+  display: inline-flex;
+  align-items: center;
+  border-radius: var(--dv-r);
+  border: 1px solid var(--dv-edge);
+  font: 13px var(--dv-font);
+  cursor: pointer;
+}
+.dv-craft-toolbar .dv-tab {
+  position: relative;
+  justify-content: flex-start;
+  gap: 5px;
+  min-height: 26px;
+  padding: 2px 7px;
+  background: var(--dv-inset);
+  color: var(--dv-muted);
+  font-size: 12px;
+  text-align: left;
+}
+.dv-craft-toolbar .dv-tab:hover { background: var(--dv-ghost); color: var(--dv-text); }
+.dv-craft-toolbar .dv-tab.is-active { background: var(--dv-slot-active); border-color: var(--dv-slot-active-edge); color: var(--dv-text); }
+.dv-craft-toolbar .is-category { justify-content: center; width: 42px; height: 42px; padding: 4px; border-radius: var(--dv-r); }
+.dv-craft-toolbar .is-category.has-available { border-bottom-color: rgba(255, 215, 153, 0.7); }
+.dv-craft-toolbar .is-category.is-active { box-shadow: inset 0 -2px var(--dv-accent); }
+.dv-craft-toolbar .is-category .dv-tab-name { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.dv-craft-toolbar .is-category .dv-tab-icon { width: 32px; height: 32px; opacity: 0.85; }
+/* The tab's glyph: the old button art without its frame (/icons/<icon>.png). */
+.dv-tab-icon { display: inline-flex; width: 22px; height: 22px; flex: none; background: center / contain no-repeat; opacity: 0.7; }
+.dv-craft-toolbar .dv-tab.is-active .dv-tab-icon { opacity: 1; }
+.dv-tab-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dv-craft-points {
+  margin-left: auto;
+  color: var(--dv-warn-text);
+  font: 12px/16px var(--dv-font);
+  white-space: nowrap;
+}
+.dv-craft-points.is-empty { color: var(--dv-muted); }
+
+/* Five columns preserve recognizable sprites without a permanent category rail. */
+.dv-craft-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-auto-rows: max-content;
+  align-content: start;
+  gap: 7px;
+  position: absolute;
+  inset: 0;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 3px;
+  scrollbar-width: thin;
+  scrollbar-color: #7b8593 rgba(8, 12, 18, 0.3);
+}
+.dv-craft-cell { position: relative; width: 100%; aspect-ratio: 1; min-width: 0; padding: 0; cursor: pointer; transition: background 0.12s, border-color 0.12s; }
+.dv-craft-cell:hover { background: rgba(225, 235, 240, 0.08); }
+.dv-craft-cell.is-unlocked { border-color: rgba(173, 204, 182, 0.48); background: rgba(151, 192, 163, 0.065); }
+.dv-craft-cell.is-available { border-color: rgba(255, 215, 153, 0.72); background: rgba(230, 180, 102, 0.09); box-shadow: inset 0 0 9px rgba(230, 180, 102, 0.1); }
+.dv-craft-cell.is-available::after { opacity: 0.78; }
+.dv-craft-cell.is-locked { border-color: rgba(154, 165, 180, 0.18); background: rgba(0, 0, 0, 0.24); }
+.dv-craft-cell.is-locked::after { opacity: 0.5; filter: grayscale(0.9); }
+.dv-craft-cell.is-off::after { opacity: 0.68; }
+.dv-craft-cell.is-selected { outline: 2px solid var(--dv-accent); outline-offset: 1px; }
+.dv-craft-cell:focus-visible, .dv-craft-toolbar .dv-tab:focus-visible { outline: 2px solid var(--dv-accent); outline-offset: 2px; }
+.dv-craft-empty { grid-column: 1 / -1; font-size: 15px; padding: 8px 0; }
+
+/* Detail card: an inset box like a GameUI slot, the column's full height, actions pinned at the bottom. */
+.dv-craft-side {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+  border-radius: var(--dv-r-md);
+  background: var(--dv-inset);
+  border: 1px solid var(--dv-edge);
+  overflow: hidden;
+}
+.dv-craft-side:empty { visibility: hidden; }
+.dv-craft-details { display: flex; flex-direction: column; gap: 5px; min-height: 0; overflow-y: auto; scrollbar-width: thin; }
+.dv-craft-side .dv-label { margin: 4px 0 -4px; }
+.dv-craft-preview { display: flex; align-items: center; gap: 8px; }
+.dv-craft-preview-sprite { position: relative; width: 48px; height: 48px; flex: none; }
+.dv-craft-preview-text { min-width: 0; }
+.dv-craft-preview .name { font-size: 16px; color: var(--dv-accent); line-height: 1.2; overflow-wrap: anywhere; }
+.dv-craft-preview-meta { margin-top: 3px; font-size: 12px; color: var(--dv-muted); }
+.dv-craft-preview-state { margin-top: 2px; font-size: 11px; color: var(--dv-muted); }
+.dv-craft-preview-state.is-unlocked { color: #b4d2bc; }
+.dv-craft-preview-state.is-available { color: var(--dv-warn-text); }
+.dv-craft-desc { margin: 0; font-size: 12.5px; line-height: 1.35; color: var(--dv-muted); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.dv-craft-ingredients-label { min-height: 16px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex-shrink: 0; }
+.dv-craft-ings { display: flex; flex-wrap: wrap; gap: 5px; padding: 3px; }
+.dv-craft-ing { display: flex; align-items: flex-end; justify-content: center; flex: 0 0 auto; min-width: 46px; height: 46px; padding: 0 3px 2px; border-radius: var(--dv-r-sm); }
+.dv-craft-ing.is-short { border-color: rgba(255, 215, 153, 0.45); background: rgba(230, 180, 102, 0.06); }
+.dv-craft-ing:hover { background: var(--dv-ghost); }
+.dv-craft-ing:focus-visible { outline: 2px solid var(--dv-accent); outline-offset: 1px; }
+.dv-craft-ing-empty { font-size: 12px; color: var(--dv-muted); }
+.dv-craft-ing-icon { position: absolute; inset: 3px; display: grid; place-items: center; background: center / contain no-repeat; font-size: 14px; color: var(--dv-muted); pointer-events: none; }
+.dv-craft-ing-count { position: relative; width: 100%; padding: 0 3px; border-radius: 3px; background: rgba(8, 12, 18, 0.88); font: 12px/16px var(--dv-font); font-variant-numeric: tabular-nums; color: var(--dv-text); text-align: center; white-space: nowrap; pointer-events: none; }
+.dv-craft-ing.is-short .dv-craft-ing-count { color: var(--dv-warn-text); }
+.dv-craft-stations { margin-top: 3px; font-size: 11px; line-height: 1.35; color: var(--dv-muted); overflow-wrap: anywhere; }
+.dv-craft-station-chip.is-here { color: var(--dv-text); }
+.dv-craft-actions { display: flex; flex-direction: column; flex-shrink: 0; gap: 5px; margin-top: auto; padding-top: 6px; }
+.dv-craft-actions .dv-btn { width: 100%; height: 36px; min-height: 36px; flex-shrink: 0; }
+.dv-craft-requirements { display: flex; flex-direction: column; gap: 3px; max-height: 90px; overflow-y: auto; scrollbar-width: thin; padding-bottom: 2px; }
+.dv-craft-requirements:empty { display: none; }
+/* The same action footprint during crafting: live fill, timer and cancel. */
+.dv-craft-progress { position: relative; isolation: isolate; overflow: hidden; }
+.dv-craft-progress-fill { position: absolute; left: 0; top: 0; bottom: 0; width: var(--val, 0%); background: var(--dv-accent); opacity: 0.24; pointer-events: none; }
+.dv-craft-progress-text { position: relative; text-align: center; color: var(--dv-text); font-variant-numeric: tabular-nums; pointer-events: none; }
+.dv-craft-reason { font-size: 12px; color: var(--dv-warn-text); text-align: left; }
+
+/* Queue and fuel use one compact row only while inside a station. */
+.dv-craft-station-reveal { display: grid; grid-template-rows: 0fr; opacity: 0; visibility: hidden; transition: grid-template-rows .24s ease, opacity .18s ease, visibility .24s; }
+.dv-craft-station-reveal.is-open { grid-template-rows: 1fr; opacity: 1; visibility: visible; }
+.dv-craft-station-clip { min-height: 0; overflow: hidden; }
+.dv-craft-station { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-top: 10px; padding: 12px 6px 2px; border-top: 1px solid var(--dv-highlight); border-radius: 0 0 8px 8px; transition: background .3s, border-color .3s; }
+.dv-craft-station.is-running { border-top-color: rgba(242, 167, 76, .38); background: radial-gradient(ellipse at 80% 0%, rgba(228, 123, 35, .1), transparent 75%); }
+.dv-craft-hint { font-size: 13px; }
+.dv-craft-queue { display: flex; align-items: center; gap: 6px; }
+.dv-craft-queue .dv-label { margin: 0 4px 0 0; }
+.dv-craft-queue-slot.dv-item-slot { width: 42px; height: 42px; cursor: default; overflow: hidden; }
+.dv-craft-queue-slot.has-item { cursor: pointer; }
+.dv-craft-queue-slot.is-queued.has-item::after { opacity: 0.5; filter: grayscale(0.4); }
+.dv-craft-queue-fill { position: absolute; left: 0; bottom: 0; height: 5px; width: var(--val, 0%); background: var(--dv-accent); z-index: 1; }
+.dv-craft-queue-slot.is-stalled .dv-craft-queue-fill { background: var(--dv-warn-text); }
+.dv-craft-station.is-running .dv-craft-queue-slot.is-active { border-color: #d89b58; box-shadow: inset 0 0 12px rgba(231, 142, 51, .2); }
+.dv-craft-station.is-running .dv-craft-queue-slot.is-active .dv-craft-queue-fill { background: linear-gradient(90deg, #c87b37, #ffe0a0); box-shadow: 0 0 7px #eea455; animation: dv-craft-heat 1.8s ease-in-out infinite; }
+.dv-craft-queue-label { position: absolute; left: 0; right: 0; bottom: 6px; text-align: center; font: 11px/12px var(--dv-font); color: #fff; text-shadow: 0 1px 2px #000, 0 0 3px #000; z-index: 2; pointer-events: none; font-variant-numeric: tabular-nums; }
+.dv-craft-queue-slot.is-queued .dv-craft-queue-label { color: var(--dv-muted); }
+.dv-craft-queue-slot.is-ready .dv-craft-queue-label { bottom: auto; top: 2px; right: 2px; left: auto; width: 18px; height: 18px; border-radius: var(--dv-r); background: var(--dv-accent); color: var(--dv-primary-text); animation: dv-craft-ready 1.4s ease-in-out infinite; }
+.dv-craft-queue-slot.is-ready .dv-craft-queue-label .dv-icon { width: 18px; height: 18px; }
+@keyframes dv-craft-ready { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.18); } }
+/* Hover: the cross on a job that can be cancelled (the take on a ready one is the check itself). */
+.dv-craft-queue-x { display: none; position: absolute; inset: 0; align-items: center; justify-content: center; background: var(--dv-danger-hover); color: #fff; z-index: 3; border-radius: var(--dv-r); }
+.dv-craft-queue-x .dv-icon { width: 22px; height: 22px; }
+.dv-craft-queue-slot.is-queued:hover .dv-craft-queue-x, .dv-craft-queue-slot.is-active:hover .dv-craft-queue-x { display: flex; }
+.dv-craft-queue-slot.is-ready:hover { box-shadow: 0 0 0 2px var(--dv-slot-active-edge); }
+.dv-craft-fuel { display: flex; flex-direction: column; gap: 7px; flex: 1; min-width: min(270px, 100%); }
+.dv-craft-fuel-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.dv-craft-fuel-identity { display: flex; align-items: center; gap: 8px; }
+.dv-craft-fuel-name { display: flex; flex-direction: column; gap: 1px; }
+.dv-craft-fuel-status { font-size: 10px; color: var(--dv-muted); }
+.dv-craft-fuel-cycle { position: relative; isolation: isolate; display: grid; place-items: center; width: 36px; height: 36px; flex: none; border-radius: 50%; background: conic-gradient(from -90deg, #f6bf71 var(--burn-angle, 0deg), rgba(255, 255, 255, .08) 0); }
+.dv-craft-fuel-cycle::before { content: ''; position: absolute; inset: 3px; z-index: -1; border-radius: 50%; background: var(--dv-surface-opaque); }
+.dv-craft-station.is-running .dv-craft-fuel-cycle { box-shadow: 0 0 12px rgba(235, 155, 60, .23); }
+.dv-craft-station.is-running .dv-craft-fuel-icon { animation: dv-craft-heat 1.8s ease-in-out infinite; }
+.dv-craft-fuel .dv-label { display: inline-flex; align-items: center; gap: 4px; margin: 0; }
+.dv-craft-fuel-icon { width: 20px; height: 20px; background: center / contain no-repeat; }
+.dv-craft-fuel-track { position: relative; height: 16px; border-radius: 5px; background: rgba(8, 11, 15, .65); border: 1px solid rgba(233, 177, 107, .25); box-shadow: inset 0 2px 4px rgba(0, 0, 0, .3); overflow: hidden; }
+.dv-craft-fuel-track::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(90deg, transparent 0, transparent calc(10% - 1px), rgba(8, 11, 15, .5) calc(10% - 1px), rgba(8, 11, 15, .5) 10%); }
+/* The fill is written every frame (eased in JS); no transition so a burn-down never stutters. */
+.dv-craft-fuel-fill { position: absolute; inset: 0; width: var(--val, 0%); min-width: 0; background: linear-gradient(0deg, #bd6a29, #f9c978); border-radius: 3px; box-shadow: 0 0 10px rgba(248, 177, 83, .4); }
+.dv-craft-station.is-running .dv-craft-fuel-fill::after { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(115deg, transparent 0 9px, rgba(255, 244, 211, .25) 10px 13px, transparent 14px 24px); background-size: 26px 100%; animation: dv-craft-fuel-flow 2s linear infinite; }
+@keyframes dv-craft-fuel-flow { to { background-position: 26px 0; } }
+@keyframes dv-craft-heat { 0%, 100% { opacity: .72; } 50% { opacity: 1; } }
+.dv-craft-fuel-fill.is-some { min-width: 6px; }
+.dv-craft-fuel-preview { position: absolute; inset: 0; width: var(--val, 0%); background: repeating-linear-gradient(115deg, rgba(242, 187, 109, .22) 0 4px, rgba(242, 187, 109, .08) 4px 8px); border-right: 1px dashed rgba(250, 209, 142, .6); border-radius: 3px; }
+.dv-craft-fuel-text { font-size: 12px; color: var(--dv-text); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.dv-craft-fuel-controls { display: flex; align-items: center; gap: 5px; }
+.dv-craft-fuel-controls .dv-btn { min-height: 28px; padding: 0 6px; }
+.dv-craft-fuel-step { width: 25px; flex-shrink: 0; font-size: 16px; }
+.dv-craft-fuel-amount { flex: 1; min-width: 35px; width: 100%; margin: 0 3px; }
+.dv-craft-fuel-amount:disabled { cursor: default; opacity: 0.4; }
+.dv-craft-fuel-max { font-size: 11px; }
+.dv-craft-fuel-controls .dv-craft-fuel-add { display: flex; flex-direction: column; justify-content: center; gap: 0; flex-shrink: 0; min-width: 100px; height: 36px; padding: 2px 8px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.dv-craft-fuel-add-amount { font-size: 12px; line-height: 16px; }
+.dv-craft-fuel-add-bag { font-size: 10px; line-height: 12px; opacity: 0.7; }
+@media (prefers-reduced-motion: reduce) {
+  .dv-modal-craft, .dv-craft-station *, .dv-craft-station *::after { animation: none !important; }
+  .dv-craft-station-reveal, .dv-craft-station { transition: none; }
+}
+@container (max-width: 520px) {
+  .dv-craft { grid-template-columns: minmax(0, 1fr); height: auto; }
+  .dv-craft-main { height: 180px; }
+  .dv-craft-side-wrap { height: 300px; }
+  .dv-craft-grid { grid-template-columns: repeat(auto-fill, minmax(46px, 1fr)); }
+  .dv-craft-points { margin-left: 0; }
+}
+
+
+.dv-slot-grid { display: grid; grid-template-columns: repeat(4, 64px); gap: 8px; margin-bottom: 14px; }
+.dv-item-slot {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  border-radius: var(--dv-r);
+  background: var(--dv-inset);
+  border: 1px solid var(--dv-edge);
+  cursor: pointer;
+}
+.dv-item-slot:hover { background: rgba(225, 235, 240, 0.08); }
+.dv-item-slot .count { position: absolute; right: 5px; bottom: 3px; font: 12px var(--dv-font); color: #fff; text-shadow: 0 1px 2px #000; z-index: 1; }
+.dv-item-slot .dv-slot-rot { position: absolute; top: 4px; left: 50%; transform: translateX(-50%); width: 44px; height: 9.5px; background: center / contain no-repeat; z-index: 1; pointer-events: none; }
+.dv-item-slot .dv-slot-rot[hidden] { display: none; }
+.dv-item-slot .dv-slot-ammo { right: 5px; bottom: 3px; font-size: 12px; }
+.dv-chest-grid { margin-bottom: 0; }
+
+/* Death window (GameUI.death) */
+.dv-death-tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.dv-death-tile { height: 84px; padding: 14px 15px; }
+.dv-death-tile .value { font-size: 24px; margin-top: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dv-death-tile .value.is-big { font-size: 28px; }
+.dv-death-row { display: flex; justify-content: space-between; align-items: baseline; margin: 20px 0 8px; font-size: 14px; }
+.dv-death-respawn { font-size: 12px; }
+.dv-death-items { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+.dv-death-items .dv-item-slot { width: 49px; height: 49px; cursor: default; }
+.dv-death-actions { display: flex; gap: 12px; margin-top: 22px; }
+.dv-death-actions .dv-btn { flex: 1; min-height: 44px; font-size: 17px; }
+.dv-death-error { min-height: 16px; margin-top: 10px; font-size: 11px; color: var(--dv-warn-text); text-align: center; }
+
+/* ---------------------------------------------------------------------- *
+ * Clan window (GameUI.clan) and clan request card (GameUI.invitation)
+ * ---------------------------------------------------------------------- */
+
+.dv-clan-form { display: flex; gap: 12px; margin: 8px 0 20px; }
+.dv-clan-form .dv-input { flex: 1; }
+.dv-clan-form .dv-clan-create { flex: none; width: 108px; }
+.dv-clan-section { margin: 4px 0 10px; }
+.dv-clan-empty { font-size: 15px; margin: 4px 0 10px; }
+.dv-clan-list { display: grid; grid-template-columns: 1fr; gap: 6px; }
+.dv-clan-list.is-two-col { grid-template-columns: 1fr 1fr; }
+.dv-clan-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; height: 38px; padding: 0 3px 0 12px; }
+.dv-clan-row .name { font-size: 16px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dv-clan-row .dv-btn { min-height: 32px; padding: 0 12px; font-size: 14px; }
+.dv-clan-status { position: absolute; top: 62px; right: 24px; font-size: 12px; color: var(--dv-muted); }
+.dv-clan-owner { display: flex; align-items: center; gap: 12px; height: 76px; padding: 0 16px; margin: 6px 0 16px; color: var(--dv-accent); }
+.dv-crown { width: 40px; height: 30px; flex: none; }
+.dv-clan-owner-text { min-width: 0; color: var(--dv-text); }
+.dv-clan-owner .name { font-size: 20px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dv-clan-members { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px; }
+.dv-clan-member { display: flex; align-items: center; justify-content: space-between; gap: 8px; height: 48px; padding: 0 6px 0 12px; }
+.dv-clan-member-text { min-width: 0; }
+.dv-clan-member .name { font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dv-clan-member .role { font-size: 10px; }
+.dv-clan-member .dv-btn { min-height: 32px; padding: 0 10px; font-size: 13px; flex: none; }
+.dv-clan-footer { display: flex; align-items: center; gap: 12px; }
+.dv-clan-footer .dv-clan-lock-hint { font-size: 12px; opacity: 0; transition: opacity 0.15s; }
+.dv-clan-footer .dv-clan-lock:hover + .dv-clan-lock-hint { opacity: 1; }
+.dv-clan-footer .dv-clan-delete, .dv-clan-footer .dv-clan-leave { margin-left: auto; width: 134px; }
+
+.hud-invitation { position: fixed; z-index: 11; top: 16px; left: 50%; transform: translateX(-50%); zoom: var(--hud-z-hud, 1); width: min(360px, calc(100vw - 32px)); font: 15px/1.4 var(--dv-font); color: var(--dv-text); user-select: none; }
+.hud-invitation * { box-sizing: border-box; }
+.hud-invitation[hidden] { display: none; }
+.dv-invite { padding: 16px 20px 18px; }
+.dv-invite-head { display: flex; justify-content: space-between; }
+.dv-invite-name { font-size: 21px; margin-top: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dv-invite-sub { font-size: 12px; margin-top: 2px; }
+.dv-invite-actions { display: flex; gap: 12px; margin-top: 12px; }
+.dv-invite-actions .dv-btn { flex: 1; min-height: 34px; }
+
+/* ---------------------------------------------------------------------- *
+ * Profiler panel (F2). No backdrop blur: it must not cost what it measures.
+ * ---------------------------------------------------------------------- */
+
+.hud-profiler {
+  position: absolute;
+  top: 62px;
+  left: 16px;
+  width: 360px;
+  max-height: calc(100vh - 80px);
+  overflow: hidden;
+  padding: 8px 10px;
+  border-radius: var(--dv-r-md);
+  border: 1px solid var(--dv-edge);
+  background: rgba(10, 13, 17, 0.9);
+  color: var(--dv-text);
+  font: 11px/1.4 ui-monospace, Menlo, Consolas, monospace;
+  white-space: pre;
+  pointer-events: none;
+  z-index: 4;
+}
+.hud-profiler[hidden] { display: none; }
+/* The title bar is the drag handle; the rest of the panel stays click-through. */
+.hud-profiler-title { font: 13px var(--dv-font); color: var(--dv-accent); margin: -8px -10px 4px; padding: 8px 10px 0; pointer-events: auto; cursor: move; user-select: none; touch-action: none; }
+.hud-profiler-hint { float: right; font-size: 10px; color: var(--dv-muted); }
+.hud-profiler-graph { display: block; width: 100%; height: 40px; margin-bottom: 6px; border-radius: 6px; }
+.hud-profiler-head { color: var(--dv-accent); margin-bottom: 6px; }
+.hud-profiler-sections { margin-bottom: 6px; }
+.hud-profiler-row { position: relative; height: 15px; }
+.hud-profiler-bar { position: absolute; left: 0; top: 1px; bottom: 1px; background: rgba(143, 207, 143, 0.22); border-radius: 3px; }
+.hud-profiler-text { position: relative; }
+.hud-profiler-counters, .hud-profiler-extras { color: var(--dv-muted); margin-bottom: 6px; white-space: pre-wrap; }
+.hud-profiler-hitches { color: #e0b366; border-top: 1px solid var(--dv-edge); padding-top: 4px; }
+/* ---------------------------------------------------------------------- *
+ * NPCs: keyword pills in chat, merchant / banker / quest windows
+ * ---------------------------------------------------------------------- */
+
+.hud-chat-keyword { display: inline; padding: 0 5px; margin: 0 1px; border: 1px solid rgba(85, 183, 188, 0.4); border-radius: var(--dv-r-sm); background: rgba(85, 183, 188, 0.1); color: #b8e7e4; font: inherit; cursor: pointer; }
+.hud-chat-keyword:hover:not(:disabled) { background: rgba(85, 183, 188, 0.25); }
+.hud-chat-keyword:disabled { color: var(--dv-muted); border-color: var(--dv-edge); cursor: default; }
+
+.dv-modal-npc { width: 600px; }
+.dv-npc-summary { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; margin-bottom: 14px; }
+.dv-npc-summary strong { font-size: 20px; font-weight: normal; }
+.dv-npc-wallet { font-size: 13px; color: var(--dv-warn-text); font-variant-numeric: tabular-nums; }
+.dv-modal-npc .dv-btn { min-height: 34px; padding: 0 12px; font-size: 14px; }
+.dv-modal-npc .dv-btn.is-icon { width: 34px; padding: 0; }
+.dv-modal-npc .dv-btn.is-icon .dv-icon { width: 18px; height: 18px; }
+.dv-modal-npc .dv-input { height: 34px; font-size: 14px; padding: 0 8px; }
+.dv-npc-tabs { display: flex; gap: 6px; margin-bottom: 12px; }
+.dv-npc-tabs .dv-btn { background: transparent; color: var(--dv-muted); }
+.dv-npc-tabs .dv-btn:hover:not(:disabled) { background: var(--dv-ghost); color: var(--dv-text); }
+.dv-npc-tabs .dv-btn.is-active { background: var(--dv-slot-active); border-color: var(--dv-slot-active-edge); color: var(--dv-text); }
+.dv-npc-tabs .dv-btn:last-child { margin-left: auto; }
+.dv-npc-columns { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 14px; }
+.dv-npc-catalogue { max-height: 330px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; padding-right: 4px; scrollbar-width: thin; scrollbar-color: var(--dv-ghost-hover) transparent; }
+.dv-npc-offer { display: flex; align-items: center; gap: 10px; width: 100%; padding: 5px 10px 5px 5px; text-align: left; font: inherit; color: var(--dv-text); background: transparent; border: 1px solid transparent; border-radius: var(--dv-r); cursor: pointer; transition: background 0.12s; }
+.dv-npc-offer:hover { background: var(--dv-ghost); }
+.dv-npc-offer.is-selected { background: var(--dv-slot-active); border-color: var(--dv-slot-active-edge); }
+.dv-npc-icon { width: 42px; height: 42px; flex: none; object-fit: contain; padding: 3px; border-radius: var(--dv-r-sm); background: var(--dv-inset); border: 1px solid var(--dv-edge); filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.35)); }
+.dv-npc-offer-text { min-width: 0; }
+.dv-npc-offer-text strong, .dv-npc-offer-text small { display: block; overflow-wrap: anywhere; }
+.dv-npc-offer-text strong { font-size: 13px; font-weight: normal; }
+.dv-npc-offer-text small { font-size: 11.5px; color: var(--dv-warn-text); margin-top: 1px; font-variant-numeric: tabular-nums; }
+.dv-npc-offer-text .dv-npc-rare { color: var(--dv-cold); }
+.dv-npc-detail { display: flex; flex-direction: column; padding: 14px; border: 1px solid var(--dv-edge); border-radius: var(--dv-r-md); background: var(--dv-inset); }
+.dv-npc-detail h3 { font-size: 17px; font-weight: normal; color: var(--dv-accent); margin: 0 0 6px; }
+.dv-npc-description, .dv-npc-stock, .dv-npc-empty, .dv-npc-restock { color: var(--dv-muted); font-size: 12px; line-height: 1.5; }
+.dv-npc-description { margin: 0 0 10px; }
+.dv-npc-quantity { display: flex; gap: 6px; margin-top: 14px; }
+.dv-npc-quantity .dv-input { width: 64px; flex: none; }
+.dv-npc-slider { display: block; width: 100%; margin: 14px 0; accent-color: var(--dv-accent); }
+.dv-npc-total { display: block; font-size: 20px; font-weight: normal; color: var(--dv-warn-text); margin: 2px 0 12px; font-variant-numeric: tabular-nums; }
+.dv-modal-npc .dv-npc-primary { width: 100%; min-height: 40px; margin-top: auto; }
+.dv-npc-detail .dv-npc-empty { display: block; margin-top: 8px; }
+.dv-npc-restock { display: block; margin-top: 12px; text-align: right; }
+.dv-npc-bank { display: grid; gap: 10px; }
+.dv-npc-bank-balance { margin: 0 0 12px; font-size: 17px; font-weight: normal; color: var(--dv-warn-text); }
+.dv-npc-bank-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; padding: 12px; border: 1px solid var(--dv-edge); border-radius: var(--dv-r); background: var(--dv-inset); }
+.dv-npc-bank-row label { width: 100%; font-size: 12px; color: var(--dv-muted); }
+.dv-npc-bank-row .dv-input { flex: 1; width: 100px; text-align: left; }
+.dv-npc-bank-row select.dv-input { flex: none; width: 132px; }
+@media (max-width: 540px) { .dv-npc-columns { gap: 8px; } .dv-npc-detail { padding: 8px; } .dv-npc-icon { width: 32px; height: 32px; } .dv-npc-quantity { flex-wrap: wrap; } }
+
+/* ---------------------------------------------------------------------- *
+ * Right-click menu (items and world things)
+ * ---------------------------------------------------------------------- */
+
+.dv-player-menu {
+  position: fixed;
+  z-index: 1000;
+  min-width: 190px;
+  max-width: 260px;
+  padding: 5px;
+  border: 1px solid var(--dv-edge);
+  border-radius: var(--dv-r-md);
+  background: var(--dv-surface-opaque);
+  color: var(--dv-text);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  font: 14px/1.3 var(--dv-font);
+  user-select: none;
+  animation: dv-menu-in 0.1s ease-out;
+  transform-origin: top left;
+}
+@keyframes dv-menu-in { from { opacity: 0; transform: scale(0.96); } }
+.dv-player-menu[hidden] { display: none; }
+.dv-player-menu strong {
+  display: block;
+  padding: 7px 10px 8px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--dv-highlight);
+  color: var(--dv-muted);
+  font-size: 11px;
+  font-weight: normal;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+.dv-player-menu button {
+  display: block;
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: var(--dv-r-sm);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.dv-player-menu button:hover:not(:disabled), .dv-player-menu button:focus-visible { background: var(--dv-ghost-hover); outline: none; }
+.dv-player-menu button:disabled { color: var(--dv-muted); opacity: 0.6; cursor: default; }
+
+/* "Trade with…": the item follows the pointer until a player is clicked. */
+.dv-trade-cursor {
+  position: fixed; left: 0; top: 0; z-index: 1001; pointer-events: none;
+  display: flex; align-items: center; gap: 8px; margin: 14px 0 0 14px;
+  padding: 4px 12px 4px 4px; border: 1px solid var(--dv-edge); border-radius: var(--dv-r-md);
+  background: var(--dv-surface-opaque); color: var(--dv-text); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+  font: 13px var(--dv-font); white-space: nowrap;
+}
+.dv-trade-cursor[hidden] { display: none; }
+.dv-trade-cursor-icon { width: 34px; height: 34px; border-radius: var(--dv-r-sm); background: var(--dv-inset) center / 85% no-repeat; }
+
+/* ---------------------------------------------------------------------- *
+ * Trade window (trade-window.ts)
+ *   invite : the other player, what we are waiting for
+ *   board  : your offer | swap | their offer, each with a Ready pill
+ *   hint   : what happens next;  actions : Cancel | Accept
+ * ---------------------------------------------------------------------- */
+
+.dv-modal-trade { width: 620px; }
+.dv-trade-invite { display: flex; align-items: center; gap: 14px; padding: 14px 16px; border: 1px solid var(--dv-edge); border-radius: var(--dv-r-md); background: var(--dv-inset); }
+.dv-trade-avatar { display: grid; place-items: center; width: 44px; height: 44px; flex: none; border-radius: 50%; background: var(--dv-slot-active); box-shadow: inset 0 0 0 1px var(--dv-slot-active-edge); font-size: 20px; }
+.dv-trade-invite-text { display: flex; flex: 1; min-width: 0; flex-direction: column; gap: 2px; }
+.dv-trade-invite-text strong { font-size: 18px; font-weight: normal; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dv-trade-invite-text span { font-size: 13px; }
+.dv-trade-board { display: grid; grid-template-columns: minmax(0, 1fr) 28px minmax(0, 1fr); align-items: stretch; }
+.dv-trade-swap { display: grid; place-items: center; color: var(--dv-muted); font-size: 18px; }
+.dv-trade-side { display: flex; flex-direction: column; min-width: 0; min-height: 214px; border: 1px solid var(--dv-edge); border-radius: var(--dv-r-md); background: var(--dv-inset); transition: border-color 0.2s, box-shadow 0.2s; }
+.dv-trade-side.is-accepted { border-color: var(--dv-ok-edge); box-shadow: 0 0 0 1px var(--dv-ok-edge), inset 0 0 24px rgba(111, 220, 124, 0.06); }
+.dv-trade-side-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 12px 9px; border-bottom: 1px solid var(--dv-highlight); }
+.dv-trade-side-head h3 { margin: 0; font-size: 14px; font-weight: normal; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dv-trade-status { display: inline-flex; align-items: center; gap: 4px; flex: none; padding: 2px 8px; border-radius: var(--dv-r); background: var(--dv-ghost); color: var(--dv-muted); font-size: 11px; letter-spacing: 0.3px; }
+.dv-trade-status.is-accepted { background: rgba(111, 220, 124, 0.14); color: var(--dv-ok-text); }
+.dv-trade-status .dv-icon { width: 12px; height: 12px; }
+.dv-trade-items { flex: 1; max-height: 250px; overflow-y: auto; padding: 6px; display: flex; flex-direction: column; gap: 4px; scrollbar-width: thin; scrollbar-color: var(--dv-ghost-hover) transparent; }
+.dv-trade-empty { flex: 1; display: grid; place-items: center; margin: 4px; padding: 16px 8px; border: 1px dashed var(--dv-edge); border-radius: var(--dv-r); color: var(--dv-muted); font-size: 12px; text-align: center; }
+.dv-trade-item { display: flex; align-items: center; gap: 10px; padding: 5px; border-radius: var(--dv-r); animation: dv-fade-in 0.15s ease-out; }
+.dv-trade-item:hover { background: rgba(225, 235, 240, 0.04); }
+.dv-trade-item .dv-item-slot { flex: none; width: 50px; height: 50px; cursor: default; }
+.dv-trade-item-detail { display: flex; flex: 1; min-width: 0; flex-direction: column; gap: 3px; }
+.dv-trade-item-detail strong { font-size: 13px; font-weight: normal; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dv-trade-item-detail small { font-size: 11.5px; font-variant-numeric: tabular-nums; }
+.dv-trade-qty { display: flex; align-items: center; gap: 4px; margin-top: 2px; }
+.dv-trade-qty .dv-input { width: 46px; height: 30px; padding: 0 4px; font-size: 14px; font-variant-numeric: tabular-nums; }
+.dv-trade-remove { align-self: flex-start; opacity: 0.55; background: transparent; border-color: transparent; }
+.dv-trade-remove:hover:not(:disabled) { opacity: 1; background: var(--dv-danger); color: var(--dv-danger-text); }
+.dv-trade-hint { margin: 12px 2px 0; font-size: 12px; color: var(--dv-muted); text-align: center; }
+.dv-trade-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
+.dv-trade-actions .dv-btn { min-width: 112px; min-height: 40px; }
+.dv-trade-actions .dv-icon { width: 16px; height: 16px; }
+@media (max-width: 560px) {
+  .dv-trade-board { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+  .dv-trade-swap { transform: rotate(90deg); }
+  .dv-trade-side { min-height: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dv-modal, .hud-alert, .hud-bag-area, .hud-item-tooltip, .hud-chat-notice, .dv-context-menu,
+  .hud-btn[data-hint]:hover::after { animation: none; }
+  .hud-slot.has-item::after, .dv-item-slot.has-item::after, .dv-craft-cell.has-item::after { transition: none; }
+}

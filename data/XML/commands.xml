@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    The group rank each !command needs (see groups.xml). A command missing
+    here needs the highest rank. aliases share the entry's rank.
+    tools/content/commands-coverage.test.ts keeps this in step with
+    apps/server/src/gameplay/game_admin.cpp.
+-->
+<commands>
+    <!-- tutor (1) -->
+    <command name="kick" rank="1"/>
+    <command name="broadcast" rank="1" aliases="say-all"/>
+    <command name="teleport-to" rank="1"/>
+    <command name="server-info" rank="1"/>
+    <command name="banlist" rank="1"/>
+
+    <!-- gamemaster (2) -->
+    <command name="ban" rank="2"/>
+    <command name="ban-ip" rank="2"/>
+    <command name="unban" rank="2"/>
+    <command name="ghost" rank="2"/>
+    <command name="invincible" rank="2"/>
+    <command name="teleport" rank="2" aliases="t"/>
+    <command name="teleport-player-to" rank="2"/>
+    <command name="a" rank="2"/>
+    <command name="effects" rank="2"/>
+    <command name="effects-player" rank="2"/>
+    <command name="effects-cure" rank="2"/>
+    <command name="effects-agent" rank="2"/>
+    <command name="item" rank="2" aliases="i"/>
+    <command name="item-player" rank="2"/>
+    <command name="karma" rank="2"/>
+    <command name="addlevel" rank="2"/>
+    <command name="spawn-natural" rank="2" aliases="o"/>
+    <command name="spawn-agent" rank="2"/>
+    <command name="agent-debug" rank="2"/>
+
+    <!-- admin (3) -->
+    <command name="item-all" rank="3"/>
+    <command name="teleport-all" rank="3"/>
+    <command name="ghoul" rank="3"/>
+    <command name="kick-all" rank="3"/>
+    <command name="close" rank="3"/>
+    <command name="open" rank="3"/>
+    <command name="server-name" rank="3"/>
+    <command name="server-type" rank="3"/>
+    <command name="server-location" rank="3"/>
+    <command name="server-visible" rank="3"/>
+    <command name="hide" rank="3" aliases="show"/>
+    <command name="max-players" rank="3"/>
+    <command name="set-daynight" rank="3"/>
+    <command name="craft-speed" rank="3"/>
+    <command name="reload" rank="3" aliases="reload-xml reload-npcs reload-quests"/>
+    <command name="quest" rank="3"/>
+    <command name="achievement" rank="3"/>
+    <command name="map" rank="3"/>
+    <command name="map-size" rank="3"/>
+    <command name="b" rank="3"/>
+    <command name="map-place" rank="3"/>
+    <command name="map-preview" rank="3"/>
+    <command name="map-undo" rank="3"/>
+    <command name="map-end" rank="3"/>
+    <command name="map-at" rank="3" aliases="map-here"/>
+    <command name="map-list" rank="3"/>
+    <command name="map-save" rank="3"/>
+    <command name="map-clear" rank="3"/>
+    <command name="map-forget" rank="3"/>
+    <command name="map-keep" rank="3" aliases="map-drop"/>
+    <command name="map-reload" rank="3"/>
+    <command name="map-respawn" rank="3"/>
+    <command name="clean" rank="3"/>
+    <command name="clean-hard" rank="3" aliases="blank"/>
+    <command name="respawn-resources" rank="3"/>
+    <command name="respawn-structures" rank="3"/>
+    <command name="structure-place" rank="3" aliases="structure"/>
+    <command name="structure-list-placed" rank="3" aliases="structure-placed"/>
+    <command name="structure-remove" rank="3"/>
+    <command name="structure-move" rank="3"/>
+    <command name="structure-respawn" rank="3"/>
+    <command name="structure-list" rank="3"/>
+    <command name="seed" rank="3"/>
+    <command name="setgroup" rank="3"/>
+</commands>

@@ -1,0 +1,37 @@
+{
+  "$comment": "Canonical engine/editor limits. Edit here only: tools/editor/generate-contract.mjs emits the C++ header (build/generated/contract/editor_limits.h) and TypeScript imports this file directly. See docs/plans/2026-09-27-world-mode-editor.md.",
+  "contractVersion": 1,
+  "world": {
+    "tileSize": 100,
+    "positionMax": 65535,
+    "minTiles": 10,
+    "maxTiles": 655,
+    "referenceTilesX": 150,
+    "referenceTilesY": 150
+  },
+  "project": {
+    "schemaVersion": 2,
+    "maxBytes": 33554432,
+    "maxEntities": 200000,
+    "maxGroups": 20000,
+    "maxGroupDepth": 8,
+    "maxTemplates": 256,
+    "maxTemplateEntities": 5000,
+    "maxRegions": 2000,
+    "maxEffects": 2000,
+    "maxNpcs": 64,
+    "maxSpawns": 512,
+    "maxLootTables": 128,
+    "maxLootEntries": 32,
+    "maxLoadoutItems": 16,
+    "maxSpawnerAlive": 64,
+    "maxScenarioAgents": 512,
+    "maxTagsPerEntity": 16,
+    "maxIdLength": 64,
+    "maxNameLength": 80,
+    "maxTagLength": 32
+  },
+  "overrides": {
+    "healthMax": 65535
+  }
+}

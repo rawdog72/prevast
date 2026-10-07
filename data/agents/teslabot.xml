@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<agent key="teslabot" family="bot" sprite="8">
+  <body radius="38" collision="true" separation="true"/>
+  <vitals health="3000" experience="3000" lifetimeMs="0"/>
+  <!-- client.js AI[8] speed 0.1 px/ms. -->
+  <movement speed="100"/>
+  <brain type="aggressive" vision="500" loseTarget="700" leash="0" chase="true">
+    <target type="player" priority="100"/>
+    <target type="agent" priority="60"/>
+    <target type="object" priority="30"/>
+  </brain>
+  <abilities>
+    <ability type="melee" cooldownMs="700" impactMs="550" range="50" knockback="10">
+      <damage amount="80" amountMax="80"/>
+    </ability>
+  </abilities>
+  <onDeath>
+    <explosion radius="40" playerDamage="100" buildingDamage="100"/>
+    <drops>
+      <item key="shaped_uranium" amount="1"/>
+      <item key="alloys" amount="1"/>
+    </drops>
+  </onDeath>
+  <client render="ghoul" breath="0.05" armMove="6" head="day-tesla-bot" hurt="tesla-bot-hurt" death="day-tesla-bot-death" light="0" hitAnimMs="550">
+    <leftArm sprite="day-tesla-bot-left-arm" angle="0" x="18" y="-60"/>
+    <rightArm sprite="day-tesla-bot-right-arm" angle="0" x="18" y="60"/>
+  </client>
+</agent>

@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<!--
+  Copyright (c) 2026 rawdog72 and Prevast Open Server Contributors
+  SPDX-License-Identifier: GPL-2.0-only
+-->
+
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Prevast Open Server</title>
+    <meta name="description" content="Post-apocalyptic survival: gather, craft, build and survive with other players.">
+    <link rel="icon" type="image/png" href="/img/favicon.png">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Black+Han+Sans">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Viga">
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/css/ui.css">
+    <link rel="stylesheet" href="/css/hud.css">
+    <link rel="stylesheet" href="/css/editor.css">
+    <script defer src="/client.js"></script>
+</head>
+<body id="bod">
+    <canvas id="can"></canvas>
+    <div id="dv-hud" class="hud-root" hidden>
+        <div class="hud-topleft">
+            <div class="hud-leaderboard dv-panel" id="hud-leaderboard" hidden></div>
+        </div>
+        <div class="hud-alerts" id="hud-alerts"></div>
+        <div class="hud-profiler" id="hud-profiler" hidden></div>
+        <div class="hud-topright">
+            <!-- One cluster: the minimap panel with the Craft / Clan / Map / Options strip attached under it. -->
+            <div class="hud-minimap-cluster">
+                <div class="hud-minimap-panel dv-panel">
+                    <canvas class="hud-minimap" id="hud-minimap" width="178" height="178"></canvas>
+                    <span class="hud-sector" id="hud-sector"></span>
+                </div>
+                <div class="hud-controls dv-panel" id="hud-controls"></div>
+            </div>
+            <!-- Options > Stats: the small fps / ping line (hud-stats.ts). -->
+            <div class="hud-stats" id="hud-stats" hidden></div>
+            <!-- The tracked quests (hud-quest-tracker.ts). -->
+            <div class="hud-quests dv-panel" id="hud-quests" hidden></div>
+        </div>
+        <!-- Bottom row: vitals | hotbar | bag as one grid, so the hotbar stays centred while there is
+             room and slides right (never under the gauges) when a region is scaled up or the window is narrow. -->
+        <!-- Private-message notices (hud-chat.ts): top centre, outside the console. -->
+        <div class="hud-chat-notices" id="hud-chat-notices"></div>
+        <div class="hud-bottom">
+            <div class="hud-bottomleft">
+                <div class="hud-chat" id="hud-chat"></div>
+                <div class="hud-gauges dv-panel" id="hud-gauges"></div>
+            </div>
+            <div class="hud-hotbar" id="hud-hotbar"></div>
+            <div class="hud-bag-corner" id="hud-bag-corner"></div>
+        </div>
+    </div>
+    <div id="dv-modal" class="dv-modal-root" hidden></div>
+    <!-- The connection ended in game: reason and actions over a picture of the last frame. -->
+    <div id="dv-disconnect" class="dv-disconnect" hidden>
+        <div class="dv-disconnect-backdrop"></div>
+        <section class="dv-window dv-disconnect-panel" role="alertdialog" aria-modal="true" aria-labelledby="dv-disconnect-title" aria-busy="false">
+            <h2 id="dv-disconnect-title"></h2>
+            <p class="dv-disconnect-message"></p>
+            <p class="dv-disconnect-detail"></p>
+            <div class="dv-disconnect-actions"></div>
+        </section>
+    </div>
+    <!-- Above the windows: a leader answers a clan request even with a window open. -->
+    <div id="hud-invitation" class="hud-invitation" hidden></div>
+    <main id="prevast-home" hidden>
+        <!-- Sign-in / sign-out confirmations (account-panel.ts), floating so the start window never jumps. -->
+        <p id="dv-account-notice" class="dv-account-notice" role="status" aria-live="polite" hidden></p>
+        <div class="dv-home-layout">
+            <a class="dv-brand" href="/" aria-label="Prevast Open Server">PREVAST<span>OPEN SERVER</span></a>
+            <aside id="dv-home-rankings" class="dv-home-rankings" aria-label="Community leaderboards" hidden>
+                <div class="dv-rankings-heading"><span class="dv-eyebrow">HALL OF SURVIVORS</span><span data-home-season>This month</span></div>
+                <section class="dv-window dv-ranking-card" aria-labelledby="dv-player-ranking-title">
+                    <header><h2 id="dv-player-ranking-title">Player leaderboard</h2><span>Total score</span></header>
+                    <div data-home-players aria-live="polite"><p class="dv-ranking-empty">Loading players…</p></div>
+                </section>
+                <section class="dv-window dv-ranking-card" aria-labelledby="dv-clan-ranking-title">
+                    <header><h2 id="dv-clan-ranking-title">Clan leaderboard</h2><span>Season score</span></header>
+                    <div data-home-clans aria-live="polite"><p class="dv-ranking-empty">Loading clans…</p></div>
+                </section>
+                <button type="button" class="dv-btn dv-rankings-more" data-home-rankings-open>View all rankings <span aria-hidden="true">↗</span></button>
+                <p class="dv-account-hint" data-home-rankings-status role="status"></p>
+                <button type="button" class="dv-link" data-home-rankings-retry hidden>Retry leaderboards</button>
+            </aside>
+            <section id="dv-start-window" class="dv-window" aria-label="Play">
+                <div id="dv-play-view">
+                    <!-- Account strip (account-panel.ts): loading skeleton, signed out, or signed in. -->
+                    <div id="dv-account" class="dv-account" hidden>
+                        <div class="dv-account-loading" data-account-loading aria-hidden="true">
+                            <div class="dv-account-row">
+                                <span class="dv-avatar dv-skeleton"></span>
+                                <span class="dv-account-text"><span class="dv-skeleton dv-skeleton-line"></span><span class="dv-skeleton dv-skeleton-line dv-skeleton-short"></span></span>
+                            </div>
+                            <span class="dv-skeleton dv-skeleton-bar"></span>
+                        </div>
+                        <div data-account-out hidden>
+                            <div class="dv-account-row">
+                                <span class="dv-avatar dv-avatar-guest" aria-hidden="true"></span>
+                                <span class="dv-account-text">
+                                    <strong>Playing as guest</strong>
+                                    <span>Jump in, or reserve your name.</span>
+                                </span>
+                            </div>
+                            <div class="dv-account-actions">
+                                <button type="button" class="dv-btn" data-account-login>Sign in</button>
+                                <button type="button" class="dv-link" data-account-register>Create account</button>
+                            </div>
+                        </div>
+                        <div data-account-in hidden>
+                            <div class="dv-account-row">
+                                <span class="dv-avatar" data-account-avatar aria-hidden="true"></span>
+                                <span class="dv-account-text">
+                                    <strong><span data-account-name></span><span class="dv-badge dv-badge-verified" title="Registered account" aria-label="Registered account">✔</span></strong>
+                                    <span data-account-role></span>
+                                </span>
+                                <button type="button" class="dv-btn is-small" data-account-manage>Account</button>
+                            </div>
+                            <fieldset class="dv-segmented">
+                                <legend>Play as</legend>
+                                <div class="dv-segmented-options">
+                                    <label><input id="dv-play-as-account" type="radio" name="dv-play-as" value="account" checked><span><span data-account-name></span> ✔</span></label>
+                                    <label><input id="dv-play-as-guest" type="radio" name="dv-play-as" value="guest"><span>Guest</span></label>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                    <form class="dv-form">
+                        <label for="nicknameInput">Name</label>
+                        <div id="nickname"><input id="nicknameInput" type="text" placeholder="Choose your name" maxlength="16" autocomplete="nickname" aria-describedby="dv-nickname-guest-hint"></div>
+                        <div id="dv-nickname-hint" class="dv-field-hint dv-nickname-hint">
+                            <span id="dv-nickname-account-hint" aria-hidden="true">Your registered identity. Switch to Guest to use another name.</span>
+                            <span id="dv-nickname-guest-hint" aria-hidden="false">Choose the name other players will see.</span>
+                        </div>
+                        <label for="dv-mode">Game mode</label>
+                        <select id="dv-mode">
+                            <option value="survival" data-detail="Gather, build and survive.">Survival</option>
+                            <option value="ghoul" data-detail="Browse Ghoul worlds.">Ghoul</option>
+                            <option value="br" data-detail="Browse Battle royale matches.">Battle royale</option>
+                            <option value="private" data-detail="Private and community worlds.">Private servers</option>
+                            <option value="custom" data-detail="Connect with a server address.">Custom server…</option>
+                        </select>
+                        <div class="dv-server-fields">
+                            <div data-listed>
+                                <label for="servers">Server</label>
+                                <div id="serverList"><select id="servers" aria-label="Server"></select></div>
+                            </div>
+                            <div data-custom hidden>
+                                <label for="dv-address">Server address</label>
+                                <input id="dv-address" type="text" placeholder="127.0.0.1:7172" spellcheck="false" autocomplete="off" autocapitalize="none" aria-describedby="dv-address-help">
+                                <span id="dv-address-help">IP:port or wss://host:port</span>
+                            </div>
+                        </div>
+                        <details class="dv-password">
+                            <summary>Server / admin password</summary>
+                            <label class="dv-sr-only" for="passwordInput">Server / admin password</label>
+                            <input id="passwordInput" type="password" placeholder="Enter password" maxlength="32" autocomplete="off">
+                        </details>
+                        <button class="dv-play" type="submit">Play</button>
+                        <div class="dv-start-feedback">
+                            <div class="dv-loading" aria-hidden="true">
+                                <div class="dv-loading-heading">
+                                    <span class="dv-loading-indicator" aria-hidden="true"></span>
+                                    <span class="dv-loading-title" role="status" aria-live="polite"></span>
+                                    <span class="dv-loading-percent" aria-hidden="true"></span>
+                                </div>
+                                <div class="dv-loading-track" role="progressbar" aria-label="Loading" aria-valuemin="0" aria-valuemax="100">
+                                    <span class="dv-loading-fill" aria-hidden="true"></span>
+                                </div>
+                                <p class="dv-loading-detail"></p>
+                            </div>
+                            <p class="dv-status" role="status" aria-live="polite"></p>
+                        </div>
+                        <div class="dv-notice" role="alert" hidden>
+                            <strong class="dv-notice-title"></strong>
+                            <p class="dv-notice-message"></p>
+                            <p class="dv-notice-detail"></p>
+                            <div class="dv-notice-actions"></div>
+                        </div>
+                    </form>
+                </div>
+                <!-- Management expands the start window into a separate account workspace. -->
+                <div id="dv-account-view" class="dv-auth dv-auth-card" aria-labelledby="dv-auth-title" hidden>
+                    <button type="button" class="dv-auth-back" data-auth-close><span aria-hidden="true">←</span> Back to play</button>
+                    <header class="dv-auth-head">
+                        <div>
+                            <h2 id="dv-auth-title" tabindex="-1" data-auth-title>Welcome back</h2>
+                            <p class="dv-auth-sub" data-auth-sub>Your survivor profile is ready when you are.</p>
+                        </div>
+                    </header>
+                    <div class="dv-auth-tabs" role="tablist" aria-label="Account">
+                        <button type="button" role="tab" id="dv-tab-login" aria-controls="dv-form-login" aria-selected="true" data-auth-tab="login">Sign in</button>
+                        <button type="button" role="tab" id="dv-tab-register" aria-controls="dv-form-register" aria-selected="false" tabindex="-1" data-auth-tab="register">Create account</button>
+                    </div>
+                    <div class="dv-auth-alert" data-auth-alert role="alert" hidden></div>
+
+                    <form id="dv-form-login" class="dv-auth-form" data-account-form="login" role="tabpanel" aria-labelledby="dv-tab-login" novalidate>
+                        <fieldset>
+                            <div class="dv-field">
+                                <label for="dv-login-name">Account name</label>
+                                <input id="dv-login-name" name="name" maxlength="16" autocomplete="username" autocapitalize="none" spellcheck="false" aria-describedby="dv-login-name-error">
+                                <p class="dv-field-error" id="dv-login-name-error" hidden></p>
+                            </div>
+                            <div class="dv-field">
+                                <label for="dv-login-password">Password</label>
+                                <div class="dv-input-wrap">
+                                    <input id="dv-login-password" name="password" type="password" maxlength="128" autocomplete="current-password" aria-describedby="dv-login-password-error">
+                                    <button type="button" class="dv-reveal" data-reveal aria-pressed="false" aria-label="Show password">Show</button>
+                                </div>
+                                <p class="dv-field-caps" data-caps hidden>Caps Lock is on</p>
+                                <p class="dv-field-error" id="dv-login-password-error" hidden></p>
+                            </div>
+                            <label class="dv-remember"><input name="remember" type="checkbox" checked> Keep me signed in on this device</label>
+                            <button class="dv-btn is-primary is-block" type="submit"><span class="dv-spinner" aria-hidden="true"></span><span data-label>Sign in</span></button>
+                            <button class="dv-link" type="button" data-account-recover>Forgot password?</button>
+                        </fieldset>
+                    </form>
+
+                    <form id="dv-form-register" class="dv-auth-form" data-account-form="register" role="tabpanel" aria-labelledby="dv-tab-register" novalidate hidden>
+                        <fieldset>
+                            <div class="dv-field">
+                                <label for="dv-register-name">Account name</label>
+                                <input id="dv-register-name" name="name" maxlength="16" autocomplete="username" autocapitalize="none" spellcheck="false" aria-describedby="dv-register-name-hint dv-register-name-error">
+                                <p class="dv-field-hint" id="dv-register-name-hint">Your in-game name. 3–16 characters: letters, numbers, spaces, _ - or .</p>
+                                <p class="dv-field-error" id="dv-register-name-error" hidden></p>
+                            </div>
+                            <div class="dv-field">
+                                <label for="dv-register-password">Password</label>
+                                <div class="dv-input-wrap">
+                                    <input id="dv-register-password" name="password" type="password" maxlength="128" autocomplete="new-password" aria-describedby="dv-register-password-hint dv-register-password-error">
+                                    <button type="button" class="dv-reveal" data-reveal aria-pressed="false" aria-label="Show password">Show</button>
+                                </div>
+                                <div class="dv-strength" data-strength="password" data-level="-1" aria-hidden="true"><span></span><span></span><span></span><span></span><em data-strength-text></em></div>
+                                <p class="dv-field-caps" data-caps hidden>Caps Lock is on</p>
+                                <p class="dv-field-hint" id="dv-register-password-hint">At least 8 characters. Longer is stronger.</p>
+                                <p class="dv-field-error" id="dv-register-password-error" hidden></p>
+                            </div>
+                            <div class="dv-field">
+                                <label for="dv-register-confirm">Confirm password</label>
+                                <input id="dv-register-confirm" name="confirm" type="password" maxlength="128" autocomplete="new-password" data-matches="password" aria-describedby="dv-register-confirm-error">
+                                <p class="dv-field-error" id="dv-register-confirm-error" hidden></p>
+                            </div>
+                            <div class="dv-field">
+                                <label for="dv-register-email">Email <span class="dv-optional">optional</span></label>
+                                <input id="dv-register-email" name="email" type="email" maxlength="255" autocomplete="email" spellcheck="false" aria-describedby="dv-register-email-error">
+                                <p class="dv-field-error" id="dv-register-email-error" hidden></p>
+                            </div>
+                            <p class="dv-account-hint">Verify your email in Account → Security after signing up, or save a recovery code.</p>
+                            <label class="dv-remember"><input name="remember" type="checkbox" checked> Keep me signed in on this device</label>
+                            <button class="dv-btn is-primary is-block" type="submit"><span class="dv-spinner" aria-hidden="true"></span><span data-label>Create account</span></button>
+                        </fieldset>
+                    </form>
+
+                    <form id="dv-form-manage" class="dv-auth-form dv-account-overview" data-account-form="manage" novalidate hidden>
+                        <div class="dv-profile">
+                            <span class="dv-avatar dv-avatar-large" data-account-avatar aria-hidden="true"></span>
+                            <div>
+                                <strong><span data-account-field="name"></span><span class="dv-badge dv-badge-verified" title="Registered account" aria-label="Registered account">✔</span></strong>
+                                <p class="dv-profile-status">Registered account</p>
+                            </div>
+                        </div>
+                        <dl class="dv-profile-facts">
+                            <dt>Role</dt><dd data-account-field="group"></dd>
+                            <dt>Member since</dt><dd data-account-field="created"></dd>
+                        </dl>
+                        <details class="dv-security" data-account-security>
+                            <summary><span>Change password</span><span class="dv-security-hint">Manage your account security</span></summary>
+                            <fieldset>
+                                <legend class="dv-sr-only">Change password</legend>
+                                <input type="text" name="username" autocomplete="username" data-account-field="name-autofill" hidden>
+                                <div class="dv-field">
+                                    <label for="dv-manage-current">Current password</label>
+                                    <div class="dv-input-wrap">
+                                        <input id="dv-manage-current" name="current" type="password" maxlength="128" autocomplete="current-password" aria-describedby="dv-manage-current-error">
+                                        <button type="button" class="dv-reveal" data-reveal aria-pressed="false" aria-label="Show password">Show</button>
+                                    </div>
+                                    <p class="dv-field-caps" data-caps hidden>Caps Lock is on</p>
+                                    <p class="dv-field-error" id="dv-manage-current-error" hidden></p>
+                                </div>
+                                <div class="dv-field">
+                                    <label for="dv-manage-next">New password</label>
+                                    <div class="dv-input-wrap">
+                                        <input id="dv-manage-next" name="next" type="password" maxlength="128" autocomplete="new-password" aria-describedby="dv-manage-next-error">
+                                        <button type="button" class="dv-reveal" data-reveal aria-pressed="false" aria-label="Show password">Show</button>
+                                    </div>
+                                    <div class="dv-strength" data-strength="next" data-level="-1" aria-hidden="true"><span></span><span></span><span></span><span></span><em data-strength-text></em></div>
+                                    <p class="dv-field-caps" data-caps hidden>Caps Lock is on</p>
+                                    <p class="dv-field-error" id="dv-manage-next-error" hidden></p>
+                                </div>
+                                <div class="dv-field">
+                                    <label for="dv-manage-confirm">Confirm new password</label>
+                                    <input id="dv-manage-confirm" name="confirm" type="password" maxlength="128" autocomplete="new-password" data-matches="next" aria-describedby="dv-manage-confirm-error">
+                                    <p class="dv-field-error" id="dv-manage-confirm-error" hidden></p>
+                                </div>
+                                <button class="dv-btn is-primary is-block" type="submit"><span class="dv-spinner" aria-hidden="true"></span><span data-label>Update password</span></button>
+                                <p class="dv-field-hint">Changing it signs you out everywhere else.</p>
+                            </fieldset>
+                        </details>
+                        <div class="dv-auth-foot">
+                            <span>Signed in on this device</span>
+                            <button type="button" class="dv-link dv-signout" data-account-logout>Sign out</button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+        </div>
+        <footer class="dv-footer">
+            <nav aria-label="Game links">
+                <button type="button" data-info="controls">How to play</button>
+                <button type="button" data-info="updates">Changelog</button>
+                <button type="button" data-editor>World editor</button>
+            </nav>
+            <p class="dv-disclaimer">Unofficial fan-made server. Not affiliated with or endorsed by Devast.io.</p>
+        </footer>
+        <dialog id="dv-info" class="dv-dialog" aria-labelledby="dv-info-title">
+            <section id="dv-info-window" class="dv-window">
+                <form method="dialog"><button class="dv-close" aria-label="Close">×</button></form>
+                <h2 id="dv-info-title">How to play</h2>
+                <div class="dv-info-content" data-help-pane>
+                    <p>Gather resources, craft tools and build a shelter. Keep yourself fed and warm, and watch out for radiation.</p>
+                    <dl class="dv-controls">
+                        <dt>Move</dt><dd>W A S D / Arrow keys</dd>
+                        <dt>Attack / use</dt><dd>Left mouse button</dd>
+                        <dt>Aim</dt><dd>Hold right mouse button</dd>
+                        <dt>Look / open / talk</dt><dd>Ctrl + right mouse button</dd>
+                        <dt>Run</dt><dd>Shift</dd>
+                        <dt>Interact</dt><dd>E</dd>
+                        <dt>Craft</dt><dd>C</dd>
+                        <dt>Map</dt><dd>M</dd>
+                        <dt>Chat</dt><dd>Enter</dd>
+                    </dl>
+                </div>
+                <div class="dv-info-content" data-updates-pane hidden>
+                    <div class="dv-release">2026-09 — new client</div>
+                    <p>The client is being rebuilt from scratch. Items, buildings and rules now come from the server, so every server can differ.</p>
+                </div>
+            </section>
+        </dialog>
+
+    </main>
+</body>
+</html>

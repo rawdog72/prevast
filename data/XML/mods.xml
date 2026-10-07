@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mods>
+    <!--
+        Weapon mods. Each <mod> is also an item in items.xml with the same key,
+        stack="1" and <weaponMod key="..."/>. A weapon lists the mods it takes in
+        its own <mods><slot type= accepts= default=> (equipables.xml).
+
+        slot       magazine | optic | muzzle | underbarrel | side | stock | handguard
+        installMs  how long fitting it takes (removing it takes the same)
+        capacity   magazines only: the weapon's capacity while this is fitted
+        <stat name= add= percent=>
+                   final = (base + sum of adds) x (1 + sum of percents / 100)
+                   names: damage fireDelayMs spread range bulletSpeed recoil
+                          knockback reloadMs drawMs, and the aim stats
+                          aimSpread aimMove aimMs (only on mods of weapons
+                          with <aim>)
+        <view shape="stretch|shift" ahead= zoom= extend=>
+                   optics only: while aimed, the server sends the box
+                   stretched (nothing lost) or shifted (the strip behind is
+                   lost) `extend` toward the aim; the client slides its view
+                   up to `ahead` and multiplies its zoom by `zoom`.
+        <client art= box= anchorX= anchorY=>
+                   Mods window side-view art: art is the image under /img, box
+                   its "x y width height" extent in the art's own coordinates,
+                   anchorX/anchorY the point in the art that sits on the
+                   weapon's slot anchor (the weapon's <client><modArt>).
+
+        Keys are referenced by weapons and by live items: never rename one.
+    -->
+    <mod key="mp5_mag_15" slot="magazine" installMs="1500" capacity="15">
+        <client art="mods/mag-15.svg" box="-4 -4 49 67" anchorX="0" anchorY="0"/>
+        <stat name="reloadMs" add="-300"/>
+        <stat name="drawMs" add="-100"/>
+    </mod>
+    <mod key="mp5_mag_30" slot="magazine" installMs="1800" capacity="30">
+        <client art="mods/mag-30.svg" box="-4 -4 66 116" anchorX="0" anchorY="0"/>
+    </mod>
+    <mod key="mp5_mag_40" slot="magazine" installMs="2200" capacity="40">
+        <client art="mods/mag-40.svg" box="-4 -4 77 137" anchorX="0" anchorY="0"/>
+        <stat name="reloadMs" add="400"/>
+        <stat name="drawMs" add="150"/>
+    </mod>
+    <mod key="reflex_sight" slot="optic" installMs="1500">
+        <client art="mods/sight-reflex.svg" box="-4 -4 65 44" anchorX="28" anchorY="36"/>
+        <view shape="stretch" ahead="250" zoom="0.95" extend="250"/>
+        <stat name="aimSpread" percent="-15"/>
+        <stat name="aimMs" add="-60"/>
+    </mod>
+    <mod key="tube_scope" slot="optic" installMs="2500">
+        <client art="mods/sight-tube.svg" box="-4 -4 71 43" anchorX="31" anchorY="35"/>
+        <view shape="shift" ahead="450" zoom="0.85" extend="500"/>
+        <stat name="aimSpread" percent="-30"/>
+        <stat name="aimMove" percent="-10"/>
+        <stat name="aimMs" add="100"/>
+    </mod>
+    <mod key="suppressor_9mm" slot="muzzle" installMs="2000">
+        <client art="mods/suppressor.svg" box="-4 -4 128 38" anchorX="0" anchorY="15"/>
+        <stat name="recoil" percent="-15"/>
+        <stat name="range" percent="-10"/>
+    </mod>
+    <mod key="grip_vertical" slot="underbarrel" installMs="2000">
+        <client art="mods/grip-vertical.svg" box="-4 -4 44 72" anchorX="18" anchorY="0"/>
+        <stat name="recoil" percent="-30"/>
+        <stat name="aimSpread" percent="-10"/>
+    </mod>
+    <mod key="grip_angled" slot="underbarrel" installMs="2000">
+        <client art="mods/grip-angled.svg" box="-4 -4 86 50" anchorX="39" anchorY="0"/>
+        <stat name="recoil" percent="-15"/>
+        <stat name="drawMs" add="-100"/>
+        <stat name="aimMs" add="-80"/>
+    </mod>
+    <mod key="stock_solid" slot="stock" installMs="3000">
+        <client art="mods/stock-solid.svg" box="-4 -4 158 82" anchorX="150" anchorY="20"/>
+        <stat name="recoil" percent="-35"/>
+        <stat name="drawMs" add="150"/>
+        <stat name="aimSpread" percent="-10"/>
+        <stat name="aimMove" percent="-5"/>
+    </mod>
+    <mod key="stock_open" slot="stock" installMs="3000">
+        <client art="mods/stock-open.svg" box="-4 -4 158 82" anchorX="150" anchorY="20"/>
+        <stat name="recoil" percent="-20"/>
+        <stat name="aimMs" add="-40"/>
+    </mod>
+    <mod key="handguard_standard" slot="handguard" installMs="2500">
+        <client art="mods/handguard-standard.svg" box="-4 -4 117 47" anchorX="0" anchorY="0"/>
+    </mod>
+    <mod key="handguard_vented" slot="handguard" installMs="2500">
+        <client art="mods/handguard-vented.svg" box="-4 -4 117 47" anchorX="0" anchorY="0"/>
+        <stat name="spread" percent="-5"/>
+    </mod>
+</mods>

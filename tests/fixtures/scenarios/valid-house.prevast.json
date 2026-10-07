@@ -1,0 +1,184 @@
+{
+  "format": "prevast-scenario",
+  "schemaVersion": 1,
+  "id": "prj-corpus",
+  "title": "Corpus",
+  "revision": 1,
+  "nextId": 20,
+  "requiredFeatures": [
+    "overrides.health",
+    "population.npcs",
+    "population.spawns",
+    "regions.effects",
+    "world.v1"
+  ],
+  "world": {
+    "tilesX": 20,
+    "tilesY": 20,
+    "seed": 7,
+    "time": "day",
+    "population": {
+      "resources": false,
+      "structures": false,
+      "agents": false
+    }
+  },
+  "entities": [
+    {
+      "id": "e1",
+      "kind": "object",
+      "ref": "wood_wall",
+      "x": 250,
+      "y": 250,
+      "rotation": 0,
+      "parent": "g1",
+      "overrides": {
+        "healthMax": 9000
+      }
+    },
+    {
+      "id": "e2",
+      "kind": "object",
+      "ref": "wood_wall",
+      "x": 350,
+      "y": 250,
+      "rotation": 0,
+      "parent": "g1",
+      "overrides": {
+        "healthMax": 9000
+      }
+    },
+    {
+      "id": "e3",
+      "kind": "object",
+      "ref": "wood_wall",
+      "x": 450,
+      "y": 250,
+      "rotation": 0,
+      "parent": "g1"
+    },
+    {
+      "id": "e4",
+      "kind": "npc",
+      "ref": "merchant",
+      "x": 320,
+      "y": 370,
+      "angle": 64,
+      "parent": "g1"
+    },
+    {
+      "id": "e5",
+      "kind": "spawn",
+      "ref": "player",
+      "x": 900,
+      "y": 900,
+      "team": "red",
+      "weight": 2
+    },
+    {
+      "id": "e6",
+      "kind": "resource",
+      "ref": "wood",
+      "variant": 2,
+      "x": 1250,
+      "y": 1450,
+      "angle": 17
+    }
+  ],
+  "groups": [
+    {
+      "id": "g0",
+      "name": "Town",
+      "kind": "city",
+      "pivot": {
+        "x": 1000,
+        "y": 1000
+      },
+      "marker": true
+    },
+    {
+      "id": "g1",
+      "name": "Shop",
+      "kind": "house",
+      "parent": "g0",
+      "pivot": {
+        "x": 350,
+        "y": 250
+      }
+    }
+  ],
+  "regions": [
+    {
+      "id": "r1",
+      "name": "Warm shop",
+      "parent": "g1",
+      "priority": 0,
+      "shape": {
+        "type": "rect",
+        "x": 200,
+        "y": 200,
+        "w": 300,
+        "h": 200
+      },
+      "effects": [
+        {
+          "stat": "warmth",
+          "perMinute": 120,
+          "falloff": "none"
+        }
+      ]
+    },
+    {
+      "id": "r2",
+      "name": "Barrel",
+      "attach": "e6",
+      "priority": 0,
+      "shape": {
+        "type": "circle",
+        "x": 0,
+        "y": 0,
+        "r": 250
+      },
+      "effects": [
+        {
+          "stat": "radiation",
+          "perMinute": 60,
+          "falloff": "linear",
+          "channel": "barrel"
+        }
+      ]
+    }
+  ],
+  "templates": [
+    {
+      "id": "t1",
+      "name": "Hut",
+      "revision": 1,
+      "size": {
+        "w": 3,
+        "h": 3
+      },
+      "source": "authored",
+      "entities": [
+        {
+          "id": "a",
+          "kind": "object",
+          "ref": "wood_wall",
+          "x": 50,
+          "y": 50,
+          "rotation": 0
+        },
+        {
+          "id": "b",
+          "kind": "object",
+          "ref": "wood_wall",
+          "x": 150,
+          "y": 50,
+          "rotation": 0
+        }
+      ],
+      "groups": [],
+      "regions": []
+    }
+  ]
+}

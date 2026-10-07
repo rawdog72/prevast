@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<agent key="halbot" family="bot" sprite="7">
+  <body radius="38" collision="true" separation="true"/>
+  <vitals health="800" experience="500" lifetimeMs="0"/>
+  <!-- client.js AI[7] speed 0.12 px/ms. Bots have no speedRun. -->
+  <movement speed="120"/>
+  <brain type="aggressive" vision="500" loseTarget="700" leash="0" chase="true">
+    <target type="player" priority="100"/>
+    <target type="agent" priority="60"/>
+    <target type="object" priority="30"/>
+  </brain>
+  <abilities>
+    <ability type="melee" cooldownMs="550" impactMs="400" range="50" knockback="3">
+      <damage amount="30" amountMax="30"/>
+    </ability>
+  </abilities>
+  <onDeath>
+    <drops>
+      <item key="shaped_metal" amount="1"/>
+    </drops>
+  </onDeath>
+  <client render="ghoul" breath="0.05" armMove="6" head="day-hal-bot" hurt="hal-bot-hurt" death="day-hal-bot-death" light="0" hitAnimMs="400">
+    <leftArm sprite="day-hal-bot-left-arm" angle="0" x="8" y="-45"/>
+    <rightArm sprite="day-hal-bot-right-arm" angle="0" x="8" y="45"/>
+  </client>
+</agent>

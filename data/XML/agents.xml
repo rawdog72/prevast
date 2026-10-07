@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<agents>
+  <!-- Declaration order preserves inheritance and public sprite identifiers. -->
+  <include file="../agents/normal_ghoul.xml"/>
+  <include file="../agents/explosive_ghoul.xml"/>
+  <include file="../agents/fast_ghoul.xml"/>
+  <include file="../agents/radioactive_ghoul.xml"/>
+  <include file="../agents/armored_ghoul.xml"/>
+  <include file="../agents/lapabot.xml"/>
+  <include file="../agents/halbot.xml"/>
+  <include file="../agents/teslabot.xml"/>
+  <include file="../agents/pumpkin_ghoul.xml"/>
+</agents>

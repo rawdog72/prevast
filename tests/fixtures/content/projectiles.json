@@ -1,0 +1,268 @@
+{
+  "name": "projectiles",
+  "version": 1,
+  "hash": "73e8d93a6f88d1c7",
+  "attributes": {},
+  "entries": {
+    "9mm_bullet": {
+      "key": "9mm_bullet",
+      "id": 0,
+      "clientProjectileId": 0,
+      "physics": {
+        "baseSpeed": 1
+      },
+      "damage": {
+        "type": "piercing"
+      },
+      "client": {
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-bullet1"
+          },
+          {
+            "index": 1,
+            "sprite": "day-bullet2"
+          },
+          {
+            "index": 2,
+            "sprite": "day-bullet2l"
+          }
+        ]
+      }
+    },
+    "762_round": {
+      "key": "762_round",
+      "id": 1,
+      "clientProjectileId": 1,
+      "physics": {
+        "baseSpeed": 1
+      },
+      "damage": {
+        "type": "piercing"
+      },
+      "client": {
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-bullet3"
+          },
+          {
+            "index": 1,
+            "sprite": "day-bullet4"
+          },
+          {
+            "index": 2,
+            "sprite": "day-bullet4l"
+          }
+        ]
+      }
+    },
+    "12g_pellet": {
+      "key": "12g_pellet",
+      "id": 2,
+      "clientProjectileId": 2,
+      "physics": {
+        "baseSpeed": 1
+      },
+      "damage": {
+        "type": "piercing"
+      },
+      "client": {
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-bullet5"
+          },
+          {
+            "index": 1,
+            "sprite": "day-bullet6"
+          },
+          {
+            "index": 2,
+            "sprite": "day-bullet6l"
+          }
+        ]
+      }
+    },
+    "wood_arrow": {
+      "key": "wood_arrow",
+      "id": 3,
+      "clientProjectileId": 3,
+      "physics": {
+        "baseSpeed": 1
+      },
+      "damage": {
+        "type": "piercing"
+      },
+      "client": {
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-wood-arrow"
+          },
+          {
+            "index": 1,
+            "sprite": "day-wood-arrow1"
+          },
+          {
+            "index": 2,
+            "sprite": "day-wood-arrowl"
+          }
+        ]
+      }
+    },
+    "spear": {
+      "key": "spear",
+      "id": 4,
+      "clientProjectileId": 4,
+      "physics": {
+        "baseSpeed": 1
+      },
+      "damage": {
+        "type": "piercing"
+      },
+      "client": {
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-wood-spear0"
+          },
+          {
+            "index": 1,
+            "sprite": "day-wood-spear1"
+          },
+          {
+            "index": 2,
+            "sprite": "day-wood-spearl"
+          }
+        ]
+      }
+    },
+    "wood_crossarrow": {
+      "key": "wood_crossarrow",
+      "id": 5,
+      "clientProjectileId": 5,
+      "physics": {
+        "baseSpeed": 1
+      },
+      "damage": {
+        "type": "piercing"
+      },
+      "client": {
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-wood-crossarrow"
+          },
+          {
+            "index": 1,
+            "sprite": "day-wood-crossarrow1"
+          },
+          {
+            "index": 2,
+            "sprite": "day-wood-crossarrowl"
+          }
+        ]
+      }
+    },
+    "nail": {
+      "key": "nail",
+      "id": 6,
+      "clientProjectileId": 6,
+      "physics": {
+        "baseSpeed": 1
+      },
+      "damage": {
+        "type": "piercing"
+      },
+      "client": {
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-nail1"
+          },
+          {
+            "index": 1,
+            "sprite": "day-nail2"
+          },
+          {
+            "index": 2,
+            "sprite": "day-nail2l"
+          }
+        ]
+      }
+    },
+    "energy": {
+      "key": "energy",
+      "id": 7,
+      "clientProjectileId": 7,
+      "physics": {
+        "baseSpeed": 1
+      },
+      "damage": {
+        "type": "energy"
+      },
+      "client": {
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-laser0"
+          },
+          {
+            "index": 1,
+            "sprite": "day-laser1"
+          },
+          {
+            "index": 2,
+            "sprite": "day-laser1l"
+          }
+        ]
+      }
+    },
+    "granade": {
+      "key": "granade",
+      "id": 8,
+      "clientProjectileId": 8,
+      "physics": {
+        "baseSpeed": 1
+      },
+      "damage": {
+        "type": "piercing"
+      },
+      "client": {
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-grenade0"
+          },
+          {
+            "index": 1,
+            "sprite": "day-grenade1"
+          },
+          {
+            "index": 2,
+            "sprite": "day-grenadel"
+          }
+        ]
+      },
+      "lifetime": {
+        "durationMs": 3000
+      },
+      "onDestroy": {
+        "explosion": {
+          "area": 1,
+          "playerDamage": 200,
+          "buildingDamage": 400,
+          "knockback": 10,
+          "onHit": {
+            "condition": "slowed",
+            "chance": 1,
+            "durationMs": 600,
+            "strength": 0.2
+          }
+        }
+      }
+    }
+  }
+}

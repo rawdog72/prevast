@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<npc key="smuggler" id="4" name="Vex" invulnerable="true">
+  <client head="day-skin0" leftArm="day-left-arm0" rightArm="day-right-arm0" tint="#cfaaa5" shop="true"/>
+  <body walkThrough="true"/>
+  <movement walkRadius="1" speed="40"/>
+  <shop stockScope="shared" restockSeconds="7200">
+    <offer key="pistol" item="pistol" buyPrice="3000" stockMin="2" stockMax="2"/>
+    <rareOffer key="shotgun" item="shotgun" buyPrice="12000" chanceBps="500" stockMin="1" stockMax="1" perLifeLimit="1"/>
+  </shop>
+  <karma>
+    <rule min="0" max="3" trade="false" quests="false" reply="You are too respectable for my business."/>
+  </karma>
+  <dialogue greeting="Keep your voice down. Here to {trade}, or looking for a {contract}?" fallback="Ask about {trade}, {contract}, or say {bye}."/>
+</npc>

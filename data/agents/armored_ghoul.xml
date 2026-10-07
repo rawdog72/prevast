@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<agent key="armored_ghoul" family="ghoul" sprite="4">
+  <body radius="38" collision="true" separation="true"/>
+  <vitals health="800" experience="5000" lifetimeMs="0"/>
+  <daylight damage="5" intervalMs="1000"/>
+  <!-- The armor IS the <resistances>: fraction of incoming damage of that
+		     kind shrugged off, the same semantics as a player's wearable
+		     ...Resistance modifiers. Guns are the wrong tool for this one.
+			 melee="0.5" piercing="0.6" explosion="0.3" energy="0.2" -->
+  <resistances melee="0.1" explosion="0.1"/>
+  <!-- No <dodge>: it walks through the burst. The armour IS its answer to
+		     being shot, and a heavy that jinked would have both. -->
+  <!-- client.js AI[4] speedRun tops out at 0.24 px/ms. -->
+  <movement speed="250" nightSpeed="300"/>
+  <brain type="aggressive" vision="700" loseTarget="1000" leash="0" chase="true" roamRadius="1500" roamPauseMs="0" aggroAfterCycles="10" repelBreakMs="60000">
+    <target type="player" priority="100"/>
+    <target type="agent" priority="60"/>
+    <target type="object" priority="30"/>
+  </brain>
+  <abilities>
+    <!-- client.js AI[4] actionDelay 700 / impact 550: slow, heavy. -->
+    <ability type="melee" cooldownMs="700" impactMs="550" range="50" radius="40" staminaUsage="5" knockback="10">
+      <damage amount="20" amountMax="50"/>
+    </ability>
+  </abilities>
+  <onDeath>
+    <drops>
+      <item key="alloys" amount="1"/>
+      <item key="shaped_metal" amount="1"/>
+    </drops>
+  </onDeath>
+  <client render="ghoul" breath="0.05" armMove="6" head="day-ghoul1" hurt="ghoul1-hurt" death="day-ghoul1-death" light="1" hitAnimMs="550">
+    <leftArm sprite="day-ghoul1-left-arm" angle="0" x="28" y="-50"/>
+    <rightArm sprite="day-ghoul1-right-arm" angle="0" x="28" y="50"/>
+  </client>
+</agent>

@@ -1,0 +1,45 @@
+{
+  "format": "prevast-scenario",
+  "schemaVersion": 1,
+  "id": "prj-corpus",
+  "title": "Corpus",
+  "revision": 1,
+  "nextId": 20,
+  "requiredFeatures": [
+    "world.v1"
+  ],
+  "world": {
+    "tilesX": 20,
+    "tilesY": 20,
+    "seed": 7,
+    "time": "day",
+    "population": {
+      "resources": false,
+      "structures": false,
+      "agents": false
+    }
+  },
+  "entities": [
+    {
+      "id": "x",
+      "kind": "object",
+      "ref": "wood_wall",
+      "x": 150,
+      "y": 150,
+      "rotation": 0
+    }
+  ],
+  "groups": [
+    {
+      "id": "x",
+      "name": "X",
+      "kind": "group",
+      "pivot": {
+        "x": 0,
+        "y": 0
+      }
+    }
+  ],
+  "regions": [],
+  "templates": []
+}

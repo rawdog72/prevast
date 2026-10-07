@@ -1,0 +1,355 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    ===================================================================================
+    PREVAST SERVER - CONDITIONS (TIMED BUFFS, DEBUFFS AND AFFLICTIONS)
+    ===================================================================================
+
+    VISUALS (per stage). Two different questions - what the player looks like
+    WHILE the stage runs, and what it leaves behind when the stage ENDS:
+
+      <visuals skin="N"/>       drawn for the duration of the stage
+        skin="1"   the ghoul-drug look (day-skin1)
+        skin="2"   the lapadone withdrawal look (day-skin2)
+        omitted    no skin change; a stage can modify without showing anything
+
+      <visuals endSkin="N"/>    left behind when the stage's duration expires
+        endSkin="0"   back to the plain skin
+        endSkin="4"   the used-lapadone look, until something cures it
+        omitted       leave whatever mark is already there
+
+      <visuals poisonScreenEffect="true"/>  green screen distortion, wearer only
+
+    Those are the only values, and unrecognised ones are reported at startup -
+    including the ones that look like they should work. skin="0" is not a thing
+    to write (omit the skin instead), and endSkin="1" / endSkin="2" cannot exist
+    because both of those need a LIVE timer to be drawn at all.
+
+    endSkin is why the withdrawal stage below keeps its pink skin after it ends.
+    Delete the attribute and lapadone wears off to the normal skin instead.
+
+    REPELLENTS (per stage):
+    - <repel families="ghoul"/> makes the wearer invisible to every agent whose
+      agents.xml family= matches, for as long as that stage is active. They will
+      not select, alert about, swing at or retaliate against them at all; agents
+      of any OTHER family are completely unaffected.
+    - <repel keys="halbot"/> does the same for one named agent type.
+    - Both attributes take comma-separated lists and may be combined; a name
+      that matches nothing in agents.xml is reported at startup.
+
+    MODIFIERS (per stage, inside <modifiers>):
+    - <speed multiplier= add=/>          movement speed
+    - <healthRegen multiplier=/>         scales the life gauge's speedInc
+    - <staminaRegen multiplier=/>        scales the stamina gauge's speedInc
+    - <staminaDrain multiplier=/>        scales the stamina gauge's speedDec
+    The three multipliers ride out on the gauge RATES the client integrates, so
+    both simulations use the same numbers. There is no maxHealth modifier: life
+    is a 0-255 gauge whose ceiling modes.xml already sets to 255, so a bonus has
+    nowhere to go. Writing one is reported at startup rather than ignored.
+
+    GAUGE TICKS - damage, healing or drain over time, one per gauge:
+    - <healthTick    amount= intervalMs=/>   negative hurts, positive heals
+    - <foodTick      amount= intervalMs=/>   a parasite, or a slow feed
+    - <warmthTick    amount= intervalMs=/>   chill, or a lingering warmth
+    - <staminaTick   amount= intervalMs=/>   exhaustion, or a stimulant
+    - <radiationTick amount= intervalMs=/>   contamination, or a decon drip
+    intervalMs below 50 is reported at startup: the effect loop runs at 50 ms and
+    cannot fire faster, so a smaller number is silently the same as 50. An AGENT
+    has only a health pool, so the other four simply do nothing to one - which is
+    what lets the same condition be written once and applied to anybody.
+
+    COMBAT (per stage, inside <modifiers>):
+    - <damageDealt multiplier=/>    scales damage this creature INFLICTS (0.1..3)
+    - <damageTaken multiplier=/>    scales damage this creature RECEIVES (0.1..3)
+    - <critChance add=/>            added to the wielder's crit chance
+    - <knockbackResist fraction=/>  0..1 of incoming knockback shrugged off
+    - <leech life= stamina=/>       a vampirism BUFF, on top of the weapon's own
+    Both damage multipliers are clamped to 0.1..3.0 with a warning: they are the
+    easiest knobs here to make a degenerate item with.
+
+    CONTROL (per stage, inside <modifiers>) - what the stage FORBIDS:
+    - <control move= turn= run= attack= use= build= /> (all default "true")
+    Write "false" to take something away. A <control> that forbids nothing is
+    reported at startup. move="false" implies run="false". This is how a stun or
+    a paralyse is written - NOT as <speed multiplier="0"/>, which cannot work:
+    speed is floored well above zero, so the most a multiplier can do is a crawl,
+    and it cannot stop an attack at all.
+
+    EVERY control bit forbids something the creature does OF ITS OWN ACCORD, and
+    nothing the world does TO it. A stunned player still takes damage, still
+    catches conditions, and is STILL KNOCKED BACK - being shoved is done to you,
+    so a stunned player can be knocked out of a doorway rather than becoming a
+    statue. `turn` is separate from `move` for the same reason: a paralysed
+    player is rooted but still a threat and can turn to shoot, where a stunned
+    one has lost the plot entirely.
+
+    RESISTANCE TO OTHER CONDITIONS (per stage, inside <modifiers>):
+    - <resist conditions="a,b" fraction="0.5" all="0.2"/>
+    A fraction SHRINKS THE DURATION of the named conditions, and 1.0 (the
+    default for fraction=) blocks them outright. Duration rather than a chance to
+    block, so a protection reads the same way every time it applies instead of
+    being a lottery. `all=` is the blanket form. Sources compose as a product of
+    what each lets through, so two halvings leave a quarter and never reach
+    immunity by accident. A player's WEARABLE answers the same question through
+    <modifier key="<conditionKey>Resistance">, and an agent's through
+    <resistances><condition key= fraction=/></resistances> in agents.xml.
+
+    STACKING (<stacking mode="..."/>), what a second dose does while the first
+    is still running:
+    - "refresh" (the default) restarts the effect from its first stage
+    - "extend"  keeps the current stage and adds to the time left
+    - "ignore"  does nothing
+    Anything else is reported at startup; it used to mean "ignore" in silence.
+
+    NAME: <condition name="..."> is the human label. Nothing on the wire carries
+    it - the client has no notion of a named condition - so it appears only in
+    the startup warnings and in the admin effects inspector.
+
+    TAGS: <condition tags="poison,disease"> is what the condition IS, so a cure
+    can name a KIND rather than enumerate keys - <cureCondition tags="poison"/>
+    keeps working when a sixth poison is added, where keys="a,b,c,d,e" does not.
+    That list has rotted once already: lapadoine_effect was renamed and the
+    antidote silently stopped curing it. A cure name may be a key or a tag.
+
+    WHAT APPLIES ONE:
+    - an item eaten:   <condition key="..."/> inside <consumable> (equipables.xml)
+    - a weapon hit:    <onHit condition= chance= chancePerDamage=/> inside <damage>
+    - a round landing: <onHit .../> on a <projectile> (projectiles.xml)
+    - an agent's bite: <ability condition= chance=/> (agents.xml)
+    - a critical hit:  <crit condition= conditionChance=/> on any of those
+    chancePerDamage adds to the chance per point of damage that ACTUALLY landed,
+    so a big hit is likelier to stun than a graze - and armour, which reduced the
+    damage, reduces the chance with it.
+
+    EVERY source can override HOW LONG and HOW MUCH, so one condition serves any
+    number of sources instead of needing a near-duplicate per weapon:
+      durationMs="3000"   this source's own length, replacing the FIRST stage's.
+                          Later stages keep their own - those are the effect's
+                          shape, not the dose's.
+      strength="1.4"      how hard, as a multiple of what is written below.
+                          1.0 is the condition exactly as stated; 0.4 is a
+                          fraction of it; 1.8 is nearly twice.
+    (On a <crit> the two are spelled conditionDurationMs= and conditionStrength=,
+    so the crit's own chance and duration cannot be confused with the hit's.)
+
+    strength scales every MAGNITUDE and no SWITCH. Speeds, gauge ticks, damage
+    multipliers, leech, crit chance and resistances all move with it; <control>,
+    the drug skins and <repel> do not - half a stun is not a thing. A multiplier
+    scales by its DISTANCE FROM 1, so <speed multiplier="0.55"/> at strength 2 is
+    x0.10 (twice as slow), not x1.10. strength="0" and negatives are refused at
+    startup: they would apply an inert condition, or invert it into a boost.
+
+    An item removes them with <cureCondition keys="a,b"/> (keys or tags, or the
+    "all" sentinel).
+    ===================================================================================
+-->
+<conditions>
+    <!-- Ghoul Drug: Grants Ghoul Repellent (day-skin1.png).
+         Ghouls ignore the wearer entirely for the duration; robots (family
+         "bot") are not fooled and keep hunting normally. -->
+    <condition key="ghoul_drug_effect" name="Ghoul Repellent Drug" removeOnDeath="true">
+        <stacking mode="refresh"/>
+        <stage key="active" durationMs="600000">
+            <visuals skin="1"/>
+            <repel families="ghoul"/>
+        </stage>
+    </condition>
+
+    <!-- Lapadone: 6s Speed Boost (no skin change) -> 6s Withdrawal (day-skin2.png)
+         -> Normal Skin (day-skin0.png).
+
+         There is no "boost" skin to ask for. The protocol carries exactly two
+         drug visuals - opcode 68 (onRepellent, the ghoul drug) and opcode 69
+         (onLapadoine, which sets the client field named `withdrawal`) - so
+         skin="1" and skin="2" are the only values statuseffect.cpp accepts.
+         The boost previously sent skin="2", i.e. the withdrawal look, during
+         the buff; the withdrawal stage sent skin="4", which matches no branch
+         and fell through to no skin at all. -->
+    <condition key="lapadone_effect" name="Lapadone" removeOnDeath="true">
+        <stacking mode="refresh"/>
+
+        <!-- Stage 1: Lapadone Speed Boost (+35% speed).
+
+             No endSkin here on purpose: this stage hands off to `withdrawal`
+             rather than ending the condition, and what the whole course leaves
+             behind is the withdrawal stage's business. endSkin does fire on a
+             handing-off stage if you ask for one; this one just does not want
+             it. -->
+        <stage key="boost" durationMs="6000" nextStage="withdrawal">
+            <modifiers>
+                <speed multiplier="1.35"/>
+                <staminaRegen multiplier="1.25"/>
+            </modifiers>
+            <visuals skin="2"/>
+        </stage>
+
+        <!-- Stage 2: Lapadone Withdrawal Penalty (-30% speed, Day Skin 2).
+
+             endSkin="4" is what makes the pink skin OUTLIVE the withdrawal: the
+             speed penalty stops after 6s but the wearer keeps the look until an
+             antidote clears it, which is what the antidote advertises. Delete
+             the attribute and lapadone wears off to the normal skin instead. -->
+        <stage key="withdrawal" durationMs="6000">
+            <modifiers>
+                <speed multiplier="0.70"/>
+                <staminaRegen multiplier="0.65"/>
+            </modifiers>
+            <visuals skin="2" endSkin="4"/>
+        </stage>
+    </condition>
+
+    <!-- Toxic Poison (Rotten Mushroom): Deals damage over 1 minute -->
+    <condition key="toxic_poison" name="Toxic Poison" tags="poison" removeOnDeath="true">
+        <stacking mode="refresh"/>
+        <stage key="active" durationMs="60000">
+            <modifiers>
+                <speed multiplier="0.85"/>
+                <healthTick amount="-5" intervalMs="2000"/>
+            </modifiers>
+            <visuals poisonScreenEffect="true"/>
+        </stage>
+    </condition>
+
+    <!--
+        ===============================================================================
+        BELOW: conditions added with the combat-effects work. Every number here is a
+        FIRST GUESS and exists to make the mechanism reachable from content - tune
+        them in play. Nothing in the shipped world applies these except where noted.
+        ===============================================================================
+    -->
+
+    <!-- Stun: cannot move or attack at all, briefly.
+
+         Written as <control>, NOT as <speed multiplier="0"/>. Speed is floored
+         well above zero, so a multiplier can only ever produce a crawl, and it
+         cannot stop an attack under any value. Keep the duration SHORT: this is
+         the strongest thing in the file, and a long one is not a fight. -->
+    <condition key="stun" name="Stunned" tags="control" removeOnDeath="true">
+        <stacking mode="refresh"/>
+        <stage key="active" durationMs="1200">
+            <modifiers>
+                <control move="false" turn="false" attack="false" use="false" build="false"/>
+            </modifiers>
+        </stage>
+    </condition>
+
+    <!-- Paralysis: rooted, but can still fight back. The slower, fairer sibling
+         of a stun - it takes position away rather than agency. -->
+    <condition key="paralysis" name="Paralysed" tags="control" removeOnDeath="true">
+        <stacking mode="refresh"/>
+        <stage key="active" durationMs="2500">
+            <modifiers>
+                <control move="false"/>
+            </modifiers>
+        </stage>
+    </condition>
+
+    <!-- Crippled: a leg wound. Walks, cannot run, and heals slowly. -->
+    <condition key="crippled" name="Crippled" tags="wound" removeOnDeath="true">
+        <stacking mode="refresh"/>
+        <stage key="active" durationMs="15000">
+            <modifiers>
+                <speed multiplier="0.6"/>
+                <control run="false"/>
+                <healthRegen multiplier="0.5"/>
+            </modifiers>
+        </stage>
+    </condition>
+
+    <!-- Slowed: the plain "you got caught in something" movement penalty. A
+         blast wave, a gas cloud, a net. No control bits - you can still run,
+         you are just worse at it - which is what makes it the right thing for
+         an explosion to leave behind rather than a stun.
+
+         Resisted by <modifier key="slowedResistance"> on a wearable: the key is
+         the condition key plus "Resistance", and nothing in the code knows
+         either name. -->
+    <condition key="slowed" name="Slowed" tags="control,movement" removeOnDeath="true">
+        <stacking mode="refresh"/>
+        <stage key="active" durationMs="4000">
+            <modifiers>
+                <speed multiplier="0.55"/>
+            </modifiers>
+        </stage>
+    </condition>
+
+    <!-- Bleeding: damage over time that a bandage should cure. Tagged `wound`
+         so <cureCondition tags="wound"/> covers this and anything like it. -->
+    <condition key="bleeding" name="Bleeding" tags="wound,bleed" removeOnDeath="true">
+        <stacking mode="refresh"/>
+        <stage key="active" durationMs="10000">
+            <modifiers>
+                <healthTick amount="-3" intervalMs="1000"/>
+            </modifiers>
+        </stage>
+    </condition>
+
+    <!-- Adrenaline: fast and hard-hitting, then the crash. What a stimulant
+         should feel like - the second stage is the price of the first. -->
+    <condition key="adrenaline" name="Adrenaline" tags="drug" removeOnDeath="true">
+        <stacking mode="refresh"/>
+        <stage key="rush" durationMs="8000" nextStage="crash">
+            <modifiers>
+                <speed multiplier="1.25"/>
+                <damageDealt multiplier="1.3"/>
+                <critChance add="0.15"/>
+                <staminaDrain multiplier="0.5"/>
+                <knockbackResist fraction="0.5"/>
+            </modifiers>
+        </stage>
+        <stage key="crash" durationMs="12000">
+            <modifiers>
+                <speed multiplier="0.8"/>
+                <damageDealt multiplier="0.8"/>
+                <staminaTick amount="-2" intervalMs="1000"/>
+            </modifiers>
+        </stage>
+    </condition>
+
+    <!-- Vampirism: leech with whatever you are holding, stacking on top of a
+         weapon that already leeches. -->
+    <condition key="vampirism" name="Vampirism" tags="drug" removeOnDeath="true">
+        <stacking mode="refresh"/>
+        <stage key="active" durationMs="20000">
+            <modifiers>
+                <leech life="0.2"/>
+            </modifiers>
+        </stage>
+    </condition>
+
+    <!-- Fortified: takes less, moves slower. The defensive counterpart. -->
+    <condition key="fortified" name="Fortified" tags="buff" removeOnDeath="true">
+        <stacking mode="refresh"/>
+        <stage key="active" durationMs="15000">
+            <modifiers>
+                <damageTaken multiplier="0.6"/>
+                <speed multiplier="0.85"/>
+                <knockbackResist fraction="0.8"/>
+            </modifiers>
+        </stage>
+    </condition>
+
+    <!-- Antitoxin: protection FROM conditions rather than a condition's own
+         effect. Blocks poison outright and shortens everything else, which is
+         what a medical counter-agent should read as. -->
+    <condition key="antitoxin" name="Antitoxin" tags="buff" removeOnDeath="true">
+        <stacking mode="refresh"/>
+        <stage key="active" durationMs="45000">
+            <modifiers>
+                <resist conditions="toxic_poison,bleeding" fraction="1.0" all="0.3"/>
+            </modifiers>
+        </stage>
+    </condition>
+
+    <!-- Irradiated: fills the radiation gauge from a source that is not a field,
+         so a weapon or a bite can contaminate you where only geography could
+         before. -->
+    <condition key="irradiated" name="Irradiated" tags="radiation" removeOnDeath="true">
+        <stacking mode="extend"/>
+        <stage key="active" durationMs="20000">
+            <modifiers>
+                <radiationTick amount="4" intervalMs="1000"/>
+            </modifiers>
+        </stage>
+    </condition>
+
+</conditions>

@@ -1,0 +1,5294 @@
+{
+  "name": "furnitures",
+  "version": 1,
+  "hash": "b60d3217db1cdab0",
+  "attributes": {},
+  "entries": {
+    "sofa0": {
+      "key": "sofa0",
+      "itemKey": "furniture",
+      "subtype": 0,
+      "category": "furniture",
+      "healthMax": 450,
+      "layer": "mid",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "wood",
+              "amount": 10
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "furniture",
+        "particles": "sofa0",
+        "particlesDistance": 70,
+        "impactSound": "pillow_impact",
+        "destroySound": "pillow_destroy",
+        "angle": 3.141592653589793,
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-sofa0"
+          }
+        ]
+      }
+    },
+    "sofa1": {
+      "key": "sofa1",
+      "itemKey": "furniture",
+      "subtype": 1,
+      "category": "furniture",
+      "healthMax": 450,
+      "layer": "mid",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "wood",
+              "amount": 10
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "furniture",
+        "particles": "sofa1",
+        "particlesDistance": 70,
+        "impactSound": "pillow_impact",
+        "destroySound": "pillow_destroy",
+        "angle": 3.141592653589793,
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-sofa1"
+          }
+        ]
+      }
+    },
+    "sofa2": {
+      "key": "sofa2",
+      "itemKey": "furniture",
+      "subtype": 2,
+      "category": "furniture",
+      "healthMax": 450,
+      "layer": "mid",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "wood",
+              "amount": 10
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "furniture",
+        "particles": "sofa1",
+        "particlesDistance": 70,
+        "impactSound": "pillow_impact",
+        "destroySound": "pillow_destroy",
+        "angle": 3.141592653589793,
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-sofa2"
+          }
+        ]
+      }
+    },
+    "sofa3": {
+      "key": "sofa3",
+      "itemKey": "furniture",
+      "subtype": 3,
+      "category": "furniture",
+      "healthMax": 450,
+      "layer": "mid",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "wood",
+              "amount": 10
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "furniture",
+        "particles": "sofa2",
+        "particlesDistance": 70,
+        "impactSound": "pillow_impact",
+        "destroySound": "pillow_destroy",
+        "angle": 3.141592653589793,
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-sofa3"
+          }
+        ]
+      }
+    },
+    "sofa4": {
+      "key": "sofa4",
+      "itemKey": "furniture",
+      "subtype": 4,
+      "category": "furniture",
+      "healthMax": 450,
+      "layer": "mid",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "wood",
+              "amount": 10
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "furniture",
+        "particles": "sofa2",
+        "particlesDistance": 70,
+        "impactSound": "pillow_impact",
+        "destroySound": "pillow_destroy",
+        "angle": 3.141592653589793,
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-sofa4"
+          }
+        ]
+      }
+    },
+    "sofa6": {
+      "key": "sofa6",
+      "itemKey": "furniture",
+      "subtype": 42,
+      "category": "furniture",
+      "healthMax": 450,
+      "layer": "mid",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "wood",
+              "amount": 10
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "furniture",
+        "particles": "sofa2",
+        "particlesDistance": 70,
+        "impactSound": "pillow_impact",
+        "destroySound": "pillow_destroy",
+        "angle": 3.141592653589793,
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-sofa6"
+          }
+        ]
+      }
+    },
+    "bed0": {
+      "key": "bed0",
+      "itemKey": "furniture",
+      "subtype": 5,
+      "category": "furniture",
+      "healthMax": 300,
+      "layer": "mid",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "wood",
+              "amount": 200
+            },
+            {
+              "key": "leather",
+              "amount": 20
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "furniture",
+        "particles": "bed0",
+        "particlesDistance": 70,
+        "impactSound": "pillow_impact",
+        "destroySound": "pillow_destroy",
+        "angle": 3.141592653589793,
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-bed0"
+          }
+        ]
+      }
+    },
+    "bed1": {
+      "key": "bed1",
+      "itemKey": "furniture",
+      "subtype": 6,
+      "category": "furniture",
+      "healthMax": 300,
+      "layer": "mid",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "wood",
+              "amount": 200
+            },
+            {
+              "key": "leather",
+              "amount": 20
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "furniture",
+        "particles": "bed1",
+        "particlesDistance": 70,
+        "impactSound": "pillow_impact",
+        "destroySound": "pillow_destroy",
+        "angle": 3.141592653589793,
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-bed1"
+          }
+        ]
+      }
+    },
+    "bed2": {
+      "key": "bed2",
+      "itemKey": "furniture",
+      "subtype": 48,
+      "category": "furniture",
+      "healthMax": 500,
+      "layer": "mid",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "animal_fat",
+              "amount": 12
+            },
+            {
+              "key": "leather",
+              "amount": 20
+            },
+            {
+              "key": "shaped_metal",
+              "amount": 12
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "furniture",
+        "particles": "grey_steel",
+        "particlesDistance": 70,
+        "impactSound": "pillow_impact",
+        "destroySound": "pillow_destroy",
+        "angle": 3.141592653589793,
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-bed2"
+          }
+        ]
+      }
+    },
+    "reinforced": {
+      "key": "reinforced",
+      "itemKey": "furniture",
+      "subtype": 41,
+      "category": "furniture",
+      "healthMax": 7000,
+      "layer": "mid",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "shaped_metal",
+              "amount": 40
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "furniture",
+        "particles": "steel",
+        "particlesDistance": 70,
+        "impactSound": "pillow_impact",
+        "destroySound": "pillow_destroy",
+        "angle": 3.141592653589793,
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-renforced-door"
+          }
+        ]
+      }
+    },
+    "tv0": {
+      "key": "tv0",
+      "itemKey": "furniture",
+      "subtype": 8,
+      "category": "furniture",
+      "healthMax": 200,
+      "layer": "mid",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "electronics",
+              "amount": 4
+            },
+            {
+              "key": "shaped_metal",
+              "amount": 16
+            },
+            {
+              "key": "small_wire",
+              "amount": 4
+            },
+            {
+              "key": "junk",
+              "amount": 12
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "furniture",
+        "particles": "safe0",
+        "particlesDistance": 70,
+        "impactSound": "steel_impact",
+        "destroySound": "steel_destroy",
+        "angle": 3.141592653589793,
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-tv0"
+          }
+        ]
+      }
+    },
+    "computer0": {
+      "key": "computer0",
+      "itemKey": "furniture",
+      "subtype": 9,
+      "category": "furniture",
+      "healthMax": 250,
+      "layer": "mid",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "electronics",
+              "amount": 4
+            },
+            {
+              "key": "shaped_metal",
+              "amount": 16
+            },
+            {
+              "key": "small_wire",
+              "amount": 4
+            },
+            {
+              "key": "junk",
+              "amount": 12
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "furniture",
+        "particles": "metal",
+        "particlesDistance": 70,
+        "impactSound": "steel_impact",
+        "destroySound": "steel_destroy",
+        "angle": 3.141592653589793,
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-computer0"
+          }
+        ]
+      }
+    },
+    "machine0": {
+      "key": "machine0",
+      "itemKey": "furniture",
+      "subtype": 33,
+      "category": "furniture",
+      "healthMax": 800,
+      "layer": "mid",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "electronics",
+              "amount": 4
+            },
+            {
+              "key": "shaped_metal",
+              "amount": 4
+            },
+            {
+              "key": "energy_cells",
+              "amount": 8
+            },
+            {
+              "key": "junk",
+              "amount": 12
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "furniture",
+        "particles": "steel",
+        "particlesDistance": 70,
+        "impactSound": "steel_impact",
+        "destroySound": "steel_destroy",
+        "angle": 3.141592653589793,
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-electronic-box0"
+          }
+        ]
+      }
+    },
+    "machine1": {
+      "key": "machine1",
+      "itemKey": "furniture",
+      "subtype": 34,
+      "category": "furniture",
+      "healthMax": 1400,
+      "layer": "mid",
+      "transform": {
+        "width": 120,
+        "height": 120,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "electronics",
+              "amount": 16
+            },
+            {
+              "key": "shaped_metal",
+              "amount": 16
+            },
+            {
+              "key": "energy_cells",
+              "amount": 16
+            },
+            {
+              "key": "wire",
+              "amount": 8
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "furniture",
+        "particles": "steel",
+        "particlesDistance": 70,
+        "impactSound": "steel_impact",
+        "destroySound": "steel_destroy",
+        "angle": 3.141592653589793,
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-electronic-box1"
+          }
+        ],
+        "offset": [
+          {
+            "rotation": 0,
+            "x": -10,
+            "y": -10
+          },
+          {
+            "rotation": 1,
+            "x": -10,
+            "y": -10
+          },
+          {
+            "rotation": 2,
+            "x": -10,
+            "y": -10
+          },
+          {
+            "rotation": 3,
+            "x": -10,
+            "y": -10
+          }
+        ]
+      }
+    },
+    "table0": {
+      "key": "table0",
+      "itemKey": "furniture",
+      "subtype": 7,
+      "category": "furniture",
+      "healthMax": 500,
+      "layer": "mid",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "wood",
+              "amount": 200
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "furniture",
+        "particles": "wood",
+        "particlesDistance": 70,
+        "impactSound": "wood_impact",
+        "destroySound": "wood_destroy",
+        "angle": 3.141592653589793,
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-table0"
+          }
+        ]
+      }
+    },
+    "table1": {
+      "key": "table1",
+      "itemKey": "furniture",
+      "subtype": 46,
+      "category": "furniture",
+      "healthMax": 500,
+      "layer": "mid",
+      "transform": {
+        "width": 100,
+        "height": 280,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "wood",
+              "amount": 200
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "furniture",
+        "particles": "wood",
+        "particlesDistance": 70,
+        "impactSound": "wood_impact",
+        "destroySound": "wood_destroy",
+        "angle": 3.141592653589793,
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-table1"
+          }
+        ],
+        "offset": [
+          {
+            "rotation": 0,
+            "y": -90,
+            "tileI": -1
+          },
+          {
+            "rotation": 1,
+            "x": -90,
+            "tileJ": -1
+          },
+          {
+            "rotation": 2,
+            "y": -90,
+            "tileI": -1
+          },
+          {
+            "rotation": 3,
+            "x": -90,
+            "tileJ": -1
+          }
+        ]
+      }
+    },
+    "table2": {
+      "key": "table2",
+      "itemKey": "furniture",
+      "subtype": 56,
+      "category": "furniture",
+      "healthMax": 500,
+      "layer": "mid",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "shaped_metal",
+              "amount": 8
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "furniture",
+        "particles": "steel",
+        "particlesDistance": 70,
+        "impactSound": "steel_impact",
+        "destroySound": "steel_destroy",
+        "angle": 3.141592653589793,
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-table2"
+          }
+        ]
+      }
+    },
+    "little_table0": {
+      "key": "little_table0",
+      "itemKey": "furniture",
+      "subtype": 22,
+      "category": "furniture",
+      "healthMax": 500,
+      "layer": "mid",
+      "transform": {
+        "width": 50,
+        "height": 50,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "shaped_metal",
+              "amount": 8
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "furniture",
+        "particles": "metal",
+        "particlesDistance": 70,
+        "impactSound": "steel_impact",
+        "destroySound": "steel_destroy",
+        "angle": 3.141592653589793,
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-little-table0"
+          }
+        ],
+        "offset": [
+          {
+            "rotation": 0,
+            "x": 25,
+            "y": 25
+          },
+          {
+            "rotation": 1,
+            "x": 25,
+            "y": 25
+          },
+          {
+            "rotation": 2,
+            "x": 25,
+            "y": 25
+          },
+          {
+            "rotation": 3,
+            "x": 25,
+            "y": 25
+          }
+        ]
+      }
+    },
+    "chair0": {
+      "key": "chair0",
+      "itemKey": "furniture",
+      "subtype": 10,
+      "category": "furniture",
+      "healthMax": 450,
+      "layer": "mid",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "leather",
+              "amount": 8
+            },
+            {
+              "key": "shaped_metal",
+              "amount": 8
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "furniture",
+        "particles": "metal",
+        "particlesDistance": 70,
+        "impactSound": "steel_impact",
+        "destroySound": "steel_destroy",
+        "angle": 3.141592653589793,
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-chair0"
+          }
+        ]
+      }
+    },
+    "chair1": {
+      "key": "chair1",
+      "itemKey": "furniture",
+      "subtype": 52,
+      "category": "furniture",
+      "healthMax": 450,
+      "layer": "mid",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "leather",
+              "amount": 8
+            },
+            {
+              "key": "shaped_metal",
+              "amount": 8
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "furniture",
+        "particles": "metal",
+        "particlesDistance": 70,
+        "impactSound": "steel_impact",
+        "destroySound": "steel_destroy",
+        "angle": 3.141592653589793,
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-chair1"
+          }
+        ]
+      }
+    },
+    "chair2": {
+      "key": "chair2",
+      "itemKey": "furniture",
+      "subtype": 53,
+      "category": "furniture",
+      "healthMax": 450,
+      "layer": "mid",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "leather",
+              "amount": 8
+            },
+            {
+              "key": "shaped_metal",
+              "amount": 8
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "furniture",
+        "particles": "metal",
+        "particlesDistance": 70,
+        "impactSound": "steel_impact",
+        "destroySound": "steel_destroy",
+        "angle": 3.141592653589793,
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-chair2"
+          }
+        ]
+      }
+    },
+    "gold_chair0": {
+      "key": "gold_chair0",
+      "itemKey": "furniture",
+      "subtype": 43,
+      "category": "furniture",
+      "healthMax": 450,
+      "layer": "mid",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "leather",
+              "amount": 8
+            },
+            {
+              "key": "wood",
+              "amount": 8
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "furniture",
+        "particles": "gold",
+        "particlesDistance": 70,
+        "impactSound": "pillow_impact",
+        "destroySound": "pillow_destroy",
+        "angle": 3.141592653589793,
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-gold-chair0"
+          }
+        ],
+        "offset": [
+          {
+            "rotation": 0,
+            "x": 15,
+            "y": 15
+          },
+          {
+            "rotation": 1,
+            "x": 15,
+            "y": 15
+          },
+          {
+            "rotation": 2,
+            "x": 15,
+            "y": 15
+          },
+          {
+            "rotation": 3,
+            "x": 15,
+            "y": 15
+          }
+        ]
+      }
+    },
+    "green_chair0": {
+      "key": "green_chair0",
+      "itemKey": "furniture",
+      "subtype": 44,
+      "category": "furniture",
+      "healthMax": 450,
+      "layer": "mid",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "leather",
+              "amount": 8
+            },
+            {
+              "key": "wood",
+              "amount": 8
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "furniture",
+        "particles": "kaki",
+        "particlesDistance": 70,
+        "impactSound": "pillow_impact",
+        "destroySound": "pillow_destroy",
+        "angle": 3.141592653589793,
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-green-chair0"
+          }
+        ],
+        "offset": [
+          {
+            "rotation": 0,
+            "x": 15,
+            "y": 15
+          },
+          {
+            "rotation": 1,
+            "x": 15,
+            "y": 15
+          },
+          {
+            "rotation": 2,
+            "x": 15,
+            "y": 15
+          },
+          {
+            "rotation": 3,
+            "x": 15,
+            "y": 15
+          }
+        ]
+      }
+    },
+    "wood_chair0": {
+      "key": "wood_chair0",
+      "itemKey": "furniture",
+      "subtype": 45,
+      "category": "furniture",
+      "healthMax": 450,
+      "layer": "mid",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "wood",
+              "amount": 8
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "furniture",
+        "particles": "woodlight",
+        "particlesDistance": 70,
+        "impactSound": "wood_impact",
+        "destroySound": "wood_destroy",
+        "angle": 3.141592653589793,
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-wood-chair0"
+          }
+        ],
+        "offset": [
+          {
+            "rotation": 0,
+            "x": 15,
+            "y": 15
+          },
+          {
+            "rotation": 1,
+            "x": 15,
+            "y": 15
+          },
+          {
+            "rotation": 2,
+            "x": 15,
+            "y": 15
+          },
+          {
+            "rotation": 3,
+            "x": 15,
+            "y": 15
+          }
+        ]
+      }
+    },
+    "washbasin0": {
+      "key": "washbasin0",
+      "itemKey": "furniture",
+      "subtype": 11,
+      "category": "furniture",
+      "healthMax": 450,
+      "layer": "mid",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "wood",
+              "amount": 150
+            },
+            {
+              "key": "shaped_metal",
+              "amount": 8
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "furniture",
+        "particles": "woodlight",
+        "particlesDistance": 70,
+        "impactSound": "wood_impact",
+        "destroySound": "wood_destroy",
+        "angle": 3.141592653589793,
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-washbasin0"
+          }
+        ]
+      }
+    },
+    "pharma0": {
+      "key": "pharma0",
+      "itemKey": "furniture",
+      "subtype": 28,
+      "category": "furniture",
+      "healthMax": 450,
+      "layer": "mid",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "storage": {
+        "slots": 4,
+        "refrigeration": false,
+        "contents": {
+          "item": [
+            {
+              "key": "bandage",
+              "amount": 1,
+              "chance": 0.1
+            },
+            {
+              "key": "medkit",
+              "amount": 1,
+              "chance": 0.03
+            },
+            {
+              "key": "radaway",
+              "amount": 1,
+              "chance": 0.05
+            },
+            {
+              "key": "chemical_component",
+              "amount": 2,
+              "chance": 0.2
+            },
+            {
+              "key": "syringe",
+              "amount": 1,
+              "chance": 0.1
+            }
+          ]
+        }
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "stone",
+              "amount": 60
+            },
+            {
+              "key": "shaped_metal",
+              "amount": 8
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "furniture",
+        "particles": "toilet",
+        "particlesDistance": 70,
+        "impactSound": "stone_impact",
+        "destroySound": "stone_destroy",
+        "angle": 3.141592653589793,
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-pharma0"
+          }
+        ]
+      }
+    },
+    "shower0": {
+      "key": "shower0",
+      "itemKey": "furniture",
+      "subtype": 55,
+      "category": "furniture",
+      "healthMax": 450,
+      "layer": "mid",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "stone",
+              "amount": 60
+            },
+            {
+              "key": "shaped_metal",
+              "amount": 8
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "furniture",
+        "particles": "toilet",
+        "particlesDistance": 70,
+        "impactSound": "stone_impact",
+        "destroySound": "stone_destroy",
+        "angle": 3.141592653589793,
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-shower0"
+          }
+        ],
+        "offset": [
+          {
+            "rotation": 0
+          },
+          {
+            "rotation": 1
+          },
+          {
+            "rotation": 2,
+            "x": 30
+          },
+          {
+            "rotation": 3,
+            "y": 30
+          }
+        ]
+      }
+    },
+    "furniture0": {
+      "key": "furniture0",
+      "itemKey": "furniture",
+      "subtype": 12,
+      "category": "furniture",
+      "healthMax": 450,
+      "layer": "mid",
+      "transform": {
+        "width": 36,
+        "height": 100,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "storage": {
+        "slots": 4,
+        "refrigeration": false,
+        "contents": {
+          "item": [
+            {
+              "key": "headscarf",
+              "amount": 1,
+              "chance": 0.004
+            },
+            {
+              "key": "gaz_mask",
+              "amount": 1,
+              "chance": 0.004
+            },
+            {
+              "key": "9mm_bullet",
+              "amount": 30,
+              "chance": 0.02
+            },
+            {
+              "key": "bandage",
+              "amount": 2,
+              "chance": 0.05
+            },
+            {
+              "key": "tomato_seed",
+              "amount": 1,
+              "chance": 0.08
+            },
+            {
+              "key": "nails",
+              "amount": 40,
+              "chance": 0.1
+            },
+            {
+              "key": "orange_seed",
+              "amount": 1,
+              "chance": 0.1
+            },
+            {
+              "key": "sleeping_bag",
+              "amount": 1,
+              "chance": 0.01
+            },
+            {
+              "key": "energy_cells",
+              "amount": 4,
+              "chance": 0.05
+            },
+            {
+              "key": "junk",
+              "amount": 1,
+              "chance": 0.2
+            },
+            {
+              "key": "string",
+              "amount": 2,
+              "chance": 0.1
+            }
+          ]
+        }
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "wood",
+              "amount": 200
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "furniture",
+        "particles": "woodlight",
+        "particlesDistance": 70,
+        "impactSound": "wood_impact",
+        "destroySound": "wood_destroy",
+        "angle": 3.141592653589793,
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-furniture0"
+          }
+        ],
+        "offset": [
+          {
+            "rotation": 0
+          },
+          {
+            "rotation": 1
+          },
+          {
+            "rotation": 2,
+            "x": 50
+          },
+          {
+            "rotation": 3,
+            "y": 50
+          }
+        ]
+      },
+      "align": "left"
+    },
+    "furniture1": {
+      "key": "furniture1",
+      "itemKey": "furniture",
+      "subtype": 13,
+      "category": "furniture",
+      "healthMax": 450,
+      "layer": "mid",
+      "transform": {
+        "width": 70,
+        "height": 100,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "storage": {
+        "slots": 4,
+        "refrigeration": false,
+        "contents": {
+          "item": [
+            {
+              "key": "headscarf",
+              "amount": 1,
+              "chance": 0.004
+            },
+            {
+              "key": "gaz_mask",
+              "amount": 1,
+              "chance": 0.004
+            },
+            {
+              "key": "9mm_bullet",
+              "amount": 30,
+              "chance": 0.02
+            },
+            {
+              "key": "bandage",
+              "amount": 2,
+              "chance": 0.05
+            },
+            {
+              "key": "tomato_seed",
+              "amount": 1,
+              "chance": 0.08
+            },
+            {
+              "key": "nails",
+              "amount": 40,
+              "chance": 0.1
+            },
+            {
+              "key": "orange_seed",
+              "amount": 1,
+              "chance": 0.1
+            },
+            {
+              "key": "sleeping_bag",
+              "amount": 1,
+              "chance": 0.01
+            },
+            {
+              "key": "energy_cells",
+              "amount": 4,
+              "chance": 0.05
+            },
+            {
+              "key": "junk",
+              "amount": 1,
+              "chance": 0.2
+            },
+            {
+              "key": "string",
+              "amount": 2,
+              "chance": 0.1
+            }
+          ]
+        }
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "wood",
+              "amount": 100
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "furniture",
+        "particles": "woodlight",
+        "particlesDistance": 70,
+        "impactSound": "wood_impact",
+        "destroySound": "wood_destroy",
+        "angle": 3.141592653589793,
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-furniture1"
+          }
+        ],
+        "offset": [
+          {
+            "rotation": 0
+          },
+          {
+            "rotation": 1
+          },
+          {
+            "rotation": 2,
+            "x": 30
+          },
+          {
+            "rotation": 3,
+            "y": 30
+          }
+        ]
+      },
+      "align": "left"
+    },
+    "furniture2": {
+      "key": "furniture2",
+      "itemKey": "furniture",
+      "subtype": 14,
+      "category": "furniture",
+      "healthMax": 450,
+      "layer": "mid",
+      "transform": {
+        "width": 70,
+        "height": 70,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "storage": {
+        "slots": 4,
+        "refrigeration": false,
+        "contents": {
+          "item": [
+            {
+              "key": "headscarf",
+              "amount": 1,
+              "chance": 0.004
+            },
+            {
+              "key": "gaz_mask",
+              "amount": 1,
+              "chance": 0.004
+            },
+            {
+              "key": "9mm_bullet",
+              "amount": 30,
+              "chance": 0.02
+            },
+            {
+              "key": "bandage",
+              "amount": 2,
+              "chance": 0.05
+            },
+            {
+              "key": "tomato_seed",
+              "amount": 1,
+              "chance": 0.08
+            },
+            {
+              "key": "nails",
+              "amount": 40,
+              "chance": 0.1
+            },
+            {
+              "key": "orange_seed",
+              "amount": 1,
+              "chance": 0.1
+            },
+            {
+              "key": "sleeping_bag",
+              "amount": 1,
+              "chance": 0.01
+            },
+            {
+              "key": "energy_cells",
+              "amount": 4,
+              "chance": 0.05
+            },
+            {
+              "key": "junk",
+              "amount": 1,
+              "chance": 0.2
+            },
+            {
+              "key": "string",
+              "amount": 2,
+              "chance": 0.1
+            }
+          ]
+        }
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "wood",
+              "amount": 100
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "furniture",
+        "particles": "woodlight",
+        "particlesDistance": 70,
+        "impactSound": "wood_impact",
+        "destroySound": "wood_destroy",
+        "angle": 3.141592653589793,
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-furniture2"
+          }
+        ],
+        "offset": [
+          {
+            "rotation": 0,
+            "x": 15,
+            "y": 15
+          },
+          {
+            "rotation": 1,
+            "x": 15,
+            "y": 15
+          },
+          {
+            "rotation": 2,
+            "x": 15,
+            "y": 15
+          },
+          {
+            "rotation": 3,
+            "x": 15,
+            "y": 15
+          }
+        ]
+      }
+    },
+    "furniture3": {
+      "key": "furniture3",
+      "itemKey": "furniture",
+      "subtype": 15,
+      "category": "furniture",
+      "healthMax": 450,
+      "layer": "mid",
+      "transform": {
+        "width": 70,
+        "height": 70,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "storage": {
+        "slots": 4,
+        "refrigeration": false,
+        "contents": {
+          "item": [
+            {
+              "key": "headscarf",
+              "amount": 1,
+              "chance": 0.004
+            },
+            {
+              "key": "gaz_mask",
+              "amount": 1,
+              "chance": 0.004
+            },
+            {
+              "key": "9mm_bullet",
+              "amount": 30,
+              "chance": 0.02
+            },
+            {
+              "key": "bandage",
+              "amount": 2,
+              "chance": 0.05
+            },
+            {
+              "key": "tomato_seed",
+              "amount": 1,
+              "chance": 0.08
+            },
+            {
+              "key": "nails",
+              "amount": 40,
+              "chance": 0.1
+            },
+            {
+              "key": "orange_seed",
+              "amount": 1,
+              "chance": 0.1
+            },
+            {
+              "key": "sleeping_bag",
+              "amount": 1,
+              "chance": 0.01
+            },
+            {
+              "key": "energy_cells",
+              "amount": 4,
+              "chance": 0.05
+            },
+            {
+              "key": "junk",
+              "amount": 1,
+              "chance": 0.2
+            },
+            {
+              "key": "string",
+              "amount": 2,
+              "chance": 0.1
+            }
+          ]
+        }
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "wood",
+              "amount": 100
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "furniture",
+        "particles": "woodlight",
+        "particlesDistance": 70,
+        "impactSound": "wood_impact",
+        "destroySound": "wood_destroy",
+        "angle": 3.141592653589793,
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-furniture3"
+          }
+        ],
+        "offset": [
+          {
+            "rotation": 0,
+            "x": 15,
+            "y": 15
+          },
+          {
+            "rotation": 1,
+            "x": 15,
+            "y": 15
+          },
+          {
+            "rotation": 2,
+            "x": 15,
+            "y": 15
+          },
+          {
+            "rotation": 3,
+            "x": 15,
+            "y": 15
+          }
+        ]
+      }
+    },
+    "furniture4": {
+      "key": "furniture4",
+      "itemKey": "furniture",
+      "subtype": 49,
+      "category": "furniture",
+      "healthMax": 450,
+      "layer": "mid",
+      "transform": {
+        "width": 70,
+        "height": 100,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "storage": {
+        "slots": 4,
+        "refrigeration": false,
+        "contents": {
+          "item": [
+            {
+              "key": "headscarf",
+              "amount": 1,
+              "chance": 0.004
+            },
+            {
+              "key": "gaz_mask",
+              "amount": 1,
+              "chance": 0.004
+            },
+            {
+              "key": "pistol",
+              "amount": 1,
+              "chance": 0.005
+            },
+            {
+              "key": "9mm_bullet",
+              "amount": 30,
+              "chance": 0.02
+            },
+            {
+              "key": "bandage",
+              "amount": 2,
+              "chance": 0.05
+            },
+            {
+              "key": "small_wire",
+              "amount": 4,
+              "chance": 0.1
+            },
+            {
+              "key": "lamp",
+              "amount": 1,
+              "chance": 0.08
+            },
+            {
+              "key": "platform",
+              "amount": 1,
+              "chance": 0.08
+            },
+            {
+              "key": "sleeping_bag",
+              "amount": 1,
+              "chance": 0.01
+            },
+            {
+              "key": "energy_cells",
+              "amount": 8,
+              "chance": 0.05
+            },
+            {
+              "key": "junk",
+              "amount": 2,
+              "chance": 0.2
+            },
+            {
+              "key": "string",
+              "amount": 2,
+              "chance": 0.1
+            }
+          ]
+        }
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "wood",
+              "amount": 100
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "furniture",
+        "particles": "grey_steel",
+        "particlesDistance": 70,
+        "impactSound": "steel_impact",
+        "destroySound": "steel_destroy",
+        "angle": 3.141592653589793,
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-furniture4"
+          }
+        ],
+        "offset": [
+          {
+            "rotation": 0
+          },
+          {
+            "rotation": 1
+          },
+          {
+            "rotation": 2,
+            "x": 30
+          },
+          {
+            "rotation": 3,
+            "y": 30
+          }
+        ]
+      },
+      "align": "left"
+    },
+    "furniture5": {
+      "key": "furniture5",
+      "itemKey": "furniture",
+      "subtype": 50,
+      "category": "furniture",
+      "healthMax": 450,
+      "layer": "mid",
+      "transform": {
+        "width": 70,
+        "height": 70,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "storage": {
+        "slots": 4,
+        "refrigeration": false,
+        "contents": {
+          "item": [
+            {
+              "key": "headscarf",
+              "amount": 1,
+              "chance": 0.004
+            },
+            {
+              "key": "gaz_mask",
+              "amount": 1,
+              "chance": 0.004
+            },
+            {
+              "key": "pistol",
+              "amount": 1,
+              "chance": 0.005
+            },
+            {
+              "key": "9mm_bullet",
+              "amount": 30,
+              "chance": 0.02
+            },
+            {
+              "key": "bandage",
+              "amount": 2,
+              "chance": 0.05
+            },
+            {
+              "key": "small_wire",
+              "amount": 4,
+              "chance": 0.1
+            },
+            {
+              "key": "lamp",
+              "amount": 1,
+              "chance": 0.08
+            },
+            {
+              "key": "platform",
+              "amount": 1,
+              "chance": 0.08
+            },
+            {
+              "key": "sleeping_bag",
+              "amount": 1,
+              "chance": 0.01
+            },
+            {
+              "key": "energy_cells",
+              "amount": 8,
+              "chance": 0.05
+            },
+            {
+              "key": "junk",
+              "amount": 2,
+              "chance": 0.2
+            },
+            {
+              "key": "string",
+              "amount": 2,
+              "chance": 0.1
+            }
+          ]
+        }
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "wood",
+              "amount": 100
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "furniture",
+        "particles": "grey_steel",
+        "particlesDistance": 70,
+        "impactSound": "steel_impact",
+        "destroySound": "steel_destroy",
+        "angle": 3.141592653589793,
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-furniture5"
+          }
+        ],
+        "offset": [
+          {
+            "rotation": 0,
+            "x": 15,
+            "y": 15
+          },
+          {
+            "rotation": 1,
+            "x": 15,
+            "y": 15
+          },
+          {
+            "rotation": 2,
+            "x": 15,
+            "y": 15
+          },
+          {
+            "rotation": 3,
+            "x": 15,
+            "y": 15
+          }
+        ]
+      }
+    },
+    "furniture6": {
+      "key": "furniture6",
+      "itemKey": "furniture",
+      "subtype": 51,
+      "category": "furniture",
+      "healthMax": 450,
+      "layer": "mid",
+      "transform": {
+        "width": 70,
+        "height": 70,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "storage": {
+        "slots": 4,
+        "refrigeration": false,
+        "contents": {
+          "item": [
+            {
+              "key": "headscarf",
+              "amount": 1,
+              "chance": 0.004
+            },
+            {
+              "key": "gaz_mask",
+              "amount": 1,
+              "chance": 0.004
+            },
+            {
+              "key": "pistol",
+              "amount": 1,
+              "chance": 0.005
+            },
+            {
+              "key": "9mm_bullet",
+              "amount": 30,
+              "chance": 0.02
+            },
+            {
+              "key": "bandage",
+              "amount": 2,
+              "chance": 0.05
+            },
+            {
+              "key": "small_wire",
+              "amount": 4,
+              "chance": 0.1
+            },
+            {
+              "key": "lamp",
+              "amount": 1,
+              "chance": 0.08
+            },
+            {
+              "key": "platform",
+              "amount": 1,
+              "chance": 0.08
+            },
+            {
+              "key": "sleeping_bag",
+              "amount": 1,
+              "chance": 0.01
+            },
+            {
+              "key": "energy_cells",
+              "amount": 8,
+              "chance": 0.05
+            },
+            {
+              "key": "junk",
+              "amount": 2,
+              "chance": 0.2
+            },
+            {
+              "key": "string",
+              "amount": 2,
+              "chance": 0.1
+            }
+          ]
+        }
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "wood",
+              "amount": 100
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "furniture",
+        "particles": "grey_steel",
+        "particlesDistance": 70,
+        "impactSound": "steel_impact",
+        "destroySound": "steel_destroy",
+        "angle": 3.141592653589793,
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-furniture6"
+          }
+        ],
+        "offset": [
+          {
+            "rotation": 0,
+            "x": 15,
+            "y": 15
+          },
+          {
+            "rotation": 1,
+            "x": 15,
+            "y": 15
+          },
+          {
+            "rotation": 2,
+            "x": 15,
+            "y": 15
+          },
+          {
+            "rotation": 3,
+            "x": 15,
+            "y": 15
+          }
+        ]
+      }
+    },
+    "carton0": {
+      "key": "carton0",
+      "itemKey": "furniture",
+      "subtype": 16,
+      "category": "furniture",
+      "healthMax": 450,
+      "layer": "mid",
+      "transform": {
+        "width": 70,
+        "height": 70,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "storage": {
+        "slots": 4,
+        "refrigeration": false,
+        "contents": {
+          "item": [
+            {
+              "key": "headscarf",
+              "amount": 1,
+              "chance": 0.003
+            },
+            {
+              "key": "gaz_mask",
+              "amount": 1,
+              "chance": 0.003
+            },
+            {
+              "key": "pistol",
+              "amount": 1,
+              "chance": 0.005
+            },
+            {
+              "key": "9mm_bullet",
+              "amount": 30,
+              "chance": 0.02
+            },
+            {
+              "key": "bandage",
+              "amount": 1,
+              "chance": 0.08
+            },
+            {
+              "key": "tomato_seed",
+              "amount": 1,
+              "chance": 0.1
+            },
+            {
+              "key": "nails",
+              "amount": 40,
+              "chance": 0.02
+            },
+            {
+              "key": "nail_gun",
+              "amount": 1,
+              "chance": 0.01
+            },
+            {
+              "key": "orange_seed",
+              "amount": 2,
+              "chance": 0.1
+            },
+            {
+              "key": "can",
+              "amount": 1,
+              "chance": 0.1
+            },
+            {
+              "key": "energy_cells",
+              "amount": 4,
+              "chance": 0.08
+            },
+            {
+              "key": "junk",
+              "amount": 2,
+              "chance": 0.2
+            },
+            {
+              "key": "electronics",
+              "amount": 1,
+              "chance": 0.1
+            }
+          ]
+        }
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "wood",
+              "amount": 100
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "furniture",
+        "particles": "woodlight",
+        "particlesDistance": 70,
+        "impactSound": "pillow_impact",
+        "destroySound": "pillow_destroy",
+        "angle": 3.141592653589793,
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-carton-box0"
+          }
+        ],
+        "offset": [
+          {
+            "rotation": 0,
+            "x": 15,
+            "y": 15
+          },
+          {
+            "rotation": 1,
+            "x": 15,
+            "y": 15
+          },
+          {
+            "rotation": 2,
+            "x": 15,
+            "y": 15
+          },
+          {
+            "rotation": 3,
+            "x": 15,
+            "y": 15
+          }
+        ]
+      }
+    },
+    "carton1": {
+      "key": "carton1",
+      "itemKey": "furniture",
+      "subtype": 17,
+      "category": "furniture",
+      "healthMax": 450,
+      "layer": "mid",
+      "transform": {
+        "width": 70,
+        "height": 70,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "storage": {
+        "slots": 4,
+        "refrigeration": false,
+        "contents": {
+          "item": [
+            {
+              "key": "headscarf",
+              "amount": 1,
+              "chance": 0.003
+            },
+            {
+              "key": "gaz_mask",
+              "amount": 1,
+              "chance": 0.003
+            },
+            {
+              "key": "pistol",
+              "amount": 1,
+              "chance": 0.005
+            },
+            {
+              "key": "9mm_bullet",
+              "amount": 30,
+              "chance": 0.02
+            },
+            {
+              "key": "bandage",
+              "amount": 1,
+              "chance": 0.08
+            },
+            {
+              "key": "tomato_seed",
+              "amount": 1,
+              "chance": 0.1
+            },
+            {
+              "key": "nails",
+              "amount": 40,
+              "chance": 0.02
+            },
+            {
+              "key": "nail_gun",
+              "amount": 1,
+              "chance": 0.01
+            },
+            {
+              "key": "orange_seed",
+              "amount": 2,
+              "chance": 0.1
+            },
+            {
+              "key": "can",
+              "amount": 1,
+              "chance": 0.1
+            },
+            {
+              "key": "energy_cells",
+              "amount": 4,
+              "chance": 0.08
+            },
+            {
+              "key": "junk",
+              "amount": 2,
+              "chance": 0.2
+            },
+            {
+              "key": "electronics",
+              "amount": 1,
+              "chance": 0.1
+            }
+          ]
+        }
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "wood",
+              "amount": 100
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "furniture",
+        "particles": "woodlight",
+        "particlesDistance": 70,
+        "impactSound": "pillow_impact",
+        "destroySound": "pillow_destroy",
+        "angle": 3.141592653589793,
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-carton-box1"
+          }
+        ],
+        "offset": [
+          {
+            "rotation": 0,
+            "x": 15,
+            "y": 15
+          },
+          {
+            "rotation": 1,
+            "x": 15,
+            "y": 15
+          },
+          {
+            "rotation": 2,
+            "x": 15,
+            "y": 15
+          },
+          {
+            "rotation": 3,
+            "x": 15,
+            "y": 15
+          }
+        ]
+      }
+    },
+    "plot0": {
+      "key": "plot0",
+      "itemKey": "furniture",
+      "subtype": 23,
+      "category": "furniture",
+      "healthMax": 450,
+      "layer": "mid",
+      "transform": {
+        "collision": true,
+        "blocksProjectiles": true,
+        "radius": 30
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "wood",
+              "amount": 40
+            },
+            {
+              "key": "stone",
+              "amount": 40
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "furniture",
+        "particles": "plot",
+        "particlesDistance": 70,
+        "impactSound": "wood_impact",
+        "destroySound": "wood_destroy",
+        "angle": 3.141592653589793,
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-plot0"
+          }
+        ],
+        "offset": [
+          {
+            "rotation": 0,
+            "x": 15,
+            "y": 15
+          },
+          {
+            "rotation": 1,
+            "x": 15,
+            "y": 15
+          },
+          {
+            "rotation": 2,
+            "x": 15,
+            "y": 15
+          },
+          {
+            "rotation": 3,
+            "x": 15,
+            "y": 15
+          }
+        ]
+      }
+    },
+    "blood_trans": {
+      "key": "blood_trans",
+      "itemKey": "furniture",
+      "subtype": 57,
+      "category": "furniture",
+      "healthMax": 450,
+      "layer": "mid",
+      "transform": {
+        "collision": true,
+        "blocksProjectiles": true,
+        "radius": 30
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "junk",
+              "amount": 2
+            },
+            {
+              "key": "shaped_metal",
+              "amount": 1
+            },
+            {
+              "key": "syringe",
+              "amount": 1
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "furniture",
+        "particles": "grey_steel",
+        "particlesDistance": 70,
+        "impactSound": "steel_impact",
+        "destroySound": "steel_destroy",
+        "angle": 3.141592653589793,
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-blood-transfusion"
+          }
+        ],
+        "offset": [
+          {
+            "rotation": 0,
+            "x": 15,
+            "y": 15
+          },
+          {
+            "rotation": 1,
+            "x": 15,
+            "y": 15
+          },
+          {
+            "rotation": 2,
+            "x": 15,
+            "y": 15
+          },
+          {
+            "rotation": 3,
+            "x": 15,
+            "y": 15
+          }
+        ]
+      }
+    },
+    "barel0": {
+      "key": "barel0",
+      "itemKey": "furniture",
+      "subtype": 24,
+      "category": "furniture",
+      "healthMax": 100,
+      "layer": "mid",
+      "transform": {
+        "collision": true,
+        "blocksProjectiles": true,
+        "radius": 30
+      },
+      "storage": {
+        "slots": 4,
+        "refrigeration": false,
+        "contents": {
+          "item": [
+            {
+              "key": "gasoline",
+              "amount": 1,
+              "chance": 0.2
+            }
+          ]
+        }
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "shaped_metal",
+              "amount": 8
+            }
+          ]
+        },
+        "explosion": {
+          "area": 1,
+          "playerDamage": 250,
+          "buildingDamage": 10000,
+          "knockback": 20,
+          "onHit": {
+            "condition": "slowed",
+            "chance": 1,
+            "durationMs": 1000,
+            "strength": 1
+          }
+        }
+      },
+      "client": {
+        "render": "furniture",
+        "particles": "barelred",
+        "particlesDistance": 70,
+        "impactSound": "steel_impact",
+        "angle": 3.141592653589793,
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-barel0"
+          }
+        ],
+        "offset": [
+          {
+            "rotation": 0,
+            "x": 15,
+            "y": 15
+          },
+          {
+            "rotation": 1,
+            "x": 15,
+            "y": 15
+          },
+          {
+            "rotation": 2,
+            "x": 15,
+            "y": 15
+          },
+          {
+            "rotation": 3,
+            "x": 15,
+            "y": 15
+          }
+        ]
+      }
+    },
+    "barel1": {
+      "key": "barel1",
+      "itemKey": "furniture",
+      "subtype": 25,
+      "category": "furniture",
+      "healthMax": 300,
+      "layer": "mid",
+      "transform": {
+        "collision": true,
+        "blocksProjectiles": true,
+        "radius": 30
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "shaped_metal",
+              "amount": 8
+            },
+            {
+              "key": "uranium",
+              "amount": 8
+            }
+          ]
+        },
+        "explosion": {
+          "area": 1,
+          "playerDamage": 300,
+          "buildingDamage": 10000,
+          "knockback": 20,
+          "onHit": {
+            "condition": "slowed",
+            "chance": 1,
+            "durationMs": 1000,
+            "strength": 1
+          }
+        }
+      },
+      "client": {
+        "render": "furniture",
+        "particles": "barelgreen",
+        "particlesDistance": 70,
+        "impactSound": "steel_impact",
+        "angle": 3.141592653589793,
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-barel1"
+          }
+        ],
+        "offset": [
+          {
+            "rotation": 0,
+            "x": 15,
+            "y": 15
+          },
+          {
+            "rotation": 1,
+            "x": 15,
+            "y": 15
+          },
+          {
+            "rotation": 2,
+            "x": 15,
+            "y": 15
+          },
+          {
+            "rotation": 3,
+            "x": 15,
+            "y": 15
+          }
+        ]
+      },
+      "areaEffects": {
+        "areaEffect": [
+          {
+            "id": 2,
+            "type": "radiation",
+            "strength": 1,
+            "area": 2
+          }
+        ]
+      }
+    },
+    "garabage0": {
+      "key": "garabage0",
+      "itemKey": "furniture",
+      "subtype": 26,
+      "category": "furniture",
+      "healthMax": 450,
+      "layer": "mid",
+      "transform": {
+        "collision": true,
+        "blocksProjectiles": true,
+        "radius": 30
+      },
+      "storage": {
+        "slots": 4,
+        "refrigeration": false,
+        "contents": {
+          "item": [
+            {
+              "key": "gaz_mask",
+              "amount": 1,
+              "chance": 0.02
+            },
+            {
+              "key": "pistol",
+              "amount": 1,
+              "chance": 0.01
+            },
+            {
+              "key": "9mm_bullet",
+              "amount": 30,
+              "chance": 0.02
+            },
+            {
+              "key": "tomato_seed",
+              "amount": 1,
+              "chance": 0.1
+            },
+            {
+              "key": "orange_seed",
+              "amount": 2,
+              "chance": 0.1
+            },
+            {
+              "key": "nails",
+              "amount": 40,
+              "chance": 0.1
+            },
+            {
+              "key": "can",
+              "amount": 1,
+              "chance": 0.08
+            },
+            {
+              "key": "junk",
+              "amount": 3,
+              "chance": 0.4
+            },
+            {
+              "key": "rotten_steak",
+              "amount": 1,
+              "chance": 0.15
+            },
+            {
+              "key": "rotten_orange",
+              "amount": 1,
+              "chance": 0.15
+            },
+            {
+              "key": "rotten_tomato",
+              "amount": 1,
+              "chance": 0.15
+            }
+          ]
+        }
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "wood",
+              "amount": 40
+            },
+            {
+              "key": "stone",
+              "amount": 40
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "furniture",
+        "particles": "garbage0",
+        "particlesDistance": 70,
+        "impactSound": "pillow_impact",
+        "destroySound": "pillow_destroy",
+        "angle": 3.141592653589793,
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-garbage-bag0"
+          }
+        ],
+        "offset": [
+          {
+            "rotation": 0,
+            "x": 15,
+            "y": 15
+          },
+          {
+            "rotation": 1,
+            "x": 15,
+            "y": 15
+          },
+          {
+            "rotation": 2,
+            "x": 15,
+            "y": 15
+          },
+          {
+            "rotation": 3,
+            "x": 15,
+            "y": 15
+          }
+        ]
+      }
+    },
+    "fridge0": {
+      "key": "fridge0",
+      "itemKey": "furniture",
+      "subtype": 19,
+      "category": "furniture",
+      "healthMax": 450,
+      "layer": "mid",
+      "transform": {
+        "width": 36,
+        "height": 100,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "storage": {
+        "slots": 4,
+        "refrigeration": true,
+        "contents": {
+          "item": [
+            {
+              "key": "soda",
+              "amount": 1,
+              "chance": 0.1
+            },
+            {
+              "key": "tomato_soup",
+              "amount": 1,
+              "chance": 0.1
+            },
+            {
+              "key": "crisps",
+              "amount": 1,
+              "chance": 0.01
+            },
+            {
+              "key": "rotten_steak",
+              "amount": 1,
+              "chance": 0.15
+            },
+            {
+              "key": "rotten_orange",
+              "amount": 1,
+              "chance": 0.15
+            },
+            {
+              "key": "rotten_tomato",
+              "amount": 1,
+              "chance": 0.15
+            },
+            {
+              "key": "rotten_crisps",
+              "amount": 1,
+              "chance": 0.01
+            }
+          ]
+        }
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "shaped_metal",
+              "amount": 16
+            },
+            {
+              "key": "sulfur",
+              "amount": 16
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "furniture",
+        "particles": "metal",
+        "particlesDistance": 70,
+        "impactSound": "steel_impact",
+        "destroySound": "steel_destroy",
+        "angle": 3.141592653589793,
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-fridge0"
+          }
+        ],
+        "offset": [
+          {
+            "rotation": 0
+          },
+          {
+            "rotation": 1
+          },
+          {
+            "rotation": 2,
+            "x": 50
+          },
+          {
+            "rotation": 3,
+            "y": 50
+          }
+        ]
+      },
+      "align": "left"
+    },
+    "fridge1": {
+      "key": "fridge1",
+      "itemKey": "furniture",
+      "subtype": 20,
+      "category": "furniture",
+      "healthMax": 450,
+      "layer": "mid",
+      "transform": {
+        "width": 36,
+        "height": 100,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "storage": {
+        "slots": 4,
+        "refrigeration": true,
+        "contents": {
+          "item": [
+            {
+              "key": "soda",
+              "amount": 1,
+              "chance": 0.1
+            },
+            {
+              "key": "tomato_soup",
+              "amount": 1,
+              "chance": 0.1
+            },
+            {
+              "key": "crisps",
+              "amount": 1,
+              "chance": 0.01
+            },
+            {
+              "key": "rotten_steak",
+              "amount": 1,
+              "chance": 0.15
+            },
+            {
+              "key": "rotten_orange",
+              "amount": 1,
+              "chance": 0.15
+            },
+            {
+              "key": "rotten_tomato",
+              "amount": 1,
+              "chance": 0.15
+            },
+            {
+              "key": "rotten_crisps",
+              "amount": 1,
+              "chance": 0.01
+            }
+          ]
+        }
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "shaped_metal",
+              "amount": 16
+            },
+            {
+              "key": "sulfur",
+              "amount": 16
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "furniture",
+        "particles": "fridge",
+        "particlesDistance": 70,
+        "impactSound": "steel_impact",
+        "destroySound": "steel_destroy",
+        "angle": 3.141592653589793,
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-fridge1"
+          }
+        ],
+        "offset": [
+          {
+            "rotation": 0
+          },
+          {
+            "rotation": 1
+          },
+          {
+            "rotation": 2,
+            "x": 50
+          },
+          {
+            "rotation": 3,
+            "y": 50
+          }
+        ]
+      },
+      "align": "left"
+    },
+    "distributor0": {
+      "key": "distributor0",
+      "itemKey": "furniture",
+      "subtype": 39,
+      "category": "furniture",
+      "healthMax": 450,
+      "layer": "mid",
+      "transform": {
+        "width": 36,
+        "height": 100,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "storage": {
+        "slots": 4,
+        "refrigeration": true,
+        "contents": {
+          "item": [
+            {
+              "key": "soda",
+              "amount": 1,
+              "chance": 0.04
+            },
+            {
+              "key": "crisps",
+              "amount": 1,
+              "chance": 0.04
+            }
+          ]
+        }
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "shaped_metal",
+              "amount": 16
+            },
+            {
+              "key": "sulfur",
+              "amount": 16
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "furniture",
+        "particles": "red_steel",
+        "particlesDistance": 70,
+        "impactSound": "steel_impact",
+        "destroySound": "steel_destroy",
+        "angle": 3.141592653589793,
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-vending-machine0"
+          }
+        ],
+        "offset": [
+          {
+            "rotation": 0
+          },
+          {
+            "rotation": 1
+          },
+          {
+            "rotation": 2,
+            "x": 50
+          },
+          {
+            "rotation": 3,
+            "y": 50
+          }
+        ]
+      },
+      "align": "left"
+    },
+    "distributor1": {
+      "key": "distributor1",
+      "itemKey": "furniture",
+      "subtype": 54,
+      "category": "furniture",
+      "healthMax": 450,
+      "layer": "mid",
+      "transform": {
+        "width": 100,
+        "height": 100,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "storage": {
+        "slots": 4,
+        "refrigeration": true,
+        "contents": {
+          "item": [
+            {
+              "key": "soda",
+              "amount": 1,
+              "chance": 0.04
+            },
+            {
+              "key": "crisps",
+              "amount": 1,
+              "chance": 0.04
+            },
+            {
+              "key": "tomato_soup",
+              "amount": 1,
+              "chance": 0.04
+            }
+          ]
+        }
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "shaped_metal",
+              "amount": 16
+            },
+            {
+              "key": "sulfur",
+              "amount": 16
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "furniture",
+        "particles": "grey_steel",
+        "particlesDistance": 70,
+        "impactSound": "steel_impact",
+        "destroySound": "steel_destroy",
+        "angle": 3.141592653589793,
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-distributor0"
+          }
+        ],
+        "offset": [
+          {
+            "rotation": 0
+          },
+          {
+            "rotation": 1
+          },
+          {
+            "rotation": 2,
+            "x": 50
+          },
+          {
+            "rotation": 3,
+            "y": 50
+          }
+        ]
+      }
+    },
+    "cash0": {
+      "key": "cash0",
+      "itemKey": "furniture",
+      "subtype": 40,
+      "category": "furniture",
+      "healthMax": 450,
+      "layer": "mid",
+      "transform": {
+        "width": 70,
+        "height": 100,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "storage": {
+        "slots": 4,
+        "refrigeration": false,
+        "contents": {
+          "item": [
+            {
+              "key": "junk",
+              "amount": 1,
+              "chance": 0.05
+            }
+          ]
+        }
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "shaped_metal",
+              "amount": 16
+            },
+            {
+              "key": "electronics",
+              "amount": 4
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "furniture",
+        "particles": "grey_steel",
+        "particlesDistance": 70,
+        "impactSound": "steel_impact",
+        "destroySound": "steel_destroy",
+        "angle": 3.141592653589793,
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-cash-machine0"
+          }
+        ],
+        "offset": [
+          {
+            "rotation": 0
+          },
+          {
+            "rotation": 1
+          },
+          {
+            "rotation": 2,
+            "x": 30
+          },
+          {
+            "rotation": 3,
+            "y": 30
+          }
+        ]
+      },
+      "align": "left"
+    },
+    "cupboard0": {
+      "key": "cupboard0",
+      "itemKey": "furniture",
+      "subtype": 27,
+      "category": "furniture",
+      "healthMax": 450,
+      "layer": "mid",
+      "transform": {
+        "width": 36,
+        "height": 100,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "storage": {
+        "slots": 4,
+        "refrigeration": false,
+        "contents": {
+          "item": [
+            {
+              "key": "headscarf",
+              "amount": 1,
+              "chance": 0.004
+            },
+            {
+              "key": "gaz_mask",
+              "amount": 1,
+              "chance": 0.004
+            },
+            {
+              "key": "9mm_bullet",
+              "amount": 30,
+              "chance": 0.02
+            },
+            {
+              "key": "bandage",
+              "amount": 2,
+              "chance": 0.05
+            },
+            {
+              "key": "tomato_seed",
+              "amount": 1,
+              "chance": 0.08
+            },
+            {
+              "key": "nails",
+              "amount": 40,
+              "chance": 0.1
+            },
+            {
+              "key": "orange_seed",
+              "amount": 1,
+              "chance": 0.1
+            },
+            {
+              "key": "sleeping_bag",
+              "amount": 1,
+              "chance": 0.01
+            },
+            {
+              "key": "energy_cells",
+              "amount": 4,
+              "chance": 0.05
+            },
+            {
+              "key": "junk",
+              "amount": 1,
+              "chance": 0.2
+            },
+            {
+              "key": "string",
+              "amount": 2,
+              "chance": 0.1
+            }
+          ]
+        }
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "wood",
+              "amount": 200
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "furniture",
+        "particles": "wood",
+        "particlesDistance": 70,
+        "impactSound": "wood_impact",
+        "destroySound": "wood_destroy",
+        "angle": 3.141592653589793,
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-cupboard0"
+          }
+        ],
+        "offset": [
+          {
+            "rotation": 0
+          },
+          {
+            "rotation": 1
+          },
+          {
+            "rotation": 2,
+            "x": 50
+          },
+          {
+            "rotation": 3,
+            "y": 50
+          }
+        ]
+      },
+      "align": "left"
+    },
+    "usine_box0": {
+      "key": "usine_box0",
+      "itemKey": "furniture",
+      "subtype": 35,
+      "category": "furniture",
+      "healthMax": 450,
+      "layer": "mid",
+      "transform": {
+        "width": 70,
+        "height": 70,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "storage": {
+        "slots": 4,
+        "refrigeration": false,
+        "contents": {
+          "item": [
+            {
+              "key": "electronics",
+              "amount": 2,
+              "chance": 0.1
+            },
+            {
+              "key": "energy_cells",
+              "amount": 20,
+              "chance": 0.05
+            },
+            {
+              "key": "junk",
+              "amount": 2,
+              "chance": 0.1
+            },
+            {
+              "key": "syringe",
+              "amount": 2,
+              "chance": 0.1
+            },
+            {
+              "key": "chemical_component",
+              "amount": 4,
+              "chance": 0.1
+            },
+            {
+              "key": "radaway",
+              "amount": 1,
+              "chance": 0.03
+            },
+            {
+              "key": "alloys",
+              "amount": 1,
+              "chance": 0.01
+            }
+          ]
+        }
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "shaped_metal",
+              "amount": 16
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "furniture",
+        "particles": "steel",
+        "particlesDistance": 70,
+        "impactSound": "steel_impact",
+        "destroySound": "steel_destroy",
+        "angle": 3.141592653589793,
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-electronic-box2"
+          }
+        ],
+        "offset": [
+          {
+            "rotation": 0,
+            "x": 15,
+            "y": 15
+          },
+          {
+            "rotation": 1,
+            "x": 15,
+            "y": 15
+          },
+          {
+            "rotation": 2,
+            "x": 15,
+            "y": 15
+          },
+          {
+            "rotation": 3,
+            "x": 15,
+            "y": 15
+          }
+        ]
+      }
+    },
+    "usine_box1": {
+      "key": "usine_box1",
+      "itemKey": "furniture",
+      "subtype": 36,
+      "category": "furniture",
+      "healthMax": 450,
+      "layer": "mid",
+      "transform": {
+        "width": 70,
+        "height": 70,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "storage": {
+        "slots": 4,
+        "refrigeration": false,
+        "contents": {
+          "item": [
+            {
+              "key": "electronics",
+              "amount": 2,
+              "chance": 0.1
+            },
+            {
+              "key": "wire",
+              "amount": 1,
+              "chance": 0.03
+            },
+            {
+              "key": "shaped_uranium",
+              "amount": 5,
+              "chance": 0.01
+            },
+            {
+              "key": "energy_cells",
+              "amount": 20,
+              "chance": 0.05
+            },
+            {
+              "key": "junk",
+              "amount": 4,
+              "chance": 0.1
+            },
+            {
+              "key": "syringe",
+              "amount": 3,
+              "chance": 0.1
+            },
+            {
+              "key": "chemical_component",
+              "amount": 5,
+              "chance": 0.1
+            },
+            {
+              "key": "radaway",
+              "amount": 2,
+              "chance": 0.1
+            },
+            {
+              "key": "alloys",
+              "amount": 2,
+              "chance": 0.05
+            },
+            {
+              "key": "laser_pistol",
+              "amount": 1,
+              "chance": 0.005
+            }
+          ]
+        }
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "shaped_metal",
+              "amount": 16
+            },
+            {
+              "key": "electronics",
+              "amount": 4
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "furniture",
+        "particles": "steel",
+        "particlesDistance": 70,
+        "impactSound": "steel_impact",
+        "destroySound": "steel_destroy",
+        "angle": 3.141592653589793,
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-electronic-box3"
+          }
+        ],
+        "offset": [
+          {
+            "rotation": 0,
+            "x": 15,
+            "y": 15
+          },
+          {
+            "rotation": 1,
+            "x": 15,
+            "y": 15
+          },
+          {
+            "rotation": 2,
+            "x": 15,
+            "y": 15
+          },
+          {
+            "rotation": 3,
+            "x": 15,
+            "y": 15
+          }
+        ]
+      }
+    },
+    "energy_box0": {
+      "key": "energy_box0",
+      "itemKey": "furniture",
+      "subtype": 58,
+      "category": "furniture",
+      "healthMax": 450,
+      "layer": "mid",
+      "transform": {
+        "width": 70,
+        "height": 70,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "storage": {
+        "slots": 4,
+        "refrigeration": false,
+        "contents": {
+          "item": [
+            {
+              "key": "electronics",
+              "amount": 2,
+              "chance": 0.1
+            },
+            {
+              "key": "shaped_uranium",
+              "amount": 5,
+              "chance": 0.01
+            },
+            {
+              "key": "energy_cells",
+              "amount": 20,
+              "chance": 0.05
+            },
+            {
+              "key": "junk",
+              "amount": 4,
+              "chance": 0.1
+            },
+            {
+              "key": "small_wire",
+              "amount": 8,
+              "chance": 0.03
+            },
+            {
+              "key": "syringe",
+              "amount": 3,
+              "chance": 0.1
+            },
+            {
+              "key": "chemical_component",
+              "amount": 5,
+              "chance": 0.1
+            },
+            {
+              "key": "radaway",
+              "amount": 2,
+              "chance": 0.1
+            },
+            {
+              "key": "alloys",
+              "amount": 2,
+              "chance": 0.05
+            },
+            {
+              "key": "laser_pistol",
+              "amount": 1,
+              "chance": 0.005
+            }
+          ]
+        }
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "shaped_metal",
+              "amount": 16
+            },
+            {
+              "key": "electronics",
+              "amount": 4
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "furniture",
+        "particles": "kaki",
+        "particlesDistance": 70,
+        "impactSound": "steel_impact",
+        "destroySound": "steel_destroy",
+        "angle": 3.141592653589793,
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-energy-box0"
+          }
+        ],
+        "offset": [
+          {
+            "rotation": 0,
+            "x": 15,
+            "y": 15
+          },
+          {
+            "rotation": 1,
+            "x": 15,
+            "y": 15
+          },
+          {
+            "rotation": 2,
+            "x": 15,
+            "y": 15
+          },
+          {
+            "rotation": 3,
+            "x": 15,
+            "y": 15
+          }
+        ]
+      }
+    },
+    "usine_box2": {
+      "key": "usine_box2",
+      "itemKey": "furniture",
+      "subtype": 37,
+      "category": "furniture",
+      "healthMax": 450,
+      "layer": "mid",
+      "transform": {
+        "width": 70,
+        "height": 70,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "storage": {
+        "slots": 4,
+        "refrigeration": false,
+        "contents": {
+          "item": [
+            {
+              "key": "electronics",
+              "amount": 2,
+              "chance": 0.1
+            },
+            {
+              "key": "energy_cells",
+              "amount": 20,
+              "chance": 0.05
+            },
+            {
+              "key": "shaped_uranium",
+              "amount": 2,
+              "chance": 0.01
+            },
+            {
+              "key": "junk",
+              "amount": 4,
+              "chance": 0.1
+            },
+            {
+              "key": "syringe",
+              "amount": 3,
+              "chance": 0.1
+            },
+            {
+              "key": "chemical_component",
+              "amount": 5,
+              "chance": 0.1
+            },
+            {
+              "key": "radaway",
+              "amount": 1,
+              "chance": 0.03
+            },
+            {
+              "key": "alloys",
+              "amount": 1,
+              "chance": 0.1
+            },
+            {
+              "key": "dynamite",
+              "amount": 1,
+              "chance": 0.008
+            }
+          ]
+        }
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "shaped_metal",
+              "amount": 16
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "furniture",
+        "particles": "steel",
+        "particlesDistance": 70,
+        "impactSound": "steel_impact",
+        "destroySound": "steel_destroy",
+        "angle": 3.141592653589793,
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-electronic-box4"
+          }
+        ],
+        "offset": [
+          {
+            "rotation": 0,
+            "x": 15,
+            "y": 15
+          },
+          {
+            "rotation": 1,
+            "x": 15,
+            "y": 15
+          },
+          {
+            "rotation": 2,
+            "x": 15,
+            "y": 15
+          },
+          {
+            "rotation": 3,
+            "x": 15,
+            "y": 15
+          }
+        ]
+      }
+    },
+    "usine_box3": {
+      "key": "usine_box3",
+      "itemKey": "furniture",
+      "subtype": 38,
+      "category": "furniture",
+      "healthMax": 450,
+      "layer": "mid",
+      "transform": {
+        "width": 70,
+        "height": 70,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "storage": {
+        "slots": 4,
+        "refrigeration": false,
+        "contents": {
+          "item": [
+            {
+              "key": "electronics",
+              "amount": 2,
+              "chance": 0.1
+            },
+            {
+              "key": "energy_cells",
+              "amount": 20,
+              "chance": 0.05
+            },
+            {
+              "key": "junk",
+              "amount": 2,
+              "chance": 0.1
+            },
+            {
+              "key": "syringe",
+              "amount": 2,
+              "chance": 0.1
+            },
+            {
+              "key": "chemical_component",
+              "amount": 4,
+              "chance": 0.1
+            },
+            {
+              "key": "radaway",
+              "amount": 1,
+              "chance": 0.03
+            },
+            {
+              "key": "alloys",
+              "amount": 1,
+              "chance": 0.01
+            }
+          ]
+        }
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "shaped_metal",
+              "amount": 16
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "furniture",
+        "particles": "steel",
+        "particlesDistance": 70,
+        "impactSound": "steel_impact",
+        "destroySound": "steel_destroy",
+        "angle": 3.141592653589793,
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-electronic-box5"
+          }
+        ],
+        "offset": [
+          {
+            "rotation": 0,
+            "x": 15,
+            "y": 15
+          },
+          {
+            "rotation": 1,
+            "x": 15,
+            "y": 15
+          },
+          {
+            "rotation": 2,
+            "x": 15,
+            "y": 15
+          },
+          {
+            "rotation": 3,
+            "x": 15,
+            "y": 15
+          }
+        ]
+      }
+    },
+    "ammobox0": {
+      "key": "ammobox0",
+      "itemKey": "furniture",
+      "subtype": 29,
+      "category": "furniture",
+      "healthMax": 450,
+      "layer": "mid",
+      "transform": {
+        "width": 36,
+        "height": 100,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "storage": {
+        "slots": 4,
+        "refrigeration": false,
+        "contents": {
+          "item": [
+            {
+              "key": "mp5",
+              "amount": 1,
+              "chance": 0.001
+            },
+            {
+              "key": "ak47",
+              "amount": 1,
+              "chance": 0.001
+            },
+            {
+              "key": "shotgun",
+              "amount": 1,
+              "chance": 0.001
+            },
+            {
+              "key": "sawed_off",
+              "amount": 1,
+              "chance": 0.001
+            },
+            {
+              "key": "desert_eagle",
+              "amount": 1,
+              "chance": 0.001
+            },
+            {
+              "key": "sniper",
+              "amount": 1,
+              "chance": 0.001
+            },
+            {
+              "key": "energy_cells",
+              "amount": 20,
+              "chance": 0.01
+            },
+            {
+              "key": "laser_pistol",
+              "amount": 1,
+              "chance": 0.0008
+            },
+            {
+              "key": "dynamite",
+              "amount": 2,
+              "chance": 0.005
+            },
+            {
+              "key": "c4",
+              "amount": 1,
+              "chance": 0.001
+            },
+            {
+              "key": "c4_trigger",
+              "amount": 1,
+              "chance": 0.001
+            },
+            {
+              "key": "landmine",
+              "amount": 3,
+              "chance": 0.005
+            },
+            {
+              "key": "12g_pellet",
+              "amount": 30,
+              "chance": 0.01
+            },
+            {
+              "key": "9mm_bullet",
+              "amount": 50,
+              "chance": 0.01
+            },
+            {
+              "key": "pistol",
+              "amount": 1,
+              "chance": 0.003
+            },
+            {
+              "key": "wood_crossbow",
+              "amount": 1,
+              "chance": 0.003
+            },
+            {
+              "key": "wood_crossarrow",
+              "amount": 50,
+              "chance": 0.01
+            },
+            {
+              "key": "stone_axe",
+              "amount": 1,
+              "chance": 0.005
+            },
+            {
+              "key": "metal_helmet",
+              "amount": 1,
+              "chance": 0.005
+            },
+            {
+              "key": "welding_helmet",
+              "amount": 1,
+              "chance": 0.002
+            },
+            {
+              "key": "gladiator_helmet",
+              "amount": 1,
+              "chance": 0.001
+            },
+            {
+              "key": "leather_jacket",
+              "amount": 1,
+              "chance": 0.005
+            },
+            {
+              "key": "kevlar_suit",
+              "amount": 1,
+              "chance": 0.002
+            },
+            {
+              "key": "swat_suit",
+              "amount": 1,
+              "chance": 0.001
+            },
+            {
+              "key": "power_armor",
+              "amount": 1,
+              "chance": 0.002
+            },
+            {
+              "key": "tesla_armor",
+              "amount": 1,
+              "chance": 0.001
+            },
+            {
+              "key": "lapadone",
+              "amount": 1,
+              "chance": 0.0005
+            },
+            {
+              "key": "laser_submachine",
+              "amount": 1,
+              "chance": 0.0005
+            }
+          ]
+        }
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "wood",
+              "amount": 200
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "furniture",
+        "particles": "woodlight",
+        "particlesDistance": 70,
+        "impactSound": "wood_impact",
+        "destroySound": "wood_destroy",
+        "angle": 3.141592653589793,
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-ammo-box"
+          }
+        ],
+        "offset": [
+          {
+            "rotation": 0
+          },
+          {
+            "rotation": 1
+          },
+          {
+            "rotation": 2,
+            "x": 50
+          },
+          {
+            "rotation": 3,
+            "y": 50
+          }
+        ]
+      },
+      "align": "left"
+    },
+    "ammolocker1": {
+      "key": "ammolocker1",
+      "itemKey": "furniture",
+      "subtype": 31,
+      "category": "furniture",
+      "healthMax": 450,
+      "layer": "mid",
+      "transform": {
+        "width": 36,
+        "height": 100,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "storage": {
+        "slots": 4,
+        "refrigeration": false,
+        "contents": {
+          "item": [
+            {
+              "key": "mp5",
+              "amount": 1,
+              "chance": 0.001
+            },
+            {
+              "key": "ak47",
+              "amount": 1,
+              "chance": 0.001
+            },
+            {
+              "key": "shotgun",
+              "amount": 1,
+              "chance": 0.001
+            },
+            {
+              "key": "sawed_off",
+              "amount": 1,
+              "chance": 0.001
+            },
+            {
+              "key": "desert_eagle",
+              "amount": 1,
+              "chance": 0.001
+            },
+            {
+              "key": "sniper",
+              "amount": 1,
+              "chance": 0.001
+            },
+            {
+              "key": "energy_cells",
+              "amount": 20,
+              "chance": 0.01
+            },
+            {
+              "key": "laser_pistol",
+              "amount": 1,
+              "chance": 0.0008
+            },
+            {
+              "key": "dynamite",
+              "amount": 2,
+              "chance": 0.005
+            },
+            {
+              "key": "c4",
+              "amount": 1,
+              "chance": 0.001
+            },
+            {
+              "key": "c4_trigger",
+              "amount": 1,
+              "chance": 0.001
+            },
+            {
+              "key": "landmine",
+              "amount": 3,
+              "chance": 0.005
+            },
+            {
+              "key": "12g_pellet",
+              "amount": 30,
+              "chance": 0.01
+            },
+            {
+              "key": "9mm_bullet",
+              "amount": 50,
+              "chance": 0.01
+            },
+            {
+              "key": "pistol",
+              "amount": 1,
+              "chance": 0.003
+            },
+            {
+              "key": "wood_crossbow",
+              "amount": 1,
+              "chance": 0.003
+            },
+            {
+              "key": "wood_crossarrow",
+              "amount": 50,
+              "chance": 0.01
+            },
+            {
+              "key": "stone_axe",
+              "amount": 1,
+              "chance": 0.005
+            },
+            {
+              "key": "metal_helmet",
+              "amount": 1,
+              "chance": 0.005
+            },
+            {
+              "key": "welding_helmet",
+              "amount": 1,
+              "chance": 0.002
+            },
+            {
+              "key": "gladiator_helmet",
+              "amount": 1,
+              "chance": 0.001
+            },
+            {
+              "key": "leather_jacket",
+              "amount": 1,
+              "chance": 0.005
+            },
+            {
+              "key": "kevlar_suit",
+              "amount": 1,
+              "chance": 0.002
+            },
+            {
+              "key": "swat_suit",
+              "amount": 1,
+              "chance": 0.001
+            },
+            {
+              "key": "power_armor",
+              "amount": 1,
+              "chance": 0.002
+            },
+            {
+              "key": "tesla_armor",
+              "amount": 1,
+              "chance": 0.001
+            },
+            {
+              "key": "lapadone",
+              "amount": 1,
+              "chance": 0.0005
+            },
+            {
+              "key": "laser_submachine",
+              "amount": 1,
+              "chance": 0.0005
+            }
+          ]
+        }
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "shaped_metal",
+              "amount": 32
+            },
+            {
+              "key": "sulfur",
+              "amount": 12
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "furniture",
+        "particles": "grey_steel",
+        "particlesDistance": 70,
+        "impactSound": "steel_impact",
+        "destroySound": "steel_destroy",
+        "angle": 3.141592653589793,
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-ammo-locker1"
+          }
+        ],
+        "offset": [
+          {
+            "rotation": 0
+          },
+          {
+            "rotation": 1
+          },
+          {
+            "rotation": 2,
+            "x": 50
+          },
+          {
+            "rotation": 3,
+            "y": 50
+          }
+        ]
+      },
+      "align": "left"
+    },
+    "ammolocker2": {
+      "key": "ammolocker2",
+      "itemKey": "furniture",
+      "subtype": 32,
+      "category": "furniture",
+      "healthMax": 450,
+      "layer": "mid",
+      "transform": {
+        "width": 36,
+        "height": 100,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "storage": {
+        "slots": 4,
+        "refrigeration": false,
+        "contents": {
+          "item": [
+            {
+              "key": "mp5",
+              "amount": 1,
+              "chance": 0.001
+            },
+            {
+              "key": "ak47",
+              "amount": 1,
+              "chance": 0.001
+            },
+            {
+              "key": "shotgun",
+              "amount": 1,
+              "chance": 0.001
+            },
+            {
+              "key": "sawed_off",
+              "amount": 1,
+              "chance": 0.001
+            },
+            {
+              "key": "desert_eagle",
+              "amount": 1,
+              "chance": 0.001
+            },
+            {
+              "key": "sniper",
+              "amount": 1,
+              "chance": 0.001
+            },
+            {
+              "key": "energy_cells",
+              "amount": 20,
+              "chance": 0.01
+            },
+            {
+              "key": "laser_pistol",
+              "amount": 1,
+              "chance": 0.0008
+            },
+            {
+              "key": "dynamite",
+              "amount": 2,
+              "chance": 0.005
+            },
+            {
+              "key": "c4",
+              "amount": 1,
+              "chance": 0.001
+            },
+            {
+              "key": "c4_trigger",
+              "amount": 1,
+              "chance": 0.001
+            },
+            {
+              "key": "landmine",
+              "amount": 3,
+              "chance": 0.005
+            },
+            {
+              "key": "12g_pellet",
+              "amount": 30,
+              "chance": 0.01
+            },
+            {
+              "key": "9mm_bullet",
+              "amount": 50,
+              "chance": 0.01
+            },
+            {
+              "key": "pistol",
+              "amount": 1,
+              "chance": 0.003
+            },
+            {
+              "key": "wood_crossbow",
+              "amount": 1,
+              "chance": 0.003
+            },
+            {
+              "key": "wood_crossarrow",
+              "amount": 50,
+              "chance": 0.01
+            },
+            {
+              "key": "stone_axe",
+              "amount": 1,
+              "chance": 0.005
+            },
+            {
+              "key": "metal_helmet",
+              "amount": 1,
+              "chance": 0.005
+            },
+            {
+              "key": "welding_helmet",
+              "amount": 1,
+              "chance": 0.002
+            },
+            {
+              "key": "gladiator_helmet",
+              "amount": 1,
+              "chance": 0.001
+            },
+            {
+              "key": "leather_jacket",
+              "amount": 1,
+              "chance": 0.005
+            },
+            {
+              "key": "kevlar_suit",
+              "amount": 1,
+              "chance": 0.002
+            },
+            {
+              "key": "swat_suit",
+              "amount": 1,
+              "chance": 0.001
+            },
+            {
+              "key": "power_armor",
+              "amount": 1,
+              "chance": 0.002
+            },
+            {
+              "key": "tesla_armor",
+              "amount": 1,
+              "chance": 0.001
+            },
+            {
+              "key": "lapadone",
+              "amount": 1,
+              "chance": 0.0005
+            },
+            {
+              "key": "laser_submachine",
+              "amount": 1,
+              "chance": 0.0005
+            }
+          ]
+        }
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "shaped_metal",
+              "amount": 32
+            },
+            {
+              "key": "sulfur",
+              "amount": 12
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "furniture",
+        "particles": "grey_steel",
+        "particlesDistance": 70,
+        "impactSound": "steel_impact",
+        "destroySound": "steel_destroy",
+        "angle": 3.141592653589793,
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-ammo-locker2"
+          }
+        ],
+        "offset": [
+          {
+            "rotation": 0
+          },
+          {
+            "rotation": 1
+          },
+          {
+            "rotation": 2,
+            "x": 50
+          },
+          {
+            "rotation": 3,
+            "y": 50
+          }
+        ]
+      },
+      "align": "left"
+    },
+    "ammolocker0": {
+      "key": "ammolocker0",
+      "itemKey": "furniture",
+      "subtype": 30,
+      "category": "furniture",
+      "healthMax": 450,
+      "layer": "mid",
+      "transform": {
+        "width": 70,
+        "height": 50,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "storage": {
+        "slots": 4,
+        "refrigeration": false,
+        "contents": {
+          "item": [
+            {
+              "key": "mp5",
+              "amount": 1,
+              "chance": 0.001
+            },
+            {
+              "key": "ak47",
+              "amount": 1,
+              "chance": 0.001
+            },
+            {
+              "key": "shotgun",
+              "amount": 1,
+              "chance": 0.001
+            },
+            {
+              "key": "sawed_off",
+              "amount": 1,
+              "chance": 0.001
+            },
+            {
+              "key": "desert_eagle",
+              "amount": 1,
+              "chance": 0.001
+            },
+            {
+              "key": "sniper",
+              "amount": 1,
+              "chance": 0.001
+            },
+            {
+              "key": "energy_cells",
+              "amount": 20,
+              "chance": 0.01
+            },
+            {
+              "key": "laser_pistol",
+              "amount": 1,
+              "chance": 0.0008
+            },
+            {
+              "key": "dynamite",
+              "amount": 2,
+              "chance": 0.005
+            },
+            {
+              "key": "c4",
+              "amount": 1,
+              "chance": 0.001
+            },
+            {
+              "key": "c4_trigger",
+              "amount": 1,
+              "chance": 0.001
+            },
+            {
+              "key": "landmine",
+              "amount": 3,
+              "chance": 0.005
+            },
+            {
+              "key": "12g_pellet",
+              "amount": 30,
+              "chance": 0.01
+            },
+            {
+              "key": "9mm_bullet",
+              "amount": 50,
+              "chance": 0.01
+            },
+            {
+              "key": "pistol",
+              "amount": 1,
+              "chance": 0.003
+            },
+            {
+              "key": "wood_crossbow",
+              "amount": 1,
+              "chance": 0.003
+            },
+            {
+              "key": "wood_crossarrow",
+              "amount": 50,
+              "chance": 0.01
+            },
+            {
+              "key": "stone_axe",
+              "amount": 1,
+              "chance": 0.005
+            },
+            {
+              "key": "metal_helmet",
+              "amount": 1,
+              "chance": 0.005
+            },
+            {
+              "key": "welding_helmet",
+              "amount": 1,
+              "chance": 0.002
+            },
+            {
+              "key": "gladiator_helmet",
+              "amount": 1,
+              "chance": 0.001
+            },
+            {
+              "key": "leather_jacket",
+              "amount": 1,
+              "chance": 0.005
+            },
+            {
+              "key": "kevlar_suit",
+              "amount": 1,
+              "chance": 0.002
+            },
+            {
+              "key": "swat_suit",
+              "amount": 1,
+              "chance": 0.001
+            },
+            {
+              "key": "power_armor",
+              "amount": 1,
+              "chance": 0.002
+            },
+            {
+              "key": "tesla_armor",
+              "amount": 1,
+              "chance": 0.001
+            },
+            {
+              "key": "lapadone",
+              "amount": 1,
+              "chance": 0.0005
+            },
+            {
+              "key": "laser_submachine",
+              "amount": 1,
+              "chance": 0.0005
+            }
+          ]
+        }
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "shaped_metal",
+              "amount": 32
+            },
+            {
+              "key": "sulfur",
+              "amount": 12
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "furniture",
+        "particles": "blue_steel",
+        "particlesDistance": 70,
+        "impactSound": "steel_impact",
+        "destroySound": "steel_destroy",
+        "angle": 3.141592653589793,
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-ammo-locker0"
+          }
+        ],
+        "offset": [
+          {
+            "rotation": 0,
+            "y": 25
+          },
+          {
+            "rotation": 1,
+            "x": 25
+          },
+          {
+            "rotation": 2,
+            "x": 30,
+            "y": 25
+          },
+          {
+            "rotation": 3,
+            "x": 25,
+            "y": 30
+          }
+        ]
+      },
+      "align": "left"
+    },
+    "safe0": {
+      "key": "safe0",
+      "itemKey": "furniture",
+      "subtype": 18,
+      "category": "furniture",
+      "healthMax": 450,
+      "layer": "mid",
+      "transform": {
+        "width": 36,
+        "height": 100,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "storage": {
+        "slots": 4,
+        "refrigeration": false,
+        "contents": {
+          "item": [
+            {
+              "key": "chapka",
+              "amount": 1,
+              "chance": 0.008
+            },
+            {
+              "key": "winter_coat",
+              "amount": 1,
+              "chance": 0.002
+            },
+            {
+              "key": "radiation_suit",
+              "amount": 1,
+              "chance": 0.002
+            },
+            {
+              "key": "gaz_protection",
+              "amount": 1,
+              "chance": 0.02
+            },
+            {
+              "key": "sawed_off",
+              "amount": 1,
+              "chance": 0.002
+            },
+            {
+              "key": "mp5",
+              "amount": 1,
+              "chance": 0.002
+            },
+            {
+              "key": "ak47",
+              "amount": 1,
+              "chance": 0.002
+            },
+            {
+              "key": "shotgun",
+              "amount": 1,
+              "chance": 0.002
+            },
+            {
+              "key": "desert_eagle",
+              "amount": 1,
+              "chance": 0.002
+            },
+            {
+              "key": "sniper",
+              "amount": 1,
+              "chance": 0.002
+            },
+            {
+              "key": "762_round",
+              "amount": 50,
+              "chance": 0.02
+            },
+            {
+              "key": "12g_pellet",
+              "amount": 30,
+              "chance": 0.02
+            },
+            {
+              "key": "9mm_bullet",
+              "amount": 40,
+              "chance": 0.02
+            },
+            {
+              "key": "dynamite",
+              "amount": 1,
+              "chance": 0.01
+            },
+            {
+              "key": "landmine",
+              "amount": 1,
+              "chance": 0.01
+            },
+            {
+              "key": "pistol",
+              "amount": 1,
+              "chance": 0.04
+            },
+            {
+              "key": "wood_crossbow",
+              "amount": 1,
+              "chance": 0.05
+            },
+            {
+              "key": "wood_crossarrow",
+              "amount": 50,
+              "chance": 0.05
+            }
+          ]
+        }
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "shaped_metal",
+              "amount": 32
+            },
+            {
+              "key": "sulfur",
+              "amount": 32
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "furniture",
+        "particles": "safe0",
+        "particlesDistance": 70,
+        "impactSound": "steel_impact",
+        "destroySound": "steel_destroy",
+        "angle": 3.141592653589793,
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-safe0"
+          }
+        ],
+        "offset": [
+          {
+            "rotation": 0
+          },
+          {
+            "rotation": 1
+          },
+          {
+            "rotation": 2,
+            "x": 50
+          },
+          {
+            "rotation": 3,
+            "y": 50
+          }
+        ]
+      },
+      "align": "left"
+    },
+    "small_light": {
+      "key": "small_light",
+      "itemKey": "furniture",
+      "subtype": 47,
+      "category": "furniture",
+      "healthMax": 450,
+      "layer": "mid",
+      "transform": {
+        "width": 70,
+        "height": 70,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "storage": {
+        "slots": 4,
+        "refrigeration": false,
+        "contents": {
+          "item": [
+            {
+              "key": "headscarf",
+              "amount": 1,
+              "chance": 0.004
+            },
+            {
+              "key": "gaz_mask",
+              "amount": 1,
+              "chance": 0.004
+            },
+            {
+              "key": "9mm_bullet",
+              "amount": 30,
+              "chance": 0.02
+            },
+            {
+              "key": "bandage",
+              "amount": 2,
+              "chance": 0.05
+            },
+            {
+              "key": "tomato_seed",
+              "amount": 1,
+              "chance": 0.08
+            },
+            {
+              "key": "nails",
+              "amount": 40,
+              "chance": 0.1
+            },
+            {
+              "key": "orange_seed",
+              "amount": 1,
+              "chance": 0.1
+            },
+            {
+              "key": "sleeping_bag",
+              "amount": 1,
+              "chance": 0.01
+            },
+            {
+              "key": "energy_cells",
+              "amount": 4,
+              "chance": 0.05
+            },
+            {
+              "key": "junk",
+              "amount": 1,
+              "chance": 0.2
+            },
+            {
+              "key": "string",
+              "amount": 2,
+              "chance": 0.1
+            }
+          ]
+        }
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "wood",
+              "amount": 100
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "furniture",
+        "particles": "grey_steel",
+        "particlesDistance": 70,
+        "impactSound": "wood_impact",
+        "destroySound": "wood_destroy",
+        "angle": 3.141592653589793,
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-small-light-off"
+          }
+        ],
+        "offset": [
+          {
+            "rotation": 0,
+            "x": 15,
+            "y": 15
+          },
+          {
+            "rotation": 1,
+            "x": 15,
+            "y": 15
+          },
+          {
+            "rotation": 2,
+            "x": 15,
+            "y": 15
+          },
+          {
+            "rotation": 3,
+            "x": 15,
+            "y": 15
+          }
+        ]
+      },
+      "align": "left"
+    },
+    "toilet0": {
+      "key": "toilet0",
+      "itemKey": "furniture",
+      "subtype": 21,
+      "category": "furniture",
+      "healthMax": 450,
+      "layer": "mid",
+      "transform": {
+        "width": 50,
+        "height": 70,
+        "collision": true,
+        "blocksProjectiles": true
+      },
+      "storage": {
+        "slots": 4,
+        "refrigeration": true,
+        "contents": {
+          "item": [
+            {
+              "key": "syringe",
+              "amount": 1,
+              "chance": 0.2
+            },
+            {
+              "key": "chemical_component",
+              "amount": 1,
+              "chance": 0.02
+            },
+            {
+              "key": "ghoul_blood",
+              "amount": 1,
+              "chance": 0.005
+            },
+            {
+              "key": "lapadone",
+              "amount": 1,
+              "chance": 0.002
+            }
+          ]
+        }
+      },
+      "onDestroy": {
+        "drops": {
+          "item": [
+            {
+              "key": "shaped_metal",
+              "amount": 4
+            },
+            {
+              "key": "stone",
+              "amount": 100
+            }
+          ]
+        }
+      },
+      "client": {
+        "render": "furniture",
+        "particles": "toilet",
+        "particlesDistance": 70,
+        "impactSound": "stone_impact",
+        "destroySound": "stone_destroy",
+        "angle": 3.141592653589793,
+        "z": 1,
+        "zGroup": 0,
+        "frame": [
+          {
+            "index": 0,
+            "sprite": "day-toilet0"
+          }
+        ],
+        "offset": [
+          {
+            "rotation": 0,
+            "x": 25
+          },
+          {
+            "rotation": 1,
+            "x": 30,
+            "y": 25
+          },
+          {
+            "rotation": 2,
+            "x": 25,
+            "y": 30
+          },
+          {
+            "rotation": 3,
+            "y": 25
+          }
+        ]
+      },
+      "align": "top"
+    }
+  }
+}

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<quest key="supplies" name="A Little Firewood" category="side"
+       description="Mara needs firewood to keep the settlement warm.">
+  <start>
+    <talk npc="merchant" keyword="job" confirm="true" text="Bring me 10 wood and I will pay 100 caps. Interested?"/>
+  </start>
+  <stage key="firewood" journal="Bring 10 wood to Mara and ask her to {finish} the job.">
+    <objective key="wood" type="give" npc="merchant" item="wood" count="10" keyword="finish"
+               text="Bring firewood to Mara" reply="That will keep us warm. Here are your caps."/>
+    <outcome when="wood" next="end:paid"><reward caps="100"/></outcome>
+  </stage>
+  <ending key="paid" journal="Mara received the firewood and paid you 100 caps."/>
+  <dialogue npc="merchant">
+    <reply keyword="job" stage="firewood" text="Have you brought 10 wood? Say {finish} when you are ready."/>
+    <reply keyword="job" state="completed" text="Thanks for the firewood. The job is finished."/>
+    <reply keyword="finish" state="completed" text="You have already been paid."/>
+  </dialogue>
+</quest>

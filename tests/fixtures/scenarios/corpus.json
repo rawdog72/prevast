@@ -1,0 +1,221 @@
+[
+  {
+    "file": "valid-minimum.prevast.json",
+    "valid": true,
+    "codes": []
+  },
+  {
+    "file": "valid-maximum.prevast.json",
+    "valid": true,
+    "codes": []
+  },
+  {
+    "file": "valid-rectangular.prevast.json",
+    "valid": true,
+    "codes": []
+  },
+  {
+    "file": "valid-house.prevast.json",
+    "valid": true,
+    "codes": []
+  },
+  {
+    "file": "valid-legacy-format.prevast.json",
+    "valid": true,
+    "codes": []
+  },
+  {
+    "file": "invalid-too-small.prevast.json",
+    "valid": false,
+    "codes": [
+      "world.size"
+    ]
+  },
+  {
+    "file": "invalid-too-large.prevast.json",
+    "valid": false,
+    "codes": [
+      "world.size"
+    ]
+  },
+  {
+    "file": "invalid-newer-version.prevast.json",
+    "valid": false,
+    "codes": [
+      "schema.version-newer"
+    ]
+  },
+  {
+    "file": "invalid-format.prevast.json",
+    "valid": false,
+    "codes": [
+      "schema.format"
+    ]
+  },
+  {
+    "file": "invalid-fraction.prevast.json",
+    "valid": false,
+    "codes": [
+      "schema.invalid"
+    ]
+  },
+  {
+    "file": "invalid-unknown-field.prevast.json",
+    "valid": false,
+    "codes": [
+      "schema.invalid"
+    ]
+  },
+  {
+    "file": "invalid-duplicate-id.prevast.json",
+    "valid": false,
+    "codes": [
+      "id.duplicate"
+    ]
+  },
+  {
+    "file": "invalid-id-shared-with-group.prevast.json",
+    "valid": false,
+    "codes": [
+      "id.duplicate"
+    ]
+  },
+  {
+    "file": "invalid-dangling-parent.prevast.json",
+    "valid": false,
+    "codes": [
+      "ref.dangling-parent"
+    ]
+  },
+  {
+    "file": "invalid-parent-not-group.prevast.json",
+    "valid": false,
+    "codes": [
+      "ref.parent-not-group"
+    ]
+  },
+  {
+    "file": "invalid-cycle.prevast.json",
+    "valid": false,
+    "codes": [
+      "graph.cycle"
+    ]
+  },
+  {
+    "file": "invalid-too-deep.prevast.json",
+    "valid": false,
+    "codes": [
+      "graph.too-deep"
+    ]
+  },
+  {
+    "file": "invalid-off-grid.prevast.json",
+    "valid": false,
+    "codes": [
+      "entity.off-grid"
+    ]
+  },
+  {
+    "file": "invalid-out-of-bounds.prevast.json",
+    "valid": false,
+    "codes": [
+      "entity.out-of-bounds"
+    ]
+  },
+  {
+    "file": "invalid-rotation-on-npc.prevast.json",
+    "valid": false,
+    "codes": [
+      "entity.rotation"
+    ]
+  },
+  {
+    "file": "invalid-health-above-max.prevast.json",
+    "valid": false,
+    "codes": [
+      "override.range"
+    ]
+  },
+  {
+    "file": "invalid-health-width.prevast.json",
+    "valid": false,
+    "codes": [
+      "schema.invalid"
+    ]
+  },
+  {
+    "file": "invalid-pivot.prevast.json",
+    "valid": false,
+    "codes": [
+      "group.pivot"
+    ]
+  },
+  {
+    "file": "invalid-polygon.prevast.json",
+    "valid": false,
+    "codes": [
+      "region.polygon"
+    ]
+  },
+  {
+    "file": "invalid-dangling-attach.prevast.json",
+    "valid": false,
+    "codes": [
+      "ref.dangling-attach"
+    ]
+  },
+  {
+    "file": "valid-population.prevast.json",
+    "valid": true,
+    "codes": []
+  },
+  {
+    "file": "invalid-kind-fields.prevast.json",
+    "valid": false,
+    "codes": [
+      "entity.kind-fields"
+    ]
+  },
+  {
+    "file": "invalid-dangling-loot.prevast.json",
+    "valid": false,
+    "codes": [
+      "ref.dangling-loot"
+    ]
+  },
+  {
+    "file": "invalid-loot-range.prevast.json",
+    "valid": false,
+    "codes": [
+      "loot.range"
+    ]
+  },
+  {
+    "file": "invalid-loot-duplicate.prevast.json",
+    "valid": false,
+    "codes": [
+      "id.duplicate"
+    ]
+  },
+  {
+    "file": "invalid-falloff-shape.prevast.json",
+    "valid": false,
+    "codes": [
+      "effect.falloff-shape"
+    ]
+  },
+  {
+    "file": "invalid-loot-mode-fields.prevast.json",
+    "valid": false,
+    "codes": [
+      "schema.invalid"
+    ]
+  },
+  {
+    "file": "invalid-budget-agents.prevast.json",
+    "valid": false,
+    "codes": [
+      "budget.agents"
+    ]
+  }
+]

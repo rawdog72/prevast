@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<quest key="ghouls" name="Clear the Road" category="side"
+       description="Rook wants the road cleared of normal ghouls.">
+  <start>
+    <talk npc="quartermaster" keyword="ghouls" text="Kill 3 normal ghouls, then come back and tell me about the {ghouls}. The pay is 250 caps."/>
+  </start>
+  <stage key="hunt" journal="Defeat 3 normal ghouls, then report to Rook.">
+    <objective key="ghouls" type="kill" target="normal_ghoul" count="3" text="Defeat normal ghouls"/>
+    <objective key="report" type="talk" npc="quartermaster" keyword="ghouls" after="ghouls"
+               text="Report to Rook" reply="The road is safer. Here are 250 caps."/>
+    <outcome when="all" next="end:cleared"><reward caps="250"/><achievement key="road_warden"/></outcome>
+  </stage>
+  <ending key="cleared" journal="You cleared the road and received 250 caps from Rook."/>
+  <dialogue npc="quartermaster">
+    <reply keyword="ghouls" stage="hunt" text="The ghouls are still out there. Kill 3, then tell me about the {ghouls}."/>
+    <reply keyword="ghouls" state="completed" text="You already cleared the road."/>
+  </dialogue>
+</quest>

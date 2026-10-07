@@ -1,0 +1,126 @@
+{
+  "format": "prevast-scenario",
+  "schemaVersion": 1,
+  "id": "prj-corpus",
+  "title": "Corpus",
+  "revision": 1,
+  "nextId": 20,
+  "requiredFeatures": [
+    "world.v1"
+  ],
+  "world": {
+    "tilesX": 20,
+    "tilesY": 20,
+    "seed": 7,
+    "time": "day",
+    "population": {
+      "resources": false,
+      "structures": false,
+      "agents": false
+    }
+  },
+  "entities": [],
+  "groups": [
+    {
+      "id": "g0",
+      "name": "G0",
+      "kind": "group",
+      "pivot": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "id": "g1",
+      "name": "G1",
+      "kind": "group",
+      "pivot": {
+        "x": 0,
+        "y": 0
+      },
+      "parent": "g0"
+    },
+    {
+      "id": "g2",
+      "name": "G2",
+      "kind": "group",
+      "pivot": {
+        "x": 0,
+        "y": 0
+      },
+      "parent": "g1"
+    },
+    {
+      "id": "g3",
+      "name": "G3",
+      "kind": "group",
+      "pivot": {
+        "x": 0,
+        "y": 0
+      },
+      "parent": "g2"
+    },
+    {
+      "id": "g4",
+      "name": "G4",
+      "kind": "group",
+      "pivot": {
+        "x": 0,
+        "y": 0
+      },
+      "parent": "g3"
+    },
+    {
+      "id": "g5",
+      "name": "G5",
+      "kind": "group",
+      "pivot": {
+        "x": 0,
+        "y": 0
+      },
+      "parent": "g4"
+    },
+    {
+      "id": "g6",
+      "name": "G6",
+      "kind": "group",
+      "pivot": {
+        "x": 0,
+        "y": 0
+      },
+      "parent": "g5"
+    },
+    {
+      "id": "g7",
+      "name": "G7",
+      "kind": "group",
+      "pivot": {
+        "x": 0,
+        "y": 0
+      },
+      "parent": "g6"
+    },
+    {
+      "id": "g8",
+      "name": "G8",
+      "kind": "group",
+      "pivot": {
+        "x": 0,
+        "y": 0
+      },
+      "parent": "g7"
+    },
+    {
+      "id": "g9",
+      "name": "G9",
+      "kind": "group",
+      "pivot": {
+        "x": 0,
+        "y": 0
+      },
+      "parent": "g8"
+    }
+  ],
+  "regions": [],
+  "templates": []
+}

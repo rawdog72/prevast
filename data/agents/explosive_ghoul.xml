@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<agent key="explosive_ghoul" family="ghoul" sprite="2">
+  <body radius="38" collision="true" separation="true"/>
+  <vitals health="100" experience="500" lifetimeMs="0"/>
+  <daylight damage="5" intervalMs="1000"/>
+  <movement speed="250" nightSpeed="300"/>
+  <brain type="aggressive" vision="700" loseTarget="1000" leash="0" chase="true" roamRadius="1500" roamPauseMs="0" aggroAfterCycles="5" repelBreakMs="60000">
+    <target type="player" priority="100"/>
+    <target type="agent" priority="60"/>
+    <target type="object" priority="60"/>
+  </brain>
+  <abilities>
+    <ability type="melee" cooldownMs="500" impactMs="350" range="50" radius="30" staminaUsage="2" knockback="3">
+      <damage amount="6" amountMax="20"/>
+    </ability>
+  </abilities>
+  <onDeath>
+    <explosion radius="40" playerDamage="120" buildingDamage="500"/>
+    <drops>
+      <item key="sulfur" amount="1"/>
+      <item key="animal_fat" amount="1"/>
+      <item key="junk" amount="1"/>
+    </drops>
+  </onDeath>
+  <client render="ghoul" breath="0.05" armMove="6" head="day-ghoul4" hurt="ghoul4-hurt" death="day-ghoul4-death" light="1" hitAnimMs="350">
+    <leftArm sprite="day-ghoul4-left-arm" angle="0" x="28" y="-48"/>
+    <rightArm sprite="day-ghoul4-right-arm" angle="0" x="28" y="48"/>
+  </client>
+</agent>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<quest key="delivery" name="The Banker's Firewood" category="side"
+       description="Rook has promised firewood to Elias at the bank.">
+  <start>
+    <talk npc="quartermaster" keyword="delivery" text="Bring 5 wood to Elias the banker and tell him about the {delivery}. Then come back to me for 125 caps."/>
+  </start>
+  <!-- Handing the wood to Elias is the conversation with him, so the old
+       separate "introduction" objective is part of this one. -->
+  <stage key="deliver" journal="Bring 5 wood to Elias and tell him about the delivery.">
+    <objective key="delivery" type="give" npc="banker" item="wood" count="5" keyword="delivery"
+               text="Deliver firewood to Elias" reply="Firewood from Rook? Thank you. Tell him it arrived."/>
+    <outcome when="delivery" next="report"/>
+  </stage>
+  <stage key="report" journal="Tell Rook the firewood arrived.">
+    <objective key="report" type="talk" npc="quartermaster" keyword="delivery"
+               text="Report to Rook" reply="Elias received his firewood. Here are 125 caps."/>
+    <outcome when="report" next="end:delivered"><reward caps="125"/></outcome>
+  </stage>
+  <ending key="delivered" journal="Elias received the firewood. Rook paid you 125 caps."/>
+  <dialogue npc="quartermaster">
+    <reply keyword="delivery" stage="deliver" text="Elias is still waiting for 5 wood."/>
+    <reply keyword="delivery" state="completed" text="The delivery is already finished."/>
+  </dialogue>
+</quest>

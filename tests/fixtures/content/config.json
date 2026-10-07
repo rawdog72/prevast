@@ -1,0 +1,32 @@
+{
+  "name": "config",
+  "version": 1,
+  "hash": "98761c3d63bbf629",
+  "attributes": {},
+  "entries": {
+    "mode": "survival",
+    "maxPlayers": 255,
+    "maxClans": 18,
+    "clanSize": 9,
+    "clanNameMaxLength": 5,
+    "clanActionDelayMs": 2000,
+    "mapWidth": 150,
+    "mapHeight": 150,
+    "tileSize": 100,
+    "dayCycleMs": 960000,
+    "craftSpeed": 1,
+    "inventorySlots": 8,
+    "chatMaxLength": 200,
+    "nicknameMaxLength": 16,
+    "passwordMaxLength": 16,
+    "xpStart": 900,
+    "xpGrowth": 1.105,
+    "maxLevel": 200,
+    "craftQueueSize": 4,
+    "chestMaxSlots": 64,
+    "interactionRange": 150,
+    "lootPickupRange": 200,
+    "fuelMaxUnits": 254,
+    "tradeRangeTiles": 2
+  }
+}

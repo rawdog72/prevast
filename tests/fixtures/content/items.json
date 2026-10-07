@@ -1,0 +1,8277 @@
+{
+  "name": "items",
+  "version": 1,
+  "hash": "637cd6e0a7b0d745",
+  "attributes": {},
+  "entries": {
+    "wood": {
+      "key": "wood",
+      "id": 1,
+      "clientItemId": 1,
+      "name": "Wood",
+      "properties": {
+        "stack": 255,
+        "lootId": 2,
+        "score": 10
+      },
+      "client": {
+        "description": "Chop it from trees or pick it up off the ground.",
+        "icon": "inv-wood",
+        "loot": [
+          {
+            "id": 0,
+            "sprite": "day-ground-wood0",
+            "scale": 0.85,
+            "angle": 0,
+            "amount": 1
+          },
+          {
+            "id": 1,
+            "sprite": "day-ground-wood1",
+            "scale": 0.85,
+            "angle": 0,
+            "amount": 2
+          },
+          {
+            "id": 2,
+            "sprite": "day-ground-wood2",
+            "scale": 0.85,
+            "angle": 0,
+            "amount": 3
+          }
+        ]
+      }
+    },
+    "stone": {
+      "key": "stone",
+      "id": 2,
+      "clientItemId": 2,
+      "name": "Stone",
+      "properties": {
+        "stack": 255,
+        "lootId": 5,
+        "score": 14
+      },
+      "skill": {
+        "type": "mineral"
+      },
+      "crafting": {
+        "extractor": {
+          "timeMs": 80000,
+          "outputMin": 50,
+          "outputMax": 250
+        }
+      },
+      "client": {
+        "description": "Mine it from rocks or pick it up off the ground.",
+        "icon": "inv-stone",
+        "loot": [
+          {
+            "id": 3,
+            "sprite": "day-ground-stone0",
+            "scale": 1.2,
+            "angle": 0,
+            "amount": 1
+          },
+          {
+            "id": 4,
+            "sprite": "day-ground-stone1",
+            "scale": 1.2,
+            "angle": 0,
+            "amount": 2
+          },
+          {
+            "id": 5,
+            "sprite": "day-ground-stone2",
+            "scale": 1.2,
+            "angle": 0,
+            "amount": 3
+          }
+        ]
+      }
+    },
+    "iron": {
+      "key": "iron",
+      "id": 3,
+      "clientItemId": 3,
+      "name": "Iron",
+      "properties": {
+        "stack": 255,
+        "lootId": 6,
+        "score": 28
+      },
+      "skill": {
+        "type": "mineral"
+      },
+      "crafting": {
+        "extractor": {
+          "timeMs": 120000,
+          "outputMin": 4,
+          "outputMax": 12
+        }
+      },
+      "client": {
+        "description": "Smelt it in a firepit or a smelter.",
+        "icon": "inv-steel",
+        "loot": [
+          {
+            "id": 6,
+            "sprite": "day-ground-steel",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "animal_fat": {
+      "key": "animal_fat",
+      "id": 4,
+      "clientItemId": 4,
+      "name": "Animal Fat",
+      "properties": {
+        "stack": 255,
+        "lootId": 7,
+        "score": 32
+      },
+      "client": {
+        "description": "Goes into bullets and clothing.",
+        "icon": "inv-animal-fat",
+        "loot": [
+          {
+            "id": 7,
+            "sprite": "day-ground-animal-fat",
+            "scale": 1,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "animal_tendon": {
+      "key": "animal_tendon",
+      "id": 5,
+      "clientItemId": 5,
+      "name": "Animal Tendon",
+      "properties": {
+        "stack": 255,
+        "lootId": 8,
+        "score": 100
+      },
+      "client": {
+        "description": "Twist it into string.",
+        "icon": "inv-animal-tendon",
+        "loot": [
+          {
+            "id": 8,
+            "sprite": "day-ground-animal-tendon",
+            "scale": 1,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "string": {
+      "key": "string",
+      "id": 6,
+      "clientItemId": 6,
+      "name": "String",
+      "properties": {
+        "stack": 255,
+        "lootId": 9,
+        "score": 0
+      },
+      "skill": {
+        "type": "survival"
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "animal_tendon",
+              "amount": 2
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "workbench",
+              "timeMs": 20000
+            }
+          ]
+        }
+      },
+      "client": {
+        "description": "Goes into a lot of crafting recipes.",
+        "icon": "inv-string",
+        "loot": [
+          {
+            "id": 9,
+            "sprite": "day-ground-string",
+            "scale": 0.7,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "leather": {
+      "key": "leather",
+      "id": 7,
+      "clientItemId": 7,
+      "name": "Leather",
+      "properties": {
+        "stack": 255,
+        "lootId": 10,
+        "score": 32
+      },
+      "client": {
+        "description": "Sew it into clothing.",
+        "icon": "inv-leather-boar",
+        "loot": [
+          {
+            "id": 10,
+            "sprite": "day-ground-leather-boar",
+            "scale": 0.9,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "shaped_metal": {
+      "key": "shaped_metal",
+      "id": 8,
+      "clientItemId": 8,
+      "name": "Shaped Metal",
+      "properties": {
+        "stack": 255,
+        "lootId": 11,
+        "score": 0
+      },
+      "skill": {
+        "type": "mineral"
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "iron",
+              "amount": 2
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "firepit",
+              "timeMs": 30000
+            },
+            {
+              "key": "smelter",
+              "timeMs": 3000
+            }
+          ]
+        }
+      },
+      "client": {
+        "description": "For crafting sturdier gear.",
+        "icon": "inv-shaped-metal",
+        "loot": [
+          {
+            "id": 11,
+            "sprite": "day-ground-shaped-metal",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "raw_steak": {
+      "key": "raw_steak",
+      "id": 9,
+      "clientItemId": 9,
+      "name": "Raw Steak",
+      "properties": {
+        "stack": 10,
+        "lootId": 12,
+        "score": 28
+      },
+      "equipable": {
+        "key": "raw_steak",
+        "equipTimeMs": 500
+      },
+      "decay": {
+        "transformTo": "rotten_steak",
+        "timeMs": 160000
+      },
+      "client": {
+        "description": "Cook it first. Trust me.",
+        "icon": "inv-raw-steak",
+        "loot": [
+          {
+            "id": 12,
+            "sprite": "day-ground-raw-steak",
+            "scale": 0.9,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "cooked_steak": {
+      "key": "cooked_steak",
+      "id": 10,
+      "clientItemId": 10,
+      "name": "Cooked Steak",
+      "properties": {
+        "stack": 10,
+        "lootId": 13,
+        "score": 0
+      },
+      "skill": {
+        "type": "survival"
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "raw_steak",
+              "amount": 1
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "campfire",
+              "timeMs": 20000
+            },
+            {
+              "key": "firepit",
+              "timeMs": 10000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "cooked_steak",
+        "equipTimeMs": 500
+      },
+      "decay": {
+        "transformTo": "rotten_steak",
+        "timeMs": 840000
+      },
+      "client": {
+        "description": "Hot off the fire.",
+        "icon": "inv-cooked-steak",
+        "loot": [
+          {
+            "id": 13,
+            "sprite": "day-ground-cooked-steak",
+            "scale": 0.9,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "rotten_steak": {
+      "key": "rotten_steak",
+      "id": 11,
+      "clientItemId": 11,
+      "name": "Rotten Steak",
+      "properties": {
+        "stack": 10,
+        "lootId": 14,
+        "score": 20
+      },
+      "equipable": {
+        "key": "rotten_steak",
+        "equipTimeMs": 500
+      },
+      "client": {
+        "description": "Long past its best. Leave it.",
+        "icon": "inv-rotten-steak",
+        "loot": [
+          {
+            "id": 14,
+            "sprite": "day-ground-rotten-steak",
+            "scale": 0.9,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "orange": {
+      "key": "orange",
+      "id": 12,
+      "clientItemId": 12,
+      "name": "Orange",
+      "properties": {
+        "stack": 20,
+        "lootId": 15,
+        "score": 24
+      },
+      "equipable": {
+        "key": "orange",
+        "equipTimeMs": 500
+      },
+      "decay": {
+        "transformTo": "rotten_orange",
+        "timeMs": 240000
+      },
+      "client": {
+        "description": "A quick snack.",
+        "icon": "inv-orange",
+        "loot": [
+          {
+            "id": 15,
+            "sprite": "day-ground-orange",
+            "scale": 1,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "rotten_orange": {
+      "key": "rotten_orange",
+      "id": 13,
+      "clientItemId": 13,
+      "name": "Rotten Orange",
+      "properties": {
+        "stack": 20,
+        "lootId": 16,
+        "score": 20
+      },
+      "skill": {
+        "type": "plant"
+      },
+      "crafting": {
+        "yield": 8,
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "orange",
+              "amount": 4
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "compost",
+              "timeMs": 40000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "rotten_orange",
+        "equipTimeMs": 500
+      },
+      "client": {
+        "description": "Gone bad. Eat at your own risk.",
+        "icon": "inv-rotten-orange",
+        "loot": [
+          {
+            "id": 16,
+            "sprite": "day-ground-rotten-orange",
+            "scale": 1,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "orange_seed": {
+      "key": "orange_seed",
+      "id": 14,
+      "clientItemId": 14,
+      "name": "Orange Seed",
+      "properties": {
+        "stack": 40,
+        "lootId": 17,
+        "score": 0
+      },
+      "skill": {
+        "type": "plant"
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "orange",
+              "amount": 4
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "campfire",
+              "timeMs": 20000
+            },
+            {
+              "key": "firepit",
+              "timeMs": 15000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "place_object",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Plant it to grow oranges.",
+        "icon": "inv-orange-seed",
+        "loot": [
+          {
+            "id": 17,
+            "sprite": "day-ground-seed-orange",
+            "scale": 0.9,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "hatchet": {
+      "key": "hatchet",
+      "id": 15,
+      "clientItemId": 15,
+      "name": "Hatchet",
+      "properties": {
+        "stack": 1,
+        "lootId": 18,
+        "score": 0
+      },
+      "skill": {
+        "type": "tool"
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "wood",
+              "amount": 10
+            },
+            {
+              "itemKey": "stone",
+              "amount": 2
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "player",
+              "timeMs": 5000
+            },
+            {
+              "key": "workbench",
+              "timeMs": 10000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "hatchet",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Chops wood and breaks stone.",
+        "icon": "inv-hachet",
+        "loot": [
+          {
+            "id": 18,
+            "sprite": "day-ground-hachet",
+            "scale": 0.9,
+            "angle": 0.5,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "stone_pickaxe": {
+      "key": "stone_pickaxe",
+      "id": 16,
+      "clientItemId": 16,
+      "name": "Stone Pickaxe",
+      "properties": {
+        "stack": 1,
+        "lootId": 19,
+        "score": 0
+      },
+      "skill": {
+        "type": "tool"
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "wood",
+              "amount": 100
+            },
+            {
+              "itemKey": "stone",
+              "amount": 30
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "workbench",
+              "timeMs": 30000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "stone_pickaxe",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Breaks stone and digs iron.",
+        "icon": "inv-stone-pickaxe",
+        "loot": [
+          {
+            "id": 19,
+            "sprite": "day-ground-stone-pickaxe",
+            "scale": 0.7,
+            "angle": 0.3,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "metal_pickaxe": {
+      "key": "metal_pickaxe",
+      "id": 17,
+      "clientItemId": 17,
+      "name": "Metal Pickaxe",
+      "properties": {
+        "stack": 1,
+        "lootId": 20,
+        "score": 0
+      },
+      "skill": {
+        "type": "tool",
+        "requiredLevel": 6,
+        "skillCost": 1
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "shaped_metal",
+              "amount": 6
+            },
+            {
+              "itemKey": "stone",
+              "amount": 150
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "research_bench",
+              "timeMs": 60000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "metal_pickaxe",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Digs sulfur as well.",
+        "icon": "inv-steel-pickaxe",
+        "loot": [
+          {
+            "id": 20,
+            "sprite": "day-ground-steel-pickaxe",
+            "scale": 0.7,
+            "angle": 0.3,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "stone_axe": {
+      "key": "stone_axe",
+      "id": 18,
+      "clientItemId": 18,
+      "name": "Metal Axe",
+      "properties": {
+        "stack": 1,
+        "lootId": 21,
+        "score": 0
+      },
+      "skill": {
+        "type": "tool",
+        "requiredLevel": 5,
+        "skillCost": 1
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "wood",
+              "amount": 150
+            },
+            {
+              "itemKey": "shaped_metal",
+              "amount": 7
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "research_bench",
+              "timeMs": 80000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "stone_axe",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Chops wood fast.",
+        "icon": "inv-stone-axe",
+        "loot": [
+          {
+            "id": 21,
+            "sprite": "day-ground-stone-axe",
+            "scale": 0.7,
+            "angle": 0.5,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "workbench": {
+      "key": "workbench",
+      "id": 19,
+      "clientItemId": 19,
+      "name": "Workbench",
+      "properties": {
+        "stack": 255,
+        "lootId": 22,
+        "score": 0
+      },
+      "skill": {
+        "type": "survival"
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "wood",
+              "amount": 40
+            },
+            {
+              "itemKey": "stone",
+              "amount": 20
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "player",
+              "timeMs": 15000
+            },
+            {
+              "key": "workbench",
+              "timeMs": 15000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "place_object",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Unlocks new crafting recipes.",
+        "icon": "inv-workbench",
+        "loot": [
+          {
+            "id": 22,
+            "sprite": "day-ground-workbench",
+            "scale": 0.7,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "wood_spear": {
+      "key": "wood_spear",
+      "id": 20,
+      "clientItemId": 20,
+      "name": "Wood Spear",
+      "properties": {
+        "stack": 1,
+        "lootId": 23,
+        "score": 0
+      },
+      "skill": {
+        "type": "weapon"
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "wood",
+              "amount": 70
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "player",
+              "timeMs": 15000
+            },
+            {
+              "key": "workbench",
+              "timeMs": 20000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "wood_spear",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Thrown, not kept. Go and fetch it.",
+        "icon": "inv-wood-spear",
+        "loot": [
+          {
+            "id": 23,
+            "sprite": "day-ground-wood-spear",
+            "scale": 0.6,
+            "angle": 0.6,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "wood_bow": {
+      "key": "wood_bow",
+      "id": 21,
+      "clientItemId": 21,
+      "name": "Wood Bow",
+      "properties": {
+        "stack": 1,
+        "lootId": 24,
+        "score": 0
+      },
+      "skill": {
+        "type": "weapon"
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "wood",
+              "amount": 60
+            },
+            {
+              "itemKey": "animal_tendon",
+              "amount": 2
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "player",
+              "timeMs": 35000
+            },
+            {
+              "key": "workbench",
+              "timeMs": 50000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "wood_bow",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Quiet, slow and as old as the hills.",
+        "icon": "inv-wood-bow",
+        "loot": [
+          {
+            "id": 24,
+            "sprite": "day-ground-wood-bow",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "pistol": {
+      "key": "pistol",
+      "id": 22,
+      "clientItemId": 22,
+      "name": "9MM",
+      "properties": {
+        "stack": 1,
+        "lootId": 25,
+        "score": 0
+      },
+      "skill": {
+        "type": "weapon",
+        "requiredLevel": 7,
+        "skillCost": 1
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "junk",
+              "amount": 6
+            },
+            {
+              "itemKey": "shaped_metal",
+              "amount": 9
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "research_bench",
+              "timeMs": 160000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "pistol",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "A small sidearm. Aim carefully.",
+        "icon": "inv-9mm",
+        "loot": [
+          {
+            "id": 25,
+            "sprite": "day-ground-9mm",
+            "scale": 1,
+            "angle": -0.1,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "desert_eagle": {
+      "key": "desert_eagle",
+      "id": 23,
+      "clientItemId": 23,
+      "name": "Hand Cannon",
+      "properties": {
+        "stack": 1,
+        "lootId": 26,
+        "score": 0
+      },
+      "skill": {
+        "type": "weapon",
+        "requiredLevel": 9,
+        "skillCost": 1,
+        "prerequisite": "pistol"
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "alloys",
+              "amount": 4
+            },
+            {
+              "itemKey": "shaped_metal",
+              "amount": 2
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "research_bench",
+              "timeMs": 180000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "desert_eagle",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "A heavy pistol that hits hard.",
+        "icon": "inv-desert-eagle",
+        "loot": [
+          {
+            "id": 26,
+            "sprite": "day-ground-desert-eagle",
+            "scale": 1,
+            "angle": -0.1,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "shotgun": {
+      "key": "shotgun",
+      "id": 24,
+      "clientItemId": 24,
+      "name": "Shotgun",
+      "properties": {
+        "stack": 1,
+        "lootId": 27,
+        "score": 0
+      },
+      "skill": {
+        "type": "weapon",
+        "requiredLevel": 11,
+        "skillCost": 1
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "shaped_metal",
+              "amount": 6
+            },
+            {
+              "itemKey": "alloys",
+              "amount": 6
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "research_bench",
+              "timeMs": 200000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "shotgun",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Brutal up close.",
+        "icon": "inv-shotgun",
+        "loot": [
+          {
+            "id": 27,
+            "sprite": "day-ground-shotgun",
+            "scale": 0.7,
+            "angle": -0.5,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "ak47": {
+      "key": "ak47",
+      "id": 25,
+      "clientItemId": 25,
+      "name": "Assault Rifle",
+      "properties": {
+        "stack": 1,
+        "lootId": 28,
+        "score": 0
+      },
+      "skill": {
+        "type": "weapon",
+        "requiredLevel": 12,
+        "skillCost": 1,
+        "prerequisite": "mp5"
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "shaped_metal",
+              "amount": 8
+            },
+            {
+              "itemKey": "alloys",
+              "amount": 14
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "research_bench",
+              "timeMs": 180000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "ak47",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Full auto with plenty of punch.",
+        "icon": "inv-ak47",
+        "loot": [
+          {
+            "id": 28,
+            "sprite": "day-ground-ak47",
+            "scale": 0.7,
+            "angle": -0.5,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "sniper": {
+      "key": "sniper",
+      "id": 26,
+      "clientItemId": 26,
+      "name": "Sniper",
+      "properties": {
+        "stack": 1,
+        "lootId": 29,
+        "score": 0
+      },
+      "skill": {
+        "type": "weapon",
+        "requiredLevel": 13,
+        "skillCost": 1
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "shaped_metal",
+              "amount": 8
+            },
+            {
+              "itemKey": "alloys",
+              "amount": 10
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "research_bench",
+              "timeMs": 180000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "sniper",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "For patient players who stay out of sight.",
+        "icon": "inv-sniper",
+        "loot": [
+          {
+            "id": 29,
+            "sprite": "day-ground-sniper",
+            "scale": 0.7,
+            "angle": -0.5,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "wood_wall": {
+      "key": "wood_wall",
+      "id": 27,
+      "clientItemId": 27,
+      "name": "Wooden Wall",
+      "properties": {
+        "stack": 255,
+        "lootId": 30,
+        "score": 0
+      },
+      "skill": {
+        "type": "building"
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "wood",
+              "amount": 20
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "workbench",
+              "timeMs": 10000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "place_object",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Keeps the wind and the ghouls out.",
+        "icon": "inv-wood-wall",
+        "loot": [
+          {
+            "id": 30,
+            "sprite": "day-ground-wood-wall",
+            "scale": 0.9,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "stone_wall": {
+      "key": "stone_wall",
+      "id": 28,
+      "clientItemId": 28,
+      "name": "Stone Wall",
+      "properties": {
+        "stack": 255,
+        "lootId": 31,
+        "score": 0
+      },
+      "skill": {
+        "type": "building",
+        "requiredLevel": 3,
+        "skillCost": 1
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "stone",
+              "amount": 20
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "workbench",
+              "timeMs": 15000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "place_object",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Tougher than wood.",
+        "icon": "inv-stone-wall",
+        "loot": [
+          {
+            "id": 31,
+            "sprite": "day-ground-stone-wall",
+            "scale": 0.9,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "steel_wall": {
+      "key": "steel_wall",
+      "id": 29,
+      "clientItemId": 29,
+      "name": "Metal Wall",
+      "properties": {
+        "stack": 255,
+        "lootId": 32,
+        "score": 0
+      },
+      "skill": {
+        "type": "building",
+        "requiredLevel": 6,
+        "skillCost": 1,
+        "prerequisite": "stone_wall"
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "shaped_metal",
+              "amount": 3
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "research_bench",
+              "timeMs": 20000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "place_object",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "The strongest wall you can build.",
+        "icon": "inv-steel-wall",
+        "loot": [
+          {
+            "id": 32,
+            "sprite": "day-ground-steel-wall",
+            "scale": 0.9,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "wood_low_door": {
+      "key": "wood_low_door",
+      "id": 30,
+      "clientItemId": 30,
+      "name": "Wooden Low Door",
+      "properties": {
+        "stack": 255,
+        "lootId": 33,
+        "score": 0
+      },
+      "skill": {
+        "type": "building"
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "wood",
+              "amount": 40
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "workbench",
+              "timeMs": 15000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "place_object",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Waist-high: bullets go over it.",
+        "icon": "inv-wood-door",
+        "loot": [
+          {
+            "id": 33,
+            "sprite": "day-ground-wood-door",
+            "scale": 0.9,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "stone_low_door": {
+      "key": "stone_low_door",
+      "id": 31,
+      "clientItemId": 31,
+      "name": "Stone Low Door",
+      "properties": {
+        "stack": 255,
+        "lootId": 34,
+        "score": 0
+      },
+      "skill": {
+        "type": "building",
+        "requiredLevel": 3,
+        "skillCost": 1
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "stone",
+              "amount": 40
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "workbench",
+              "timeMs": 15000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "place_object",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Waist-high: bullets go over it.",
+        "icon": "inv-stone-door",
+        "loot": [
+          {
+            "id": 34,
+            "sprite": "day-ground-stone-door",
+            "scale": 0.9,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "steel_low_door": {
+      "key": "steel_low_door",
+      "id": 32,
+      "clientItemId": 32,
+      "name": "Metal Low Door",
+      "properties": {
+        "stack": 255,
+        "lootId": 35,
+        "score": 0
+      },
+      "skill": {
+        "type": "building",
+        "requiredLevel": 6,
+        "skillCost": 1,
+        "prerequisite": "stone_low_door"
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "shaped_metal",
+              "amount": 6
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "research_bench",
+              "timeMs": 30000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "place_object",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Waist-high and tough. Bullets go over it.",
+        "icon": "inv-steel-door",
+        "loot": [
+          {
+            "id": 35,
+            "sprite": "day-ground-steel-door",
+            "scale": 0.9,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "campfire": {
+      "key": "campfire",
+      "id": 33,
+      "clientItemId": 33,
+      "name": "Campfire",
+      "properties": {
+        "stack": 255,
+        "lootId": 36,
+        "score": 0
+      },
+      "skill": {
+        "type": "survival"
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "wood",
+              "amount": 30
+            },
+            {
+              "itemKey": "stone",
+              "amount": 5
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "player",
+              "timeMs": 8000
+            },
+            {
+              "key": "workbench",
+              "timeMs": 15000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "place_object",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Warms you up on cold nights.",
+        "icon": "inv-campfire",
+        "loot": [
+          {
+            "id": 36,
+            "sprite": "day-ground-campfire",
+            "scale": 0.7,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "9mm_bullet": {
+      "key": "9mm_bullet",
+      "id": 34,
+      "clientItemId": 34,
+      "name": "Bullet",
+      "properties": {
+        "stack": 255,
+        "lootId": 37,
+        "score": 0
+      },
+      "skill": {
+        "type": "weapon",
+        "requiredLevel": 6,
+        "skillCost": 1
+      },
+      "crafting": {
+        "yield": 30,
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "sulfur",
+              "amount": 3
+            },
+            {
+              "itemKey": "shaped_metal",
+              "amount": 3
+            },
+            {
+              "itemKey": "animal_fat",
+              "amount": 3
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "research_bench",
+              "timeMs": 10000
+            }
+          ]
+        }
+      },
+      "client": {
+        "description": "Ammo for the 9MM, Hand Cannon and SMG.",
+        "icon": "inv-bullet-9mm",
+        "loot": [
+          {
+            "id": 37,
+            "sprite": "day-ground-bullet-9mm",
+            "scale": 1,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "12g_pellet": {
+      "key": "12g_pellet",
+      "id": 35,
+      "clientItemId": 35,
+      "name": "Cartridge",
+      "properties": {
+        "stack": 255,
+        "lootId": 38,
+        "score": 0
+      },
+      "skill": {
+        "type": "weapon",
+        "requiredLevel": 10,
+        "skillCost": 1
+      },
+      "crafting": {
+        "yield": 15,
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "alloys",
+              "amount": 1
+            },
+            {
+              "itemKey": "shaped_metal",
+              "amount": 4
+            },
+            {
+              "itemKey": "animal_fat",
+              "amount": 4
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "research_bench",
+              "timeMs": 10000
+            }
+          ]
+        }
+      },
+      "client": {
+        "description": "Shotgun shells.",
+        "icon": "inv-bullet-shotgun",
+        "loot": [
+          {
+            "id": 38,
+            "sprite": "day-ground-bullet-shotgun",
+            "scale": 1,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "762_round": {
+      "key": "762_round",
+      "id": 36,
+      "clientItemId": 36,
+      "name": "Heavy Bullet",
+      "properties": {
+        "stack": 255,
+        "lootId": 39,
+        "score": 0
+      },
+      "skill": {
+        "type": "weapon",
+        "requiredLevel": 11,
+        "skillCost": 1
+      },
+      "crafting": {
+        "yield": 30,
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "alloys",
+              "amount": 1
+            },
+            {
+              "itemKey": "shaped_metal",
+              "amount": 4
+            },
+            {
+              "itemKey": "animal_fat",
+              "amount": 4
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "research_bench",
+              "timeMs": 10000
+            }
+          ]
+        }
+      },
+      "client": {
+        "description": "Ammo for the Sniper and Assault Rifle.",
+        "icon": "inv-bullet-sniper",
+        "loot": [
+          {
+            "id": 39,
+            "sprite": "day-ground-bullet-sniper",
+            "scale": 1.1,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "medkit": {
+      "key": "medkit",
+      "id": 37,
+      "clientItemId": 37,
+      "name": "Medkit",
+      "properties": {
+        "stack": 2,
+        "lootId": 40,
+        "score": 0
+      },
+      "skill": {
+        "type": "drug",
+        "requiredLevel": 10,
+        "skillCost": 1
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "string",
+              "amount": 2
+            },
+            {
+              "itemKey": "bandage",
+              "amount": 1
+            },
+            {
+              "itemKey": "leather",
+              "amount": 2
+            },
+            {
+              "itemKey": "shaped_metal",
+              "amount": 2
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "research_bench",
+              "timeMs": 80000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "medkit",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Restores a lot of health.",
+        "icon": "inv-medikit",
+        "loot": [
+          {
+            "id": 40,
+            "sprite": "day-ground-medikit",
+            "scale": 0.9,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "bandage": {
+      "key": "bandage",
+      "id": 38,
+      "clientItemId": 38,
+      "name": "Bandage",
+      "properties": {
+        "stack": 5,
+        "lootId": 41,
+        "score": 0
+      },
+      "skill": {
+        "type": "drug"
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "string",
+              "amount": 1
+            },
+            {
+              "itemKey": "leather",
+              "amount": 2
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "weaving",
+              "timeMs": 20000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "bandage",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Patches up small wounds.",
+        "icon": "inv-bandage",
+        "loot": [
+          {
+            "id": 41,
+            "sprite": "day-ground-bandage",
+            "scale": 1,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "soda": {
+      "key": "soda",
+      "id": 39,
+      "clientItemId": 39,
+      "name": "Soda",
+      "properties": {
+        "stack": 5,
+        "lootId": 42,
+        "score": 0
+      },
+      "skill": {
+        "type": "survival",
+        "requiredLevel": 5,
+        "skillCost": 1
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "can",
+              "amount": 1
+            },
+            {
+              "itemKey": "ghoul_blood",
+              "amount": 1
+            },
+            {
+              "itemKey": "chemical_component",
+              "amount": 1
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "campfire",
+              "timeMs": 40000
+            },
+            {
+              "key": "firepit",
+              "timeMs": 40000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "soda",
+        "equipTimeMs": 1000
+      },
+      "decay": {
+        "transformTo": "can",
+        "timeMs": 960000
+      },
+      "client": {
+        "description": "A sugary energy boost.",
+        "icon": "inv-soda",
+        "loot": [
+          {
+            "id": 42,
+            "sprite": "day-ground-soda",
+            "scale": 1.2,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "mp5": {
+      "key": "mp5",
+      "id": 40,
+      "clientItemId": 40,
+      "name": "SMG",
+      "properties": {
+        "stack": 1,
+        "lootId": 43,
+        "score": 0
+      },
+      "skill": {
+        "type": "weapon",
+        "requiredLevel": 10,
+        "skillCost": 1
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "shaped_metal",
+              "amount": 6
+            },
+            {
+              "itemKey": "alloys",
+              "amount": 6
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "research_bench",
+              "timeMs": 200000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "mp5",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Fast-firing and reliable.",
+        "icon": "inv-MP5",
+        "loot": [
+          {
+            "id": 43,
+            "sprite": "day-ground-MP5",
+            "scale": 0.8,
+            "angle": -0.5,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "headscarf": {
+      "key": "headscarf",
+      "id": 41,
+      "clientItemId": 41,
+      "name": "Headscarf",
+      "properties": {
+        "stack": 1,
+        "lootId": 44,
+        "score": 0
+      },
+      "skill": {
+        "type": "clothe"
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "string",
+              "amount": 1
+            },
+            {
+              "itemKey": "leather",
+              "amount": 1
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "weaving",
+              "timeMs": 60000
+            }
+          ]
+        }
+      },
+      "wearable": {
+        "key": "headscarf",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Keeps your head warm.",
+        "icon": "inv-headscarf",
+        "loot": [
+          {
+            "id": 44,
+            "sprite": "day-ground-headscarf",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "chapka": {
+      "key": "chapka",
+      "id": 42,
+      "clientItemId": 42,
+      "name": "Chapka",
+      "properties": {
+        "stack": 1,
+        "lootId": 45,
+        "score": 0
+      },
+      "skill": {
+        "type": "clothe",
+        "requiredLevel": 7,
+        "skillCost": 1
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "string",
+              "amount": 6
+            },
+            {
+              "itemKey": "leather",
+              "amount": 8
+            },
+            {
+              "itemKey": "headscarf",
+              "amount": 1
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "weaving",
+              "timeMs": 120000
+            }
+          ]
+        }
+      },
+      "wearable": {
+        "key": "chapka",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "A fur hat for the deep cold.",
+        "icon": "inv-chapka",
+        "loot": [
+          {
+            "id": 45,
+            "sprite": "day-ground-chapka",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "winter_coat": {
+      "key": "winter_coat",
+      "id": 43,
+      "clientItemId": 43,
+      "name": "Winter Coat",
+      "properties": {
+        "stack": 1,
+        "lootId": 46,
+        "score": 0
+      },
+      "skill": {
+        "type": "clothe",
+        "requiredLevel": 9,
+        "skillCost": 1,
+        "prerequisite": "chapka"
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "string",
+              "amount": 15
+            },
+            {
+              "itemKey": "leather",
+              "amount": 20
+            },
+            {
+              "itemKey": "chapka",
+              "amount": 1
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "weaving",
+              "timeMs": 180000
+            }
+          ]
+        }
+      },
+      "wearable": {
+        "key": "winter_coat",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "A heavy coat for freezing weather.",
+        "icon": "inv-coat",
+        "loot": [
+          {
+            "id": 46,
+            "sprite": "day-ground-coat",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "gaz_mask": {
+      "key": "gaz_mask",
+      "id": 44,
+      "clientItemId": 44,
+      "name": "Radiation Mask",
+      "properties": {
+        "stack": 1,
+        "lootId": 47,
+        "score": 0
+      },
+      "skill": {
+        "type": "clothe"
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "string",
+              "amount": 1
+            },
+            {
+              "itemKey": "leather",
+              "amount": 2
+            },
+            {
+              "itemKey": "shaped_metal",
+              "amount": 1
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "weaving",
+              "timeMs": 60000
+            }
+          ]
+        }
+      },
+      "wearable": {
+        "key": "gaz_mask",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Filters out radiation.",
+        "icon": "inv-gaz-mask",
+        "loot": [
+          {
+            "id": 47,
+            "sprite": "day-ground-gaz-mask",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "gaz_protection": {
+      "key": "gaz_protection",
+      "id": 45,
+      "clientItemId": 45,
+      "name": "Min. Radiation Suit",
+      "properties": {
+        "stack": 1,
+        "lootId": 48,
+        "score": 0
+      },
+      "skill": {
+        "type": "clothe",
+        "requiredLevel": 8,
+        "skillCost": 1
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "gaz_mask",
+              "amount": 1
+            },
+            {
+              "itemKey": "leather",
+              "amount": 4
+            },
+            {
+              "itemKey": "string",
+              "amount": 4
+            },
+            {
+              "itemKey": "shaped_metal",
+              "amount": 2
+            },
+            {
+              "itemKey": "alloys",
+              "amount": 2
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "weaving",
+              "timeMs": 90000
+            }
+          ]
+        }
+      },
+      "wearable": {
+        "key": "gaz_protection",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Light protection against radiation.",
+        "icon": "inv-gaz-protection",
+        "loot": [
+          {
+            "id": 48,
+            "sprite": "day-ground-gaz-protection",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "radiation_suit": {
+      "key": "radiation_suit",
+      "id": 46,
+      "clientItemId": 46,
+      "name": "Radiation Suit",
+      "properties": {
+        "stack": 1,
+        "lootId": 49,
+        "score": 0
+      },
+      "skill": {
+        "type": "clothe",
+        "requiredLevel": 10,
+        "skillCost": 1,
+        "prerequisite": "gaz_protection"
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "gaz_protection",
+              "amount": 1
+            },
+            {
+              "itemKey": "leather",
+              "amount": 20
+            },
+            {
+              "itemKey": "string",
+              "amount": 8
+            },
+            {
+              "itemKey": "shaped_metal",
+              "amount": 4
+            },
+            {
+              "itemKey": "alloys",
+              "amount": 6
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "weaving",
+              "timeMs": 180000
+            }
+          ]
+        }
+      },
+      "wearable": {
+        "key": "radiation_suit",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Full protection against radiation.",
+        "icon": "inv-radiation-suit",
+        "loot": [
+          {
+            "id": 49,
+            "sprite": "day-ground-radiation-suit",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "wood_arrow": {
+      "key": "wood_arrow",
+      "id": 47,
+      "clientItemId": 47,
+      "name": "Wood Arrow",
+      "properties": {
+        "stack": 255,
+        "lootId": 50,
+        "score": 0
+      },
+      "skill": {
+        "type": "weapon"
+      },
+      "crafting": {
+        "yield": 5,
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "wood",
+              "amount": 40
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "player",
+              "timeMs": 15000
+            },
+            {
+              "key": "workbench",
+              "timeMs": 10000
+            }
+          ]
+        }
+      },
+      "client": {
+        "description": "Ammo for the bow.",
+        "icon": "inv-wood-arrow",
+        "loot": [
+          {
+            "id": 50,
+            "sprite": "day-ground-wood-arrow",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "firepit": {
+      "key": "firepit",
+      "id": 48,
+      "clientItemId": 48,
+      "name": "Firepit",
+      "properties": {
+        "stack": 255,
+        "lootId": 51,
+        "score": 0
+      },
+      "skill": {
+        "type": "survival",
+        "requiredLevel": 3,
+        "skillCost": 1
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "wood",
+              "amount": 120
+            },
+            {
+              "itemKey": "stone",
+              "amount": 20
+            },
+            {
+              "itemKey": "iron",
+              "amount": 4
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "workbench",
+              "timeMs": 20000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "place_object",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Warms you and slowly smelts iron.",
+        "icon": "inv-campfire-bbq",
+        "loot": [
+          {
+            "id": 51,
+            "sprite": "day-ground-campfire-bbq",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "smelter": {
+      "key": "smelter",
+      "id": 49,
+      "clientItemId": 49,
+      "name": "Smelter",
+      "properties": {
+        "stack": 255,
+        "lootId": 52,
+        "score": 0
+      },
+      "skill": {
+        "type": "survival",
+        "requiredLevel": 10,
+        "skillCost": 1
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "shaped_metal",
+              "amount": 6
+            },
+            {
+              "itemKey": "electronics",
+              "amount": 1
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "research_bench",
+              "timeMs": 100000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "place_object",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Smelts iron, uranium and alloys.",
+        "icon": "inv-smelter",
+        "loot": [
+          {
+            "id": 52,
+            "sprite": "day-ground-smelter",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "wood_door": {
+      "key": "wood_door",
+      "id": 50,
+      "clientItemId": 50,
+      "name": "Wooden Door",
+      "properties": {
+        "stack": 255,
+        "lootId": 53,
+        "score": 0
+      },
+      "skill": {
+        "type": "building"
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "wood",
+              "amount": 60
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "workbench",
+              "timeMs": 20000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "place_object",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "A simple door. It won't hold forever.",
+        "icon": "inv-wood-door1",
+        "loot": [
+          {
+            "id": 53,
+            "sprite": "day-ground-wood-door1",
+            "scale": 0.9,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "stone_door": {
+      "key": "stone_door",
+      "id": 51,
+      "clientItemId": 51,
+      "name": "Stone Door",
+      "properties": {
+        "stack": 255,
+        "lootId": 54,
+        "score": 0
+      },
+      "skill": {
+        "type": "building",
+        "requiredLevel": 3,
+        "skillCost": 1
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "stone",
+              "amount": 60
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "workbench",
+              "timeMs": 20000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "place_object",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "A solid stone door.",
+        "icon": "inv-stone-door1",
+        "loot": [
+          {
+            "id": 54,
+            "sprite": "day-ground-stone-door1",
+            "scale": 0.9,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "steel_door": {
+      "key": "steel_door",
+      "id": 52,
+      "clientItemId": 52,
+      "name": "Metal Door",
+      "properties": {
+        "stack": 255,
+        "lootId": 55,
+        "score": 0
+      },
+      "skill": {
+        "type": "building",
+        "requiredLevel": 6,
+        "skillCost": 1,
+        "prerequisite": "stone_door"
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "shaped_metal",
+              "amount": 9
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "research_bench",
+              "timeMs": 40000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "place_object",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "The toughest door around.",
+        "icon": "inv-steel-door1",
+        "loot": [
+          {
+            "id": 55,
+            "sprite": "day-ground-steel-door1",
+            "scale": 0.9,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "sulfur": {
+      "key": "sulfur",
+      "id": 53,
+      "clientItemId": 53,
+      "name": "Sulfur",
+      "properties": {
+        "stack": 255,
+        "lootId": 56,
+        "score": 32
+      },
+      "skill": {
+        "type": "mineral"
+      },
+      "crafting": {
+        "extractor": {
+          "timeMs": 240000,
+          "outputMin": 4,
+          "outputMax": 12
+        }
+      },
+      "client": {
+        "description": "A yellow mineral used in explosives.",
+        "icon": "inv-sulfur",
+        "loot": [
+          {
+            "id": 56,
+            "sprite": "day-ground-sulfur",
+            "scale": 1,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "shaped_uranium": {
+      "key": "shaped_uranium",
+      "id": 54,
+      "clientItemId": 54,
+      "name": "Shaped Uranium",
+      "properties": {
+        "stack": 255,
+        "lootId": 57,
+        "score": 0
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "uranium",
+              "amount": 1
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "smelter",
+              "timeMs": 20000
+            }
+          ]
+        }
+      },
+      "client": {
+        "description": "Refined uranium. Handle with care.",
+        "icon": "inv-shaped-uranium",
+        "loot": [
+          {
+            "id": 57,
+            "sprite": "day-ground-shaped-uranium",
+            "scale": 1,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "research_bench": {
+      "key": "research_bench",
+      "id": 55,
+      "clientItemId": 55,
+      "name": "Research Bench",
+      "properties": {
+        "stack": 255,
+        "lootId": 58,
+        "score": 0
+      },
+      "skill": {
+        "type": "survival",
+        "requiredLevel": 6,
+        "skillCost": 1
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "shaped_metal",
+              "amount": 6
+            },
+            {
+              "itemKey": "electronics",
+              "amount": 1
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "workbench",
+              "timeMs": 50000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "place_object",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Unlocks advanced crafting recipes.",
+        "icon": "inv-workbench2",
+        "loot": [
+          {
+            "id": 58,
+            "sprite": "day-ground-workbench2",
+            "scale": 1,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "uranium": {
+      "key": "uranium",
+      "id": 56,
+      "clientItemId": 56,
+      "name": "Uranium",
+      "properties": {
+        "stack": 255,
+        "lootId": 59,
+        "score": 45
+      },
+      "skill": {
+        "type": "mineral"
+      },
+      "crafting": {
+        "extractor": {
+          "timeMs": 240000,
+          "outputMin": 2,
+          "outputMax": 6
+        }
+      },
+      "client": {
+        "description": "Radioactive ore. Keep your distance.",
+        "icon": "inv-uranium",
+        "loot": [
+          {
+            "id": 59,
+            "sprite": "day-ground-uranium",
+            "scale": 1,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "weaving": {
+      "key": "weaving",
+      "id": 57,
+      "clientItemId": 57,
+      "name": "Weaving Machine",
+      "properties": {
+        "stack": 255,
+        "lootId": 60,
+        "score": 0
+      },
+      "skill": {
+        "type": "survival"
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "wood",
+              "amount": 80
+            },
+            {
+              "itemKey": "stone",
+              "amount": 20
+            },
+            {
+              "itemKey": "string",
+              "amount": 2
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "workbench",
+              "timeMs": 60000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "place_object",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Sews clothing.",
+        "icon": "inv-weaving-machine",
+        "loot": [
+          {
+            "id": 60,
+            "sprite": "day-ground-weaving-machine",
+            "scale": 1,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "gasoline": {
+      "key": "gasoline",
+      "id": 58,
+      "clientItemId": 58,
+      "name": "Gasoline",
+      "properties": {
+        "stack": 255,
+        "lootId": 61,
+        "score": 0
+      },
+      "skill": {
+        "type": "survival"
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "rotten_orange",
+              "amount": 4
+            },
+            {
+              "itemKey": "sulfur",
+              "amount": 1
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "research_bench",
+              "timeMs": 20000
+            }
+          ]
+        }
+      },
+      "client": {
+        "description": "Fuel for the smelter.",
+        "icon": "inv-gasoline",
+        "loot": [
+          {
+            "id": 61,
+            "sprite": "day-ground-gasoline",
+            "scale": 1,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "sulfur_pickaxe": {
+      "key": "sulfur_pickaxe",
+      "id": 59,
+      "clientItemId": 59,
+      "name": "Sulfur Pickaxe",
+      "properties": {
+        "stack": 1,
+        "lootId": 62,
+        "score": 0
+      },
+      "skill": {
+        "type": "tool",
+        "requiredLevel": 9,
+        "skillCost": 1,
+        "prerequisite": "metal_pickaxe"
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "shaped_metal",
+              "amount": 6
+            },
+            {
+              "itemKey": "sulfur",
+              "amount": 6
+            },
+            {
+              "itemKey": "alloys",
+              "amount": 2
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "research_bench",
+              "timeMs": 90000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "sulfur_pickaxe",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Digs uranium as well.",
+        "icon": "inv-sulfur-pickaxe",
+        "loot": [
+          {
+            "id": 62,
+            "sprite": "day-ground-sulfur-pickaxe",
+            "scale": 0.7,
+            "angle": 0.3,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "wood_chest": {
+      "key": "wood_chest",
+      "id": 60,
+      "clientItemId": 60,
+      "name": "Wood chest",
+      "properties": {
+        "stack": 255,
+        "lootId": 63,
+        "score": 0
+      },
+      "skill": {
+        "type": "building",
+        "requiredLevel": 8,
+        "skillCost": 1
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "wood",
+              "amount": 50
+            },
+            {
+              "itemKey": "stone",
+              "amount": 20
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "workbench",
+              "timeMs": 30000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "place_object",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Stores items, but not food.",
+        "icon": "inv-chest",
+        "loot": [
+          {
+            "id": 63,
+            "sprite": "day-ground-chest",
+            "scale": 0.7,
+            "angle": 0.3,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "fridge": {
+      "key": "fridge",
+      "id": 61,
+      "clientItemId": 61,
+      "name": "Fridge",
+      "properties": {
+        "stack": 255,
+        "lootId": 64,
+        "score": 0
+      },
+      "skill": {
+        "type": "building",
+        "requiredLevel": 9,
+        "skillCost": 1
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "shaped_metal",
+              "amount": 5
+            },
+            {
+              "itemKey": "energy_cells",
+              "amount": 4
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "research_bench",
+              "timeMs": 90000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "place_object",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Keeps food from rotting.",
+        "icon": "inv-fridge",
+        "loot": [
+          {
+            "id": 64,
+            "sprite": "day-ground-fridge",
+            "scale": 0.7,
+            "angle": 0.3,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "wood_floor": {
+      "key": "wood_floor",
+      "id": 62,
+      "clientItemId": 62,
+      "name": "Wood floor",
+      "properties": {
+        "stack": 255,
+        "lootId": 65,
+        "score": 0
+      },
+      "skill": {
+        "type": "building"
+      },
+      "crafting": {
+        "yield": 2,
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "wood",
+              "amount": 15
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "workbench",
+              "timeMs": 15000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "place_object",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Nobody can spawn on top of it.",
+        "icon": "inv-wood-floor",
+        "loot": [
+          {
+            "id": 65,
+            "sprite": "day-ground-wood-floor",
+            "scale": 0.9,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "hammer": {
+      "key": "hammer",
+      "id": 63,
+      "clientItemId": 63,
+      "name": "Hammer",
+      "properties": {
+        "stack": 1,
+        "lootId": 66,
+        "score": 0
+      },
+      "skill": {
+        "type": "tool",
+        "requiredLevel": 7,
+        "skillCost": 1
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "shaped_metal",
+              "amount": 10
+            },
+            {
+              "itemKey": "wood",
+              "amount": 100
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "research_bench",
+              "timeMs": 30000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "hammer",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Knocks walls down fast.",
+        "icon": "inv-hammer",
+        "loot": [
+          {
+            "id": 66,
+            "sprite": "day-ground-hammer",
+            "scale": 0.7,
+            "angle": 0.3,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "sleeping_bag": {
+      "key": "sleeping_bag",
+      "id": 64,
+      "clientItemId": 64,
+      "name": "Sleeping Bag",
+      "properties": {
+        "stack": 255,
+        "lootId": 67,
+        "score": 0
+      },
+      "skill": {
+        "type": "survival",
+        "requiredLevel": 9,
+        "skillCost": 1
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "string",
+              "amount": 7
+            },
+            {
+              "itemKey": "animal_fat",
+              "amount": 7
+            },
+            {
+              "itemKey": "leather",
+              "amount": 7
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "weaving",
+              "timeMs": 20000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "place_object",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Respawn at your base after you die.",
+        "icon": "inv-sleeping-bag",
+        "loot": [
+          {
+            "id": 67,
+            "sprite": "day-ground-sleeping-bag",
+            "scale": 0.7,
+            "angle": 0.3,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "repair_hammer": {
+      "key": "repair_hammer",
+      "id": 65,
+      "clientItemId": 65,
+      "name": "Repair Hammer",
+      "properties": {
+        "stack": 1,
+        "lootId": 68,
+        "score": 0
+      },
+      "skill": {
+        "type": "tool",
+        "requiredLevel": 5,
+        "skillCost": 1
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "shaped_metal",
+              "amount": 2
+            },
+            {
+              "itemKey": "wood",
+              "amount": 120
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "workbench",
+              "timeMs": 30000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "repair_hammer",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Fixes walls. Uses nails.",
+        "icon": "inv-repair-hammer",
+        "loot": [
+          {
+            "id": 68,
+            "sprite": "day-ground-repair-hammer",
+            "scale": 0.7,
+            "angle": 0.3,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "nails": {
+      "key": "nails",
+      "id": 66,
+      "clientItemId": 66,
+      "name": "Nails",
+      "properties": {
+        "stack": 255,
+        "lootId": 69,
+        "score": 0
+      },
+      "skill": {
+        "type": "survival"
+      },
+      "crafting": {
+        "yield": 85,
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "shaped_metal",
+              "amount": 2
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "workbench",
+              "timeMs": 20000
+            }
+          ]
+        }
+      },
+      "client": {
+        "description": "The repair hammer runs on these.",
+        "icon": "inv-nails",
+        "loot": [
+          {
+            "id": 69,
+            "sprite": "day-ground-nails",
+            "scale": 0.7,
+            "angle": 0.3,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "woodlight_floor": {
+      "key": "woodlight_floor",
+      "id": 67,
+      "clientItemId": 67,
+      "name": "Light Wood Floor",
+      "properties": {
+        "stack": 255,
+        "lootId": 70,
+        "score": 0
+      },
+      "skill": {
+        "type": "building"
+      },
+      "crafting": {
+        "yield": 2,
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "wood",
+              "amount": 15
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "workbench",
+              "timeMs": 15000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "place_object",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Nobody can spawn on top of it.",
+        "icon": "inv-wood-floor-light",
+        "loot": [
+          {
+            "id": 70,
+            "sprite": "day-ground-wood-floor-light",
+            "scale": 0.7,
+            "angle": 0.3,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "wood_low_wall": {
+      "key": "wood_low_wall",
+      "id": 68,
+      "clientItemId": 68,
+      "name": "Wooden Low Wall",
+      "properties": {
+        "stack": 255,
+        "lootId": 71,
+        "score": 0
+      },
+      "skill": {
+        "type": "building"
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "wood",
+              "amount": 10
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "workbench",
+              "timeMs": 10000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "place_object",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Waist-high: bullets go over it.",
+        "icon": "inv-wood-smallwall",
+        "loot": [
+          {
+            "id": 71,
+            "sprite": "day-ground-wood-smallwall",
+            "scale": 0.9,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "stone_low_wall": {
+      "key": "stone_low_wall",
+      "id": 69,
+      "clientItemId": 69,
+      "name": "Stone Low Wall",
+      "properties": {
+        "stack": 255,
+        "lootId": 72,
+        "score": 0
+      },
+      "skill": {
+        "type": "building",
+        "requiredLevel": 3,
+        "skillCost": 1
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "stone",
+              "amount": 10
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "workbench",
+              "timeMs": 15000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "place_object",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Waist-high: bullets go over it.",
+        "icon": "inv-stone-smallwall",
+        "loot": [
+          {
+            "id": 72,
+            "sprite": "day-ground-stone-smallwall",
+            "scale": 0.9,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "steel_low_wall": {
+      "key": "steel_low_wall",
+      "id": 70,
+      "clientItemId": 70,
+      "name": "Metal Low Wall",
+      "properties": {
+        "stack": 255,
+        "lootId": 73,
+        "score": 0
+      },
+      "skill": {
+        "type": "building",
+        "requiredLevel": 6,
+        "skillCost": 1,
+        "prerequisite": "stone_low_wall"
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "shaped_metal",
+              "amount": 2
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "research_bench",
+              "timeMs": 20000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "place_object",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Waist-high: bullets go over it.",
+        "icon": "inv-steel-smallwall",
+        "loot": [
+          {
+            "id": 73,
+            "sprite": "day-ground-steel-smallwall",
+            "scale": 0.9,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "furniture": {
+      "key": "furniture",
+      "id": 71,
+      "clientItemId": 71,
+      "name": "Furniture",
+      "client": {}
+    },
+    "tomato_soup": {
+      "key": "tomato_soup",
+      "id": 72,
+      "clientItemId": 72,
+      "name": "Tomato Soup",
+      "properties": {
+        "stack": 5,
+        "lootId": 74,
+        "score": 0
+      },
+      "skill": {
+        "type": "survival"
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "can",
+              "amount": 1
+            },
+            {
+              "itemKey": "tomato",
+              "amount": 2
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "campfire",
+              "timeMs": 15000
+            },
+            {
+              "key": "firepit",
+              "timeMs": 7000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "tomato_soup",
+        "equipTimeMs": 500
+      },
+      "decay": {
+        "transformTo": "can",
+        "timeMs": 840000
+      },
+      "client": {
+        "description": "Still sealed. Open it and eat.",
+        "icon": "inv-tomato-soup",
+        "loot": [
+          {
+            "id": 74,
+            "sprite": "day-ground-tomato-soup",
+            "scale": 0.9,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "syringe": {
+      "key": "syringe",
+      "id": 73,
+      "clientItemId": 73,
+      "name": "Syringe",
+      "properties": {
+        "stack": 20,
+        "lootId": 75,
+        "score": 50
+      },
+      "skill": {
+        "type": "drug"
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "junk",
+              "amount": 1
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "research_bench",
+              "timeMs": 30000
+            }
+          ]
+        }
+      },
+      "client": {
+        "description": "Used to make drugs.",
+        "icon": "inv-syringe",
+        "loot": [
+          {
+            "id": 75,
+            "sprite": "day-ground-syringe",
+            "scale": 0.9,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "chemical_component": {
+      "key": "chemical_component",
+      "id": 74,
+      "clientItemId": 74,
+      "name": "Chemical Component",
+      "properties": {
+        "stack": 20,
+        "lootId": 76,
+        "score": 50
+      },
+      "client": {
+        "description": "An ingredient for drugs.",
+        "icon": "inv-chemical-component",
+        "loot": [
+          {
+            "id": 76,
+            "sprite": "day-ground-chemical-component",
+            "scale": 0.9,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "radaway": {
+      "key": "radaway",
+      "id": 75,
+      "clientItemId": 75,
+      "name": "Rad Flush",
+      "properties": {
+        "stack": 5,
+        "lootId": 77,
+        "score": 0
+      },
+      "skill": {
+        "type": "drug"
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "syringe",
+              "amount": 1
+            },
+            {
+              "itemKey": "chemical_component",
+              "amount": 1
+            },
+            {
+              "itemKey": "mushroom2",
+              "amount": 1
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "agitator",
+              "timeMs": 45000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "radaway",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Flushes out most of your radiation.",
+        "icon": "inv-radaway",
+        "loot": [
+          {
+            "id": 77,
+            "sprite": "day-ground-radaway",
+            "scale": 0.9,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "tomato_seed": {
+      "key": "tomato_seed",
+      "id": 76,
+      "clientItemId": 76,
+      "name": "Tomato Seed",
+      "properties": {
+        "stack": 40,
+        "lootId": 78,
+        "score": 0
+      },
+      "skill": {
+        "type": "plant"
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "tomato",
+              "amount": 4
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "campfire",
+              "timeMs": 30000
+            },
+            {
+              "key": "firepit",
+              "timeMs": 20000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "place_object",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Plant it to grow tomatoes.",
+        "icon": "inv-tomato-seed",
+        "loot": [
+          {
+            "id": 78,
+            "sprite": "day-ground-seed-tomato",
+            "scale": 0.9,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "tomato": {
+      "key": "tomato",
+      "id": 77,
+      "clientItemId": 77,
+      "name": "Tomato",
+      "properties": {
+        "stack": 20,
+        "lootId": 79,
+        "score": 24
+      },
+      "equipable": {
+        "key": "tomato",
+        "equipTimeMs": 500
+      },
+      "decay": {
+        "transformTo": "rotten_tomato",
+        "timeMs": 240000
+      },
+      "client": {
+        "description": "Fresh and juicy.",
+        "icon": "inv-tomato",
+        "loot": [
+          {
+            "id": 79,
+            "sprite": "day-ground-tomato",
+            "scale": 0.9,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "rotten_tomato": {
+      "key": "rotten_tomato",
+      "id": 78,
+      "clientItemId": 78,
+      "name": "Rotten Tomato",
+      "properties": {
+        "stack": 20,
+        "lootId": 80,
+        "score": 20
+      },
+      "equipable": {
+        "key": "rotten_tomato",
+        "equipTimeMs": 500
+      },
+      "client": {
+        "description": "Gone bad. Eat at your own risk.",
+        "icon": "inv-rotten-tomato",
+        "loot": [
+          {
+            "id": 80,
+            "sprite": "day-ground-rotten-tomato",
+            "scale": 0.9,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "can": {
+      "key": "can",
+      "id": 79,
+      "clientItemId": 79,
+      "name": "Can",
+      "properties": {
+        "stack": 255,
+        "lootId": 81,
+        "score": 0
+      },
+      "skill": {
+        "type": "survival"
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "shaped_metal",
+              "amount": 1
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "workbench",
+              "timeMs": 20000
+            }
+          ]
+        }
+      },
+      "client": {
+        "description": "Used to make canned food.",
+        "icon": "inv-can",
+        "loot": [
+          {
+            "id": 81,
+            "sprite": "day-ground-can",
+            "scale": 0.9,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "wood_crossbow": {
+      "key": "wood_crossbow",
+      "id": 80,
+      "clientItemId": 80,
+      "name": "Wood Crossbow",
+      "properties": {
+        "stack": 1,
+        "lootId": 82,
+        "score": 0
+      },
+      "skill": {
+        "type": "weapon",
+        "requiredLevel": 6,
+        "skillCost": 1
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "wood",
+              "amount": 200
+            },
+            {
+              "itemKey": "string",
+              "amount": 2
+            },
+            {
+              "itemKey": "shaped_metal",
+              "amount": 1
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "workbench",
+              "timeMs": 50000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "wood_crossbow",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Fires faster than a bow, reloads slower.",
+        "icon": "inv-wood-crossbow",
+        "loot": [
+          {
+            "id": 82,
+            "sprite": "day-ground-wood-crossbow",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "wood_crossarrow": {
+      "key": "wood_crossarrow",
+      "id": 81,
+      "clientItemId": 81,
+      "name": "Crossbow Arrows",
+      "properties": {
+        "stack": 255,
+        "lootId": 83,
+        "score": 0
+      },
+      "skill": {
+        "type": "weapon"
+      },
+      "crafting": {
+        "yield": 10,
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "wood",
+              "amount": 40
+            },
+            {
+              "itemKey": "shaped_metal",
+              "amount": 1
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "workbench",
+              "timeMs": 30000
+            }
+          ]
+        }
+      },
+      "client": {
+        "description": "Ammo for the crossbow.",
+        "icon": "inv-wood-crossarrow",
+        "loot": [
+          {
+            "id": 83,
+            "sprite": "day-ground-wood-crossarrow",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "nail_gun": {
+      "key": "nail_gun",
+      "id": 82,
+      "clientItemId": 82,
+      "name": "Nail Gun",
+      "properties": {
+        "stack": 1,
+        "lootId": 84,
+        "score": 0
+      },
+      "skill": {
+        "type": "tool",
+        "requiredLevel": 7,
+        "skillCost": 1
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "shaped_metal",
+              "amount": 3
+            },
+            {
+              "itemKey": "small_wire",
+              "amount": 1
+            },
+            {
+              "itemKey": "junk",
+              "amount": 1
+            },
+            {
+              "itemKey": "energy_cells",
+              "amount": 4
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "research_bench",
+              "timeMs": 30000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "nail_gun",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Repairs walls from range.",
+        "icon": "inv-nail-gun",
+        "loot": [
+          {
+            "id": 84,
+            "sprite": "day-ground-nail-gun",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "sawed_off": {
+      "key": "sawed_off",
+      "id": 83,
+      "clientItemId": 83,
+      "name": "Sawed Off",
+      "properties": {
+        "stack": 1,
+        "lootId": 85,
+        "score": 0
+      },
+      "skill": {
+        "type": "weapon",
+        "requiredLevel": 13,
+        "skillCost": 1,
+        "prerequisite": "shotgun"
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "shotgun",
+              "amount": 1
+            },
+            {
+              "itemKey": "shaped_metal",
+              "amount": 6
+            },
+            {
+              "itemKey": "alloys",
+              "amount": 6
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "research_bench",
+              "timeMs": 200000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "sawed_off",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Shorter range, bigger hit.",
+        "icon": "inv-sawed-off-shotgun",
+        "loot": [
+          {
+            "id": 85,
+            "sprite": "day-ground-sawed-off-shotgun",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "stone_floor": {
+      "key": "stone_floor",
+      "id": 84,
+      "clientItemId": 84,
+      "name": "Stone floor",
+      "properties": {
+        "stack": 255,
+        "lootId": 86,
+        "score": 0
+      },
+      "skill": {
+        "type": "building",
+        "requiredLevel": 4,
+        "skillCost": 1
+      },
+      "crafting": {
+        "yield": 2,
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "stone",
+              "amount": 15
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "workbench",
+              "timeMs": 15000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "place_object",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Nobody can spawn on top of it.",
+        "icon": "inv-stone-floor",
+        "loot": [
+          {
+            "id": 86,
+            "sprite": "day-ground-stone-floor",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "tiling_floor": {
+      "key": "tiling_floor",
+      "id": 85,
+      "clientItemId": 85,
+      "name": "Tiling floor",
+      "properties": {
+        "stack": 255,
+        "lootId": 87,
+        "score": 0
+      },
+      "skill": {
+        "type": "building",
+        "requiredLevel": 4,
+        "skillCost": 1
+      },
+      "crafting": {
+        "yield": 2,
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "stone",
+              "amount": 15
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "workbench",
+              "timeMs": 15000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "place_object",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Nobody can spawn on top of it.",
+        "icon": "inv-tiling-floor",
+        "loot": [
+          {
+            "id": 87,
+            "sprite": "day-ground-tiling-floor",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "road": {
+      "key": "road",
+      "id": 86,
+      "clientItemId": 86,
+      "name": "Road",
+      "client": {}
+    },
+    "crisps": {
+      "key": "crisps",
+      "id": 87,
+      "clientItemId": 87,
+      "name": "Crisps",
+      "properties": {
+        "stack": 5,
+        "lootId": 88
+      },
+      "equipable": {
+        "key": "crisps",
+        "equipTimeMs": 500
+      },
+      "decay": {
+        "transformTo": "rotten_crisps",
+        "timeMs": 240000
+      },
+      "client": {
+        "description": "A salty snack.",
+        "icon": "inv-chips",
+        "loot": [
+          {
+            "id": 88,
+            "sprite": "day-ground-chips",
+            "scale": 0.9,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "rotten_crisps": {
+      "key": "rotten_crisps",
+      "id": 88,
+      "clientItemId": 88,
+      "name": "Expired Crisps",
+      "properties": {
+        "stack": 5,
+        "lootId": 89,
+        "score": 20
+      },
+      "equipable": {
+        "key": "rotten_crisps",
+        "equipTimeMs": 500
+      },
+      "client": {
+        "description": "Gone bad. Eat at your own risk.",
+        "icon": "inv-rotten-chips",
+        "loot": [
+          {
+            "id": 89,
+            "sprite": "day-ground-rotten-chips",
+            "scale": 0.9,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "electronics": {
+      "key": "electronics",
+      "id": 89,
+      "clientItemId": 89,
+      "name": "Electronic Parts",
+      "properties": {
+        "stack": 255,
+        "lootId": 90,
+        "score": 100
+      },
+      "client": {
+        "description": "Salvage it from TVs and computers.",
+        "icon": "inv-electronic-part",
+        "loot": [
+          {
+            "id": 90,
+            "sprite": "day-ground-electronic-part",
+            "scale": 1,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "junk": {
+      "key": "junk",
+      "id": 90,
+      "clientItemId": 90,
+      "name": "Junk",
+      "properties": {
+        "stack": 255,
+        "lootId": 91,
+        "score": 40
+      },
+      "client": {
+        "description": "Scavenge it in houses.",
+        "icon": "inv-junk",
+        "loot": [
+          {
+            "id": 91,
+            "sprite": "day-ground-junk",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "wire": {
+      "key": "wire",
+      "id": 91,
+      "clientItemId": 91,
+      "name": "Big Wire",
+      "properties": {
+        "stack": 255,
+        "lootId": 92,
+        "score": 40
+      },
+      "client": {
+        "description": "Salvage it from the big computers in the city's power areas.",
+        "icon": "inv-wires",
+        "loot": [
+          {
+            "id": 92,
+            "sprite": "day-ground-wires",
+            "scale": 1,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "energy_cells": {
+      "key": "energy_cells",
+      "id": 92,
+      "clientItemId": 92,
+      "name": "Energy Cells",
+      "properties": {
+        "stack": 255,
+        "lootId": 93,
+        "score": 0
+      },
+      "skill": {
+        "type": "survival",
+        "requiredLevel": 6,
+        "skillCost": 1
+      },
+      "crafting": {
+        "yield": 30,
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "alloys",
+              "amount": 1
+            },
+            {
+              "itemKey": "shaped_uranium",
+              "amount": 1
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "tesla",
+              "timeMs": 28000
+            }
+          ]
+        }
+      },
+      "client": {
+        "description": "Powers energy weapons and machines.",
+        "icon": "inv-small-energy-cells",
+        "loot": [
+          {
+            "id": 93,
+            "sprite": "day-ground-small-energy-cells",
+            "scale": 1,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "laser_pistol": {
+      "key": "laser_pistol",
+      "id": 93,
+      "clientItemId": 93,
+      "name": "Laser Pistol",
+      "properties": {
+        "stack": 1,
+        "lootId": 94,
+        "score": 0
+      },
+      "skill": {
+        "type": "weapon",
+        "requiredLevel": 14,
+        "skillCost": 1
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "shaped_uranium",
+              "amount": 2
+            },
+            {
+              "itemKey": "wire",
+              "amount": 1
+            },
+            {
+              "itemKey": "electronics",
+              "amount": 2
+            },
+            {
+              "itemKey": "alloys",
+              "amount": 1
+            },
+            {
+              "itemKey": "shaped_metal",
+              "amount": 4
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "tesla",
+              "timeMs": 180000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "laser_pistol",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Its shots travel faster than bullets.",
+        "icon": "inv-laser-pistol",
+        "loot": [
+          {
+            "id": 94,
+            "sprite": "day-ground-laser-pistol",
+            "scale": 1,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "tesla": {
+      "key": "tesla",
+      "id": 94,
+      "clientItemId": 94,
+      "name": "Tesla Bench",
+      "properties": {
+        "stack": 255,
+        "lootId": 95,
+        "score": 0
+      },
+      "skill": {
+        "type": "survival",
+        "requiredLevel": 10,
+        "skillCost": 1,
+        "prerequisite": "research_bench"
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "shaped_uranium",
+              "amount": 2
+            },
+            {
+              "itemKey": "wire",
+              "amount": 4
+            },
+            {
+              "itemKey": "electronics",
+              "amount": 3
+            },
+            {
+              "itemKey": "alloys",
+              "amount": 4
+            },
+            {
+              "itemKey": "shaped_metal",
+              "amount": 6
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "research_bench",
+              "timeMs": 120000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "place_object",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Unlocks the most powerful recipes.",
+        "icon": "inv-workbench3",
+        "loot": [
+          {
+            "id": 95,
+            "sprite": "day-ground-workbench3",
+            "scale": 0.9,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "alloys": {
+      "key": "alloys",
+      "id": 95,
+      "clientItemId": 95,
+      "name": "Alloys",
+      "properties": {
+        "stack": 255,
+        "lootId": 96,
+        "score": 0
+      },
+      "skill": {
+        "type": "mineral"
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "iron",
+              "amount": 1
+            },
+            {
+              "itemKey": "junk",
+              "amount": 1
+            },
+            {
+              "itemKey": "sulfur",
+              "amount": 1
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "smelter",
+              "timeMs": 10000
+            }
+          ]
+        }
+      },
+      "client": {
+        "description": "For crafting top-tier gear.",
+        "icon": "inv-alloys",
+        "loot": [
+          {
+            "id": 96,
+            "sprite": "day-ground-alloys",
+            "scale": 1,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "sulfur_axe": {
+      "key": "sulfur_axe",
+      "id": 96,
+      "clientItemId": 96,
+      "name": "Sulfur Axe",
+      "properties": {
+        "stack": 1,
+        "lootId": 97,
+        "score": 0
+      },
+      "skill": {
+        "type": "tool",
+        "requiredLevel": 10,
+        "skillCost": 1,
+        "prerequisite": "stone_axe"
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "stone_axe",
+              "amount": 1
+            },
+            {
+              "itemKey": "shaped_metal",
+              "amount": 10
+            },
+            {
+              "itemKey": "alloys",
+              "amount": 8
+            },
+            {
+              "itemKey": "sulfur",
+              "amount": 20
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "research_bench",
+              "timeMs": 200000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "sulfur_axe",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Chops wood fast and looks good doing it.",
+        "icon": "inv-sulfur-axe",
+        "loot": [
+          {
+            "id": 97,
+            "sprite": "day-ground-sulfur-axe",
+            "scale": 0.7,
+            "angle": 0.5,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "landmine": {
+      "key": "landmine",
+      "id": 97,
+      "clientItemId": 97,
+      "name": "Landmine",
+      "properties": {
+        "stack": 20,
+        "lootId": 98,
+        "score": 0
+      },
+      "skill": {
+        "type": "weapon",
+        "requiredLevel": 9,
+        "skillCost": 1
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "shaped_metal",
+              "amount": 4
+            },
+            {
+              "itemKey": "junk",
+              "amount": 1
+            },
+            {
+              "itemKey": "sulfur",
+              "amount": 2
+            },
+            {
+              "itemKey": "animal_fat",
+              "amount": 2
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "research_bench",
+              "timeMs": 40000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "place_object",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Hidden until someone steps on it.",
+        "icon": "inv-landmine",
+        "loot": [
+          {
+            "id": 98,
+            "sprite": "day-ground-landmine",
+            "scale": 0.7,
+            "angle": 0.5,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "dynamite": {
+      "key": "dynamite",
+      "id": 98,
+      "clientItemId": 98,
+      "name": "Dynamite",
+      "properties": {
+        "stack": 10,
+        "lootId": 99,
+        "score": 0
+      },
+      "skill": {
+        "type": "weapon",
+        "requiredLevel": 9,
+        "skillCost": 1
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "string",
+              "amount": 1
+            },
+            {
+              "itemKey": "junk",
+              "amount": 1
+            },
+            {
+              "itemKey": "sulfur",
+              "amount": 2
+            },
+            {
+              "itemKey": "animal_fat",
+              "amount": 2
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "research_bench",
+              "timeMs": 40000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "place_object",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Light it and run.",
+        "icon": "inv-dynamite",
+        "loot": [
+          {
+            "id": 99,
+            "sprite": "day-ground-dynamite",
+            "scale": 0.7,
+            "angle": 0.5,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "c4": {
+      "key": "c4",
+      "id": 99,
+      "clientItemId": 99,
+      "name": "C4",
+      "properties": {
+        "stack": 5,
+        "lootId": 100,
+        "score": 0
+      },
+      "skill": {
+        "type": "weapon",
+        "requiredLevel": 16,
+        "skillCost": 1,
+        "prerequisite": "dynamite"
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "dynamite",
+              "amount": 2
+            },
+            {
+              "itemKey": "small_wire",
+              "amount": 1
+            },
+            {
+              "itemKey": "alloys",
+              "amount": 2
+            },
+            {
+              "itemKey": "electronics",
+              "amount": 1
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "research_bench",
+              "timeMs": 60000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "place_object",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Blows up when you press the trigger.",
+        "icon": "inv-C4",
+        "loot": [
+          {
+            "id": 100,
+            "sprite": "day-ground-C4",
+            "scale": 0.7,
+            "angle": 0.5,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "c4_trigger": {
+      "key": "c4_trigger",
+      "id": 100,
+      "clientItemId": 100,
+      "name": "C4 Trigger",
+      "properties": {
+        "stack": 1,
+        "lootId": 101,
+        "score": 0
+      },
+      "skill": {
+        "type": "weapon",
+        "requiredLevel": 16,
+        "skillCost": 1,
+        "prerequisite": "c4"
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "shaped_metal",
+              "amount": 5
+            },
+            {
+              "itemKey": "electronics",
+              "amount": 1
+            },
+            {
+              "itemKey": "energy_cells",
+              "amount": 8
+            },
+            {
+              "itemKey": "small_wire",
+              "amount": 1
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "research_bench",
+              "timeMs": 100000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "c4_trigger",
+        "equipTimeMs": 500
+      },
+      "client": {
+        "description": "Sets off your C4.",
+        "icon": "inv-joystick",
+        "loot": [
+          {
+            "id": 101,
+            "sprite": "day-ground-joystick",
+            "scale": 0.7,
+            "angle": 0.5,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "compost": {
+      "key": "compost",
+      "id": 101,
+      "clientItemId": 101,
+      "name": "Compost",
+      "properties": {
+        "stack": 255,
+        "lootId": 102,
+        "score": 0
+      },
+      "skill": {
+        "type": "survival",
+        "requiredLevel": 8,
+        "skillCost": 1
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "electronics",
+              "amount": 1
+            },
+            {
+              "itemKey": "shaped_metal",
+              "amount": 4
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "research_bench",
+              "timeMs": 100000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "place_object",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Speeds up rotting.",
+        "icon": "inv-composter",
+        "loot": [
+          {
+            "id": 102,
+            "sprite": "day-ground-composter",
+            "scale": 0.7,
+            "angle": 0.5,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "metal_helmet": {
+      "key": "metal_helmet",
+      "id": 102,
+      "clientItemId": 102,
+      "name": "Metal Helmet",
+      "properties": {
+        "stack": 1,
+        "lootId": 103,
+        "score": 0
+      },
+      "skill": {
+        "type": "clothe"
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "shaped_metal",
+              "amount": 3
+            },
+            {
+              "itemKey": "animal_tendon",
+              "amount": 3
+            },
+            {
+              "itemKey": "leather",
+              "amount": 3
+            },
+            {
+              "itemKey": "nails",
+              "amount": 80
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "workbench",
+              "timeMs": 70000
+            }
+          ]
+        }
+      },
+      "wearable": {
+        "key": "metal_helmet",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Guards against melee hits.",
+        "icon": "inv-metal-helmet",
+        "loot": [
+          {
+            "id": 103,
+            "sprite": "day-ground-metal-helmet",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "welding_helmet": {
+      "key": "welding_helmet",
+      "id": 103,
+      "clientItemId": 103,
+      "name": "Welding Helmet",
+      "properties": {
+        "stack": 1,
+        "lootId": 104,
+        "score": 0
+      },
+      "skill": {
+        "type": "clothe",
+        "requiredLevel": 7,
+        "skillCost": 1
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "metal_helmet",
+              "amount": 1
+            },
+            {
+              "itemKey": "shaped_metal",
+              "amount": 10
+            },
+            {
+              "itemKey": "alloys",
+              "amount": 2
+            },
+            {
+              "itemKey": "leather",
+              "amount": 3
+            },
+            {
+              "itemKey": "nails",
+              "amount": 160
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "research_bench",
+              "timeMs": 140000
+            }
+          ]
+        }
+      },
+      "wearable": {
+        "key": "welding_helmet",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Guards against melee hits.",
+        "icon": "inv-welding-helmet",
+        "loot": [
+          {
+            "id": 104,
+            "sprite": "day-ground-welding-helmet",
+            "scale": 0.7,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "gladiator_helmet": {
+      "key": "gladiator_helmet",
+      "id": 104,
+      "clientItemId": 104,
+      "name": "Gladiator Helmet",
+      "properties": {
+        "stack": 1,
+        "lootId": 105,
+        "score": 0
+      },
+      "skill": {
+        "type": "clothe",
+        "requiredLevel": 17,
+        "skillCost": 1,
+        "prerequisite": "welding_helmet"
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "welding_helmet",
+              "amount": 1
+            },
+            {
+              "itemKey": "shaped_metal",
+              "amount": 12
+            },
+            {
+              "itemKey": "alloys",
+              "amount": 6
+            },
+            {
+              "itemKey": "leather",
+              "amount": 4
+            },
+            {
+              "itemKey": "nails",
+              "amount": 255
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "research_bench",
+              "timeMs": 300000
+            }
+          ]
+        }
+      },
+      "wearable": {
+        "key": "gladiator_helmet",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Heavy, proud and very shiny.",
+        "icon": "inv-gladiator-helmet",
+        "loot": [
+          {
+            "id": 105,
+            "sprite": "day-ground-gladiator-helmet",
+            "scale": 0.7,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "leather_jacket": {
+      "key": "leather_jacket",
+      "id": 105,
+      "clientItemId": 105,
+      "name": "Leather Jacket",
+      "properties": {
+        "stack": 1,
+        "lootId": 106,
+        "score": 0
+      },
+      "skill": {
+        "type": "clothe"
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "string",
+              "amount": 2
+            },
+            {
+              "itemKey": "leather",
+              "amount": 4
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "weaving",
+              "timeMs": 70000
+            }
+          ]
+        }
+      },
+      "wearable": {
+        "key": "leather_jacket",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Guards against gunfire.",
+        "icon": "inv-leather-jacket",
+        "loot": [
+          {
+            "id": 106,
+            "sprite": "day-ground-leather-jacket",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "kevlar_suit": {
+      "key": "kevlar_suit",
+      "id": 106,
+      "clientItemId": 106,
+      "name": "Kevlar Suit",
+      "properties": {
+        "stack": 1,
+        "lootId": 107,
+        "score": 0
+      },
+      "skill": {
+        "type": "clothe",
+        "requiredLevel": 12,
+        "skillCost": 1
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "leather_jacket",
+              "amount": 1
+            },
+            {
+              "itemKey": "shaped_metal",
+              "amount": 6
+            },
+            {
+              "itemKey": "alloys",
+              "amount": 2
+            },
+            {
+              "itemKey": "string",
+              "amount": 4
+            },
+            {
+              "itemKey": "leather",
+              "amount": 6
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "weaving",
+              "timeMs": 100000
+            }
+          ]
+        }
+      },
+      "wearable": {
+        "key": "kevlar_suit",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Guards against gunfire.",
+        "icon": "inv-kevlar-suit",
+        "loot": [
+          {
+            "id": 107,
+            "sprite": "day-ground-kevlar-suit",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "swat_suit": {
+      "key": "swat_suit",
+      "id": 107,
+      "clientItemId": 107,
+      "name": "SWAT Suit",
+      "properties": {
+        "stack": 1,
+        "lootId": 108,
+        "score": 0
+      },
+      "skill": {
+        "type": "clothe",
+        "requiredLevel": 18,
+        "skillCost": 1,
+        "prerequisite": "kevlar_suit"
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "kevlar_suit",
+              "amount": 1
+            },
+            {
+              "itemKey": "shaped_metal",
+              "amount": 10
+            },
+            {
+              "itemKey": "alloys",
+              "amount": 4
+            },
+            {
+              "itemKey": "string",
+              "amount": 10
+            },
+            {
+              "itemKey": "leather",
+              "amount": 10
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "weaving",
+              "timeMs": 200000
+            }
+          ]
+        }
+      },
+      "wearable": {
+        "key": "swat_suit",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Guards against gunfire.",
+        "icon": "inv-SWAT-suit",
+        "loot": [
+          {
+            "id": 108,
+            "sprite": "day-ground-SWAT-suit",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "protective_suit": {
+      "key": "protective_suit",
+      "id": 108,
+      "clientItemId": 108,
+      "name": "Protective Suit",
+      "properties": {
+        "stack": 1,
+        "lootId": 109,
+        "score": 0
+      },
+      "skill": {
+        "type": "clothe",
+        "requiredLevel": 12,
+        "skillCost": 1,
+        "prerequisite": "featherweight"
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "shaped_metal",
+              "amount": 6
+            },
+            {
+              "itemKey": "alloys",
+              "amount": 2
+            },
+            {
+              "itemKey": "string",
+              "amount": 6
+            },
+            {
+              "itemKey": "leather",
+              "amount": 6
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "weaving",
+              "timeMs": 200000
+            }
+          ]
+        }
+      },
+      "wearable": {
+        "key": "protective_suit",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Guards against explosions.",
+        "icon": "inv-protective-suit",
+        "loot": [
+          {
+            "id": 109,
+            "sprite": "day-ground-protective-suit",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "power_armor": {
+      "key": "power_armor",
+      "id": 109,
+      "clientItemId": 109,
+      "name": "Power Armor",
+      "properties": {
+        "stack": 1,
+        "lootId": 110,
+        "score": 0
+      },
+      "skill": {
+        "type": "clothe",
+        "requiredLevel": 10,
+        "skillCost": 1
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "shaped_metal",
+              "amount": 20
+            },
+            {
+              "itemKey": "alloys",
+              "amount": 2
+            },
+            {
+              "itemKey": "shaped_uranium",
+              "amount": 2
+            },
+            {
+              "itemKey": "electronics",
+              "amount": 1
+            },
+            {
+              "itemKey": "wire",
+              "amount": 2
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "tesla",
+              "timeMs": 150000
+            }
+          ]
+        }
+      },
+      "wearable": {
+        "key": "power_armor",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Guards against energy weapons.",
+        "icon": "inv-tesla-0",
+        "loot": [
+          {
+            "id": 110,
+            "sprite": "day-ground-tesla-0",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "tesla_armor": {
+      "key": "tesla_armor",
+      "id": 110,
+      "clientItemId": 110,
+      "name": "Tesla Armor",
+      "properties": {
+        "stack": 1,
+        "lootId": 111,
+        "score": 0
+      },
+      "skill": {
+        "type": "clothe",
+        "requiredLevel": 18,
+        "skillCost": 3,
+        "prerequisite": "power_armor"
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "power_armor",
+              "amount": 1
+            },
+            {
+              "itemKey": "alloys",
+              "amount": 10
+            },
+            {
+              "itemKey": "shaped_uranium",
+              "amount": 10
+            },
+            {
+              "itemKey": "electronics",
+              "amount": 5
+            },
+            {
+              "itemKey": "wire",
+              "amount": 5
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "tesla",
+              "timeMs": 300000
+            }
+          ]
+        }
+      },
+      "wearable": {
+        "key": "tesla_armor",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Guards against energy weapons.",
+        "icon": "inv-tesla-armor",
+        "loot": [
+          {
+            "id": 111,
+            "sprite": "day-ground-tesla-armor",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "wood_spike": {
+      "key": "wood_spike",
+      "id": 111,
+      "clientItemId": 111,
+      "name": "Wooden Spike",
+      "properties": {
+        "stack": 40,
+        "lootId": 112,
+        "score": 0
+      },
+      "skill": {
+        "type": "building"
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "wood",
+              "amount": 80
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "workbench",
+              "timeMs": 25000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "place_object",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Hurts and slows whoever walks into it.",
+        "icon": "inv-wood-spike",
+        "loot": [
+          {
+            "id": 112,
+            "sprite": "day-ground-wood-spike",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "laser_submachine": {
+      "key": "laser_submachine",
+      "id": 112,
+      "clientItemId": 112,
+      "name": "Laser Submachine",
+      "properties": {
+        "stack": 1,
+        "lootId": 113,
+        "score": 0
+      },
+      "skill": {
+        "type": "weapon",
+        "requiredLevel": 14,
+        "skillCost": 2,
+        "prerequisite": "laser_pistol"
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "shaped_uranium",
+              "amount": 6
+            },
+            {
+              "itemKey": "wire",
+              "amount": 2
+            },
+            {
+              "itemKey": "electronics",
+              "amount": 3
+            },
+            {
+              "itemKey": "alloys",
+              "amount": 10
+            },
+            {
+              "itemKey": "shaped_metal",
+              "amount": 6
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "tesla",
+              "timeMs": 180000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "laser_submachine",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "The best weapon there is.",
+        "icon": "inv-laser-submachine",
+        "loot": [
+          {
+            "id": 113,
+            "sprite": "day-ground-laser-submachine",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "granade": {
+      "key": "granade",
+      "id": 113,
+      "clientItemId": 113,
+      "name": "Grenade",
+      "properties": {
+        "stack": 10,
+        "lootId": 114,
+        "score": 0
+      },
+      "skill": {
+        "type": "weapon",
+        "requiredLevel": 10,
+        "skillCost": 1
+      },
+      "crafting": {
+        "yield": 2,
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "junk",
+              "amount": 2
+            },
+            {
+              "itemKey": "sulfur",
+              "amount": 2
+            },
+            {
+              "itemKey": "animal_fat",
+              "amount": 2
+            },
+            {
+              "itemKey": "shaped_metal",
+              "amount": 2
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "research_bench",
+              "timeMs": 30000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "granade",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Throw it and it explodes.",
+        "icon": "inv-grenade",
+        "loot": [
+          {
+            "id": 114,
+            "sprite": "day-ground-grenade",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "super_hammer": {
+      "key": "super_hammer",
+      "id": 114,
+      "clientItemId": 114,
+      "name": "Super Hammer",
+      "properties": {
+        "stack": 1,
+        "lootId": 115,
+        "score": 0
+      },
+      "equipable": {
+        "key": "super_hammer",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Breaks even indestructible walls.",
+        "icon": "inv-super-hammer",
+        "loot": [
+          {
+            "id": 115,
+            "sprite": "day-ground-super-hammer",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "ghoul_blood": {
+      "key": "ghoul_blood",
+      "id": 115,
+      "clientItemId": 115,
+      "name": "Ghoul Blood",
+      "properties": {
+        "stack": 255,
+        "lootId": 116,
+        "score": 100
+      },
+      "client": {
+        "description": "Dropped by fast ghouls.",
+        "icon": "inv-ghoul-blood",
+        "loot": [
+          {
+            "id": 116,
+            "sprite": "day-ground-ghoul-blood",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "camouflage_gear": {
+      "key": "camouflage_gear",
+      "id": 116,
+      "clientItemId": 116,
+      "name": "Camouflage Gear",
+      "properties": {
+        "stack": 1,
+        "lootId": 117,
+        "score": 0
+      },
+      "skill": {
+        "type": "clothe"
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "wood",
+              "amount": 90
+            },
+            {
+              "itemKey": "string",
+              "amount": 2
+            },
+            {
+              "itemKey": "leather",
+              "amount": 2
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "weaving",
+              "timeMs": 40000
+            }
+          ]
+        }
+      },
+      "wearable": {
+        "key": "camouflage_gear",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Helps you hide among the trees.",
+        "icon": "inv-camouflage-gear",
+        "loot": [
+          {
+            "id": 117,
+            "sprite": "day-ground-camouflage-gear",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "agitator": {
+      "key": "agitator",
+      "id": 117,
+      "clientItemId": 117,
+      "name": "Agitator",
+      "properties": {
+        "stack": 255,
+        "lootId": 118,
+        "score": 0
+      },
+      "skill": {
+        "type": "survival",
+        "requiredLevel": 8,
+        "skillCost": 1
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "shaped_metal",
+              "amount": 6
+            },
+            {
+              "itemKey": "electronics",
+              "amount": 1
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "research_bench",
+              "timeMs": 100000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "place_object",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Mixes drugs.",
+        "icon": "inv-agitator",
+        "loot": [
+          {
+            "id": 118,
+            "sprite": "day-ground-agitator",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "ghoul_drug": {
+      "key": "ghoul_drug",
+      "id": 118,
+      "clientItemId": 118,
+      "name": "Ghoul Drug",
+      "properties": {
+        "stack": 5,
+        "lootId": 119,
+        "score": 0
+      },
+      "skill": {
+        "type": "drug",
+        "requiredLevel": 10,
+        "skillCost": 1
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "syringe",
+              "amount": 1
+            },
+            {
+              "itemKey": "chemical_component",
+              "amount": 1
+            },
+            {
+              "itemKey": "mushroom2",
+              "amount": 1
+            },
+            {
+              "itemKey": "mushroom3",
+              "amount": 1
+            },
+            {
+              "itemKey": "ghoul_blood",
+              "amount": 1
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "agitator",
+              "timeMs": 30000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "ghoul_drug",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Ghouls leave you alone.",
+        "icon": "inv-ghoul-drug",
+        "loot": [
+          {
+            "id": 119,
+            "sprite": "day-ground-ghoul-drug",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "mushroom1": {
+      "key": "mushroom1",
+      "id": 119,
+      "clientItemId": 119,
+      "name": "Amanita",
+      "properties": {
+        "stack": 20,
+        "lootId": 120,
+        "score": 24
+      },
+      "equipable": {
+        "key": "mushroom1",
+        "equipTimeMs": 500
+      },
+      "decay": {
+        "transformTo": "rotten_mushroom1",
+        "timeMs": 240000
+      },
+      "client": {
+        "description": "Poisonous. Do not eat.",
+        "icon": "inv-mushroom1",
+        "loot": [
+          {
+            "id": 120,
+            "sprite": "day-ground-mushroom1",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "mushroom2": {
+      "key": "mushroom2",
+      "id": 120,
+      "clientItemId": 120,
+      "name": "Boletus",
+      "properties": {
+        "stack": 20,
+        "lootId": 121,
+        "score": 24
+      },
+      "equipable": {
+        "key": "mushroom2",
+        "equipTimeMs": 500
+      },
+      "decay": {
+        "transformTo": "rotten_mushroom2",
+        "timeMs": 240000
+      },
+      "client": {
+        "description": "Safe to eat.",
+        "icon": "inv-mushroom2",
+        "loot": [
+          {
+            "id": 121,
+            "sprite": "day-ground-mushroom2",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "mushroom3": {
+      "key": "mushroom3",
+      "id": 121,
+      "clientItemId": 121,
+      "name": "Russula",
+      "properties": {
+        "stack": 20,
+        "lootId": 122,
+        "score": 24
+      },
+      "equipable": {
+        "key": "mushroom3",
+        "equipTimeMs": 500
+      },
+      "decay": {
+        "transformTo": "rotten_mushroom3",
+        "timeMs": 240000
+      },
+      "client": {
+        "description": "Safe to eat.",
+        "icon": "inv-mushroom3",
+        "loot": [
+          {
+            "id": 122,
+            "sprite": "day-ground-mushroom3",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "rotten_mushroom1": {
+      "key": "rotten_mushroom1",
+      "id": 122,
+      "clientItemId": 122,
+      "name": "Rotten Mushroom",
+      "properties": {
+        "stack": 20,
+        "lootId": 123,
+        "score": 24
+      },
+      "equipable": {
+        "key": "rotten_mushroom1",
+        "equipTimeMs": 500
+      },
+      "client": {
+        "description": "Gone bad. Eat at your own risk.",
+        "icon": "inv-rotten-mushroom1",
+        "loot": [
+          {
+            "id": 123,
+            "sprite": "day-ground-rotten-mushroom1",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "rotten_mushroom2": {
+      "key": "rotten_mushroom2",
+      "id": 123,
+      "clientItemId": 123,
+      "name": "Rotten Mushroom",
+      "properties": {
+        "stack": 20,
+        "lootId": 124,
+        "score": 24
+      },
+      "equipable": {
+        "key": "rotten_mushroom2",
+        "equipTimeMs": 500
+      },
+      "client": {
+        "description": "Gone bad. Eat at your own risk.",
+        "icon": "inv-rotten-mushroom2",
+        "loot": [
+          {
+            "id": 124,
+            "sprite": "day-ground-rotten-mushroom2",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "rotten_mushroom3": {
+      "key": "rotten_mushroom3",
+      "id": 124,
+      "clientItemId": 124,
+      "name": "Rotten Mushroom",
+      "properties": {
+        "stack": 20,
+        "lootId": 125,
+        "score": 24
+      },
+      "equipable": {
+        "key": "rotten_mushroom3",
+        "equipTimeMs": 500
+      },
+      "client": {
+        "description": "Gone bad. Eat at your own risk.",
+        "icon": "inv-rotten-mushroom3",
+        "loot": [
+          {
+            "id": 125,
+            "sprite": "day-ground-rotten-mushroom3",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "lapadone": {
+      "key": "lapadone",
+      "id": 125,
+      "clientItemId": 125,
+      "name": "Lapadone",
+      "properties": {
+        "stack": 5,
+        "lootId": 126,
+        "score": 0
+      },
+      "skill": {
+        "type": "drug",
+        "requiredLevel": 14,
+        "skillCost": 1
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "syringe",
+              "amount": 1
+            },
+            {
+              "itemKey": "chemical_component",
+              "amount": 1
+            },
+            {
+              "itemKey": "mushroom1",
+              "amount": 1
+            },
+            {
+              "itemKey": "ghoul_blood",
+              "amount": 1
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "agitator",
+              "timeMs": 45000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "lapadone",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Makes you faster for a while.",
+        "icon": "inv-lapadoine",
+        "loot": [
+          {
+            "id": 126,
+            "sprite": "day-ground-lapadoine",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "lapabot": {
+      "key": "lapabot",
+      "id": 126,
+      "clientItemId": 126,
+      "name": "LapaBot",
+      "properties": {
+        "stack": 5,
+        "lootId": 127,
+        "score": 0
+      },
+      "skill": {
+        "type": "survival",
+        "requiredLevel": 8,
+        "skillCost": 1
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "shaped_metal",
+              "amount": 6
+            },
+            {
+              "itemKey": "electronics",
+              "amount": 1
+            },
+            {
+              "itemKey": "small_wire",
+              "amount": 1
+            },
+            {
+              "itemKey": "alloys",
+              "amount": 1
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "research_bench",
+              "timeMs": 100000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "place_object",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "A robot that repairs your base.",
+        "icon": "inv-lapabot",
+        "loot": [
+          {
+            "id": 127,
+            "sprite": "day-ground-lapabot",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "small_wire": {
+      "key": "small_wire",
+      "id": 127,
+      "clientItemId": 127,
+      "name": "Small Wire",
+      "properties": {
+        "stack": 255,
+        "lootId": 128,
+        "score": 40
+      },
+      "client": {
+        "description": "Salvage it from TVs and computers in abandoned houses.",
+        "icon": "inv-small-wire",
+        "loot": [
+          {
+            "id": 128,
+            "sprite": "day-ground-small-wire",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "pumpkin": {
+      "key": "pumpkin",
+      "id": 128,
+      "clientItemId": 128,
+      "name": "Pumpkin",
+      "properties": {
+        "stack": 20,
+        "lootId": 129,
+        "score": 24
+      },
+      "equipable": {
+        "key": "pumpkin",
+        "equipTimeMs": 500
+      },
+      "decay": {
+        "transformTo": "rotten_pumpkin",
+        "timeMs": 240000
+      },
+      "client": {
+        "description": "Eat it, or use it to make a pumpkin ghoul.",
+        "icon": "inv-pumpkin",
+        "loot": [
+          {
+            "id": 129,
+            "sprite": "day-ground-pumpkin",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "rotten_pumpkin": {
+      "key": "rotten_pumpkin",
+      "id": 129,
+      "clientItemId": 129,
+      "name": "Rotten Pumpkin",
+      "properties": {
+        "stack": 20,
+        "lootId": 130,
+        "score": 20
+      },
+      "equipable": {
+        "key": "rotten_pumpkin",
+        "equipTimeMs": 500
+      },
+      "client": {
+        "description": "Gone bad. Eat at your own risk.",
+        "icon": "inv-rotten-pumpkin",
+        "loot": [
+          {
+            "id": 130,
+            "sprite": "day-ground-rotten-pumpkin",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "ghoul_seed": {
+      "key": "ghoul_seed",
+      "id": 130,
+      "clientItemId": 130,
+      "name": "Ghoul Seed",
+      "properties": {
+        "stack": 40,
+        "lootId": 131,
+        "score": 0
+      },
+      "skill": {
+        "type": "plant",
+        "requiredLevel": 99,
+        "skillCost": 1
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "pumpkin",
+              "amount": 1
+            },
+            {
+              "itemKey": "ghoul_blood",
+              "amount": 1
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "campfire",
+              "timeMs": 30000
+            },
+            {
+              "key": "firepit",
+              "timeMs": 20000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "place_object",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Grows a pumpkin pet.",
+        "icon": "inv-ghoul5",
+        "loot": [
+          {
+            "id": 131,
+            "sprite": "day-ground-ghoul5",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "extractor": {
+      "key": "extractor",
+      "id": 131,
+      "clientItemId": 131,
+      "name": "Extractor",
+      "properties": {
+        "stack": 255,
+        "lootId": 132,
+        "score": 0
+      },
+      "skill": {
+        "type": "survival",
+        "requiredLevel": 12,
+        "skillCost": 1
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "alloys",
+              "amount": 2
+            },
+            {
+              "itemKey": "shaped_metal",
+              "amount": 10
+            },
+            {
+              "itemKey": "shaped_uranium",
+              "amount": 2
+            },
+            {
+              "itemKey": "small_wire",
+              "amount": 2
+            },
+            {
+              "itemKey": "electronics",
+              "amount": 1
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "research_bench",
+              "timeMs": 100000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "place_object",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Pulls minerals out of the ground.",
+        "icon": "inv-extractor",
+        "loot": [
+          {
+            "id": 132,
+            "sprite": "day-ground-extractor",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "antidote": {
+      "key": "antidote",
+      "id": 132,
+      "clientItemId": 132,
+      "name": "Antidote",
+      "properties": {
+        "stack": 5,
+        "lootId": 133,
+        "score": 0
+      },
+      "skill": {
+        "type": "drug",
+        "requiredLevel": 14,
+        "skillCost": 1
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "syringe",
+              "amount": 1
+            },
+            {
+              "itemKey": "chemical_component",
+              "amount": 1
+            },
+            {
+              "itemKey": "mushroom1",
+              "amount": 1
+            },
+            {
+              "itemKey": "rare_flower",
+              "amount": 1
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "agitator",
+              "timeMs": 45000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "antidote",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Cures drug withdrawal (the pink skin).",
+        "icon": "inv-antidote",
+        "loot": [
+          {
+            "id": 133,
+            "sprite": "day-ground-antidote",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "rare_flower": {
+      "key": "rare_flower",
+      "id": 133,
+      "clientItemId": 133,
+      "name": "Rare Flower",
+      "properties": {
+        "stack": 5,
+        "lootId": 134,
+        "score": 400
+      },
+      "client": {
+        "description": "An ingredient for the antidote.",
+        "icon": "inv-antidote-flower",
+        "loot": [
+          {
+            "id": 134,
+            "sprite": "day-ground-antidote-flower",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "tree_seed": {
+      "key": "tree_seed",
+      "id": 134,
+      "clientItemId": 134,
+      "name": "Tree Seed",
+      "properties": {
+        "stack": 100,
+        "lootId": 135,
+        "score": 0
+      },
+      "skill": {
+        "type": "plant"
+      },
+      "crafting": {
+        "yield": 5,
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "acorn",
+              "amount": 1
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "campfire",
+              "timeMs": 60000
+            },
+            {
+              "key": "firepit",
+              "timeMs": 40000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "place_object",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Plant it to grow a tree.",
+        "icon": "inv-seed-tree",
+        "loot": [
+          {
+            "id": 135,
+            "sprite": "day-ground-seed-tree",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "acorn": {
+      "key": "acorn",
+      "id": 135,
+      "clientItemId": 135,
+      "name": "Acorn",
+      "properties": {
+        "stack": 20,
+        "lootId": 136,
+        "score": 24
+      },
+      "equipable": {
+        "key": "acorn",
+        "equipTimeMs": 500
+      },
+      "decay": {
+        "transformTo": "rotten_acorn",
+        "timeMs": 240000
+      },
+      "client": {
+        "description": "Eat it, or plant it to grow a tree.",
+        "icon": "inv-acorn",
+        "loot": [
+          {
+            "id": 136,
+            "sprite": "day-ground-acorn",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "rotten_acorn": {
+      "key": "rotten_acorn",
+      "id": 136,
+      "clientItemId": 136,
+      "name": "Rotten Acorn",
+      "properties": {
+        "stack": 20,
+        "lootId": 137,
+        "score": 20
+      },
+      "equipable": {
+        "key": "rotten_acorn",
+        "equipTimeMs": 500
+      },
+      "client": {
+        "description": "Gone bad. Eat at your own risk.",
+        "icon": "inv-rotten-acorn",
+        "loot": [
+          {
+            "id": 137,
+            "sprite": "day-ground-rotten-acorn",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "laser_sniper": {
+      "key": "laser_sniper",
+      "id": 137,
+      "clientItemId": 137,
+      "name": "Laser Sniper",
+      "properties": {
+        "stack": 1,
+        "lootId": 138,
+        "score": 0
+      },
+      "skill": {
+        "type": "weapon",
+        "requiredLevel": 14,
+        "skillCost": 2,
+        "prerequisite": "laser_pistol"
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "shaped_uranium",
+              "amount": 5
+            },
+            {
+              "itemKey": "wire",
+              "amount": 3
+            },
+            {
+              "itemKey": "electronics",
+              "amount": 3
+            },
+            {
+              "itemKey": "alloys",
+              "amount": 8
+            },
+            {
+              "itemKey": "shaped_metal",
+              "amount": 6
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "tesla",
+              "timeMs": 180000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "laser_sniper",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Faster shots than the regular sniper.",
+        "icon": "inv-laser-sniper",
+        "loot": [
+          {
+            "id": 138,
+            "sprite": "day-ground-laser-sniper",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "halbot": {
+      "key": "halbot",
+      "id": 138,
+      "clientItemId": 138,
+      "name": "HAL Bot",
+      "properties": {
+        "stack": 5,
+        "lootId": 139,
+        "score": 0
+      },
+      "skill": {
+        "type": "survival",
+        "requiredLevel": 8,
+        "skillCost": 1
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "shaped_metal",
+              "amount": 6
+            },
+            {
+              "itemKey": "electronics",
+              "amount": 1
+            },
+            {
+              "itemKey": "small_wire",
+              "amount": 1
+            },
+            {
+              "itemKey": "alloys",
+              "amount": 1
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "research_bench",
+              "timeMs": 100000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "place_object",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "A robot that defends you.",
+        "icon": "inv-hal-bot",
+        "loot": [
+          {
+            "id": 139,
+            "sprite": "day-ground-hal-bot",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "teslabot": {
+      "key": "teslabot",
+      "id": 139,
+      "clientItemId": 139,
+      "name": "Tesla Bot",
+      "properties": {
+        "stack": 5,
+        "lootId": 140,
+        "score": 0
+      },
+      "skill": {
+        "type": "survival",
+        "requiredLevel": 16,
+        "skillCost": 1
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "shaped_uranium",
+              "amount": 3
+            },
+            {
+              "itemKey": "electronics",
+              "amount": 1
+            },
+            {
+              "itemKey": "small_wire",
+              "amount": 3
+            },
+            {
+              "itemKey": "wire",
+              "amount": 3
+            },
+            {
+              "itemKey": "alloys",
+              "amount": 3
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "tesla",
+              "timeMs": 200000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "place_object",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "A robot that defends you.",
+        "icon": "inv-tesla-bot",
+        "loot": [
+          {
+            "id": 140,
+            "sprite": "day-ground-tesla-bot",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "cable0": {
+      "key": "cable0",
+      "id": 140,
+      "clientItemId": 140,
+      "name": "Cable",
+      "properties": {
+        "stack": 255,
+        "lootId": 141,
+        "score": 0
+      },
+      "skill": {
+        "type": "logic"
+      },
+      "crafting": {
+        "yield": 3,
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "small_wire",
+              "amount": 1
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "welding_machine",
+              "timeMs": 15000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "place_object",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Wires up automatic mechanisms.",
+        "icon": "inv-wire0",
+        "loot": [
+          {
+            "id": 141,
+            "sprite": "day-ground-wire0",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "cable1": {
+      "key": "cable1",
+      "id": 141,
+      "clientItemId": 141,
+      "name": "Cable",
+      "properties": {
+        "stack": 255,
+        "lootId": 142,
+        "score": 0
+      },
+      "skill": {
+        "type": "logic"
+      },
+      "crafting": {
+        "yield": 3,
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "small_wire",
+              "amount": 1
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "welding_machine",
+              "timeMs": 15000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "place_object",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Wires up automatic mechanisms.",
+        "icon": "inv-wire1",
+        "loot": [
+          {
+            "id": 142,
+            "sprite": "day-ground-wire1",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "cable2": {
+      "key": "cable2",
+      "id": 142,
+      "clientItemId": 142,
+      "name": "Cable",
+      "properties": {
+        "stack": 255,
+        "lootId": 143,
+        "score": 0
+      },
+      "skill": {
+        "type": "logic"
+      },
+      "crafting": {
+        "yield": 3,
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "small_wire",
+              "amount": 1
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "welding_machine",
+              "timeMs": 15000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "place_object",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Wires up automatic mechanisms.",
+        "icon": "inv-wire2",
+        "loot": [
+          {
+            "id": 143,
+            "sprite": "day-ground-wire2",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "cable3": {
+      "key": "cable3",
+      "id": 143,
+      "clientItemId": 143,
+      "name": "Cable",
+      "properties": {
+        "stack": 255,
+        "lootId": 144,
+        "score": 0
+      },
+      "skill": {
+        "type": "logic"
+      },
+      "crafting": {
+        "yield": 3,
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "small_wire",
+              "amount": 1
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "welding_machine",
+              "timeMs": 15000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "place_object",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Wires up automatic mechanisms.",
+        "icon": "inv-wire3",
+        "loot": [
+          {
+            "id": 144,
+            "sprite": "day-ground-wire3",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "switch": {
+      "key": "switch",
+      "id": 144,
+      "clientItemId": 144,
+      "name": "Switch",
+      "properties": {
+        "stack": 255,
+        "lootId": 145,
+        "score": 0
+      },
+      "skill": {
+        "type": "logic"
+      },
+      "crafting": {
+        "yield": 3,
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "small_wire",
+              "amount": 1
+            },
+            {
+              "itemKey": "shaped_metal",
+              "amount": 1
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "welding_machine",
+              "timeMs": 15000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "place_object",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Turns connected mechanisms on and off.",
+        "icon": "inv-switch",
+        "loot": [
+          {
+            "id": 145,
+            "sprite": "day-ground-switch",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "gate_or": {
+      "key": "gate_or",
+      "id": 145,
+      "clientItemId": 145,
+      "name": "Gate OR",
+      "properties": {
+        "stack": 255,
+        "lootId": 146,
+        "score": 0
+      },
+      "skill": {
+        "type": "logic"
+      },
+      "crafting": {
+        "yield": 3,
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "small_wire",
+              "amount": 1
+            },
+            {
+              "itemKey": "shaped_metal",
+              "amount": 1
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "welding_machine",
+              "timeMs": 15000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "place_object",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Outputs on when any input is on.",
+        "icon": "inv-switch-or",
+        "loot": [
+          {
+            "id": 146,
+            "sprite": "day-ground-switch-or",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "gate_and": {
+      "key": "gate_and",
+      "id": 146,
+      "clientItemId": 146,
+      "name": "Gate AND",
+      "properties": {
+        "stack": 255,
+        "lootId": 147,
+        "score": 0
+      },
+      "skill": {
+        "type": "logic"
+      },
+      "crafting": {
+        "yield": 3,
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "small_wire",
+              "amount": 1
+            },
+            {
+              "itemKey": "shaped_metal",
+              "amount": 1
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "welding_machine",
+              "timeMs": 15000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "place_object",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Outputs on when every input is on.",
+        "icon": "inv-switch-and",
+        "loot": [
+          {
+            "id": 147,
+            "sprite": "day-ground-switch-and",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "gate_not": {
+      "key": "gate_not",
+      "id": 147,
+      "clientItemId": 147,
+      "name": "Gate NOT",
+      "properties": {
+        "stack": 255,
+        "lootId": 148,
+        "score": 0
+      },
+      "skill": {
+        "type": "logic"
+      },
+      "crafting": {
+        "yield": 3,
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "small_wire",
+              "amount": 1
+            },
+            {
+              "itemKey": "shaped_metal",
+              "amount": 1
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "welding_machine",
+              "timeMs": 15000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "place_object",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Outputs on when no input is on.",
+        "icon": "inv-switch-reverse",
+        "loot": [
+          {
+            "id": 148,
+            "sprite": "day-ground-switch-reverse",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "lamp": {
+      "key": "lamp",
+      "id": 148,
+      "clientItemId": 148,
+      "name": "Lamp",
+      "properties": {
+        "stack": 255,
+        "lootId": 149,
+        "score": 0
+      },
+      "skill": {
+        "type": "logic"
+      },
+      "crafting": {
+        "yield": 3,
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "small_wire",
+              "amount": 1
+            },
+            {
+              "itemKey": "shaped_metal",
+              "amount": 1
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "welding_machine",
+              "timeMs": 15000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "place_object",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Lights up when powered and hurts ghouls.",
+        "icon": "inv-lamp-white",
+        "loot": [
+          {
+            "id": 149,
+            "sprite": "day-ground-lamp-white",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "cable_wall": {
+      "key": "cable_wall",
+      "id": 149,
+      "clientItemId": 149,
+      "name": "Cable  - Wall",
+      "properties": {
+        "stack": 255,
+        "lootId": 150,
+        "score": 0
+      },
+      "skill": {
+        "type": "logic",
+        "requiredLevel": 7,
+        "skillCost": 1
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "shaped_metal",
+              "amount": 8
+            },
+            {
+              "itemKey": "small_wire",
+              "amount": 1
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "welding_machine",
+              "timeMs": 15000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "place_object",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "A wall that cables can connect to.",
+        "icon": "inv-cable-wall",
+        "loot": [
+          {
+            "id": 150,
+            "sprite": "day-ground-cable-wall",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "automatic_door": {
+      "key": "automatic_door",
+      "id": 150,
+      "clientItemId": 150,
+      "name": "Automatic Door",
+      "properties": {
+        "stack": 255,
+        "lootId": 151,
+        "score": 0
+      },
+      "skill": {
+        "type": "logic",
+        "requiredLevel": 7,
+        "skillCost": 1
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "shaped_metal",
+              "amount": 8
+            },
+            {
+              "itemKey": "small_wire",
+              "amount": 2
+            },
+            {
+              "itemKey": "electronics",
+              "amount": 1
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "welding_machine",
+              "timeMs": 15000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "place_object",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Wire it to a switch to open and close it.",
+        "icon": "inv-automatic-door",
+        "loot": [
+          {
+            "id": 151,
+            "sprite": "day-ground-automatic-door",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "platform": {
+      "key": "platform",
+      "id": 151,
+      "clientItemId": 151,
+      "name": "Platform",
+      "properties": {
+        "stack": 255,
+        "lootId": 152,
+        "score": 0
+      },
+      "skill": {
+        "type": "logic"
+      },
+      "crafting": {
+        "yield": 3,
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "small_wire",
+              "amount": 1
+            },
+            {
+              "itemKey": "shaped_metal",
+              "amount": 1
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "welding_machine",
+              "timeMs": 15000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "place_object",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Detects weight standing on it.",
+        "icon": "inv-platform",
+        "loot": [
+          {
+            "id": 152,
+            "sprite": "day-ground-platform",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "stone_cave": {
+      "key": "stone_cave",
+      "id": 152,
+      "clientItemId": 152,
+      "name": "Stone Cave",
+      "properties": {
+        "stack": 255,
+        "lootId": 153,
+        "score": 0
+      },
+      "skill": {
+        "type": "building",
+        "requiredLevel": 99,
+        "skillCost": 1
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "stone",
+              "amount": 140
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "workbench",
+              "timeMs": 30000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "place_object",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Builds rocky hills.",
+        "icon": "inv-stone-cave",
+        "loot": [
+          {
+            "id": 153,
+            "sprite": "day-ground-stone-cave",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "bunker_wall": {
+      "key": "bunker_wall",
+      "id": 153,
+      "clientItemId": 153,
+      "name": "Bunker Wall",
+      "properties": {
+        "stack": 255,
+        "lootId": 154,
+        "score": 0
+      },
+      "skill": {
+        "type": "building",
+        "requiredLevel": 99,
+        "skillCost": 1
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "stone",
+              "amount": 150
+            },
+            {
+              "itemKey": "shaped_metal",
+              "amount": 12
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "workbench",
+              "timeMs": 30000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "place_object",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "A wall from the old world.",
+        "icon": "inv-bunker-wall",
+        "loot": [
+          {
+            "id": 154,
+            "sprite": "day-ground-bunker-wall",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "gold_floor": {
+      "key": "gold_floor",
+      "id": 154,
+      "clientItemId": 154,
+      "name": "Golden Floor",
+      "properties": {
+        "stack": 255,
+        "lootId": 155,
+        "score": 0
+      },
+      "skill": {
+        "type": "building"
+      },
+      "crafting": {
+        "yield": 2,
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "leather",
+              "amount": 2
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "workbench",
+              "timeMs": 15000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "place_object",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Nobody can spawn on top of it.",
+        "icon": "inv-mustard-floor",
+        "loot": [
+          {
+            "id": 155,
+            "sprite": "day-ground-mustard-floor",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "red_floor": {
+      "key": "red_floor",
+      "id": 155,
+      "clientItemId": 155,
+      "name": "Red floor",
+      "properties": {
+        "stack": 255,
+        "lootId": 156,
+        "score": 0
+      },
+      "skill": {
+        "type": "building"
+      },
+      "crafting": {
+        "yield": 2,
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "leather",
+              "amount": 2
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "workbench",
+              "timeMs": 15000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "place_object",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Nobody can spawn on top of it.",
+        "icon": "inv-red-floor",
+        "loot": [
+          {
+            "id": 156,
+            "sprite": "day-ground-red-floor",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "welding_machine": {
+      "key": "welding_machine",
+      "id": 156,
+      "clientItemId": 156,
+      "name": "Welding Machine",
+      "properties": {
+        "stack": 255,
+        "lootId": 157,
+        "score": 0
+      },
+      "skill": {
+        "type": "survival"
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "junk",
+              "amount": 2
+            },
+            {
+              "itemKey": "shaped_metal",
+              "amount": 4
+            },
+            {
+              "itemKey": "electronics",
+              "amount": 1
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "workbench",
+              "timeMs": 50000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "place_object",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Unlocks logic gate recipes.",
+        "icon": "inv-welding-machine",
+        "loot": [
+          {
+            "id": 157,
+            "sprite": "day-ground-welding-machine",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "cable4": {
+      "key": "cable4",
+      "id": 157,
+      "clientItemId": 157,
+      "name": "Cable  - Bridge",
+      "properties": {
+        "stack": 255,
+        "lootId": 158,
+        "score": 0
+      },
+      "skill": {
+        "type": "logic"
+      },
+      "crafting": {
+        "yield": 3,
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "small_wire",
+              "amount": 1
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "welding_machine",
+              "timeMs": 15000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "place_object",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Wires up automatic mechanisms.",
+        "icon": "inv-wire4",
+        "loot": [
+          {
+            "id": 158,
+            "sprite": "day-ground-wire4",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "gate_timer": {
+      "key": "gate_timer",
+      "id": 158,
+      "clientItemId": 158,
+      "name": "Gate Timer",
+      "properties": {
+        "stack": 255,
+        "lootId": 159,
+        "score": 0
+      },
+      "skill": {
+        "type": "logic"
+      },
+      "crafting": {
+        "yield": 3,
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "small_wire",
+              "amount": 1
+            },
+            {
+              "itemKey": "shaped_metal",
+              "amount": 1
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "welding_machine",
+              "timeMs": 15000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "place_object",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Sends a signal at regular intervals.",
+        "icon": "inv-timer",
+        "loot": [
+          {
+            "id": 159,
+            "sprite": "day-ground-timer",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "gate_xor": {
+      "key": "gate_xor",
+      "id": 159,
+      "clientItemId": 159,
+      "name": "Gate Xor",
+      "properties": {
+        "stack": 255,
+        "lootId": 160,
+        "score": 0
+      },
+      "skill": {
+        "type": "logic"
+      },
+      "crafting": {
+        "yield": 3,
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "small_wire",
+              "amount": 1
+            },
+            {
+              "itemKey": "shaped_metal",
+              "amount": 1
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "welding_machine",
+              "timeMs": 15000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "place_object",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Outputs on when exactly one input is on.",
+        "icon": "inv-xor",
+        "loot": [
+          {
+            "id": 160,
+            "sprite": "day-ground-xor",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "builder1": {
+      "key": "builder1",
+      "id": 160,
+      "clientItemId": 160,
+      "name": "Builder 1",
+      "skill": {
+        "type": "skill",
+        "requiredLevel": 6,
+        "skillCost": 2
+      },
+      "client": {
+        "description": "Doubles the output of some recipes.",
+        "icon": "skill-builder1"
+      },
+      "craftBonus": {
+        "item": [
+          {
+            "key": "wood_wall",
+            "multiplier": 2
+          },
+          {
+            "key": "wood_door",
+            "multiplier": 2
+          },
+          {
+            "key": "wood_floor",
+            "multiplier": 2
+          }
+        ]
+      }
+    },
+    "builder2": {
+      "key": "builder2",
+      "id": 161,
+      "clientItemId": 161,
+      "name": "Builder 2",
+      "skill": {
+        "type": "skill",
+        "requiredLevel": 18,
+        "skillCost": 1,
+        "prerequisite": "builder1"
+      },
+      "client": {
+        "description": "Makes repairs much faster.",
+        "icon": "skill-builder2",
+        "loot": [
+          {
+            "id": 161,
+            "sprite": "day-ground-feeder",
+            "scale": 0.8,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "inv1": {
+      "key": "inv1",
+      "id": 162,
+      "clientItemId": 162,
+      "name": "Inventory 1",
+      "skill": {
+        "type": "skill",
+        "requiredLevel": 0,
+        "skillCost": 1
+      },
+      "bag": {
+        "addSlots": 1
+      },
+      "client": {
+        "description": "One more inventory slot.",
+        "icon": "skill-inv1"
+      }
+    },
+    "inv2": {
+      "key": "inv2",
+      "id": 163,
+      "clientItemId": 163,
+      "name": "Inventory 2",
+      "skill": {
+        "type": "skill",
+        "requiredLevel": 5,
+        "skillCost": 1,
+        "prerequisite": "inv1"
+      },
+      "bag": {
+        "addSlots": 1
+      },
+      "client": {
+        "description": "One more inventory slot.",
+        "icon": "skill-inv2"
+      }
+    },
+    "inv3": {
+      "key": "inv3",
+      "id": 164,
+      "clientItemId": 164,
+      "name": "Inventory 3",
+      "skill": {
+        "type": "skill",
+        "requiredLevel": 7,
+        "skillCost": 1,
+        "prerequisite": "inv2"
+      },
+      "bag": {
+        "addSlots": 1
+      },
+      "client": {
+        "description": "One more bag slot.",
+        "icon": "skill-inv3"
+      }
+    },
+    "inv4": {
+      "key": "inv4",
+      "id": 165,
+      "clientItemId": 165,
+      "name": "Inventory 4",
+      "skill": {
+        "type": "skill",
+        "requiredLevel": 10,
+        "skillCost": 2,
+        "prerequisite": "inv3"
+      },
+      "bag": {
+        "addSlots": 2
+      },
+      "client": {
+        "description": "Two more bag slots.",
+        "icon": "skill-inv4"
+      }
+    },
+    "inv5": {
+      "key": "inv5",
+      "id": 166,
+      "clientItemId": 166,
+      "name": "Inventory 5",
+      "skill": {
+        "type": "skill",
+        "requiredLevel": 12,
+        "skillCost": 3,
+        "prerequisite": "inv4"
+      },
+      "bag": {
+        "addSlots": 3
+      },
+      "client": {
+        "description": "Three more bag slots.",
+        "icon": "skill-inv5"
+      }
+    },
+    "featherweight": {
+      "key": "featherweight",
+      "id": 167,
+      "clientItemId": 167,
+      "name": "Light Weight",
+      "skill": {
+        "type": "skill",
+        "requiredLevel": 8,
+        "skillCost": 1
+      },
+      "client": {
+        "description": "You trigger traps less often.",
+        "icon": "skill-lightweight"
+      }
+    },
+    "feeder": {
+      "key": "feeder",
+      "id": 168,
+      "clientItemId": 168,
+      "name": "Feeder",
+      "properties": {
+        "stack": 255,
+        "lootId": 161,
+        "score": 0
+      },
+      "skill": {
+        "type": "survival",
+        "requiredLevel": 12,
+        "skillCost": 1
+      },
+      "crafting": {
+        "recipe": {
+          "ingredient": [
+            {
+              "itemKey": "shaped_uranium",
+              "amount": 8
+            },
+            {
+              "itemKey": "small_wire",
+              "amount": 4
+            },
+            {
+              "itemKey": "electronics",
+              "amount": 2
+            },
+            {
+              "itemKey": "alloys",
+              "amount": 4
+            },
+            {
+              "itemKey": "shaped_metal",
+              "amount": 20
+            }
+          ]
+        },
+        "stations": {
+          "station": [
+            {
+              "key": "tesla",
+              "timeMs": 100000
+            }
+          ]
+        }
+      },
+      "equipable": {
+        "key": "place_object",
+        "equipTimeMs": 1000
+      },
+      "client": {
+        "description": "Feeds you automatically.",
+        "icon": "inv-feeder"
+      }
+    },
+    "bottle_cap": {
+      "key": "bottle_cap",
+      "id": 169,
+      "clientItemId": 169,
+      "currency": {
+        "value": 1
+      },
+      "name": "Bottle Cap",
+      "properties": {
+        "stack": 255,
+        "lootId": 162,
+        "score": 0
+      },
+      "client": {
+        "description": "Currency worth 1 bottle cap.",
+        "icon": "inv-npc-cap",
+        "loot": [
+          {
+            "id": 162,
+            "sprite": "day-ground-npc-cap",
+            "scale": 0.65,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "banknote": {
+      "key": "banknote",
+      "id": 170,
+      "clientItemId": 170,
+      "currency": {
+        "value": 255
+      },
+      "name": "Banknote",
+      "properties": {
+        "stack": 255,
+        "lootId": 163,
+        "score": 0
+      },
+      "client": {
+        "description": "Worth 255 bottle caps. Exchange 255 banknotes for one gold bar.",
+        "icon": "inv-npc-note",
+        "loot": [
+          {
+            "id": 163,
+            "sprite": "day-ground-npc-note",
+            "scale": 0.65,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    },
+    "gold_bar": {
+      "key": "gold_bar",
+      "id": 171,
+      "clientItemId": 171,
+      "currency": {
+        "value": 65025
+      },
+      "name": "Gold Bar",
+      "properties": {
+        "stack": 255,
+        "lootId": 164,
+        "score": 0
+      },
+      "client": {
+        "description": "Worth 255 banknotes, or 65,025 bottle caps.",
+        "icon": "inv-npc-gold",
+        "loot": [
+          {
+            "id": 164,
+            "sprite": "day-ground-npc-gold",
+            "scale": 0.65,
+            "angle": 0,
+            "amount": 1
+          }
+        ]
+      }
+    }
+  }
+}

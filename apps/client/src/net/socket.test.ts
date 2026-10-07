@@ -100,7 +100,7 @@ describe('GameSocket', () => {
     socket.connect();
     mockWs!.triggerOpen();
 
-    // Trigger a single MAP_SIZE message: [74][0][150, 0][150, 0]
+    // Trigger a single MAP_SIZE message: [MAP_SIZE][0][150, 0][150, 0]
     const mapMsg = new Uint8Array([ServerOpcode.MAP_SIZE, 0, 150, 0, 150, 0]);
     mockWs!.triggerMessage(mapMsg);
 
@@ -129,7 +129,7 @@ describe('GameSocket', () => {
     expect(socket.stats.rttMs).toBe(-1);
 
     vi.advanceTimersByTime(1000);
-    expect(mockWs!.sent.at(-1)).toEqual(new Uint8Array([ClientOpcode.PING_MESSAGE]));
+    expect(mockWs!.sent.at(-1)).toEqual(new Uint8Array([ClientOpcode.PING]));
     vi.advanceTimersByTime(37);
     mockWs!.triggerMessage(new Uint8Array([ServerOpcode.PONG]));
     expect(socket.stats.rttMs).toBeCloseTo(37, 0);

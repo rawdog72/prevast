@@ -109,7 +109,7 @@ export class Camera {
   /** Ms until another hit may shake the screen (HIT_SHAKE_COOLDOWN_MS). */
   hitCooldownMs = 0;
   /**
-   * Old client Render.explosionShake (SHAKE_EXPLOSION_STATE): frames left of a
+   * Old client Render.explosionShake (EXPLOSION_SHAKE): frames left of a
    * +-EXPLOSION_SHAKE world-unit jolt, counted in 60 Hz frames.
    */
   explosionFrames = 0;

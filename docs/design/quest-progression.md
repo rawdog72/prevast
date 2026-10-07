@@ -214,10 +214,10 @@ Protocol 1411 (`CLIENT_VERSION_MIN/MAX`, client `PROTOCOL_VERSION`, `shared/prot
 
 | Opcode | Direction | Layout | Sent |
 |---|---|---|---|
-| `QUEST_STATE` (103) | S→C | `[u16 questId][u8 cause][str json]` | on start, advance, complete, fail, abandon; on login/reconnect and after a reload (one per quest) |
-| `QUEST_PROGRESS` (104) | S→C | `[u16 questId][u8 objectiveIndex][u32 count]` | when a counter changes |
-| `QUEST_MARKERS` (105) | S→C | `[u8 n]([u16 npcId][u8 kind])*n` (npcs.xml id, the NPC entity's extra, so markers survive an NPC reload) | when the player's set of marked NPCs changes; kind 1 = can start (`!`), 2 = can advance (`?`) |
-| `QUEST_ACTION` (53) | C→S | `[u16 questId][u8 action]` | 1 = abandon, 2 = resync |
+| `QUEST_STATE` | S→C | `[u16 questId][u8 cause][str json]` | on start, advance, complete, fail, abandon; on login/reconnect and after a reload (one per quest) |
+| `QUEST_PROGRESS` | S→C | `[u16 questId][u8 objectiveIndex][u32 count]` | when a counter changes |
+| `QUEST_MARKERS` | S→C | `[u8 n]([u16 npcId][u8 kind])*n` (npcs.xml id, the NPC entity's extra, so markers survive an NPC reload) | when the player's set of marked NPCs changes; kind 1 = can start (`!`), 2 = can advance (`?`) |
+| `QUEST_ACTION` | C→S | `[u16 questId][u8 action]` | 1 = abandon, 2 = resync |
 
 - `questId` is the quest's index in the loaded set. After a reload the server sends cause 6 (reset, questId 0xFFFF) and then every quest again. `objectiveIndex` indexes the current stage's objectives as sent in the last `QUEST_STATE`.
 - `cause`: 0 sync, 1 started, 2 advanced, 3 completed, 4 failed, 5 removed (abandoned or reset by an admin; empty string), 6 reset (drop every entry).
@@ -284,7 +284,7 @@ The memory store implements the same methods, covered by the store contract test
 ### Client
 
 - Stats and achievements are exported as content tables. Secret achievements are exported without name and description.
-- Protocol 1411: `PROGRESS_STATE` (106) `[str json]` full snapshot once loaded; `PROGRESS_UPDATE` (107) `[u8 n]([u16 statId][u32 value])*n`, at most every 2 s, value saturating; `ACHIEVEMENT_UNLOCKED` (108) `[u16 id][u32 at][str json]` with text for secret achievements.
+- Protocol 1411: `PROGRESS_STATE` `[str json]` full snapshot once loaded; `PROGRESS_UPDATE` `[u8 n]([u16 statId][u32 value])*n`, at most every 2 s, value saturating; `ACHIEVEMENT_UNLOCKED` `[u16 id][u32 at][str json]` with text for secret achievements.
 - The journal's Achievements tab shows total points, a grid (unlocked with date, locked with `312/500` progress when single-stat, secret as `???`) and the public stats list. Guests see "Log in to earn achievements."
 - Quest `<requires achievement/>` and `<requires stat atLeast/>` are unmet until the account progress has loaded.
 

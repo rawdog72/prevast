@@ -8,7 +8,7 @@ import type { Camera } from '../core/camera';
 import type { KeyboardTracker, GameAction } from '../core/keyboard';
 import { distance } from '../core/math2d';
 import type { MouseTracker } from '../core/mouse';
-import { ClientOpcode, MouseDirection, MoveMask } from '../net/opcodes';
+import { MouseDirection, MoveMask } from '../net/opcodes';
 import type { GameSocket } from '../net/socket';
 import { isLootFlying } from '../world/entity-store';
 import { EntityType, type WorldEntity } from '../world/entity-types';
@@ -171,7 +171,7 @@ export class InputManager {
   /**
    * The page lost focus or was hidden: let go of everything now. update()
    * would say the same on its next frame, but a hidden tab gets no frames,
-   * and the server keeps the last MOVE / SHIFT / MOUSE_DOWN until told
+   * and the server keeps the last MOVE / SPRINT / ATTACK_START until told
    * otherwise -- the character would run on (or keep swinging) meanwhile.
    */
   releaseAll(): void {
@@ -447,7 +447,7 @@ export class InputManager {
 
   /** Use a building the way E does (see handleAction's 'interact'). */
   use(ent: WorldEntity): void {
-    this.socket.interact(ClientOpcode.OPEN_STATION_15, ent.id, ent.pid);
+    this.socket.interact(ent.id, ent.pid);
   }
 
   /** Is this NPC within its talking range, as the E badge measures it? */
@@ -513,10 +513,8 @@ export class InputManager {
           } else if (t.kind === 'loot') {
             this.socket.takeLoot(t.entity.id);
           } else {
-            // The server routes every interaction opcode through the same
-            // handler (ProtocolGame: OPEN_STATION_15 .. INTERACT_TIMER), so
-            // one opcode serves doors, containers, stations and switches.
-            this.socket.interact(ClientOpcode.OPEN_STATION_15, t.entity.id, t.entity.pid);
+            // One opcode, INTERACT, serves doors, containers, stations and switches.
+            this.socket.interact(t.entity.id, t.entity.pid);
           }
           this.delegates.onInteract?.(t);
         }

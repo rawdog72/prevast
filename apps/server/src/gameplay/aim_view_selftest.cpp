@@ -313,7 +313,7 @@ void aimViewTestGate()
 	aimViewTestCheck(normal.box.containsInclusive(1400, -900) && !normal.box.containsInclusive(1401, 0),
 		"canSee's test is inclusive, as isInRange was");
 
-	// ROTATION's byte back to an angle: protocolgame.cpp sends degrees * 255 / 360.
+	// ROTATE's byte back to an angle: protocolgame.cpp sends degrees * 255 / 360.
 	aimViewTestCheck(aim_view::rotationToRadians(0) == 0.0, "rotation 0 faces east");
 	aimViewTestCheck(std::fabs(aim_view::rotationToRadians(191) * 180.0 / std::numbers::pi - 269.6) < 0.1,
 		"rotation 191 (sent as 270 degrees) faces north");

@@ -230,7 +230,7 @@ export class PlaySession<C extends PlayConnection> {
   }
 
   private onClosed(): void {
-    // After PLAYER_DIE the server closes the socket on purpose; the death
+    // After YOU_DIED the server closes the socket on purpose; the death
     // window owns the session from there.
     if (this.died) return;
     const cause = this.cause;

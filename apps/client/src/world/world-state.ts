@@ -58,7 +58,7 @@ export function newPlayerInfo(guid: number, nickname: string): PlayerInfo {
 /** Old client badKarmaDelay. */
 const BAD_KARMA_SHOW_MS = 14000;
 
-/** Old client REPELLENT: the byte is in 2 s units; LAPADOINE: 1 s units. */
+/** Old client REPELLENT_ACTIVE: the byte is in 2 s units; LAPADONE_ACTIVE: 1 s units. */
 const REPELLENT_UNIT_MS = 2000;
 const WITHDRAWAL_UNIT_MS = 1000;
 
@@ -147,7 +147,7 @@ export class WorldState {
    * The server's list lives for our session, so a new handshake starts empty.
    */
   readonly blocked = new Set<number>();
-  /** Structure markers in tile coordinates (CITIES_LOCATION). */
+  /** Structure markers in tile coordinates (CITY_LOCATIONS). */
   cities: { x: number; y: number }[] = [];
   /** What this session has seen of the map, for the minimap and the big map. */
   readonly mapMemory = new MapMemory();
@@ -159,7 +159,7 @@ export class WorldState {
   ownScore = 0;
   ownKarma = 0;
   /**
-   * BAD_KARMA: the server's worst Savage/Devil player, shown as their karma
+   * WORST_KARMA_PLAYER: the server's worst Savage/Devil player, shown as their karma
    * icon on the maps for 14 s (old client badKarma / badKarmaDelay). World
    * units; follows the live entity while it is in view.
    */
@@ -224,7 +224,7 @@ export class WorldState {
         this.blocked.clear();
         this.modeId = ev.modeId;
         this.entities.setUnitsPerPlayer(ev.unitsPerPlayer);
-        // NICKNAMES and PLAYER_INFO precede the handshake at login, so merge
+        // PLAYER_NAMES and PLAYER_INFO precede the handshake at login, so merge
         // into whatever they already recorded rather than replacing it. A
         // player neither of them named chose to play without a name: they stay
         // nameless, never a made-up "Player N" that would follow them around.
@@ -348,8 +348,8 @@ export class WorldState {
       }),
     );
 
-    // REPELLENT / LAPADOINE / RESET_DRUG, as the old client kept them: one
-    // timer per channel, and RESET_DRUG (always first in the server's
+    // REPELLENT_ACTIVE / LAPADONE_ACTIVE / DRUG_RESET, as the old client kept them: one
+    // timer per channel, and DRUG_RESET (always first in the server's
     // statement, see buildConditionVisualWire) wipes both and carries the
     // withdrawn marker; POISONED is a screen effect, not a player state.
     cleanups.push(

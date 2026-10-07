@@ -16,7 +16,7 @@ refuses a text frame outright, and those five packets have binary opcodes
 The very first client frame is the login frame and its first byte must be the
 protocol identifier 30 (protocolgame.h: protocol_identifier = 30) or
 ServicePort::make_protocol will not select the game protocol at all. That byte
-is NOT a ClientOpcode -- 30 is REQUEST_JOIN_TEAM in the in-game opcode space.
+is NOT a ClientOpcode -- 30 is REQUEST_TEAM_JOIN in the in-game opcode space.
 """
 
 from __future__ import annotations
@@ -32,137 +32,179 @@ GAME_PROTOCOL_IDENTIFIER = 30
 class ClientOp:
     """opcodes.h ClientOpcode (sent as binary frames)."""
 
+    # Connection
     PING = 0
-    CHAT = 1
-    MOVE = 2
-    MOUSE_DIRECTION = 3
-    MOUSE_DOWN = 4
-    MOUSE_UP = 5
-    ROTATION = 6
-    SHIFT = 7
-    EQUIP_ITEM = 8
-    THROW_ITEM = 9
-    STACK_ITEM = 10
-    SPLIT_ITEM = 11
-    TAKE_LOOT = 12
-    RELOAD = 13
-    PLACE_OBJECT = 14
-    OPEN_STATION_15 = 15
-    OPEN_STATION_16 = 16
-    CLOSE_CONTAINER = 17
-    START_CRAFT_STATION = 18
-    TAKE_FROM_STATION = 19
-    UNLOCK_SKILL = 21
-    START_CRAFT_MANUAL = 22
-    CANCEL_CRAFT = 23
-    ADD_FUEL = 24
-    OPEN_CONTAINER = 25
-    STORE_ITEM = 26
-    TAKE_ITEM = 27
-    CREATE_TEAM = 28
-    DELETE_TEAM = 29
-    REQUEST_JOIN_TEAM = 30
-    ACCEPT_JOIN_TEAM = 31
-    KICK_TEAM = 32
-    LOCK_TEAM = 33
-    UNLOCK_TEAM = 34
-    LEAVE_TEAM = 35
-    INTERACT_LAMP = 36
-    INTERACT_SWITCH = 37
-    INTERACT_TIMER = 38
-    WEAPON_MOD = 54
-    AIM = 55
+    REQUEST_CONTENT = 1
+
+    # Movement and combat
+    MOVE = 10
+    ROTATE = 11
+    FACE = 12
+    ATTACK_START = 13
+    ATTACK_STOP = 14
+    SPRINT = 15
+    AIM = 16
+    RELOAD = 17
+
+    # Items
+    EQUIP_ITEM = 20
+    DROP_ITEM = 21
+    STACK_ITEM = 22
+    SPLIT_ITEM = 23
+    PICK_UP_LOOT = 24
+    FIT_WEAPON_MOD = 25
+
+    # Interaction and containers
+    INTERACT = 30
+    CLOSE_CONTAINER = 31
+    STORE_ITEM = 32
+    TAKE_ITEM = 33
+    MOVE_CONTAINER_ITEM = 34
+    LOOK_AT = 35
+
+    # Building and crafting
+    PLACE_BUILDING = 40
+    CRAFT_AT_STATION = 41
+    CRAFT_BY_HAND = 42
+    CANCEL_CRAFT = 43
+    TAKE_FROM_STATION = 44
+    ADD_FUEL = 45
+    UNLOCK_SKILL = 46
+
+    # Chat and social
+    CHAT_LOCAL = 50
+    SEND_CHAT = 51
+    BLOCK_PLAYER = 52
+    SET_PRIVATE_MESSAGES = 53
+
+    # Teams
+    CREATE_TEAM = 60
+    DELETE_TEAM = 61
+    REQUEST_TEAM_JOIN = 62
+    ACCEPT_TEAM_JOIN = 63
+    KICK_FROM_TEAM = 64
+    LOCK_TEAM = 65
+    UNLOCK_TEAM = 66
+    LEAVE_TEAM = 67
+    INVITE_TO_TEAM = 68
+    ACCEPT_TEAM_INVITE = 69
+
+    # Trade and NPCs
+    TRADE_REQUEST = 70
+    TRADE_REPLY = 71
+    TRADE_OFFER = 72
+    TRADE_ACCEPT = 73
+    TRADE_CANCEL = 74
+    NPC_ACTION = 75
+
+    # Quests
+    QUEST_ACTION = 80
 
 
 class ServerOp:
-    """opcodes.h ServerOpcode (first byte of binary frames)."""
+    """opcodes.h ServerOpcode (first byte of binary frames). Layouts are in opcodes.h."""
 
-    UNITS = 0
-    OLD_VERSION = 1
-    FULL = 2
-    PLAYER_DIE = 3
-    OTHER_DIE = 4
-    FAIL_RESTORE_SESSION = 5
-    STOLE_YOUR_SESSION = 6
-    MUTE = 7
-    LEADERBOARD = 8
-    HANDSHAKE = 9
-    KICK_INACTIVITY = 10
-    NOTIFICATION = 11
-    GAUGES = 12
-    SCORE = 13
-    PLAYER_HIT = 14
-    FULL_INVENTORY = 15
-    PLAYER_LIFE = 18
-    SELECTED_ITEM = 20
-    PLAYER_HEAL = 22
-    PLAYER_STAMINA = 29
-    START_INTERACTION = 35
-    INTERRUPT_INTERACTION = 36
-    BLUEPRINT = 38
-    PLAYER_XP = 41
-    PLAYER_XP_SKILL = 42
-    BOUGHT_SKILL = 43
-    START_CRAFT = 44
-    LOST_BUILDING = 45
-    OPEN_BUILDING = 46
-    NEW_FUEL_VALUE = 47
-    WRONG_TOOL = 52
-    FULL_CHEST = 53
-    ACCEPTED_TEAM = 54
-    KICKED_TEAM = 55
-    DELETE_TEAM = 56
-    JOIN_TEAM = 57
-    TEAM_POSITION = 58
+    # Connection and session
+    HANDSHAKE = 0
+    BATCH = 1
+    PONG = 2
+    ALERT = 3
+    DISCONNECT_REASON = 4
+    SESSION_TAKEN = 5
+    STATUS_MESSAGE = 6
+    SERVER_LOG = 7
+
+    # Content
+    CONTENT_MANIFEST = 10
+    CONTENT_TABLE = 11
+    CONTENT_PATCH = 12
+
+    # World
+    ENTITY_UPDATES = 20
+    MAP_SIZE = 21
+    WORLD_TIME = 22
+    CITY_LOCATIONS = 23
+    LEADERBOARD = 24
+    DAMAGE_INDICATOR = 25
+    EXPLOSION_SHAKE = 26
+    OVERHEAD_ALERT = 27
+    PLAYER_HIT = 28
+    PLAYER_HEALED = 29
+    PLAYER_ATE = 30
+    PLAYER_DIED = 31
+
+    # Players
+    PLAYER_INFO = 40
+    PLAYER_NAMES = 41
+    GROUPS = 42
+    BLOCKED_PLAYERS = 43
+    PLAYER_POSITIONS = 44
+    WORST_KARMA_PLAYER = 45
+
+    # Your character
+    YOU_DIED = 50
+    GAUGE_VALUES = 51
+    GAUGE_RATES = 52
+    GAUGE_DIRECTIONS = 53
+    STAMINA = 54
+    SCORE = 55
+    XP = 56
+    LEVEL_STATE = 57
+    SKILL_UNLOCKED = 58
     KARMA = 59
-    BAD_KARMA = 60
-    AREAS = 61
-    WRONG_PASSWORD = 62
-    MODDED_GAUGES_VALUES = 63
-    SHAKE_EXPLOSION_STATE = 64
-    PLAYER_EAT = 65
-    CITIES_LOCATION = 66
-    POISONED = 67
-    REPELLENT = 68
-    LAPADOINE = 69
-    RESET_DRUG = 70
-    DRAMATIC_CHRONO = 71
-    MAP_SIZE = 74
-    BATCH = 75
+    POISONED = 60
+    REPELLENT_ACTIVE = 61
+    LAPADONE_ACTIVE = 62
+    DRUG_RESET = 63
+    COUNTDOWN = 64
+    AIM_STATE = 65
+    INTERACTION_STARTED = 66
+    INTERACTION_CANCELLED = 67
 
-    # 19, 21, 23-28, 30, 48-51, 72 and 73 are RETIRED and must not be reused:
-    # they were the fifteen single-gauge direction edges GAUGE_STATE replaced.
-    # 16, 17, 31, 32, 33, 34 and 37 likewise -- the seven item messages
-    # INVENTORY_SLOT replaced. 39 (DAY) and 40 (NIGHT) likewise -- WORLD_TIME
-    # replaced them; they announced a boundary and carried no time.
+    # Inventory
+    INVENTORY = 80
+    INVENTORY_SLOT = 81
+    ITEM_MODS = 82
+    SELECTED_ITEM = 83
+    WRONG_TOOL = 84
 
-    # 76-81 were JSON text frames until 2026-08-12 (their old JSON opcodes
-    # were 0-5, which collided numerically with the binary opcodes of the
-    # same value -- only the frame type kept the two spaces apart).
-    CHAT = 76             # [u8 pid][str text]
-    PLAYER_INFO = 77      # [u8 guid][u32 tokenId][u8 skin][u8 ghoul][str name]
-    NICKNAMES = 78        # [u16 count][str name] * count, [str sessionToken]
-    ALERT = 79            # [str text]
-    TEAM_CREATED = 80     # [u8 clanId][u32 leaderGuid][str name]
-    TEAM_NAMES = 81       # [u8 count][str name] * count
-    PONG = 82             # no payload; answers ClientOp.PING
+    # Crafting and stations
+    BLUEPRINT = 90
+    CRAFT_STARTED = 91
+    STATION_OPENED = 92
+    STATION_CLOSED = 93
+    STATION_FUEL = 94
+    CONTAINER_CONTENTS = 95
 
-    # [u16 packed]: 2 bits per gauge in GAUGE_SLOTS order, holding a GaugeDir.
-    # Replaced the fifteen retired direction edges listed above.
-    GAUGE_STATE = 83
+    # Teams
+    TEAM_CREATED = 100
+    TEAM_NAMES = 101
+    TEAM_DELETED = 102
+    TEAM_JOIN_REQUEST = 103
+    TEAM_MEMBER_JOINED = 104
+    TEAM_MEMBER_LEFT = 105
+    TEAM_INVITE = 106
+    TEAM_LOCKED = 107
 
-    # [u8 uid][u16 iid][u8 count][u8 ammo] -- one inventory slot's complete
-    # contents, keyed by uid; iid 0 means the slot is now empty. Replaced the
-    # seven retired item messages listed above.
-    INVENTORY_SLOT = 84
+    # Chat
+    CHAT_LINE = 110
+    CHAT_ACCESS = 111
 
-    # [u32 cycleMs][u32 phaseMs] -- the world's day/night clock, stated whole.
-    # Day is [0, half), night is [half, cycleMs). Sent at login, at each
-    # boundary and every 30s in between; replaced the DAY/NIGHT edges.
-    WORLD_TIME = 85
+    # Trade and NPCs
+    TRADE_STATE = 120
+    TRADE_CLOSED = 121
+    NPC_STATE = 122
+    NPC_CLOSED = 123
 
-    # [u16 x][u16 y][i16 amount][u8 pct] -- dynamic floating damage/heal indicator.
-    DAMAGE_INDICATOR = 86
+    # Quests, progress and account
+    QUEST_STATE = 130
+    QUEST_PROGRESS = 131
+    QUEST_MARKERS = 132
+    PROGRESS_STATE = 133
+    PROGRESS_UPDATE = 134
+    ACHIEVEMENT_UNLOCKED = 135
+    ACCOUNT_RUN = 136
+    ACCOUNT_CLANS = 137
 
 
 class GaugeDir(IntEnum):
@@ -172,19 +214,19 @@ class GaugeDir(IntEnum):
     FALL = 2
 
 
-# Bit-pair order inside GAUGE_STATE. Mirrors GaugeSlot in opcodes.h, and is also
-# the order MODDED_GAUGES_VALUES lays its (max, inc, dec) triples out in.
+# Bit-pair order inside GAUGE_DIRECTIONS. Mirrors GaugeSlot in opcodes.h, and is also
+# the order GAUGE_RATES lays its (max, inc, dec) triples out in.
 GAUGE_SLOTS = ("life", "food", "warmth", "stamina", "radiation")
 
 
 def gauge_state(payload: bytes) -> dict:
-    """Unpack a GAUGE_STATE payload into {slot name: GaugeDir}.
+    """Unpack a GAUGE_DIRECTIONS payload into {slot name: GaugeDir}.
 
     `payload` is a whole message including the opcode byte, as `messages()`
     yields it.
     """
-    if len(payload) < 3 or payload[0] != ServerOp.GAUGE_STATE:
-        raise ValueError(f"not a GAUGE_STATE message: {payload[:4]!r}")
+    if len(payload) < 3 or payload[0] != ServerOp.GAUGE_DIRECTIONS:
+        raise ValueError(f"not a GAUGE_DIRECTIONS message: {payload[:4]!r}")
     packed = int.from_bytes(payload[1:3], "little")
     return {name: GaugeDir((packed >> (i * 2)) & 3) for i, name in enumerate(GAUGE_SLOTS)}
 
@@ -192,7 +234,7 @@ def gauge_state(payload: bytes) -> dict:
 def map_size(payload: bytes) -> tuple:
     """A MAP_SIZE payload as (tilesX, tilesY).
 
-    Layout is [74][pad][u16 tilesX][u16 tilesY] -- the pad byte is not a spare
+    Layout is [MAP_SIZE][pad][u16 tilesX][u16 tilesY] -- the pad byte is not a spare
     field, it is what puts the two uint16s on even offsets so client.js can read
     them through a Uint16Array view. See ProtocolGame::sendMapSize.
     """
@@ -203,14 +245,14 @@ def map_size(payload: bytes) -> tuple:
 
 
 def gauge_rates(payload: bytes) -> dict:
-    """Unpack MODDED_GAUGES_VALUES into {slot name: (max, speedInc, speedDec)}.
+    """Unpack GAUGE_RATES into {slot name: (max, speedInc, speedDec)}.
 
     The server sends these as raw integers scaled by 10000 (GAUGE_RATE_SCALE);
     they are returned unscaled so a caller can compare them against the server's
     own numbers without a float round-trip.
     """
-    if len(payload) < 2 + len(GAUGE_SLOTS) * 3 * 2 or payload[0] != ServerOp.MODDED_GAUGES_VALUES:
-        raise ValueError(f"not a MODDED_GAUGES_VALUES message: {payload[:4]!r}")
+    if len(payload) < 2 + len(GAUGE_SLOTS) * 3 * 2 or payload[0] != ServerOp.GAUGE_RATES:
+        raise ValueError(f"not a GAUGE_RATES message: {payload[:4]!r}")
     # ui16[0] is the opcode padded to 16 bits; the triples start at ui16[1].
     vals = [int.from_bytes(payload[i:i + 2], "little") for i in range(2, len(payload) - 1, 2)]
     return {name: tuple(vals[i * 3:i * 3 + 3]) for i, name in enumerate(GAUGE_SLOTS)}
@@ -221,8 +263,8 @@ def messages(frame: bytes) -> list:
 
     Use this at every receive point instead of looking at ``frame[0]``. Since
     the BATCH envelope landed, one frame is no longer one message: a script
-    that switches on the first byte sees opcode 75 and silently drops a whole
-    tick's worth of everything -- UNITS included -- which reads as a server bug
+    that switches on the first byte sees BATCH and silently drops a whole
+    tick's worth of everything -- ENTITY_UPDATES included -- which reads as a server bug
     rather than a decoder that was never updated.
 
     A non-batched frame comes back as itself, so this is safe on any frame.
@@ -237,13 +279,13 @@ def messages(frame: bytes) -> list:
 def iter_batch(data: bytes):
     """Yield each message inside a ServerOp.BATCH frame.
 
-    Envelope layout (opcodes.h): ``[75][0]`` then, repeated, a little-endian
+    Envelope layout (opcodes.h): ``[BATCH][0]`` then, repeated, a little-endian
     uint16 length followed by that many bytes. Each payload is byte-identical
     to the frame that message would have arrived as on its own, so the caller
     unwraps by re-dispatching each slice.
 
     Ignoring this opcode does not cost one message, it costs a whole tick's
-    worth -- UNITS included. A truncated envelope stops the walk rather than
+    worth -- ENTITY_UPDATES included. A truncated envelope stops the walk rather than
     yielding garbage.
     """
     n = len(data)
@@ -327,7 +369,7 @@ def ping() -> bytes:
 
 
 def chat(text: str) -> bytes:
-    return struct.pack("<B", ClientOp.CHAT) + _str(text)
+    return struct.pack("<B", ClientOp.CHAT_LOCAL) + _str(text)
 
 
 def move(mask: int) -> bytes:
@@ -337,25 +379,25 @@ def move(mask: int) -> bytes:
 
 def mouse_direction(direction: int) -> bytes:
     """MOUSE_LEFT / MOUSE_RIGHT (which way the player sprite faces)."""
-    return struct.pack("<BB", ClientOp.MOUSE_DIRECTION, direction & 0xFF)
+    return struct.pack("<BB", ClientOp.FACE, direction & 0xFF)
 
 
 def mouse_down() -> bytes:
-    return struct.pack("<B", ClientOp.MOUSE_DOWN)
+    return struct.pack("<B", ClientOp.ATTACK_START)
 
 
 def mouse_up() -> bytes:
-    return struct.pack("<B", ClientOp.MOUSE_UP)
+    return struct.pack("<B", ClientOp.ATTACK_STOP)
 
 
 def rotation(degrees: int) -> bytes:
     """Aim angle in whole degrees 0..359 (server rescales to 0..255)."""
-    return struct.pack("<BH", ClientOp.ROTATION, int(degrees) % 360)
+    return struct.pack("<BH", ClientOp.ROTATE, int(degrees) % 360)
 
 
 def shift(enabled: bool) -> bytes:
     """Sprint on/off."""
-    return struct.pack("<BB", ClientOp.SHIFT, 1 if enabled else 0)
+    return struct.pack("<BB", ClientOp.SPRINT, 1 if enabled else 0)
 
 
 def equip_item(iid: int, uid: int) -> bytes:
@@ -363,7 +405,7 @@ def equip_item(iid: int, uid: int) -> bytes:
 
     [u16 iid][u8 count][u32 uid][u8 ammo]; the server reads iid and uid. The uid
     must match the low byte of the server-side item UID, which is exactly what
-    INVENTORY_SLOT / FULL_INVENTORY report (they send ``uid & 0xFF``), so pass
+    INVENTORY_SLOT / INVENTORY report (they send ``uid & 0xFF``), so pass
     the byte straight through.
     """
     return struct.pack("<BHBIB", ClientOp.EQUIP_ITEM, int(iid) & 0xFFFF, 0,
@@ -384,7 +426,7 @@ def weapon_mod(weapon_uid: int, slot: int, mod_uid: int) -> bytes:
     [u8 weaponUid][u8 slot][u8 fit=1][u8 modUid]. The uids are the low bytes
     INVENTORY_SLOT reports; `slot` is a ModSlot number (OPTIC_SLOT for a scope).
     """
-    return struct.pack("<BBBBB", ClientOp.WEAPON_MOD, weapon_uid & 0xFF, slot & 0xFF, 1, mod_uid & 0xFF)
+    return struct.pack("<BBBBB", ClientOp.FIT_WEAPON_MOD, weapon_uid & 0xFF, slot & 0xFF, 1, mod_uid & 0xFF)
 
 
 def aim(held: bool) -> bytes:
@@ -394,26 +436,25 @@ def aim(held: bool) -> bytes:
 
 def place_object(rotation_index: int, tile_x: int, tile_y: int) -> bytes:
     """[u8 rotation][u16 tileX][u16 tileY]. TILE coordinates, not world units."""
-    return struct.pack("<BBHH", ClientOp.PLACE_OBJECT, rotation_index & 0xFF,
+    return struct.pack("<BBHH", ClientOp.PLACE_BUILDING, rotation_index & 0xFF,
                        int(tile_x) & 0xFFFF, int(tile_y) & 0xFFFF)
 
 
-def interact(opcode: int, entity_id: int, pid: int = 0) -> bytes:
-    """[u32 entityId][u8 pid] — shared by the six interaction opcodes
-    (OPEN_STATION_15/16, OPEN_CONTAINER, INTERACT_LAMP/SWITCH/TIMER)."""
-    return struct.pack("<BIB", opcode, int(entity_id) & 0xFFFFFFFF, pid & 0xFF)
+def interact(entity_id: int, pid: int = 0) -> bytes:
+    """INTERACT [u32 entityId][u8 pid]: doors, stations, containers, lamps, switches and timers."""
+    return struct.pack("<BIB", ClientOp.INTERACT, int(entity_id) & 0xFFFFFFFF, pid & 0xFF)
 
 
 def take_loot(loot_id: int) -> bytes:
-    return struct.pack("<BI", ClientOp.TAKE_LOOT, int(loot_id) & 0xFFFFFFFF)
+    return struct.pack("<BI", ClientOp.PICK_UP_LOOT, int(loot_id) & 0xFFFFFFFF)
 
 
 def start_craft_manual(iid: int) -> bytes:
-    return struct.pack("<BH", ClientOp.START_CRAFT_MANUAL, int(iid) & 0xFFFF)
+    return struct.pack("<BH", ClientOp.CRAFT_BY_HAND, int(iid) & 0xFFFF)
 
 
 def start_craft_station(iid: int) -> bytes:
-    return struct.pack("<BH", ClientOp.START_CRAFT_STATION, int(iid) & 0xFFFF)
+    return struct.pack("<BH", ClientOp.CRAFT_AT_STATION, int(iid) & 0xFFFF)
 
 
 def unlock_skill(iid: int) -> bytes:
@@ -484,7 +525,7 @@ def parse_world_time(data: bytes) -> tuple[int, int]:
 
 @dataclass
 class UnitRecord:
-    """One 18-byte record of a UNITS frame (ProtocolGame::flushUpdates).
+    """One 18-byte record of a ENTITY_UPDATES frame (ProtocolGame::flushUpdates).
 
     For players: pid == GUID and id == 0. (end_x, end_y) is the position the
     entity is moving toward this tick, ``rotation`` is the aim angle scaled
@@ -531,9 +572,9 @@ def parse_units(data: bytes) -> tuple[bool, list[UnitRecord]]:
 
 
 def find_self_record(data: bytes, guid: int):
-    """Return just this bot's own UnitRecord from a UNITS frame, or None.
+    """Return just this bot's own UnitRecord from a ENTITY_UPDATES frame, or None.
 
-    The measurement-preserving counterpart to parse_units. A UNITS frame
+    The measurement-preserving counterpart to parse_units. A ENTITY_UPDATES frame
     carries one 18-byte record per entity in view, and parse_units allocates a
     UnitRecord for every one of them; at 500 bots x 20Hz that is the dominant
     cost in the harness, and it is spent building a `view.others` dict that no
@@ -574,7 +615,7 @@ class InventorySlot:
 
 
 def parse_inventory_slot(data: bytes) -> InventorySlot | None:
-    """INVENTORY_SLOT: [84][u8 uid][u16 iid LE][u8 count][u8 ammo].
+    """INVENTORY_SLOT: [INVENTORY_SLOT][u8 uid][u16 iid LE][u8 count][u8 ammo].
 
     Note the field order: the uid comes FIRST because it is the key. This one
     message replaced NEW_ITEM/DELETE_ITEM/REPLACE_*/SPLIT_ITEM, so a caller
@@ -588,7 +629,7 @@ def parse_inventory_slot(data: bytes) -> InventorySlot | None:
 
 
 def parse_player_die(data: bytes) -> int:
-    """PLAYER_DIE carries the final score as a big-endian u16."""
+    """YOU_DIED carries the final score as a big-endian u16."""
     if len(data) >= 3:
         return (data[1] << 8) | data[2]
     return 0

@@ -35,7 +35,7 @@ static constexpr float MELEE_HIT_FORGIVENESS = 15.0f;
 // NO PERIODIC GAUGE RESYNC. This is a deliberate constraint, not an omission.
 //
 // The client does not display what the server sends; it runs its own copy of
-// every gauge and only takes a GAUGES packet as a correction.
+// every gauge and only takes a GAUGE_VALUES packet as a correction.
 //
 // Both sides now integrate the SAME rates -- computeGaugeRates sends the
 // effective per-player numbers and the tick then runs on exactly those, so
@@ -1062,7 +1062,7 @@ void Player::syncImmuneGauges(uint32_t elapsedMs)
 	updatePlayerConditions(elapsedMs);
 }
 
-// Two bits per gauge, GaugeSlot order, exactly as ServerOpcode::GAUGE_STATE
+// Two bits per gauge, GaugeSlot order, exactly as ServerOpcode::GAUGE_DIRECTIONS
 // carries it. The client unpacks with the same shifts.
 uint16_t Player::packGaugeDirections(GaugeDirection life, GaugeDirection food, GaugeDirection warmth,
 	GaugeDirection stamina, GaugeDirection radiation) const
@@ -1103,7 +1103,7 @@ void Player::flushGaugeDirections(uint16_t packed)
 	client->sendGaugeState(packed);
 }
 
-// The one place a GAUGES frame is emitted from the tick, and it fires only when
+// The one place a GAUGE_VALUES frame is emitted from the tick, and it fires only when
 // something asked for it. Read the note on the resync policy above first.
 //
 // `gaugesDirty` means a value moved in a way the client cannot predict — a hit
@@ -1183,7 +1183,7 @@ int32_t Player::resistanceRate(std::string_view modifierKey) const
 //
 // The feeder is deliberately NOT folded in any more. It used to force food
 // speedDec to 0 to make the client hold, because no opcode could make a food
-// bar rise; GAUGE_STATE can say RISE, so the rate states the configured speed
+// bar rise; GAUGE_DIRECTIONS can say RISE, so the rate states the configured speed
 // and the DIRECTION states what is happening to it. That separation also means
 // walking into a feeder no longer re-sends this message at all.
 Player::GaugeRates Player::computeGaugeRates(const LifeDrainProfile& drain) const
@@ -1251,7 +1251,7 @@ Player::GaugeRates Player::computeGaugeRates(const LifeDrainProfile& drain) cons
 	// A ghoul does not eat, freeze or irradiate, and it runs longer than a
 	// person. These are the SAME adjustments client.js already makes for a ghoul
 	// in World.initGauges -- and they have to be restated here rather than left
-	// to the client, because MODDED_GAUGES_VALUES overwrites every gauge's rates
+	// to the client, because GAUGE_RATES overwrites every gauge's rates
 	// wholesale when it arrives, which would put a ghoul straight back onto
 	// human metabolism. Restating them keeps the two simulations identical,
 	// which is the whole contract of this function.
@@ -1395,7 +1395,7 @@ GaugeDirection Player::updateStaminaGauge(uint32_t elapsedMs, const GaugeMode& s
 
 // The feeder used to be unrepresentable: the client's food bar could only fall,
 // so a feeder was expressed as "rate zero" plus a 4 Hz stream of authoritative
-// GAUGES pushes to carry the climb. GAUGE_STATE can say RISE, so the client
+// GAUGE_VALUES pushes to carry the climb. GAUGE_DIRECTIONS can say RISE, so the client
 // integrates the same speedInc the line below does and the pushes are gone --
 // along with the lastFeederPush timer they needed.
 GaugeDirection Player::updateHungerGauge(uint32_t elapsedMs, const GaugeMode& fMode)
@@ -2003,7 +2003,7 @@ void Player::updateActions()
 	bool couldAttack = false;
 
 	// A stun stops the swing. Gated in the REPEAT loop rather than at the click,
-	// because the client sends MOUSE_DOWN once per press and the server owns the
+	// because the client sends ATTACK_START once per press and the server owns the
 	// held-button repeat -- so refusing only the initial click would let a
 	// trigger held from before the stun keep firing right through it, and
 	// refusing only the click would also mean a stun that ends while the button
@@ -3066,7 +3066,7 @@ struct ConditionVisualWire {
 // broadcast and the single-client path walk this same table, so they cannot
 // disagree about what the truth looks like on the wire.
 //
-// RESET_DRUG goes first, and unconditionally. It is the only message that
+// DRUG_RESET goes first, and unconditionally. It is the only message that
 // CLEARS, it clears both channels at once, and its second byte is the only
 // carrier for the withdrawn marker -- so stating the whole truth means wiping
 // the slate and re-asserting whatever is still live, in that order. Sending it
@@ -3076,7 +3076,7 @@ struct ConditionVisualWire {
 uint8_t buildConditionVisualWire(const ConditionVisual& visual, std::array<ConditionVisualWire, 3>& out)
 {
 	uint8_t count = 0;
-	out[count++] = {ServerOpcode::RESET_DRUG, static_cast<uint8_t>(visual.withdrawn ? 1 : 0)};
+	out[count++] = {ServerOpcode::DRUG_RESET, static_cast<uint8_t>(visual.withdrawn ? 1 : 0)};
 
 	// Both channels clamp to at least 1: the client reads a zero byte as "not
 	// drugged at all", so a channel with less than one wire unit left would
@@ -3084,11 +3084,11 @@ uint8_t buildConditionVisualWire(const ConditionVisual& visual, std::array<Condi
 	// -- see CONDITION_VISUAL_RESTATE_MS for why losing the top of a long
 	// repellent is survivable.
 	if (visual.repellentMs != 0) {
-		out[count++] = {ServerOpcode::REPELLENT,
+		out[count++] = {ServerOpcode::REPELLENT_ACTIVE,
 			static_cast<uint8_t>(std::clamp<uint32_t>(visual.repellentMs / 2000, 1, 255))};
 	}
 	if (visual.withdrawalMs != 0) {
-		out[count++] = {ServerOpcode::LAPADOINE,
+		out[count++] = {ServerOpcode::LAPADONE_ACTIVE,
 			static_cast<uint8_t>(std::clamp<uint32_t>(visual.withdrawalMs / 1000, 1, 255))};
 	}
 	return count;
@@ -3302,7 +3302,7 @@ void Player::cureConditions(const std::vector<std::string>& keysToCure)
 		// were wrong: the bare clear wiped a live ghoul-drug skin off every
 		// client that could see the player, and the sendPoisened(0) fired
 		// whether or not any poison had been cured -- and was a no-op anyway,
-		// because client.js used to ignore opcode 67 while its animation was
+		// because client.js used to ignore POISONED while its animation was
 		// running. It stops one now, so this is where the antidote finally
 		// clears the green screen.
 		onConditionsChanged();

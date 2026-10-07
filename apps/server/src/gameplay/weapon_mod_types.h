@@ -9,7 +9,7 @@
 #include <string_view>
 
 // The slots a weapon can declare (<mods><slot type=>). The number is the wire
-// id -- ITEM_MODS, FULL_CHEST and TRADE_STATE carry it -- so never renumber.
+// id -- ITEM_MODS, CONTAINER_CONTENTS and TRADE_STATE carry it -- so never renumber.
 enum class ModSlot : uint8_t {
 	Magazine = 0,
 	Optic = 1,

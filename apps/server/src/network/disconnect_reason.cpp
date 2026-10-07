@@ -28,7 +28,7 @@ int runDisconnectReasonSelfTest()
 	writeDisconnectReason(msg, DisconnectReason::IP_BANNED, "ab");
 	const uint8_t* body = msg.getBuffer() + NetworkMessage::INITIAL_BUFFER_POSITION;
 	check(msg.getLength() == 6, "length is opcode + reason + u16 + 2 detail bytes");
-	check(body[0] == 99, "opcode byte is 99");
+	check(body[0] == static_cast<uint8_t>(ServerOpcode::DISCONNECT_REASON), "opcode byte is DISCONNECT_REASON");
 	check(body[1] == 7, "reason byte is IP_BANNED (7)");
 	check(body[2] == 2 && body[3] == 0, "detail length is a little-endian u16");
 	check(body[4] == 'a' && body[5] == 'b', "detail bytes follow the length");

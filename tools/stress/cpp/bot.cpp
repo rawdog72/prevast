@@ -167,7 +167,7 @@ void Bot::handleBinary(const uint8_t* data, size_t n)
 			break;
 		}
 
-		case proto::ServerOp::UNITS:
+		case proto::ServerOp::ENTITY_UPDATES:
 			handleUnits(data, n);
 			break;
 
@@ -187,7 +187,7 @@ void Bot::handleBinary(const uint8_t* data, size_t n)
 			break;
 		}
 
-		case proto::ServerOp::FULL_INVENTORY: {
+		case proto::ServerOp::INVENTORY: {
 			m_inventory.clear();
 			const size_t slots = proto::inventorySlotCount(n);
 			for (size_t i = 0; i < slots; ++i) {
@@ -197,7 +197,7 @@ void Bot::handleBinary(const uint8_t* data, size_t n)
 			break;
 		}
 
-		case proto::ServerOp::PLAYER_DIE:
+		case proto::ServerOp::YOU_DIED:
 			m_alive = false;
 			m_stats.deaths.fetch_add(1, std::memory_order_relaxed);
 			break;

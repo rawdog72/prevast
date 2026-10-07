@@ -403,7 +403,7 @@ describe('InputManager', () => {
     expect(manager.currentTarget?.icon).toBe('e-chest');
 
     window.dispatchEvent(new KeyboardEvent('keydown', { code: 'KeyE' }));
-    expect(ctx.socket.interact).toHaveBeenCalledWith(expect.any(Number), 11, 0);
+    expect(ctx.socket.interact).toHaveBeenCalledWith(11, 0);
 
     manager.destroy();
     ctx.keyboard.destroy();

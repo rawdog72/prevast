@@ -177,7 +177,7 @@ Update `opcodes.h`, `core/definitions.h` (client version 1415), `apps/client/src
 - Hysteresis: an entity the client already has is tested against the outer shape (+4° cone angle, +5% reach or length, +40 rect width), a new entity against the inner shape. The known mobile set is sorted and `visible` is built in id order, so this is a two-pointer walk inside the same loop.
 - `viewContains` answers with the shape and rear circle. Cosmetic events inside them reach the player; the shape replaces the cosmetic radius for that player.
 - Scenery: the static box is the normal box extended to the shape's bounding box, so terrain and buildings along the shape are drawn. Surgical updates of scenery test that static box, not the shape, so a building placed inside the box but outside the shape still reaches the client.
-- Rotation arrives at `ROTATION`'s existing rate (on a 2° change or every 200 ms). The +4° outer margin absorbs that lag; if play shows pop-in when turning fast, `ROTATION` is sent more often while scoped.
+- Rotation arrives at `ROTATE`'s existing rate (on a 2° change or every 200 ms). The +4° outer margin absorbs that lag; if play shows pop-in when turning fast, `ROTATE` is sent more often while scoped.
 
 Trade-off, intended: a player outside the shape and the rear circle is not sent while you are scoped, so it is neither seen nor heard.
 

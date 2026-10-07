@@ -213,12 +213,12 @@ export class CharacterAnimator {
     s.hurtCooldown = HURT_REPEAT_MS;
   }
 
-  /** PLAYER_HEAL: green pulse. */
+  /** PLAYER_HEALED: green pulse. */
   heal(entity: WorldEntity): void {
     this.stateFor(entity).heal = HEAL_PULSE_MS;
   }
 
-  /** PLAYER_EAT: hand-to-mouth pulse. */
+  /** PLAYER_ATE: hand-to-mouth pulse. */
   eat(entity: WorldEntity): void {
     this.stateFor(entity).food = EAT_PULSE_MS;
   }

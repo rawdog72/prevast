@@ -7,19 +7,20 @@ import type { AchievementEntry, StatEntry } from '../../../../shared/typescript/
 import { ProgressStore } from '../world/progress-store';
 import { renderAchievements } from '../ui/windows/achievements-panel';
 import { BinaryWriter } from './binary-stream';
+import { ServerOpcode } from './opcodes';
 import { dispatchServerMessage } from './dispatcher';
 import { NetEventBus } from './events';
 
 const statePacket = (state: unknown) => {
-  const w = new BinaryWriter(); w.u8(106); w.str(JSON.stringify(state)); return w.build();
+  const w = new BinaryWriter(); w.u8(ServerOpcode.PROGRESS_STATE); w.str(JSON.stringify(state)); return w.build();
 };
 const updatePacket = (stats: [number, number][]) => {
-  const w = new BinaryWriter(); w.u8(107); w.u8(stats.length);
+  const w = new BinaryWriter(); w.u8(ServerOpcode.PROGRESS_UPDATE); w.u8(stats.length);
   for (const [id, value] of stats) { w.u16(id); w.u32(value); }
   return w.build();
 };
 const unlockPacket = (id: number, at: number, name: string, description: string) => {
-  const w = new BinaryWriter(); w.u8(108); w.u16(id); w.u32(at); w.str(JSON.stringify({ name, description })); return w.build();
+  const w = new BinaryWriter(); w.u8(ServerOpcode.ACHIEVEMENT_UNLOCKED); w.u16(id); w.u32(at); w.str(JSON.stringify({ name, description })); return w.build();
 };
 
 const STATS: Record<string, StatEntry> = {

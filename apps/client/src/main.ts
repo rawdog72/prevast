@@ -172,7 +172,7 @@ function openGameConnection(request: JoinRequest, ticket: string): GameConnectio
   const bus = new NetEventBus();
 
   // Session restore, as the old client did through localStorage: the server
-  // mints a token per session (NICKNAMES) and getPlayerByToken hands the same
+  // mints a token per session (PLAYER_NAMES) and getPlayerByToken hands the same
   // character back to a client that presents it -- so a reload or a dropped
   // connection resumes the character instead of leaving it AFK in the world
   // next to a fresh copy. Keyed by server so a token never goes to a stranger.

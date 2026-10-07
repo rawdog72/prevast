@@ -4,7 +4,7 @@
 // The pluggable brains. A behavior reads bot.x()/y()/others() and drives the
 // bot through setMove/setRotation/send.
 //
-// Because MOVE/ROTATION/SHIFT are state-change opcodes (client.js only sends
+// Because MOVE/ROTATE/SPRINT are state-change opcodes (client.js only sends
 // them when the value actually changes), behaviors go through Bot::setMove and
 // friends rather than Bot::send, so the input traffic matches a real client's.
 

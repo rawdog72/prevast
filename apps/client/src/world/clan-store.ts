@@ -4,7 +4,7 @@
 // apps/client/src/world/clan-store.ts
 // Clan state, mirroring the old client's World.teams + World.PLAYER team
 // fields. Every fact here comes from the server (TEAM_NAMES, TEAM_CREATED,
-// ACCEPTED_TEAM, KICKED_TEAM, DELETE_TEAM, JOIN_TEAM, TEAM_LOCKED, TEAM_INVITE
+// TEAM_MEMBER_JOINED, TEAM_MEMBER_LEFT, TEAM_DELETED, TEAM_JOIN_REQUEST, TEAM_LOCKED, TEAM_INVITE
 // and the handshake roster); the only client-side state is the optimistic lock
 // toggle (TEAM_LOCKED confirms it) and the action-delay timestamps that grey
 // buttons out.
@@ -43,11 +43,11 @@ export class ClanStore {
   /** TEAM_LOCKED: clans that take invitations only, no join requests. */
   private readonly lockedIds = new Set<number>();
 
-  /** JOIN_TEAM (leader only): the request being shown, then up to five waiting. */
+  /** TEAM_JOIN_REQUEST (leader only): the request being shown, then up to five waiting. */
   joinRequest = 0;
   readonly joinQueue: number[] = new Array<number>(JOIN_QUEUE_SIZE).fill(0);
 
-  /** TEAM_POSITION: clan mates' positions scaled to 0..255 over the map (never our own). */
+  /** PLAYER_POSITIONS: clan mates' positions scaled to 0..255 over the map (never our own). */
   readonly positions = new Map<number, { x: number; y: number }>();
 
   private lastRequestAt = Number.NEGATIVE_INFINITY;

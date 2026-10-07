@@ -8,7 +8,6 @@ import WebSocket from 'ws';
 import { unwrapBatch } from '../../apps/client/src/net/batch';
 import { dispatchServerMessage } from '../../apps/client/src/net/dispatcher';
 import { NetEventBus } from '../../apps/client/src/net/events';
-import { ClientOpcode } from '../../apps/client/src/net/opcodes';
 import * as wire from '../../apps/client/src/net/outbound';
 import { InventoryStore } from '../../apps/client/src/world/inventory-store';
 import { WorldState } from '../../apps/client/src/world/world-state';
@@ -75,7 +74,7 @@ try {
     const delay = (objects.campfire.interaction.interactionDelayMs ?? 0) + 100;
     const waitMs = lastOpenedAt + delay - Date.now();
     if (waitMs > 0) await new Promise((resolve) => setTimeout(resolve, waitMs));
-    send(wire.buildInteractMessage(ClientOpcode.OPEN_STATION_15, fire.id, fire.pid));
+    send(wire.buildInteractMessage(fire.id, fire.pid));
     await until(() => inventory.isStationOpen && inventory.stationArea === 1, 'open campfire');
     lastOpenedAt = Date.now();
   };

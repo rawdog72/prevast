@@ -1,13 +1,15 @@
 // Copyright (c) 2026 rawdog72 and Prevast Open Server Contributors
 // SPDX-License-Identifier: GPL-2.0-only
 
-export const BATCH_OPCODE = 75;
+import { ServerOpcode } from './opcodes';
+
+export const BATCH_OPCODE = ServerOpcode.BATCH;
 
 /**
  * Unwraps a received WebSocket frame into an array of individual protocol messages.
  *
- * If the frame begins with ServerOpcode::BATCH (75), the envelope layout is:
- *   [75][0] then repeated [u16 length LE][message bytes]
+ * If the frame begins with ServerOpcode.BATCH, the envelope layout is:
+ *   [BATCH][0] then repeated [u16 length LE][message bytes]
  *
  * Each sub-message is sliced into its own standalone buffer with byteOffset 0
  * so that downstream decoders indexing from offset 0 or building typed views
@@ -42,8 +44,8 @@ export function unwrapBatch(frame: Uint8Array): Uint8Array[] {
 }
 
 /**
- * Builds a ServerOpcode::BATCH frame containing multiple messages.
- * Layout: [75][0] repeated [u16 length LE][message bytes]
+ * Builds a ServerOpcode.BATCH frame containing multiple messages.
+ * Layout: [BATCH][0] repeated [u16 length LE][message bytes]
  */
 export function wrapBatch(messages: Uint8Array[]): Uint8Array {
   let totalBytes = 2;

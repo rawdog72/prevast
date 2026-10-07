@@ -130,7 +130,7 @@ export class MapWindow {
 
     if (brZone) brZone.renderMinimap(ctx, 0, 0, box.w, box.h, worldW, worldH);
 
-    // Structures: cities then houses (CITIES_LOCATION), at their tile centres.
+    // Structures: cities then houses (CITY_LOCATIONS), at their tile centres.
     const icon = (name: string, tx: number, ty: number) => {
       const p = bigMapPoint(tx * TILE_SIZE, ty * TILE_SIZE, worldW, worldH);
       const img = assets?.get(name);
@@ -146,7 +146,7 @@ export class MapWindow {
     for (const city of world.cities) icon('city-icon', city.x, city.y);
     for (const house of world.houses) icon('house-icon', house.x, house.y);
 
-    // Clan mates (TEAM_POSITION, 0..255 over the map) as arrows with their names.
+    // Clan mates (PLAYER_POSITIONS, 0..255 over the map) as arrows with their names.
     ctx.font = `12px ${MAP_FONT}`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'bottom';
@@ -160,7 +160,7 @@ export class MapWindow {
       }
     }
 
-    // The worst-karma player (BAD_KARMA): their karma badge, as the old big map
+    // The worst-karma player (WORST_KARMA_PLAYER): their karma badge, as the old big map
     // drew KARMA[icon] at 1.25x for 14 s.
     if (world.badKarma) {
       const p = bigMapPoint(world.badKarma.x, world.badKarma.y, worldW, worldH);

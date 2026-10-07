@@ -166,7 +166,7 @@ public:
 
 	// Have the minimap markers changed since anyone last asked? Clears the flag.
 	//
-	// CITIES_LOCATION states the whole marker set, and it used to be sent only at
+	// CITY_LOCATIONS states the whole marker set, and it used to be sent only at
 	// login and after a world rebuild -- so a building placed or removed while
 	// people were connected moved nothing on their minimaps until they
 	// reconnected. Rather than remembering to push the packet at each of the

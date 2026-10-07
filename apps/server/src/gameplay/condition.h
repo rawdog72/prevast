@@ -243,8 +243,8 @@ static constexpr uint32_t CONDITION_VISUAL_RESTATE_MS = 10000;
 // look and the behaviour disagreed until the next heartbeat. A statement of the
 // whole truth cannot do that.
 struct ConditionVisual {
-    uint32_t repellentMs = 0;  // opcode 68 while non-zero
-    uint32_t withdrawalMs = 0; // opcode 69 while non-zero
+    uint32_t repellentMs = 0;  // REPELLENT_ACTIVE while non-zero
+    uint32_t withdrawalMs = 0; // LAPADONE_ACTIVE while non-zero
 
     // Lapadone has run its course and has not been cured since. Deliberately
     // NOT derived from the active set -- it outlives the effect, which is the
@@ -252,7 +252,7 @@ struct ConditionVisual {
     // (skinType 4, or 5 under a repellent) for a player whose withdrawal timer
     // has expired but is non-zero, and the antidote's own description is
     // "remove the withdrawal effects (pink skin)". Sent as the second byte of
-    // RESET_DRUG, which is the only thing that reads it.
+    // DRUG_RESET, which is the only thing that reads it.
     bool withdrawn = false;
 
     // Which channels are being drawn, ignoring how much time is left on them.

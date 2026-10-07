@@ -19,7 +19,7 @@ const sprite = z.string().min(1);
 const sound = z.string().min(1);
 const int = z.number().int();
 
-// Wire order: the index is the slot id ITEM_MODS / FULL_CHEST / TRADE_STATE carry.
+// Wire order: the index is the slot id ITEM_MODS / CONTAINER_CONTENTS / TRADE_STATE carry.
 export const MOD_SLOT_NAMES = [
   'magazine',
   'optic',

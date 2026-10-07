@@ -10,7 +10,7 @@
 
 class NetworkMessage;
 
-// Appends a DISCONNECT_REASON frame: [99][u8 reason][str detail].
+// Appends a DISCONNECT_REASON frame: [DISCONNECT_REASON][u8 reason][str detail].
 void writeDisconnectReason(NetworkMessage& msg, DisconnectReason reason, std::string_view detail);
 
 // Checks the frame layout; part of prevast_server --selftest. 0 when every case passes.

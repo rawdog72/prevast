@@ -8,7 +8,7 @@ import { NetEventBus } from './events';
 import { DisconnectReason, GaugeDirection, ServerOpcode } from './opcodes';
 
 describe('dispatchServerMessage', () => {
-  it('decodes DISCONNECT_REASON as [99][u8 reason][str detail]', () => {
+  it('decodes DISCONNECT_REASON as [DISCONNECT_REASON][u8 reason][str detail]', () => {
     const bus = new NetEventBus();
     const listener = vi.fn();
     bus.on('disconnectReason', listener);
@@ -18,7 +18,6 @@ describe('dispatchServerMessage', () => {
       .str('Permanent. Banned by Admin.')
       .build();
     dispatchServerMessage(packet, bus);
-    expect(ServerOpcode.DISCONNECT_REASON).toBe(99);
     expect(listener).toHaveBeenCalledWith({ reason: 7, detail: 'Permanent. Banned by Admin.' });
   });
 
@@ -29,12 +28,12 @@ describe('dispatchServerMessage', () => {
     bus.on('mapSize', mapListener);
     bus.on('worldTime', timeListener);
 
-    // MAP_SIZE: [74][pad][width u16][height u16]
+    // MAP_SIZE: [MAP_SIZE][pad][width u16][height u16]
     const mapPacket = new BinaryWriter().u8(ServerOpcode.MAP_SIZE).u8(0).u16(150).u16(150).build();
     dispatchServerMessage(mapPacket, bus);
     expect(mapListener).toHaveBeenCalledWith({ width: 150, height: 150 });
 
-    // WORLD_TIME: [85][cycleMs u32][phaseMs u32]
+    // WORLD_TIME: [WORLD_TIME][cycleMs u32][phaseMs u32]
     const timePacket = new BinaryWriter()
       .u8(ServerOpcode.WORLD_TIME)
       .u32(960000)
@@ -44,14 +43,14 @@ describe('dispatchServerMessage', () => {
     expect(timeListener).toHaveBeenCalledWith({ cycleMs: 960000, phaseMs: 500000, isNight: true });
   });
 
-  it('dispatches GAUGES as five raw bytes (no padding, no u16 widening)', () => {
+  it('dispatches GAUGE_VALUES as five raw bytes (no padding, no u16 widening)', () => {
     const bus = new NetEventBus();
     const gaugesListener = vi.fn();
     bus.on('gauges', gaugesListener);
 
-    // GAUGES: [12][life u8][food u8][warmth u8][stamina u8][radiation u8] -- ProtocolGame::sendGauges
+    // GAUGE_VALUES: [GAUGE_VALUES][life u8][food u8][warmth u8][stamina u8][radiation u8] -- ProtocolGame::sendGauges
     const packet = new BinaryWriter()
-      .u8(ServerOpcode.GAUGES)
+      .u8(ServerOpcode.GAUGE_VALUES)
       .u8(200)
       .u8(180)
       .u8(40)
@@ -70,19 +69,19 @@ describe('dispatchServerMessage', () => {
     });
   });
 
-  it('dispatches GAUGE_STATE with bit-unpacked directions', () => {
+  it('dispatches GAUGE_DIRECTIONS with bit-unpacked directions', () => {
     const bus = new NetEventBus();
     const stateListener = vi.fn();
     bus.on('gaugeState', stateListener);
 
-    // GAUGE_STATE: [83][packed u16]
+    // GAUGE_DIRECTIONS: [GAUGE_DIRECTIONS][packed u16]
     // Slot 0 (life): RISE (1) -> (1 << 0)
     // Slot 1 (food): FALL (2) -> (2 << 2) = 8
     // Slot 2 (warmth): HOLD (0)
     // Slot 3 (stamina): RISE (1) -> (1 << 6) = 64
     // Slot 4 (radiation): FALL (2) -> (2 << 8) = 512
     const packed = 1 | (2 << 2) | (0 << 4) | (1 << 6) | (2 << 8);
-    const packet = new BinaryWriter().u8(ServerOpcode.GAUGE_STATE).u16(packed).build();
+    const packet = new BinaryWriter().u8(ServerOpcode.GAUGE_DIRECTIONS).u16(packed).build();
 
     dispatchServerMessage(packet, bus);
     expect(stateListener).toHaveBeenCalledWith({
@@ -94,14 +93,14 @@ describe('dispatchServerMessage', () => {
     });
   });
 
-  it('dispatches INVENTORY_SLOT and FULL_INVENTORY', () => {
+  it('dispatches INVENTORY_SLOT and INVENTORY', () => {
     const bus = new NetEventBus();
     const slotListener = vi.fn();
     const fullListener = vi.fn();
     bus.on('inventorySlot', slotListener);
     bus.on('fullInventory', fullListener);
 
-    // INVENTORY_SLOT: [84][uid u8][iid u16][count u8][ammo u8]
+    // INVENTORY_SLOT: [INVENTORY_SLOT][uid u8][iid u16][count u8][ammo u8]
     const slotPacket = new BinaryWriter()
       .u8(ServerOpcode.INVENTORY_SLOT)
       .u8(3)
@@ -112,9 +111,9 @@ describe('dispatchServerMessage', () => {
     dispatchServerMessage(slotPacket, bus);
     expect(slotListener).toHaveBeenCalledWith({ uid: 3, iid: 18, count: 1, ammo: 0 });
 
-    // FULL_INVENTORY: [15] then 2 slots: [iid u16][count u8][uid u8][ammo u8]
+    // INVENTORY: [INVENTORY] then 2 slots: [iid u16][count u8][uid u8][ammo u8]
     const fullPacket = new BinaryWriter()
-      .u8(ServerOpcode.FULL_INVENTORY)
+      .u8(ServerOpcode.INVENTORY)
       .u16(1)
       .u8(10)
       .u8(0)
@@ -133,17 +132,17 @@ describe('dispatchServerMessage', () => {
     });
   });
 
-  it('dispatches UNITS with 24-bit id and record layout', () => {
+  it('dispatches ENTITY_UPDATES with 24-bit id and record layout', () => {
     const bus = new NetEventBus();
     const unitsListener = vi.fn();
     bus.on('units', unitsListener);
 
-    // UNITS: [0][loginFlag u8]
+    // ENTITY_UPDATES: [ENTITY_UPDATES][loginFlag u8]
     // 1 record (18 bytes):
     // pid 5, idHigh 0x01, rotation 45, type 0, state 100, idLow 0x2345, startX 100, startY 200, endX 110, endY 210, extra 3
     // Full id = 0x012345 = 74565
     const packet = new BinaryWriter()
-      .u8(ServerOpcode.UNITS)
+      .u8(ServerOpcode.ENTITY_UPDATES)
       .u8(1) // isFullReset
       .u8(5) // pid
       .u8(0x01) // idHigh
@@ -178,7 +177,7 @@ describe('dispatchServerMessage', () => {
     });
   });
 
-  it('dispatches CHAT_CHANNEL, SERVER_LOG, CHAT_ACCESS, ALERT, and NICKNAMES', () => {
+  it('dispatches CHAT_LINE, SERVER_LOG, CHAT_ACCESS, ALERT, and PLAYER_NAMES', () => {
     const bus = new NetEventBus();
     const chatListener = vi.fn();
     const alertListener = vi.fn();
@@ -187,9 +186,9 @@ describe('dispatchServerMessage', () => {
     bus.on('alert', alertListener);
     bus.on('nicknames', nickListener);
 
-    // CHAT_CHANNEL: [90][channel u8][from u8][peer u8][flags u8][str text]
+    // CHAT_LINE: [CHAT_LINE][channel u8][from u8][peer u8][flags u8][str text]
     const chatPacket = new BinaryWriter()
-      .u8(ServerOpcode.CHAT_CHANNEL)
+      .u8(ServerOpcode.CHAT_LINE)
       .u8(4)
       .u8(4)
       .u8(7)
@@ -199,26 +198,26 @@ describe('dispatchServerMessage', () => {
     dispatchServerMessage(chatPacket, bus);
     expect(chatListener).toHaveBeenCalledWith({ channel: 4, pid: 4, peer: 7, flags: 1, text: 'team recruit' });
 
-    // SERVER_LOG: [91][kind u8][a u8][b u8][str text]
+    // SERVER_LOG: [SERVER_LOG][kind u8][a u8][b u8][str text]
     const logListener = vi.fn();
     bus.on('serverLog', logListener);
     dispatchServerMessage(new BinaryWriter().u8(ServerOpcode.SERVER_LOG).u8(2).u8(4).u8(255).str('').build(), bus);
     expect(logListener).toHaveBeenCalledWith({ kind: 2, a: 4, b: 255, text: '' });
 
-    // CHAT_ACCESS: [92][mask u8]
+    // CHAT_ACCESS: [CHAT_ACCESS][mask u8]
     const accessListener = vi.fn();
     bus.on('chatAccess', accessListener);
     dispatchServerMessage(new Uint8Array([ServerOpcode.CHAT_ACCESS, 0x1f]), bus);
     expect(accessListener).toHaveBeenCalledWith({ mask: 0x1f });
 
-    // ALERT: [79][str text]
+    // ALERT: [ALERT][str text]
     const alertPacket = new BinaryWriter().u8(ServerOpcode.ALERT).str('Server restarting').build();
     dispatchServerMessage(alertPacket, bus);
     expect(alertListener).toHaveBeenCalledWith({ text: 'Server restarting' });
 
-    // NICKNAMES: [78][count u16][str name]*count [str sessionToken]
+    // PLAYER_NAMES: [PLAYER_NAMES][count u16][str name]*count [str sessionToken]
     const nickPacket = new BinaryWriter()
-      .u8(ServerOpcode.NICKNAMES)
+      .u8(ServerOpcode.PLAYER_NAMES)
       .u16(2)
       .str('') // slot 0 empty
       .str('Alice') // slot 1
@@ -238,7 +237,7 @@ describe('dispatchServerMessage', () => {
     bus.on('damageIndicator', dmgListener);
     bus.on('pong', pongListener);
 
-    // DAMAGE_INDICATOR: [86][x u16][y u16][amount i16][pct u8]
+    // DAMAGE_INDICATOR: [DAMAGE_INDICATOR][x u16][y u16][amount i16][pct u8]
     const dmgPacket = new BinaryWriter()
       .u8(ServerOpcode.DAMAGE_INDICATOR)
       .u16(500)
@@ -258,7 +257,7 @@ describe('dispatchServerMessage', () => {
     const listener = vi.fn();
     bus.on('leaderboard', listener);
 
-    // Game::buildLeaderboardMessage: [8][0] then per slot [guid u8][karma u8][score u16 LE].
+    // Game::buildLeaderboardMessage: [LEADERBOARD][0] then per slot [guid u8][karma u8][score u16 LE].
     // deflateNumber: n >= 1e6 -> n/1000 + 20000; n >= 1e4 -> n/100 + 10000.
     const w = new BinaryWriter().u8(ServerOpcode.LEADERBOARD).u8(0);
     w.u8(3).u8(2).u16(1506); // plain
@@ -286,11 +285,11 @@ describe('dispatchServerMessage', () => {
     expect(listener).toHaveBeenCalledWith({ score: 65538 });
   });
 
-  it('dispatches PLAYER_XP_SKILL as [level][xp u32 BE][unlocked iids...]', () => {
+  it('dispatches LEVEL_STATE as [level][xp u32 BE][unlocked iids...]', () => {
     const bus = new NetEventBus();
     const listener = vi.fn();
     bus.on('playerXpSkill', listener);
-    const packet = new Uint8Array([ServerOpcode.PLAYER_XP_SKILL, 7, 0, 0, 1, 44, 27, 50]);
+    const packet = new Uint8Array([ServerOpcode.LEVEL_STATE, 7, 0, 0, 1, 44, 27, 50]);
     dispatchServerMessage(packet, bus);
     expect(listener).toHaveBeenCalledWith({ level: 7, xp: 300, skills: [27, 50] });
   });
@@ -304,11 +303,11 @@ describe('dispatchServerMessage', () => {
     bus.on('kickedTeam', kicked);
     bus.on('joinTeam', join);
 
-    dispatchServerMessage(new Uint8Array([ServerOpcode.ACCEPTED_TEAM, 5, 2]), bus);
+    dispatchServerMessage(new Uint8Array([ServerOpcode.TEAM_MEMBER_JOINED, 5, 2]), bus);
     expect(accepted).toHaveBeenCalledWith({ pid: 5, clanId: 2 });
-    dispatchServerMessage(new Uint8Array([ServerOpcode.KICKED_TEAM, 5]), bus);
+    dispatchServerMessage(new Uint8Array([ServerOpcode.TEAM_MEMBER_LEFT, 5]), bus);
     expect(kicked).toHaveBeenCalledWith({ pid: 5 });
-    dispatchServerMessage(new Uint8Array([ServerOpcode.JOIN_TEAM, 9]), bus);
+    dispatchServerMessage(new Uint8Array([ServerOpcode.TEAM_JOIN_REQUEST, 9]), bus);
     expect(join).toHaveBeenCalledWith({ pid: 9 });
   });
 
@@ -333,11 +332,11 @@ describe('dispatchServerMessage', () => {
     expect(blocked).toHaveBeenLastCalledWith({ guids: [] });
   });
 
-  it('dispatches TEAM_POSITION as [x/255 u8][y/255 u8][guid u8] triples', () => {
+  it('dispatches PLAYER_POSITIONS as [x/255 u8][y/255 u8][guid u8] triples', () => {
     const bus = new NetEventBus();
     const listener = vi.fn();
     bus.on('teamPosition', listener);
-    dispatchServerMessage(new Uint8Array([ServerOpcode.TEAM_POSITION, 0, 255, 4, 128, 64, 6]), bus);
+    dispatchServerMessage(new Uint8Array([ServerOpcode.PLAYER_POSITIONS, 0, 255, 4, 128, 64, 6]), bus);
     expect(listener).toHaveBeenCalledWith({
       positions: [
         { guid: 4, x: 0, y: 255 },
@@ -347,15 +346,15 @@ describe('dispatchServerMessage', () => {
   });
 });
 
-describe('CITIES_LOCATION', () => {
+describe('CITY_LOCATIONS', () => {
   it('splits the (y, x) tile pairs into cityCount cities and the remaining houses', () => {
     const bus = new NetEventBus();
     const listener = vi.fn();
     bus.on('citiesLocation', listener);
 
-    // [66][pad u8][cityCount u16] then (y u16, x u16) tile pairs -- ProtocolGame::sendCitiesLocation
+    // [CITY_LOCATIONS][pad u8][cityCount u16] then (y u16, x u16) tile pairs -- ProtocolGame::sendCitiesLocation
     const packet = new BinaryWriter()
-      .u8(ServerOpcode.CITIES_LOCATION)
+      .u8(ServerOpcode.CITY_LOCATIONS)
       .u8(0)
       .u16(1)
       .u16(104)
@@ -376,18 +375,18 @@ describe('CITIES_LOCATION', () => {
   });
 });
 
-describe('NOTIFICATION', () => {
-  it('decodes [11][pid][(type << 2) | level] into the gauge alert type and level', () => {
+describe('OVERHEAD_ALERT', () => {
+  it('decodes [OVERHEAD_ALERT][pid][(type << 2) | level] into the gauge alert type and level', () => {
     const bus = new NetEventBus();
     const listener = vi.fn();
     bus.on('notification', listener);
-    dispatchServerMessage(new Uint8Array([ServerOpcode.NOTIFICATION, 7, (3 << 2) | 2]), bus);
+    dispatchServerMessage(new Uint8Array([ServerOpcode.OVERHEAD_ALERT, 7, (3 << 2) | 2]), bus);
     expect(listener).toHaveBeenCalledWith({ pid: 7, type: 3, level: 2 });
   });
 });
 
-describe('FULL_CHEST', () => {
-  it('decodes [53][firstOpen] then [iid u16][count u8][ammo u8][mods] per storage slot', () => {
+describe('CONTAINER_CONTENTS', () => {
+  it('decodes [CONTAINER_CONTENTS][firstOpen] then [iid u16][count u8][ammo u8][mods] per storage slot', () => {
     const bus = new NetEventBus();
     const listener = vi.fn();
     bus.on('fullChest', listener);
@@ -401,7 +400,7 @@ describe('FULL_CHEST', () => {
     ];
     dispatchServerMessage(
       new Uint8Array([
-        ServerOpcode.FULL_CHEST,
+        ServerOpcode.CONTAINER_CONTENTS,
         1,
         ...slot(2, 20, 0),
         ...slot(0, 0, 0),
@@ -423,14 +422,14 @@ describe('FULL_CHEST', () => {
   });
 });
 
-describe('BAD_KARMA', () => {
-  it('decodes [60][guid][x/255][y/255][karma icon] (Game::broadcastBadKarma)', () => {
+describe('WORST_KARMA_PLAYER', () => {
+  it('decodes [WORST_KARMA_PLAYER][guid][x/255][y/255][karma icon] (Game::broadcastBadKarma)', () => {
     const bus = new NetEventBus();
     const listener = vi.fn();
     bus.on('badKarma', listener);
 
     dispatchServerMessage(
-      new BinaryWriter().u8(ServerOpcode.BAD_KARMA).u8(7).u8(51).u8(204).u8(4).build(),
+      new BinaryWriter().u8(ServerOpcode.WORST_KARMA_PLAYER).u8(7).u8(51).u8(204).u8(4).build(),
       bus,
     );
     expect(listener).toHaveBeenCalledWith({ guid: 7, x: 51 / 255, y: 204 / 255, karma: 4 });
@@ -438,7 +437,7 @@ describe('BAD_KARMA', () => {
 });
 
 describe('SELECTED_ITEM', () => {
-  it('decodes the iid big-endian, as the server writes it ([20][high][low])', () => {
+  it('decodes the iid big-endian, as the server writes it ([SELECTED_ITEM][high][low])', () => {
     const bus = new NetEventBus();
     const listener = vi.fn();
     bus.on('selectedItem', listener);

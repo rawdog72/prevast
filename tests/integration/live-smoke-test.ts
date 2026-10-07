@@ -10,6 +10,7 @@ import { readFileSync } from 'node:fs';
 import { JSDOM } from 'jsdom';
 import WebSocket from 'ws';
 import { unwrapBatch } from '../../apps/client/src/net/batch';
+import { DisconnectReason, ServerOpcode } from '../../apps/client/src/net/opcodes';
 import { queryServerStatus } from '../../apps/client/src/net/status-query';
 import { StartScreen, type JoinRequest } from '../../apps/client/src/ui/home/start-screen';
 
@@ -151,16 +152,16 @@ async function testRejectedAccountTicket(): Promise<void> {
     ws.on('open', () => ws.send(loginPacket('TicketBot', 'bm90LmEudGlja2V0.c2ln')));
     ws.on('message', (data) => {
       for (const packet of unwrapBatch(new Uint8Array(data as Buffer))) {
-        if (packet[0] === 9) {
+        if (packet[0] === ServerOpcode.HANDSHAKE) {
           clearTimeout(timer);
           ws.close();
           reject(new Error('A rejected account ticket created a player'));
           return;
         }
-        if (packet[0] === 99) {
+        if (packet[0] === ServerOpcode.DISCONNECT_REASON) {
           clearTimeout(timer);
           ws.close();
-          if (packet[1] === 15) resolve();
+          if (packet[1] === DisconnectReason.ACCOUNT_REQUIRED) resolve();
           else reject(new Error(`Expected ACCOUNT_REQUIRED (15), got ${packet[1]}`));
         }
       }
@@ -185,17 +186,17 @@ async function testRefusedLoginGetsReason(): Promise<void> {
     ws.on('open', () => ws.send(Buffer.concat([loginPacket('BadBot'), Buffer.from([0])])));
     ws.on('message', (data) => {
       const buf = Buffer.isBuffer(data) ? data : Buffer.from(data as ArrayBuffer);
-      // 9 = HANDSHAKE, 99 = DISCONNECT_REASON; CONTENT_MANIFEST (87) may come first and is ignored.
-      if (buf[0] === 9) {
+      // A CONTENT_MANIFEST may come first and is ignored.
+      if (buf[0] === ServerOpcode.HANDSHAKE) {
         clearTimeout(timer);
         ws.close();
         reject(new Error('HANDSHAKE after a malformed login'));
         return;
       }
-      if (buf[0] === 99) {
+      if (buf[0] === ServerOpcode.DISCONNECT_REASON) {
         clearTimeout(timer);
         ws.close();
-        if (buf[1] !== 6) reject(new Error(`expected INVALID_LOGIN (6), got reason ${buf[1]}`));
+        if (buf[1] !== DisconnectReason.INVALID_LOGIN) reject(new Error(`expected INVALID_LOGIN (6), got reason ${buf[1]}`));
         else resolve();
       }
     });

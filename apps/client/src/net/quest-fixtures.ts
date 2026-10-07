@@ -5,6 +5,7 @@
 // Quest journal entries and QUEST_* server messages for tests.
 import type { QuestEntry } from '../../../../shared/typescript/quest-protocol';
 import { BinaryWriter } from './binary-stream';
+import { ServerOpcode } from './opcodes';
 
 export const questEntry = (overrides: Partial<QuestEntry> = {}): QuestEntry => ({
   key: 'ghouls', name: 'Clear the Road', category: 'side', description: 'Rook wants the road cleared.', abandon: true,
@@ -19,13 +20,13 @@ export const questEntry = (overrides: Partial<QuestEntry> = {}): QuestEntry => (
   ...overrides,
 });
 export const statePacket = (id: number, cause: number, json: string) => {
-  const w = new BinaryWriter(); w.u8(103); w.u16(id); w.u8(cause); w.str(json); return w.build();
+  const w = new BinaryWriter(); w.u8(ServerOpcode.QUEST_STATE); w.u16(id); w.u8(cause); w.str(json); return w.build();
 };
 export const progressPacket = (id: number, objective: number, count: number) => {
-  const w = new BinaryWriter(); w.u8(104); w.u16(id); w.u8(objective); w.u32(count); return w.build();
+  const w = new BinaryWriter(); w.u8(ServerOpcode.QUEST_PROGRESS); w.u16(id); w.u8(objective); w.u32(count); return w.build();
 };
 export const markersPacket = (markers: [number, number][]) => {
-  const w = new BinaryWriter(); w.u8(105); w.u8(markers.length);
+  const w = new BinaryWriter(); w.u8(ServerOpcode.QUEST_MARKERS); w.u8(markers.length);
   for (const [id, kind] of markers) { w.u16(id); w.u8(kind); }
   return w.build();
 };

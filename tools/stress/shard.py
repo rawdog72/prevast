@@ -154,7 +154,7 @@ def main() -> int:
     print(f"disconnects:     {total('disconnects'):.0f}")
     print(f"errors:          {total('errors'):.0f}")
     print(f"deaths:          {total('deaths'):.0f}")
-    print(f"tick rate:       {weighted('tick'):.2f} UNITS/s/bot   (target 20.00)")
+    print(f"tick rate:       {weighted('tick'):.2f} ENTITY_UPDATES/s/bot   (target 20.00)")
     print(f"observed speed:  {weighted('speed'):.1f} world-units/s")
     print("\nper shard: " + ", ".join(
         f"[{i}] peak={int(p)} tick={t:.2f} speed={s:.1f}"

@@ -35,7 +35,7 @@ describe('Replay tests over real server captured frames', () => {
 
   it('loaded recorded frames successfully', () => {
     expect(frames.length).toBeGreaterThan(0);
-    // Frame 1 should be a BATCH frame (75)
+    // The first frame is a BATCH envelope.
     expect(frames[0]![0]).toBe(ServerOpcode.BATCH);
   });
 
@@ -93,7 +93,7 @@ describe('Replay tests over real server captured frames', () => {
     expect(nickListener).toHaveBeenCalled();
     expect(leaderboardListener).toHaveBeenCalled();
 
-    // Check UNITS was processed
+    // Check ENTITY_UPDATES was processed
     expect(unitsEvents.length).toBeGreaterThan(0);
     const totalUnits = unitsEvents.reduce((acc, u) => acc + u.units.length, 0);
     expect(totalUnits).toBeGreaterThan(0);
@@ -102,6 +102,6 @@ describe('Replay tests over real server captured frames', () => {
     expect(opcodesSeen.has(ServerOpcode.MAP_SIZE)).toBe(true);
     expect(opcodesSeen.has(ServerOpcode.HANDSHAKE)).toBe(true);
     expect(opcodesSeen.has(ServerOpcode.WORLD_TIME)).toBe(true);
-    expect(opcodesSeen.has(ServerOpcode.NICKNAMES)).toBe(true);
+    expect(opcodesSeen.has(ServerOpcode.PLAYER_NAMES)).toBe(true);
   });
 });

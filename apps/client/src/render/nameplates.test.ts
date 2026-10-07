@@ -68,7 +68,7 @@ describe('nameplateFor (old client _playerName rules)', () => {
 
   it('draws nothing over a guest who joined without a name, and never a made-up one', () => {
     const { world, clans } = setup();
-    // Guest 5 is in the handshake roster but NICKNAMES had no name for them.
+    // Guest 5 is in the handshake roster but PLAYER_NAMES had no name for them.
     world.players.set(5, { ...world.players.get(3)!, guid: 5, nickname: '' });
     expect(nameplateFor(player(5), world, clans)).toBeNull();
   });

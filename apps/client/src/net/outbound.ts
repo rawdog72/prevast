@@ -68,12 +68,12 @@ export function buildNpcActionMessage(command: NpcCommand): Uint8Array {
 }
 
 export function buildPingMessage(): Uint8Array {
-  return new Uint8Array([ClientOpcode.PING_MESSAGE]);
+  return new Uint8Array([ClientOpcode.PING]);
 }
 
 export function buildChatMessage(text: string): Uint8Array {
   const w = new BinaryWriter();
-  w.u8(ClientOpcode.CHAT_MESSAGE);
+  w.u8(ClientOpcode.CHAT_LOCAL);
   w.str(text);
   return w.build();
 }
@@ -84,7 +84,7 @@ export function buildChatChannelMessage(
   text: string,
 ): Uint8Array {
   const w = new BinaryWriter();
-  w.u8(ClientOpcode.CHAT_CHANNEL);
+  w.u8(ClientOpcode.SEND_CHAT);
   w.u8(channel);
   w.u8(target & 0xff);
   w.str(text);
@@ -96,26 +96,26 @@ export function buildMoveMessage(mask: MoveMask): Uint8Array {
 }
 
 export function buildMouseDirectionMessage(dir: MouseDirection): Uint8Array {
-  return new Uint8Array([ClientOpcode.MOUSE_DIRECTION, dir & 0xff]);
+  return new Uint8Array([ClientOpcode.FACE, dir & 0xff]);
 }
 
 export function buildMouseDownMessage(): Uint8Array {
-  return new Uint8Array([ClientOpcode.MOUSE_DOWN]);
+  return new Uint8Array([ClientOpcode.ATTACK_START]);
 }
 
 export function buildMouseUpMessage(): Uint8Array {
-  return new Uint8Array([ClientOpcode.MOUSE_UP]);
+  return new Uint8Array([ClientOpcode.ATTACK_STOP]);
 }
 
 export function buildRotationMessage(degrees: number): Uint8Array {
   const w = new BinaryWriter();
-  w.u8(ClientOpcode.ROTATION);
+  w.u8(ClientOpcode.ROTATE);
   w.u16(Math.round(degrees) % 360);
   return w.build();
 }
 
 export function buildShiftMessage(enabled: boolean): Uint8Array {
-  return new Uint8Array([ClientOpcode.SHIFT, enabled ? 1 : 0]);
+  return new Uint8Array([ClientOpcode.SPRINT, enabled ? 1 : 0]);
 }
 
 /** AIM: 1 while the aim button is held, 0 on release. The server answers with AIM_STATE. */
@@ -135,7 +135,7 @@ export function buildEquipItemMessage(iid: number, uid: number, count = 0, ammo 
 
 export function buildThrowItemMessage(iid: number, uid: number, count = 1, ammo = 0): Uint8Array {
   const w = new BinaryWriter();
-  w.u8(ClientOpcode.THROW_ITEM);
+  w.u8(ClientOpcode.DROP_ITEM);
   w.u16(iid);
   w.u8(count);
   w.u32(uid);
@@ -194,7 +194,7 @@ export function buildStackItemMessage(
 
 export function buildTakeLootMessage(lootId: number): Uint8Array {
   const w = new BinaryWriter();
-  w.u8(ClientOpcode.TAKE_LOOT);
+  w.u8(ClientOpcode.PICK_UP_LOOT);
   w.u32(lootId);
   return w.build();
 }
@@ -204,32 +204,22 @@ export function buildReloadMessage(): Uint8Array {
 }
 
 /**
- * [14][rotation][u16 row i][u16 column j] -- row BEFORE column, the old
+ * [PLACE_BUILDING][rotation][u16 row i][u16 column j] -- row BEFORE column, the old
  * Writer(14).u8(buildRotate).u16(iBuild).u16(jBuild); the server's
  * playerPlaceObject(rotation, i, j) reads them in that order.
  */
 export function buildPlaceObjectMessage(rotationIndex: number, i: number, j: number): Uint8Array {
   const w = new BinaryWriter();
-  w.u8(ClientOpcode.PLACE_OBJECT);
+  w.u8(ClientOpcode.PLACE_BUILDING);
   w.u8(rotationIndex);
   w.u16(i);
   w.u16(j);
   return w.build();
 }
 
-export function buildInteractMessage(
-  opcode:
-    | typeof ClientOpcode.OPEN_STATION_15
-    | typeof ClientOpcode.OPEN_STATION_16
-    | typeof ClientOpcode.OPEN_CONTAINER
-    | typeof ClientOpcode.INTERACT_LAMP
-    | typeof ClientOpcode.INTERACT_SWITCH
-    | typeof ClientOpcode.INTERACT_TIMER,
-  entityId: number,
-  pid = 0,
-): Uint8Array {
+export function buildInteractMessage(entityId: number, pid = 0): Uint8Array {
   const w = new BinaryWriter();
-  w.u8(opcode);
+  w.u8(ClientOpcode.INTERACT);
   w.u32(entityId);
   w.u8(pid);
   return w.build();
@@ -249,14 +239,14 @@ export function buildCloseContainerMessage(): Uint8Array {
 
 export function buildStartCraftStationMessage(iid: number): Uint8Array {
   const w = new BinaryWriter();
-  w.u8(ClientOpcode.START_CRAFT_STATION);
+  w.u8(ClientOpcode.CRAFT_AT_STATION);
   w.u16(iid);
   return w.build();
 }
 
 export function buildStartCraftManualMessage(iid: number): Uint8Array {
   const w = new BinaryWriter();
-  w.u8(ClientOpcode.START_CRAFT_MANUAL);
+  w.u8(ClientOpcode.CRAFT_BY_HAND);
   w.u16(iid);
   return w.build();
 }
@@ -290,18 +280,18 @@ export function buildDeleteTeamMessage(): Uint8Array {
 }
 
 export function buildRequestJoinTeamMessage(clanId: number): Uint8Array {
-  return new Uint8Array([ClientOpcode.REQUEST_JOIN_TEAM, clanId & 0xff]);
+  return new Uint8Array([ClientOpcode.REQUEST_TEAM_JOIN, clanId & 0xff]);
 }
 
 export function buildAcceptJoinTeamMessage(guid: number): Uint8Array {
   const w = new BinaryWriter();
-  w.u8(ClientOpcode.ACCEPT_JOIN_TEAM);
+  w.u8(ClientOpcode.ACCEPT_TEAM_JOIN);
   w.u32(guid);
   return w.build();
 }
 
 export function buildInviteTeamMessage(guid: number): Uint8Array {
-  return new Uint8Array([ClientOpcode.INVITE_TEAM, guid & 0xff]);
+  return new Uint8Array([ClientOpcode.INVITE_TO_TEAM, guid & 0xff]);
 }
 
 export function buildAcceptTeamInviteMessage(clanId: number): Uint8Array {
@@ -309,7 +299,7 @@ export function buildAcceptTeamInviteMessage(clanId: number): Uint8Array {
 }
 
 export function buildPrivateMessagesMessage(policy: number): Uint8Array {
-  return new Uint8Array([ClientOpcode.PRIVATE_MESSAGES, policy & 0xff]);
+  return new Uint8Array([ClientOpcode.SET_PRIVATE_MESSAGES, policy & 0xff]);
 }
 
 /** QUEST_ACTION: QuestAction on the quest with that id (0 for a resync). */
@@ -318,13 +308,13 @@ export function buildQuestActionMessage(questId: number, action: number): Uint8A
 }
 
 /**
- * WEAPON_MOD: fit (or swap in) the mod with `modUid` into `slot`, or remove
+ * FIT_WEAPON_MOD: fit (or swap in) the mod with `modUid` into `slot`, or remove
  * what is fitted there when `modUid` is null. Fit/remove is its own byte
  * because 0 is a real wire uid.
  */
 export function buildWeaponModMessage(weaponUid: number, slot: number, modUid: number | null): Uint8Array {
   return new Uint8Array([
-    ClientOpcode.WEAPON_MOD,
+    ClientOpcode.FIT_WEAPON_MOD,
     weaponUid & 0xff,
     slot & 0xff,
     modUid === null ? 0 : 1,
@@ -338,7 +328,7 @@ export function buildBlockPlayerMessage(guid: number, blocked: boolean): Uint8Ar
 
 export function buildKickTeamMessage(guid: number): Uint8Array {
   const w = new BinaryWriter();
-  w.u8(ClientOpcode.KICK_TEAM);
+  w.u8(ClientOpcode.KICK_FROM_TEAM);
   w.u32(guid);
   return w.build();
 }
@@ -357,7 +347,7 @@ export function buildLeaveTeamMessage(): Uint8Array {
 
 export function buildContentRequestMessage(names: string[]): Uint8Array {
   const w = new BinaryWriter();
-  w.u8(ClientOpcode.CONTENT_REQUEST);
+  w.u8(ClientOpcode.REQUEST_CONTENT);
   w.str(JSON.stringify(names));
   return w.build();
 }

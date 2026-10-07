@@ -7,20 +7,20 @@ import { handleQuestMarkers, handleQuestProgress, handleQuestState } from './han
 import { handleAchievementUnlocked, handleProgressState, handleProgressUpdate } from './handlers/progress';
 import type { NetEventBus } from './events';
 import { handleTradeState, handleTradeClosed } from './handlers/trade';
-import { handleDamageIndicator, handleShakeExplosionState } from './handlers/combat';
+import { handleDamageIndicator, handleExplosionShake } from './handlers/combat';
 import { handleContentManifest, handleContentPatch, handleContentTable } from './handlers/content';
-import { handleBlueprint, handleStartCraft } from './handlers/craft';
+import { handleBlueprint, handleCraftStarted } from './handlers/craft';
 import {
-  handleFullChest,
-  handleInterruptInteraction,
-  handleLostBuilding,
-  handleNewFuelValue,
-  handleOpenBuilding,
-  handleStartInteraction,
+  handleContainerContents,
+  handleInteractionCancelled,
+  handleStationClosed,
+  handleStationFuel,
+  handleStationOpened,
+  handleInteractionStarted,
   handleWrongTool,
 } from './handlers/interaction';
 import {
-  handleFullInventory,
+  handleInventory,
   handleInventorySlot,
   handleItemMods,
   handleSelectedItem,
@@ -28,66 +28,58 @@ import {
 import {
   handleAlert,
   handleDisconnectReason,
-  handleFailRestoreSession,
-  handleFull,
   handleHandshake,
-  handleKickInactivity,
-  handleMute,
-  handleOldVersion,
-  handleStoleYourSession,
-  handleWrongPassword,
+  handleSessionTaken,
 } from './handlers/lifecycle';
 import {
-  handleBoughtSkill,
-  handleDramaticChrono,
-  handleGaugeState,
-  handleGauges,
-  handleLapadoine,
-  handleModdedGaugesValues,
-  handleNotification,
-  handlePlayerEat,
-  handlePlayerHeal,
+  handleSkillUnlocked,
+  handleCountdown,
+  handleGaugeDirections,
+  handleGaugeValues,
+  handleLapadoneActive,
+  handleGaugeRates,
+  handleOverheadAlert,
+  handlePlayerAte,
+  handlePlayerHealed,
   handlePlayerHit,
-  handlePlayerLife,
-  handlePlayerStamina,
-  handlePlayerXp,
-  handlePlayerXpSkill,
+  handleStamina,
+  handleXp,
+  handleLevelState,
   handlePoisoned,
-  handleRepellent,
-  handleResetDrug,
+  handleRepellentActive,
+  handleDrugReset,
 } from './handlers/player';
 import {
-  handleBadKarma,
-  handleChatChannel,
+  handleWorstKarmaPlayer,
+  handleChatLine,
   handleServerLog,
   handleStatusMessage,
   handleChatAccess,
   handleGroups,
   handleKarma,
   handleLeaderboard,
-  handleNicknames,
-  handleOtherDie,
-  handlePlayerDie,
+  handlePlayerNames,
+  handlePlayerDied,
+  handleYouDied,
   handlePlayerInfo,
   handleScore,
   handleBlockedPlayers,
 } from './handlers/social';
 import {
-  handleAcceptedTeam,
-  handleDeleteTeam,
-  handleJoinTeam,
-  handleKickedTeam,
+  handleTeamMemberJoined,
+  handleTeamDeleted,
+  handleTeamJoinRequest,
+  handleTeamMemberLeft,
   handleTeamCreated,
   handleTeamInvite,
   handleTeamLocked,
   handleTeamNames,
-  handleTeamPosition,
+  handlePlayerPositions,
 } from './handlers/team';
 import {
-  handleAreas,
-  handleCitiesLocation,
+  handleCityLocations,
   handleMapSize,
-  handleUnits,
+  handleEntityUpdates,
   handleWorldTime,
 } from './handlers/world';
 import { ServerOpcode } from './opcodes';
@@ -110,29 +102,17 @@ export function dispatchServerMessage(bytes: Uint8Array, bus: NetEventBus): void
     case ServerOpcode.ACHIEVEMENT_UNLOCKED: handleAchievementUnlocked(bytes, bus); break;
     case ServerOpcode.TRADE_STATE: handleTradeState(bytes, bus); break;
     case ServerOpcode.TRADE_CLOSED: handleTradeClosed(bytes, bus); break;
-    case ServerOpcode.UNITS:
-      handleUnits(bytes, bus);
+    case ServerOpcode.ENTITY_UPDATES:
+      handleEntityUpdates(bytes, bus);
       break;
-    case ServerOpcode.OLD_VERSION:
-      handleOldVersion(bytes, bus);
+    case ServerOpcode.YOU_DIED:
+      handleYouDied(bytes, bus);
       break;
-    case ServerOpcode.FULL:
-      handleFull(bytes, bus);
+    case ServerOpcode.PLAYER_DIED:
+      handlePlayerDied(bytes, bus);
       break;
-    case ServerOpcode.PLAYER_DIE:
-      handlePlayerDie(bytes, bus);
-      break;
-    case ServerOpcode.OTHER_DIE:
-      handleOtherDie(bytes, bus);
-      break;
-    case ServerOpcode.FAIL_RESTORE_SESSION:
-      handleFailRestoreSession(bytes, bus);
-      break;
-    case ServerOpcode.STOLE_YOUR_SESSION:
-      handleStoleYourSession(bytes, bus);
-      break;
-    case ServerOpcode.MUTE:
-      handleMute(bytes, bus);
+    case ServerOpcode.SESSION_TAKEN:
+      handleSessionTaken(bytes, bus);
       break;
     case ServerOpcode.LEADERBOARD:
       handleLeaderboard(bytes, bus);
@@ -140,11 +120,8 @@ export function dispatchServerMessage(bytes: Uint8Array, bus: NetEventBus): void
     case ServerOpcode.HANDSHAKE:
       handleHandshake(bytes, bus);
       break;
-    case ServerOpcode.KICK_INACTIVITY:
-      handleKickInactivity(bytes, bus);
-      break;
-    case ServerOpcode.GAUGES:
-      handleGauges(bytes, bus);
+    case ServerOpcode.GAUGE_VALUES:
+      handleGaugeValues(bytes, bus);
       break;
     case ServerOpcode.SCORE:
       handleScore(bytes, bus);
@@ -152,119 +129,110 @@ export function dispatchServerMessage(bytes: Uint8Array, bus: NetEventBus): void
     case ServerOpcode.PLAYER_HIT:
       handlePlayerHit(bytes, bus);
       break;
-    case ServerOpcode.NOTIFICATION:
-      handleNotification(bytes, bus);
+    case ServerOpcode.OVERHEAD_ALERT:
+      handleOverheadAlert(bytes, bus);
       break;
-    case ServerOpcode.FULL_INVENTORY:
-      handleFullInventory(bytes, bus);
-      break;
-    case ServerOpcode.PLAYER_LIFE:
-      handlePlayerLife(bytes, bus);
+    case ServerOpcode.INVENTORY:
+      handleInventory(bytes, bus);
       break;
     case ServerOpcode.SELECTED_ITEM:
       handleSelectedItem(bytes, bus);
       break;
-    case ServerOpcode.PLAYER_HEAL:
-      handlePlayerHeal(bytes, bus);
+    case ServerOpcode.PLAYER_HEALED:
+      handlePlayerHealed(bytes, bus);
       break;
-    case ServerOpcode.PLAYER_STAMINA:
-      handlePlayerStamina(bytes, bus);
+    case ServerOpcode.STAMINA:
+      handleStamina(bytes, bus);
       break;
-    case ServerOpcode.START_INTERACTION:
-      handleStartInteraction(bytes, bus);
+    case ServerOpcode.INTERACTION_STARTED:
+      handleInteractionStarted(bytes, bus);
       break;
-    case ServerOpcode.INTERRUPT_INTERACTION:
-      handleInterruptInteraction(bytes, bus);
+    case ServerOpcode.INTERACTION_CANCELLED:
+      handleInteractionCancelled(bytes, bus);
       break;
     case ServerOpcode.BLUEPRINT:
       handleBlueprint(bytes, bus);
       break;
-    case ServerOpcode.PLAYER_XP:
-      handlePlayerXp(bytes, bus);
+    case ServerOpcode.XP:
+      handleXp(bytes, bus);
       break;
-    case ServerOpcode.PLAYER_XP_SKILL:
-      handlePlayerXpSkill(bytes, bus);
+    case ServerOpcode.LEVEL_STATE:
+      handleLevelState(bytes, bus);
       break;
-    case ServerOpcode.BOUGHT_SKILL:
-      handleBoughtSkill(bytes, bus);
+    case ServerOpcode.SKILL_UNLOCKED:
+      handleSkillUnlocked(bytes, bus);
       break;
-    case ServerOpcode.START_CRAFT:
-      handleStartCraft(bytes, bus);
+    case ServerOpcode.CRAFT_STARTED:
+      handleCraftStarted(bytes, bus);
       break;
-    case ServerOpcode.LOST_BUILDING:
-      handleLostBuilding(bytes, bus);
+    case ServerOpcode.STATION_CLOSED:
+      handleStationClosed(bytes, bus);
       break;
-    case ServerOpcode.OPEN_BUILDING:
-      handleOpenBuilding(bytes, bus);
+    case ServerOpcode.STATION_OPENED:
+      handleStationOpened(bytes, bus);
       break;
-    case ServerOpcode.NEW_FUEL_VALUE:
-      handleNewFuelValue(bytes, bus);
+    case ServerOpcode.STATION_FUEL:
+      handleStationFuel(bytes, bus);
       break;
     case ServerOpcode.WRONG_TOOL:
       handleWrongTool(bytes, bus);
       break;
-    case ServerOpcode.FULL_CHEST:
-      handleFullChest(bytes, bus);
+    case ServerOpcode.CONTAINER_CONTENTS:
+      handleContainerContents(bytes, bus);
       break;
-    case ServerOpcode.ACCEPTED_TEAM:
-      handleAcceptedTeam(bytes, bus);
+    case ServerOpcode.TEAM_MEMBER_JOINED:
+      handleTeamMemberJoined(bytes, bus);
       break;
-    case ServerOpcode.KICKED_TEAM:
-      handleKickedTeam(bytes, bus);
+    case ServerOpcode.TEAM_MEMBER_LEFT:
+      handleTeamMemberLeft(bytes, bus);
       break;
-    case ServerOpcode.DELETE_TEAM:
-      handleDeleteTeam(bytes, bus);
+    case ServerOpcode.TEAM_DELETED:
+      handleTeamDeleted(bytes, bus);
       break;
-    case ServerOpcode.JOIN_TEAM:
-      handleJoinTeam(bytes, bus);
+    case ServerOpcode.TEAM_JOIN_REQUEST:
+      handleTeamJoinRequest(bytes, bus);
       break;
-    case ServerOpcode.TEAM_POSITION:
-      handleTeamPosition(bytes, bus);
+    case ServerOpcode.PLAYER_POSITIONS:
+      handlePlayerPositions(bytes, bus);
       break;
     case ServerOpcode.KARMA:
       handleKarma(bytes, bus);
       break;
-    case ServerOpcode.BAD_KARMA:
-      handleBadKarma(bytes, bus);
+    case ServerOpcode.WORST_KARMA_PLAYER:
+      handleWorstKarmaPlayer(bytes, bus);
       break;
-    case ServerOpcode.AREAS:
-      handleAreas(bytes, bus);
+    case ServerOpcode.GAUGE_RATES:
+      handleGaugeRates(bytes, bus);
       break;
-    case ServerOpcode.WRONG_PASSWORD:
-      handleWrongPassword(bytes, bus);
+    case ServerOpcode.EXPLOSION_SHAKE:
+      handleExplosionShake(bytes, bus);
       break;
-    case ServerOpcode.MODDED_GAUGES_VALUES:
-      handleModdedGaugesValues(bytes, bus);
+    case ServerOpcode.PLAYER_ATE:
+      handlePlayerAte(bytes, bus);
       break;
-    case ServerOpcode.SHAKE_EXPLOSION_STATE:
-      handleShakeExplosionState(bytes, bus);
-      break;
-    case ServerOpcode.PLAYER_EAT:
-      handlePlayerEat(bytes, bus);
-      break;
-    case ServerOpcode.CITIES_LOCATION:
-      handleCitiesLocation(bytes, bus);
+    case ServerOpcode.CITY_LOCATIONS:
+      handleCityLocations(bytes, bus);
       break;
     case ServerOpcode.POISONED:
       handlePoisoned(bytes, bus);
       break;
-    case ServerOpcode.REPELLENT:
-      handleRepellent(bytes, bus);
+    case ServerOpcode.REPELLENT_ACTIVE:
+      handleRepellentActive(bytes, bus);
       break;
-    case ServerOpcode.LAPADOINE:
-      handleLapadoine(bytes, bus);
+    case ServerOpcode.LAPADONE_ACTIVE:
+      handleLapadoneActive(bytes, bus);
       break;
-    case ServerOpcode.RESET_DRUG:
-      handleResetDrug(bytes, bus);
+    case ServerOpcode.DRUG_RESET:
+      handleDrugReset(bytes, bus);
       break;
-    case ServerOpcode.DRAMATIC_CHRONO:
-      handleDramaticChrono(bytes, bus);
+    case ServerOpcode.COUNTDOWN:
+      handleCountdown(bytes, bus);
       break;
     case ServerOpcode.MAP_SIZE:
       handleMapSize(bytes, bus);
       break;
-    case ServerOpcode.CHAT_CHANNEL:
-      handleChatChannel(bytes, bus);
+    case ServerOpcode.CHAT_LINE:
+      handleChatLine(bytes, bus);
       break;
     case ServerOpcode.SERVER_LOG:
       handleServerLog(bytes, bus);
@@ -278,8 +246,8 @@ export function dispatchServerMessage(bytes: Uint8Array, bus: NetEventBus): void
     case ServerOpcode.PLAYER_INFO:
       handlePlayerInfo(bytes, bus);
       break;
-    case ServerOpcode.NICKNAMES:
-      handleNicknames(bytes, bus);
+    case ServerOpcode.PLAYER_NAMES:
+      handlePlayerNames(bytes, bus);
       break;
     case ServerOpcode.ALERT:
       handleAlert(bytes, bus);
@@ -308,8 +276,8 @@ export function dispatchServerMessage(bytes: Uint8Array, bus: NetEventBus): void
     case ServerOpcode.PONG:
       bus.emit('pong', undefined as unknown as void);
       break;
-    case ServerOpcode.GAUGE_STATE:
-      handleGaugeState(bytes, bus);
+    case ServerOpcode.GAUGE_DIRECTIONS:
+      handleGaugeDirections(bytes, bus);
       break;
     case ServerOpcode.INVENTORY_SLOT:
       handleInventorySlot(bytes, bus);

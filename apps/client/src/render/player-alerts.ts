@@ -3,7 +3,7 @@
 
 // apps/client/src/render/player-alerts.ts
 // The old client's _playerNotification: when a player's health / hunger /
-// cold / radiation crosses a threshold the server broadcasts NOTIFICATION and
+// cold / radiation crosses a threshold the server broadcasts OVERHEAD_ALERT and
 // an alert{type}_{level} bubble pops above that player for 3 s -- fading in
 // over the first 500 ms while rising 15 px into place, and fading out over
 // the last 500 ms while drifting 40 px up. Each player has a FIFO; only its

@@ -6,7 +6,7 @@ import type { NetEventBus, HandshakePlayer } from '../events';
 import type { DisconnectReason } from '../opcodes';
 
 export function handleHandshake(bytes: Uint8Array, bus: NetEventBus): void {
-  // Head: [9][ownGuid u8][unitsPerPlayer u16 LE][playerCount u8][modeId u8] -> 6 bytes
+  // Head: [HANDSHAKE][ownGuid u8][unitsPerPlayer u16 LE][playerCount u8][modeId u8] -> 6 bytes
   const r = new BinaryReader(bytes, 1);
   const ownGuid = r.u8();
   const unitsPerPlayer = r.u16();
@@ -30,16 +30,6 @@ export function handleHandshake(bytes: Uint8Array, bus: NetEventBus): void {
   bus.emit('handshake', { ownGuid, unitsPerPlayer, playerCount, modeId, players });
 }
 
-export function handleOldVersion(bytes: Uint8Array, bus: NetEventBus): void {
-  const r = new BinaryReader(bytes, 1);
-  const requiredVersion = r.u16();
-  bus.emit('oldVersion', { requiredVersion });
-}
-
-export function handleFull(_bytes: Uint8Array, bus: NetEventBus): void {
-  bus.emit('full', undefined as unknown as void);
-}
-
 export function handleAlert(bytes: Uint8Array, bus: NetEventBus): void {
   const r = new BinaryReader(bytes, 1);
   const text = r.str();
@@ -47,30 +37,14 @@ export function handleAlert(bytes: Uint8Array, bus: NetEventBus): void {
 }
 
 export function handleDisconnectReason(bytes: Uint8Array, bus: NetEventBus): void {
-  // [99][reason u8][str detail]
+  // [DISCONNECT_REASON][reason u8][str detail]
   const r = new BinaryReader(bytes, 1);
   const reason = r.u8() as DisconnectReason;
   const detail = r.str();
   bus.emit('disconnectReason', { reason, detail });
 }
 
-export function handleKickInactivity(_bytes: Uint8Array, bus: NetEventBus): void {
-  bus.emit('kickInactivity', undefined as unknown as void);
-}
-
-export function handleFailRestoreSession(_bytes: Uint8Array, bus: NetEventBus): void {
-  bus.emit('failRestoreSession', undefined as unknown as void);
-}
-
-export function handleStoleYourSession(_bytes: Uint8Array, bus: NetEventBus): void {
+export function handleSessionTaken(_bytes: Uint8Array, bus: NetEventBus): void {
   bus.emit('stoleYourSession', undefined as unknown as void);
 }
 
-export function handleMute(bytes: Uint8Array, bus: NetEventBus): void {
-  const durationSec = bytes[1] ?? 0;
-  bus.emit('mute', { durationSec });
-}
-
-export function handleWrongPassword(_bytes: Uint8Array, bus: NetEventBus): void {
-  bus.emit('wrongPassword', undefined as unknown as void);
-}

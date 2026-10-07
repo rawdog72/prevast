@@ -190,7 +190,7 @@ export class ModsWindow {
         if (this.pending) this.finish('Modification interrupted.');
       }),
       bus.on('statusMessage', (e) => {
-        // A refusal can follow INTERRUPT_INTERACTION in the same server reply.
+        // A refusal can follow INTERACTION_CANCELLED in the same server reply.
         if (e.kind === StatusKind.FAILURE && (this.pending || this.body)) this.finish(e.text);
       }),
       bus.on('fullInventory', () => this.finish('')),

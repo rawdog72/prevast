@@ -13,48 +13,13 @@ static constexpr auto STATUS_SERVER_NAME = "Prevast Open Server";
 
 static constexpr auto STATUS_SERVER_VERSION = "0.12";
 static constexpr auto STATUS_SERVER_DEVELOPERS = "rawdog72";
-// Bumped from 1405 (2026-08-13) for the poison screen. Opcode 67 with a zero
-// byte now MEANS something -- stop the animation -- where a 1405 client ignores
-// it, so an antidote would visibly fail to clear the green distortion. The wire
-// LAYOUT is unchanged, so this bump is not preventing a misparse; it is making
-// sure nobody is left running a client that silently drops the fix. Same reason
-// the deployed copy has to be replaced by hand: the server does not serve it.
-//
-// 1414 -> 1415: aiming. ClientOpcode AIM (55) [u8 held]; ServerOpcode
-// AIM_STATE (110) [u8 active][u16 viewX][u16 viewY].
-// 1413 -> 1414: weapon mods. ServerOpcode ITEM_MODS (109); FULL_CHEST entries
-// widen iid to u16 and append the fitted mods; TRADE_STATE offer items append
-// the fitted mods; ClientOpcode WEAPON_MOD (54).
-// 1412 -> 1413: OPEN_BUILDING (46) and NEW_FUEL_VALUE (47) append [u32 fuelMs]
-// so opening a running station preserves its partially burned fuel unit.
-// 1411 -> 1412: ADD_FUEL (24) now carries [u8 amount], rather than using
-// the fixed XML addAmount. The server caps it by free capacity and inventory.
-// 1410 -> 1411: the quest system. ClientOpcode QUEST_ACTION (53); ServerOpcode
-// QUEST_STATE (103), QUEST_PROGRESS (104), QUEST_MARKERS (105), and the
-// account progress: PROGRESS_STATE (106), PROGRESS_UPDATE (107) and
-// ACHIEVEMENT_UNLOCKED (108). NPC_STATE no longer carries the quest journal.
-// 1409 -> 1410: ClientOpcode BLOCK_PLAYER (49), INVITE_TEAM (50) and
-// ACCEPT_TEAM_INVITE (51), PRIVATE_MESSAGES (52); ServerOpcode BLOCKED_PLAYERS (100), TEAM_INVITE
-// (101) and TEAM_LOCKED (102). A 1409 server refuses the new opcodes outright.
-// 1408 -> 1409: ServerOpcode DISCONNECT_REASON (99) carries why a login was
-// refused or a player kicked; ALERT is left for the version refusal itself.
-// 1407 -> 1408: ClientOpcode 46 became LOOK_AT [u32 entityId][u8 pid] (was a
-// 1-byte player look) and ServerOpcode STATUS_MESSAGE (98) was added.
-// 1406 -> 1407 added the account ticket to the login frame and group/verified to PLAYER_INFO;
-// 1404 -> 1405 was ServerOpcode::WORLD_TIME (2026-08-12): DAY (39) and
-// NIGHT (40) are gone, and HANDSHAKE lost its u16 timeSync field, which moved
-// the player roster from offset 8 to 6. A 1404 client would read every roster
-// entry two bytes late -- so every player's team, ghoul flag and score would be
-// wrong from the first frame -- and would never be told the time again.
-// 1403 -> 1404 was ServerOpcode::INVENTORY_SLOT; 1402 -> 1403 was
-// ServerOpcode::GAUGE_STATE; 1401 -> 1402 was the binary client -> server
-// protocol; 1400 -> 1401 was ServerOpcode::BATCH; 1310 -> 1400 was the 24-bit
-// entity id. This gate is what turns any of those mismatches into a refused
-// login instead of a misparse.
-// Server and client.js must ship together.
-static constexpr auto CLIENT_VERSION_MIN = 1417;
-static constexpr auto CLIENT_VERSION_MAX = 1417;
-static constexpr auto CLIENT_VERSION_STR = "14.17";
+// The game protocol version. The client (PROTOCOL_VERSION in
+// apps/client/src/net/opcodes.ts) and the server must match exactly: a mismatch
+// is a refused login with ALERT, never a misparse. Bump it on any wire change.
+// 1418: opcodes renamed and grouped by area (network/opcodes.h).
+static constexpr auto CLIENT_VERSION_MIN = 1418;
+static constexpr auto CLIENT_VERSION_MAX = 1418;
+static constexpr auto CLIENT_VERSION_STR = "14.18";
 static constexpr auto TILE_SIZE = 100;
 
 // --- Math ---

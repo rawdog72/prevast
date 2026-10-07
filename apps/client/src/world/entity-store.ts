@@ -228,7 +228,7 @@ export class EntityStore {
   }
 
   /**
-   * Processes a batch of unit records from a server UNITS packet.
+   * Processes a batch of unit records from a server ENTITY_UPDATES packet.
    */
   processUnits(units: readonly UnitRecord[], isFullReset = false): void {
     if (isFullReset) {

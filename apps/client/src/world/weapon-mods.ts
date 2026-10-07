@@ -34,7 +34,7 @@ export const SLOT_LABELS: Record<ModSlotName, string> = {
   handguard: 'Handguard',
 };
 
-/** One fitted mod as ITEM_MODS, FULL_CHEST and TRADE_STATE carry it. */
+/** One fitted mod as ITEM_MODS, CONTAINER_CONTENTS and TRADE_STATE carry it. */
 export interface FittedMod {
   slot: number;
   iid: number;

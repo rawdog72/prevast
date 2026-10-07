@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: GPL-2.0-only
 
 // One simulated player: websocket session, login, a small world-view kept from
-// the UNITS stream, and a fixed-rate tick that calls the behavior.
+// the ENTITY_UPDATES stream, and a fixed-rate tick that calls the behavior.
 //
 // Why C++ and not the Python harness: this box has two physical cores and runs
 // the server as well, and the asyncio harness saturated one core at ~173 of 250
@@ -119,7 +119,7 @@ public:
 	const std::unordered_map<uint32_t, Tracked>& others() const { return m_others; }
 	std::vector<proto::ItemSlot>& newItems() { return m_newItems; }
 
-	// Last FULL_INVENTORY snapshot (login only -- the server does not resend it
+	// Last INVENTORY snapshot (login only -- the server does not resend it
 	// on every change). Empty slots are omitted.
 	const std::vector<proto::ItemSlot>& inventory() const { return m_inventory; }
 	const proto::ItemSlot* findInventoryItem(uint16_t iid) const;
@@ -130,7 +130,7 @@ public:
 	// reporter, not per tick.
 	size_t countVisible(uint8_t type) const;
 
-	// Input de-duplication. MOVE/ROTATION/SHIFT are state-change opcodes --
+	// Input de-duplication. MOVE/ROTATE/SPRINT are state-change opcodes --
 	// client.js only sends them when the value actually changes -- so behaviors
 	// go through these rather than send() to match a real client's traffic.
 	void setMove(int mask);
@@ -178,7 +178,7 @@ private:
 	std::vector<proto::ItemSlot> m_inventory;
 	FrameAccum m_accum;
 
-	// Bot 0 publishes a visible-entity census this often, in UNITS frames.
+	// Bot 0 publishes a visible-entity census this often, in ENTITY_UPDATES frames.
 	static constexpr int CENSUS_EVERY_FRAMES = 20;
 	int m_censusCountdown = 0;
 

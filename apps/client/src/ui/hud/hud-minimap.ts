@@ -179,7 +179,7 @@ export class HudMinimap {
     );
     ctx.restore();
 
-    // Structure markers (CITIES_LOCATION, tile coordinates) that fall inside the window.
+    // Structure markers (CITY_LOCATIONS, tile coordinates) that fall inside the window.
     const marker = (name: string, tx: number, ty: number) => {
       const p = view.toView(tx * TILE_SIZE, ty * TILE_SIZE);
       if (p.x < 0 || p.y < 0 || p.x > w || p.y > h) return;
@@ -196,7 +196,7 @@ export class HudMinimap {
     for (const house of world.houses) marker('house-icon', house.x, house.y);
     for (const city of world.cities) marker('city-icon', city.x, city.y);
 
-    // Clan mates (TEAM_POSITION is scaled to 0..255 over the map), kept inside
+    // Clan mates (PLAYER_POSITIONS is scaled to 0..255 over the map), kept inside
     // the frame like the old arrows so a far mate sits on the edge towards them.
     ctx.fillStyle = 'rgba(230,236,245,.9)';
     for (const [, pos] of clans.positions) {
@@ -208,7 +208,7 @@ export class HudMinimap {
       ctx.fill();
     }
 
-    // The worst-karma player (BAD_KARMA): their karma badge for 14 s, kept
+    // The worst-karma player (WORST_KARMA_PLAYER): their karma badge for 14 s, kept
     // inside the frame like the old `Math.max(15, Math.min(size - 15, ...))`.
     if (world.badKarma) {
       const img = assets?.get(karmaSprite(world.badKarma.karma));

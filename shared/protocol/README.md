@@ -1,32 +1,86 @@
 # Protocol maintenance
 
-The current binary protocol is implemented in C++ and TypeScript. This directory documents ownership; it is not a generated schema or a new protocol implementation.
+The game protocol is binary WebSocket frames in both directions, implemented
+in C++ and TypeScript. This directory documents ownership and rules; it is not
+a generated schema.
 
-- C++ opcodes and packet definitions: `apps/server/src/network/opcodes.h` and `protocolgame.{h,cpp}`.
-- TypeScript encoding/decoding: `apps/client/src/net/`.
-- NPC shared TS types: `shared/typescript/npc-protocol.ts`; quest types: `shared/typescript/quest-protocol.ts`.
+- Opcodes, payload layouts and wire enums: `apps/server/src/network/opcodes.h`.
+  `apps/client/src/net/opcodes.ts` mirrors it, and `opcodes.test.ts` fails if
+  the two disagree on any name or number.
+- C++ encoding and decoding: `apps/server/src/network/protocolgame.{h,cpp}`.
+- TypeScript encoding and decoding: `apps/client/src/net/` (`outbound.ts`,
+  `dispatcher.ts`, `handlers/`).
+- Shared JSON payload schemas: `shared/typescript/npc-protocol.ts`,
+  `quest-protocol.ts`, `progress-protocol.ts`, `account-community.ts`.
+- Stress-bot copies of the tables: `tools/stress/protocol.py` and
+  `tools/stress/cpp/protocol.h`.
 - Packet replay fixture: `tests/fixtures/net/`.
 
-Coordinate changes on both sides in the same repository change. Preserve batching, integer widths, IDs and message ordering.
+## Rules
 
-Protocol 1417: account runs and permanent clan identity. ServerOpcode ACCOUNT_RUN (111) is [str json] matching runLiveSchema in shared/typescript/account-community.ts, sent after the handshake, periodically, and before PLAYER_DIE. ACCOUNT_CLANS (112) is [str json {players:[{pid,clan}]}], where clan is null or {id,name,tag,rank}; packets update only the listed players. Permanent clan ids are independent of temporary team slots. Rank is the current UTC monthly score position (0 means unranked), refreshed about once per minute. Both client and C++ must update together.
+- Change both sides in the same change, and bump `CLIENT_VERSION_MIN/MAX` in
+  `apps/server/src/core/definitions.h` together with `PROTOCOL_VERSION` in
+  `opcodes.ts`. The current version is **1418**. A client of another version
+  is refused with `ALERT`, which every version can decode.
+- Preserve batching, integer widths, IDs and message ordering. Wire enums
+  (`DisconnectReason`, `ChatChannel`, `QuestCause`, `ModSlot` and the rest)
+  are never renumbered.
+- Client payloads are fixed-size unless `clientPayloadBytes()` marks them
+  variable; the server refuses truncated and overlong packets alike.
+- Add a new opcode to its area's group in both enums, at the next free number.
 
-Protocol 1416: explicit account login. A nonempty account ticket must authenticate successfully; otherwise the server sends DISCONNECT_REASON with ACCOUNT_REQUIRED (15) and closes before creating a player. An empty ticket still requests a guest login. The client offers retry, sign-in or an explicit guest choice after account failure, including when ticket retrieval fails before connecting. Update client and game server together: older servers could silently accept an invalid ticket as a guest.
+## Number ranges
 
-Protocol 1415: aiming. ClientOpcode AIM (55) is [u8 held]: 1 while the aim button is held, 0 on release and when the page loses focus. ServerOpcode AIM_STATE (110) is [u8 active][u16 viewX][u16 viewY], sent when aiming turns on or off. The server derives it once per tick from the held button, the equipped weapon's <aim>, life, ghoul state and any running interaction (reload, equip, consume, craft, mod change), so a reload ends it and it resumes when the reload is done. viewX/viewY are the server's maxViewportX/Y. While a weapon with a weak <view> (stretch or shift) is aimed, the server sends that player the box stretched or shifted toward its rotation by the view's extend, and the client darkens what lies outside it. Client and server must update together.
+| Server → client | | Client → server | |
+| --- | --- | --- | --- |
+| 0 | Connection and session | 0 | Connection |
+| 10 | Content | 10 | Movement and combat |
+| 20 | World | 20 | Items |
+| 40 | Players | 30 | Interaction and containers |
+| 50 | Your character | 40 | Building and crafting |
+| 80 | Inventory | 50 | Chat and social |
+| 90 | Crafting and stations | 60 | Teams |
+| 100 | Teams | 70 | Trade and NPCs |
+| 110 | Chat | 80 | Quests |
+| 120 | Trade and NPCs | | |
+| 130 | Quests, progress and account | | |
 
-Protocol 1414: weapon mods. ServerOpcode ITEM_MODS (109) is [u8 uid][u8 n]([u8 slot][u16 modIid])*n, the complete fitted list of one inventory item keyed like INVENTORY_SLOT by the uid's low byte (n = 0 clears it); the server sends it right after the INVENTORY_SLOT that states a moddable weapon and after FULL_INVENTORY for each one. `slot` is ModSlot: magazine 0, optic 1, muzzle 2, underbarrel 3, side 4, stock 5, handguard 6, never renumbered. FULL_CHEST (53) entries are [u16 iid][u8 count][u8 ammo][u8 n]([u8 slot][u16 modIid])*n (iid widened from u8), and TRADE_STATE (93) offer items are [u8 uid][u16 iid][u8 count][u8 ammo][u8 n]([u8 slot][u16 modIid])*n. ClientOpcode WEAPON_MOD (54) is [u8 weaponUid][u8 slot][u8 fit][u8 modUid]: the uids are inventory uid low bytes, `slot` is ModSlot, `fit` 1 fits (or swaps in) the mod with that uid and `fit` 0 removes what is in `slot` and ignores `modUid` (0 is a real uid, hence the separate byte). The server runs it as a timed interaction like a reload (START_INTERACTION, then INTERRUPT_INTERACTION if it is cancelled or refused at the end), checks it again when the timer fires, and answers with INVENTORY_SLOT and ITEM_MODS for what changed; a refusal is a STATUS_MESSAGE. A magazine keeps its own rounds: swapping or removing one moves the gun's rounds with the magazine that leaves. Client and server must update together.
+## Behaviour notes
 
-Protocol 1413: ServerOpcode OPEN_BUILDING (46) appends [u32 fuelMs] after its existing fuel-unit byte; NEW_FUEL_VALUE (47) is [u8 fuelUnits][u32 fuelMs]. Both carry the actual remaining burn time in milliseconds, little-endian, on opening/updating a station, refuelling, and fuel-unit changes. The client counts down from that snapshot, including a partially consumed unit. Client and server must update together.
-
-Protocol 1412: ClientOpcode ADD_FUEL (24) is [u8 amount], 1–254 fuel items. Zero and 255 are rejected. The server limits the request to free station capacity and fuel actually available in the player's inventory. The client uses `objects.xml` fuel `addAmount` only as the initial selection. Client and server must update together.
-
-Protocol 1407: the login frame ends with [str accountTicket]; PLAYER_INFO ends with [u8 groupId][u8 identityFlags]; ServerOpcode GROUPS (97) lists badge-carrying groups.
-
-Protocol 1408: ClientOpcode LOOK_AT (46) is [u32 entityId][u8 pid] (entityId 0 = the player with guid pid); STORE_ITEM (26) ends with [u8 containerSlot] (255 = first free); MOVE_CONTAINER_ITEM (48) is [u8 from][u8 to]; ServerOpcode STATUS_MESSAGE (98) is [u8 kind][str text], one line on the status line over the hotbar.
-
-Protocol 1409: ServerOpcode DISCONNECT_REASON (99) is [u8 reason][str detail], sent right before the server closes the socket for every refused login and every kick; reason is DisconnectReason in opcodes.h (values never renumbered), detail is variable data only and the client owns the wording. A protocol-version mismatch still answers with ALERT.
-
-Protocol 1411: ClientOpcode QUEST_ACTION (53) is [u16 questId][u8 action] (1 abandon, 2 resync). ServerOpcode QUEST_STATE (103) is [u16 questId][u8 cause][str json] (cause 0 sync, 1 started, 2 advanced, 3 completed, 4 failed, 5 removed with an empty string, 6 reset with questId 0xFFFF: drop every entry); the JSON is `questEntrySchema` in `shared/typescript/quest-protocol.ts` and holds only stages the player has reached. QUEST_PROGRESS (104) is [u16 questId][u8 objective][u32 count] for the current stage's objective at that index. QUEST_MARKERS (105) is [u8 n]([u16 npcId][u8 kind])*n, the whole set, where npcId is the npcs.xml id (the NPC entity's extra) and kind 1 = a quest to start, 2 = a step to finish. NPC_STATE no longer has `quests` or the `quests` panel. Account progress: PROGRESS_STATE (106) is [str json] (`progressStateSchema` in `shared/typescript/progress-protocol.ts`), PROGRESS_UPDATE (107) is [u8 n]([u16 statId][u32 value])*n, ACHIEVEMENT_UNLOCKED (108) is [u16 id][u32 unlockedAt][str json {name, description}]. Definitions are the `stats` and `achievements` content tables; a secret achievement's text is only in PROGRESS_STATE and ACHIEVEMENT_UNLOCKED once unlocked.
-
-Protocol 1410: ClientOpcode BLOCK_PLAYER (49) is [u8 guid][u8 blocked], INVITE_TEAM (50) is [u8 guid] (leader only), ACCEPT_TEAM_INVITE (51) is [u8 clanId], PRIVATE_MESSAGES (52) is [u8 policy] (0 everyone, 1 clan, 2 nobody; sent after each handshake and on change); ServerOpcode BLOCKED_PLAYERS (100) is [u8 count][u8 guid]*count (the whole online list, after each change), TEAM_INVITE (101) is [u8 clanId][u8 inviterGuid] to the invited player, TEAM_LOCKED (102) is [u8 clanId][u8 locked], broadcast on lock/unlock and sent at login for each locked clan.
+- **Login.** A nonempty account ticket must authenticate, or the server sends
+  `DISCONNECT_REASON` with `ACCOUNT_REQUIRED` and closes before creating a
+  player; an empty ticket is a guest login. The login frame ends with
+  `[str accountTicket]`, and `PLAYER_INFO` ends with `[u8 groupId][u8 identityFlags]`.
+- **Disconnects.** Every refused login and every kick sends
+  `DISCONNECT_REASON` right before the socket closes; the client owns the
+  wording.
+- **Aiming.** `AIM` is held state. The server derives `AIM_STATE` once per
+  tick from the button, the weapon's `<aim>`, life, ghoul state and any running
+  interaction (reload, equip, consume, craft, mod change), so a reload ends
+  aiming and it resumes afterwards. While a weak scope is aimed, the server
+  sends that player a stretched or shifted view box and the client darkens
+  what lies outside it.
+- **Weapon mods.** `ITEM_MODS` follows the `INVENTORY_SLOT` or `INVENTORY`
+  that states a moddable weapon. `CONTAINER_CONTENTS` and `TRADE_STATE` items
+  carry their fitted mods. `FIT_WEAPON_MOD` runs as a timed interaction like a
+  reload (`INTERACTION_STARTED`, then `INTERACTION_CANCELLED` if it is
+  cancelled or refused); a refusal is a `STATUS_MESSAGE`. A magazine keeps its
+  own rounds when it is swapped or removed.
+- **Fuel.** `STATION_OPENED` and `STATION_FUEL` carry the remaining burn time
+  in milliseconds; the client counts down from that snapshot. `ADD_FUEL` asks
+  for 1–254 items and the server caps it by free capacity and inventory.
+- **Quests and progress.** `QUEST_STATE` holds only stages the player has
+  reached, and `QUEST_MARKERS` is the whole set each time. Account progress
+  arrives as `PROGRESS_STATE`, then `PROGRESS_UPDATE` deltas; a secret
+  achievement's text is only in `PROGRESS_STATE` and `ACHIEVEMENT_UNLOCKED`
+  once unlocked.
+- **Account runs and clans.** `ACCOUNT_RUN` matches `runLiveSchema` and is
+  sent after the handshake, periodically and before `YOU_DIED`.
+  `ACCOUNT_CLANS` updates only the players it lists; `clan` is null or
+  `{id, name, tag, rank}`, where rank is the current UTC monthly score position
+  (0 = unranked), refreshed about once a minute. Permanent clan ids are
+  independent of in-game team slots.
+- **Social.** `BLOCKED_PLAYERS` is the whole online list after each change.
+  `SET_PRIVATE_MESSAGES` is sent after each handshake and on change.
+  `TEAM_LOCKED` is broadcast on lock and unlock and sent at login for each
+  locked clan.

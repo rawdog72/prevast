@@ -606,8 +606,8 @@ export class GameLoop {
     );
     this.cleanups.push(this.socket.bus.on('interruptInteraction', () => this.prompt.interrupt()));
     // Character feedback, as the old client keyed it: PLAYER_HIT -> red pulse
-    // lurching away from the blow (+ a screen shake when it's us), PLAYER_HEAL
-    // -> green pulse (never on ghouls), PLAYER_EAT -> hand-to-mouth pulse.
+    // lurching away from the blow (+ a screen shake when it's us), PLAYER_HEALED
+    // -> green pulse (never on ghouls), PLAYER_ATE -> hand-to-mouth pulse.
     this.cleanups.push(
       this.socket.bus.on('playerHit', (ev) => {
         const entity = this.world.entities.get(ev.pid, 0);
@@ -1124,7 +1124,7 @@ export class GameLoop {
     this.animator.update(this.world, this.content, delta);
     this.buildingAnimator.update(this.world, delta);
     // Blasts: first frame shakes the screen and plays the bang by distance,
-    // as the old _Explosions did (SHAKE_EXPLOSION_STATE restarts the same jolt).
+    // as the old _Explosions did (EXPLOSION_SHAKE restarts the same jolt).
     this.explosions.update(this.world.entities, delta, (blast) => {
       this.camera.explosionShake(20);
       const local = this.world.getLocalEntity();

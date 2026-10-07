@@ -30,7 +30,7 @@ export const XP_GROWTH = 1.105;
 
 export class InventoryStore {
   /**
-   * Slot n of FULL_INVENTORY is slot n here; the record count is the inventory
+   * Slot n of INVENTORY is slot n here; the record count is the inventory
    * size (a bag skill widens it), so the array grows to match. 0..9 is the
    * hotbar, anything past that lives in the bag. `uid` is the item's wire id
    * byte -- INVENTORY_SLOT addresses items by it, never by position.
@@ -57,7 +57,7 @@ export class InventoryStore {
   /** preferArrival's pending wish, if any. */
   private arrival: { iid: number; slot: number; until: number } | null = null;
 
-  // Station state (OPEN_BUILDING): the station we are in and its queue.
+  // Station state (STATION_OPENED): the station we are in and its queue.
   isStationOpen = false;
   stationArea = 0;
   /** Four queue slots, iid or 0 (old client PLAYER.building.queue). */
@@ -71,12 +71,12 @@ export class InventoryStore {
   fuelMs = 0;
   fuelStatedAt = 0;
 
-  /** A manual craft in progress (START_CRAFT): the item and when it began. */
+  /** A manual craft in progress (CRAFT_STARTED): the item and when it began. */
   crafting: { iid: number; startedAt: number } | null = null;
 
   /**
    * The Cancel click (old client: `PLAYER.crafting = 0` before the packet).
-   * The server's reply is INTERRUPT_INTERACTION, which it also sends for a
+   * The server's reply is INTERACTION_CANCELLED, which it also sends for a
    * cancelled collect or reload, so it cannot be what clears this.
    */
   cancelCraft(): void {
@@ -137,7 +137,7 @@ export class InventoryStore {
   }
 
   /**
-   * FULL_INVENTORY: every slot, occupied or not, in the server's slot order.
+   * INVENTORY: every slot, occupied or not, in the server's slot order.
    * The server never hears of our swaps, so a restatement mid-game (a failed
    * pickup, a trade, a quest reward, a bag skill) must not undo them: an item
    * we already hold (same uid and iid) stays in our slot, and anything new
@@ -367,7 +367,7 @@ export class InventoryStore {
 
     cleanups.push(
       bus.on('playerXp', (ev) => {
-        // An increment (old client `PLAYER.xp += xp`); PLAYER_XP_SKILL resyncs.
+        // An increment (old client `PLAYER.xp += xp`); LEVEL_STATE resyncs.
         this.xp += ev.xp;
       }),
     );

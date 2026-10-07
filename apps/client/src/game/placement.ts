@@ -10,7 +10,7 @@
 // accepts the adjacent ring anyway), blue where the piece can go and red where
 // it cannot, walls and floors never rotate, the `craft-grid` fades in under
 // our tile (wmVNW), and a `hint-rotate` badge fades in over the head once a
-// rotatable piece has been held for a moment. A click sends PLACE_OBJECT
+// rotatable piece has been held for a moment. A click sends PLACE_BUILDING
 // [rotation][row][column] only while the ghost is blue; the server keeps the
 // real say (Game::playerPlaceObject).
 

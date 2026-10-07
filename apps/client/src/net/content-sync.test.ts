@@ -112,10 +112,10 @@ describe('GameSocket Content Sync', () => {
     // modes was in cache, so store should now have modes
     expect(store.has('modes')).toBe(true);
 
-    // items was missing from cache, so socket sent CONTENT_REQUEST for ['items']
+    // items was missing from cache, so socket sent REQUEST_CONTENT for ['items']
     expect(mockWs!.sent.length).toBe(1);
     const reqFrame = mockWs!.sent[0];
-    expect(reqFrame[0]).toBe(ClientOpcode.CONTENT_REQUEST);
+    expect(reqFrame[0]).toBe(ClientOpcode.REQUEST_CONTENT);
     // Decode request payload
     const reqJson = new TextDecoder().decode(reqFrame.subarray(3)); // opcode(1) + u16 len(2)
     expect(JSON.parse(reqJson)).toEqual(['items']);
@@ -233,7 +233,7 @@ describe('GameSocket Content Sync', () => {
 
     // GameSocket detects stale patch and requests full table
     expect(mockWs!.sent.length).toBe(1);
-    expect(mockWs!.sent[0][0]).toBe(ClientOpcode.CONTENT_REQUEST);
+    expect(mockWs!.sent[0][0]).toBe(ClientOpcode.REQUEST_CONTENT);
     const reqJson = new TextDecoder().decode(mockWs!.sent[0].subarray(3));
     expect(JSON.parse(reqJson)).toEqual(['items']);
 

@@ -12,7 +12,7 @@ import type { ContentStore } from '../content/store';
 import { unwrapBatch } from './batch';
 import { dispatchServerMessage } from './dispatcher';
 import type { NetEventBus } from './events';
-import { ClientOpcode, type ChatChannel, type MouseDirection, type MoveMask } from './opcodes';
+import { type ChatChannel, type MouseDirection, type MoveMask } from './opcodes';
 import {
   buildAimMessage,
   buildNpcActionMessage,
@@ -312,23 +312,13 @@ export class GameSocket {
     this.send(buildReloadMessage());
   }
 
-  /** PLACE_OBJECT: `i` is the tile ROW, `j` the COLUMN, as the server reads them. */
+  /** PLACE_BUILDING: `i` is the tile ROW, `j` the COLUMN, as the server reads them. */
   placeObject(rotationIndex: number, i: number, j: number): void {
     this.send(buildPlaceObjectMessage(rotationIndex, i, j));
   }
 
-  interact(
-    opcode:
-      | typeof ClientOpcode.OPEN_STATION_15
-      | typeof ClientOpcode.OPEN_STATION_16
-      | typeof ClientOpcode.OPEN_CONTAINER
-      | typeof ClientOpcode.INTERACT_LAMP
-      | typeof ClientOpcode.INTERACT_SWITCH
-      | typeof ClientOpcode.INTERACT_TIMER,
-    entityId: number,
-    pid = 0,
-  ): void {
-    this.send(buildInteractMessage(opcode, entityId, pid));
+  interact(entityId: number, pid = 0): void {
+    this.send(buildInteractMessage(entityId, pid));
   }
 
   takeItem(containerSlot: number): void {
@@ -412,7 +402,7 @@ export class GameSocket {
     this.send(buildQuestActionMessage(questId, action));
   }
 
-  /** WEAPON_MOD; the server times it, applies it and answers with ITEM_MODS. */
+  /** FIT_WEAPON_MOD; the server times it, applies it and answers with ITEM_MODS. */
   weaponMod(weaponUid: number, slot: number, modUid: number | null): void {
     this.send(buildWeaponModMessage(weaponUid, slot, modUid));
   }

@@ -49,19 +49,19 @@ namespace {
 	bool ghoulMayUseOpcode(ClientOpcode opcode)
 	{
 		switch (opcode) {
-			case ClientOpcode::PING_MESSAGE:    // keepalive
-			case ClientOpcode::CHAT_MESSAGE:    // ghouls talk like anyone else
-			case ClientOpcode::CHAT_CHANNEL:
+			case ClientOpcode::PING:    // keepalive
+			case ClientOpcode::CHAT_LOCAL:    // ghouls talk like anyone else
+			case ClientOpcode::SEND_CHAT:
 			case ClientOpcode::MOVE:
-			case ClientOpcode::MOUSE_DIRECTION:
-			case ClientOpcode::MOUSE_DOWN:      // the claw
-			case ClientOpcode::MOUSE_UP:
-			case ClientOpcode::ROTATION:
-			case ClientOpcode::SHIFT:           // running
+			case ClientOpcode::FACE:
+			case ClientOpcode::ATTACK_START:      // the claw
+			case ClientOpcode::ATTACK_STOP:
+			case ClientOpcode::ROTATE:
+			case ClientOpcode::SPRINT:           // running
 			case ClientOpcode::AIM:             // the held state only: a ghoul never aims
 			case ClientOpcode::LOOK_AT:         // read-only
 			case ClientOpcode::BLOCK_PLAYER:    // whose chat reaches it
-			case ClientOpcode::PRIVATE_MESSAGES:
+			case ClientOpcode::SET_PRIVATE_MESSAGES:
 				return true;
 			default:
 				return false;
@@ -142,11 +142,11 @@ void ProtocolGame::detachPlayerSession()
 	player = nullptr;
 }
 
-// [3][kills u16 BE]. The client already holds the score (SCORE); this is the
+// [YOU_DIED][kills u16 BE]. The client already holds the score (SCORE); this is the
 // death screen's kill count, which the old client read from exactly this field.
 void ProtocolGame::sendPlayerDie(uint16_t kills)
 {
-	sendMessage(ServerOpcode::PLAYER_DIE,
+	sendMessage(ServerOpcode::YOU_DIED,
 		static_cast<uint8_t>((kills >> 8) & 0xFF), static_cast<uint8_t>(kills & 0xFF));
 }
 
@@ -201,7 +201,7 @@ void ProtocolGame::sendLoginSetup()
 	// into the number 0 before counting; see onNicknames in client.js.
 	{
 		NetworkMessage msg;
-		msg.addByte(static_cast<uint8_t>(ServerOpcode::NICKNAMES));
+		msg.addByte(static_cast<uint8_t>(ServerOpcode::PLAYER_NAMES));
 		msg.add<uint16_t>(static_cast<uint16_t>(maxPlayers + 1));
 		for (uint32_t i = 0; i <= maxPlayers; ++i) {
 			auto it = guidToName.find(i);
@@ -660,7 +660,7 @@ void ProtocolGame::flushUpdates()
 	// endX, endY, extra.
 	//
 	// The envelope's own bytes come off the budget too (batch header, this
-	// message's length header, the UNITS header): a chunk sized to the bare
+	// message's length header, the ENTITY_UPDATES header): a chunk sized to the bare
 	// buffer would not fit once wrapped, and beginMessage would flush and
 	// restart mid-message.
 	constexpr size_t updateRecordBytes = 4 * sizeof(uint8_t) + 7 * sizeof(uint16_t);
@@ -695,10 +695,10 @@ void ProtocolGame::flushUpdates()
 		const uint16_t payloadBytes =
 			static_cast<uint16_t>(unitsHeaderBytes + (chunkEnd - index) * updateRecordBytes);
 
-		g_netperf.recordQueuedOpcode(static_cast<uint8_t>(ServerOpcode::UNITS));
+		g_netperf.recordQueuedOpcode(static_cast<uint8_t>(ServerOpcode::ENTITY_UPDATES));
 
 		OutputMessage& out = beginMessage(payloadBytes);
-		out.addByte(static_cast<uint8_t>(ServerOpcode::UNITS));
+		out.addByte(static_cast<uint8_t>(ServerOpcode::ENTITY_UPDATES));
 		// Only the first chunk may carry the login flag: the client clears all
 		// of its entities when it sees it.
 		out.addByte(loginFlag ? 0x01 : 0x00);
@@ -812,11 +812,9 @@ void ProtocolGame::sendHandshake()
 void ProtocolGame::sendModdedGaugesValues(const std::array<uint16_t, GAUGE_SLOT_COUNT * GAUGE_RATE_FIELD_COUNT>& rates)
 {
 	NetworkMessage msg;
-	// The client reads this packet as an array of 16-bit words.
-	// This means the entire payload is evaluated in 16-bit chunks.
-	// ui16[0] must contain the opcode. Because 63 fits in a byte, we must write a 16-bit value
-	// to ensure ui16[0] is exactly 63 and the pointer aligns correctly for ui16[1...15].
-	msg.add<uint16_t>(63);
+	// The client reads this packet as an array of 16-bit words, so the opcode is
+	// written as a u16: ui16[0] is the opcode and ui16[1..15] line up after it.
+	msg.add<uint16_t>(static_cast<uint16_t>(ServerOpcode::GAUGE_RATES));
 
 	// ui16[1..15]: life, food, warmth, stamina, radiation -- (max, inc, dec) each.
 	for (uint16_t value : rates) {
@@ -844,7 +842,7 @@ void ProtocolGame::sendGauges()
 {
 	if (!player) return;
 
-	sendMessage(ServerOpcode::GAUGES,
+	sendMessage(ServerOpcode::GAUGE_VALUES,
 		player->getHealth(),               // life
 		player->getHunger(),               // food
 		player->getCold(),                 // cold
@@ -857,12 +855,12 @@ void ProtocolGame::sendGauges()
 // which addresses odd offsets fine. See the note above ServerOpcode::CHAT.
 void ProtocolGame::sendGaugeState(uint16_t packedDirections)
 {
-	sendMessage(ServerOpcode::GAUGE_STATE, packedDirections);
+	sendMessage(ServerOpcode::GAUGE_DIRECTIONS, packedDirections);
 }
 
 void ProtocolGame::sendPlayerStamina(uint8_t value)
 {
-	sendMessage(ServerOpcode::PLAYER_STAMINA, value);
+	sendMessage(ServerOpcode::STAMINA, value);
 }
 
 void ProtocolGame::sendFullInventory()
@@ -870,7 +868,7 @@ void ProtocolGame::sendFullInventory()
 	if (!player) return;
 
 	NetworkMessage msg;
-	msg.addByte(static_cast<uint8_t>(ServerOpcode::FULL_INVENTORY));
+	msg.addByte(static_cast<uint8_t>(ServerOpcode::INVENTORY));
 
 	// Every slot, occupied or not: the record COUNT is how the client learns the
 	// inventory's size, which is the only way it can know a bag skill widened it.
@@ -891,7 +889,7 @@ void ProtocolGame::sendFullInventory()
 	}
 	writeToOutputBuffer(msg);
 
-	// FULL_INVENTORY cleared the client's mods; restate every moddable gun's.
+	// INVENTORY cleared the client's mods; restate every moddable gun's.
 	for (uint8_t i = 0; i < slots; ++i) {
 		const Item* item = player->inventory.getItem(i);
 		if (item && weapon_mods::takesMods(item->getIID())) sendItemMods(item->getUID(), item->getMods());
@@ -947,7 +945,7 @@ void ProtocolGame::sendSelectedItem(uint16_t iid)
 
 void ProtocolGame::sendPlayerXp(uint16_t xp)
 {
-	sendMessage(ServerOpcode::PLAYER_XP,
+	sendMessage(ServerOpcode::XP,
 		static_cast<uint8_t>(xp >> 8), static_cast<uint8_t>(xp & 0xFF));
 }
 
@@ -956,7 +954,7 @@ void ProtocolGame::sendPlayerXpSkill()
 	if (!player) return;
 
 	NetworkMessage msg;
-	msg.addByte(static_cast<uint8_t>(ServerOpcode::PLAYER_XP_SKILL));
+	msg.addByte(static_cast<uint8_t>(ServerOpcode::LEVEL_STATE));
 	msg.addByte(static_cast<uint8_t>(player->getLevel() & 0xFF));
 
 	// XP progress WITHIN the current level (32-bit big-endian): the client's
@@ -1007,22 +1005,22 @@ void ProtocolGame::sendKarma(uint8_t clientIcon)
 
 void ProtocolGame::sendShakeExplosionState(uint8_t shake)
 {
-	sendMessage(ServerOpcode::SHAKE_EXPLOSION_STATE, shake);
+	sendMessage(ServerOpcode::EXPLOSION_SHAKE, shake);
 }
 
 void ProtocolGame::sendBoughtSkill(uint16_t iid)
 {
-	sendMessage(ServerOpcode::BOUGHT_SKILL, static_cast<uint8_t>(iid & 0xFF));
+	sendMessage(ServerOpcode::SKILL_UNLOCKED, static_cast<uint8_t>(iid & 0xFF));
 }
 
 void ProtocolGame::sendStartInteraction(uint16_t delayMultiplier)
 {
-	sendMessage(ServerOpcode::START_INTERACTION, static_cast<uint8_t>(delayMultiplier & 0xFF));
+	sendMessage(ServerOpcode::INTERACTION_STARTED, static_cast<uint8_t>(delayMultiplier & 0xFF));
 }
 
 void ProtocolGame::sendInterruptInteraction()
 {
-	sendSimpleOpcode(ServerOpcode::INTERRUPT_INTERACTION);
+	sendSimpleOpcode(ServerOpcode::INTERACTION_CANCELLED);
 }
 
 void ProtocolGame::sendBlueprint(uint16_t iid)
@@ -1032,7 +1030,7 @@ void ProtocolGame::sendBlueprint(uint16_t iid)
 
 void ProtocolGame::sendLostStation()
 {
-	sendSimpleOpcode(ServerOpcode::LOST_BUILDING);
+	sendSimpleOpcode(ServerOpcode::STATION_CLOSED);
 }
 
 void ProtocolGame::sendOpenStation(uint8_t area, uint8_t isLogin)
@@ -1047,7 +1045,7 @@ void ProtocolGame::sendOpenStation(uint8_t area, uint8_t isLogin)
 	if (!obj) return;
 
 	NetworkMessage msg;
-	msg.addByte(static_cast<uint8_t>(ServerOpcode::OPEN_BUILDING));
+	msg.addByte(static_cast<uint8_t>(ServerOpcode::STATION_OPENED));
 	msg.addByte(area);
 
 	// ui8[2]: Progress Byte (0-255)
@@ -1096,7 +1094,7 @@ void ProtocolGame::sendOpenStation(uint8_t area, uint8_t isLogin)
 void ProtocolGame::sendNewFuelValue(uint8_t value, uint32_t remainingMs)
 {
 	NetworkMessage msg;
-	msg.addByte(static_cast<uint8_t>(ServerOpcode::NEW_FUEL_VALUE));
+	msg.addByte(static_cast<uint8_t>(ServerOpcode::STATION_FUEL));
 	msg.addByte(value);
 	msg.add<uint32_t>(remainingMs);
 	writeToOutputBuffer(msg);
@@ -1107,7 +1105,7 @@ void ProtocolGame::sendPoisened(uint8_t delaySec)
 	sendMessage(ServerOpcode::POISONED, delaySec);
 }
 
-// The REPELLENT / LAPADOINE / RESET_DRUG senders that used to sit here are gone.
+// The REPELLENT_ACTIVE / LAPADONE_ACTIVE / DRUG_RESET senders that used to sit here are gone.
 // They were never called, and the three opcodes now travel as one statement
 // driven by a single table (buildConditionVisualWire in player.cpp) that both the
 // broadcast and the single-client path walk -- a named sender per opcode would
@@ -1122,12 +1120,12 @@ void ProtocolGame::sendDramaticChrono(uint32_t remainingMs)
 	// itself on the next resync.
 	const uint32_t units = std::min<uint32_t>(255, (remainingMs + 9999) / 10000);
 
-	sendMessage(ServerOpcode::DRAMATIC_CHRONO, static_cast<uint8_t>(units));
+	sendMessage(ServerOpcode::COUNTDOWN, static_cast<uint8_t>(units));
 }
 
 void ProtocolGame::sendOtherDie(uint8_t pid)
 {
-	sendMessage(ServerOpcode::OTHER_DIE, pid);
+	sendMessage(ServerOpcode::PLAYER_DIED, pid);
 }
 
 void ProtocolGame::sendWrongTool(uint8_t toolIid)
@@ -1140,7 +1138,7 @@ void ProtocolGame::sendFullChest(Object* obj, bool firstOpen)
 	if (!obj) return;
 
 	NetworkMessage msg;
-	msg.addByte(static_cast<uint8_t>(ServerOpcode::FULL_CHEST));
+	msg.addByte(static_cast<uint8_t>(ServerOpcode::CONTAINER_CONTENTS));
 	msg.addByte(firstOpen ? 1 : 0);
 
 	const uint8_t storageSlots = obj->getStorageSize();
@@ -1165,7 +1163,7 @@ void ProtocolGame::sendFullChest(Object* obj, bool firstOpen)
 
 void ProtocolGame::sendNotification(uint8_t playerPid, uint8_t type, uint8_t level)
 {
-	sendMessage(ServerOpcode::NOTIFICATION, playerPid,
+	sendMessage(ServerOpcode::OVERHEAD_ALERT, playerPid,
 		static_cast<uint8_t>((type << 2) | (level & 3)));
 }
 
@@ -1176,7 +1174,7 @@ void ProtocolGame::sendPlayerHit(uint8_t playerPid, uint8_t angle)
 
 void ProtocolGame::sendPlayerHeal(uint8_t playerPid)
 {
-	sendMessage(ServerOpcode::PLAYER_HEAL, playerPid);
+	sendMessage(ServerOpcode::PLAYER_HEALED, playerPid);
 }
 
 void ProtocolGame::sendDamageIndicator(uint16_t x, uint16_t y, int16_t amount, uint8_t pct)
@@ -1192,12 +1190,12 @@ void ProtocolGame::sendDamageIndicator(uint16_t x, uint16_t y, int16_t amount, u
 
 void ProtocolGame::sendStoleYourSession()
 {
-	sendSimpleOpcode(ServerOpcode::STOLE_YOUR_SESSION);
+	sendSimpleOpcode(ServerOpcode::SESSION_TAKEN);
 }
 
 void ProtocolGame::buildChatChannelMessage(ChatChannel channel, uint8_t from, uint8_t peer, uint8_t flags, const std::string& text, NetworkMessage& msg)
 {
-	msg.addByte(static_cast<uint8_t>(ServerOpcode::CHAT_CHANNEL));
+	msg.addByte(static_cast<uint8_t>(ServerOpcode::CHAT_LINE));
 	msg.addByte(static_cast<uint8_t>(channel));
 	msg.addByte(from);
 	msg.addByte(peer);
@@ -1313,14 +1311,14 @@ void ProtocolGame::buildPlayerInfoMessage(const Player& target, NetworkMessage& 
 void ProtocolGame::parsePacket(NetworkMessage& msg)
 {
 	if (!acceptPackets || !player) {
-		// Not logged in yet, so this is either another CONTENT_REQUEST or the
+		// Not logged in yet, so this is either another REQUEST_CONTENT or the
 		// login frame itself. Connection::onRead only strips the protocol
 		// identifier (30) from a connection's FIRST frame; a client that asked
 		// for content tables before logging in sends its login as a later frame
 		// with the identifier still attached, and decoding it from the
 		// identifier read the version as 30 and dropped the login on the floor
 		// -- no reply, no disconnect, the client just waited. 30 cannot be a
-		// real opcode here (REQUEST_JOIN_TEAM needs a player), so consume it
+		// real opcode here (REQUEST_TEAM_JOIN needs a player), so consume it
 		// and hand the frame to the same gate a first-frame login goes through:
 		// the version, ban and closed-server checks must apply regardless of
 		// which frame the login arrived in.
@@ -1391,12 +1389,12 @@ void ProtocolGame::parsePacket(NetworkMessage& msg)
 
 	if (!player->hasGroupFlag(GroupFlag::NoRateLimit)) {
 		bool allowed = true;
-		if (opcode == ClientOpcode::CHAT_MESSAGE || opcode == ClientOpcode::CHAT_CHANNEL || opcode == ClientOpcode::BLOCK_PLAYER || opcode == ClientOpcode::ACCEPT_TEAM_INVITE || opcode == ClientOpcode::PRIVATE_MESSAGES) allowed = chatBudget.consume(2, 4);
-		else if (opcode == ClientOpcode::PING_MESSAGE) allowed = pingBudget.consume(2, 4);
+		if (opcode == ClientOpcode::CHAT_LOCAL || opcode == ClientOpcode::SEND_CHAT || opcode == ClientOpcode::BLOCK_PLAYER || opcode == ClientOpcode::ACCEPT_TEAM_INVITE || opcode == ClientOpcode::SET_PRIVATE_MESSAGES) allowed = chatBudget.consume(2, 4);
+		else if (opcode == ClientOpcode::PING) allowed = pingBudget.consume(2, 4);
 		// Look is cheap, but a script clicking it thousands of times a second is not.
 		else if (opcode == ClientOpcode::LOOK_AT) allowed = lookBudget.consume(4, 8);
-		else if (opcode == ClientOpcode::THROW_ITEM || opcode == ClientOpcode::STORE_ITEM || opcode == ClientOpcode::TAKE_ITEM || opcode == ClientOpcode::MOVE_CONTAINER_ITEM || opcode == ClientOpcode::TAKE_LOOT || opcode == ClientOpcode::SPLIT_ITEM || opcode == ClientOpcode::STACK_ITEM) allowed = inventoryBudget.consume(20, 40);
-		else if (opcode == ClientOpcode::START_CRAFT_MANUAL || opcode == ClientOpcode::START_CRAFT_STATION || opcode == ClientOpcode::CANCEL_CRAFT || opcode == ClientOpcode::TAKE_FROM_STATION || opcode == ClientOpcode::UNLOCK_SKILL || opcode == ClientOpcode::ADD_FUEL) allowed = craftBudget.consume(10, 20);
+		else if (opcode == ClientOpcode::DROP_ITEM || opcode == ClientOpcode::STORE_ITEM || opcode == ClientOpcode::TAKE_ITEM || opcode == ClientOpcode::MOVE_CONTAINER_ITEM || opcode == ClientOpcode::PICK_UP_LOOT || opcode == ClientOpcode::SPLIT_ITEM || opcode == ClientOpcode::STACK_ITEM) allowed = inventoryBudget.consume(20, 40);
+		else if (opcode == ClientOpcode::CRAFT_BY_HAND || opcode == ClientOpcode::CRAFT_AT_STATION || opcode == ClientOpcode::CANCEL_CRAFT || opcode == ClientOpcode::TAKE_FROM_STATION || opcode == ClientOpcode::UNLOCK_SKILL || opcode == ClientOpcode::ADD_FUEL) allowed = craftBudget.consume(10, 20);
 		if (!allowed) return;
 	}
 
@@ -1458,7 +1456,7 @@ void ProtocolGame::parsePacket(NetworkMessage& msg)
         runAction([playerID, id]() { g_game.playerCancelTrade(playerID, id); });
         break;
     }
-	case ClientOpcode::PING_MESSAGE: {
+	case ClientOpcode::PING: {
 		runAction([playerID]() { g_game.playerReceivePingBack(playerID); });
 		// The client's own keepalive expects an answer. Hopped to the dispatcher
 		// like every other handler here: the reply goes through the output
@@ -1467,7 +1465,7 @@ void ProtocolGame::parsePacket(NetworkMessage& msg)
 		break;
 	}
 
-	case ClientOpcode::CHAT_MESSAGE: {
+	case ClientOpcode::CHAT_LOCAL: {
 		// The only inbound string with no natural bound of its own. Capped at the
 		// wire limit here and trimmed to the game's own limit in playerSay.
 		std::string text = msg.getString(MAX_CHAT_MESSAGE_BYTES);
@@ -1480,7 +1478,7 @@ void ProtocolGame::parsePacket(NetworkMessage& msg)
 		break;
 	}
 
-	case ClientOpcode::CHAT_CHANNEL: {
+	case ClientOpcode::SEND_CHAT: {
 		// [u8 channel][u8 target][str text]. An unknown channel is dropped here
 		// rather than mapped to LOCAL: a client asking for a channel this
 		// server does not have must not end up shouting in public.
@@ -1508,7 +1506,7 @@ void ProtocolGame::parsePacket(NetworkMessage& msg)
 		break;
 	}
 
-	case ClientOpcode::ROTATION: {
+	case ClientOpcode::ROTATE: {
 		// Degrees on the wire, 0-359, quantised to the byte the entity record
 		// carries. Kept as degrees rather than pre-quantised by the client so
 		// the mapping stays server-owned and one implementation defines it.
@@ -1523,15 +1521,15 @@ void ProtocolGame::parsePacket(NetworkMessage& msg)
 		break;
 	}
 
-	case ClientOpcode::MOUSE_DIRECTION: {
+	case ClientOpcode::FACE: {
 		// Consumed and ignored, exactly as before: the facing the server acts on
-		// comes from ROTATION. Listed so the size table stays honest about what
+		// comes from ROTATE. Listed so the size table stays honest about what
 		// the client actually sends.
 		msg.getByte();
 		break;
 	}
 
-	case ClientOpcode::MOUSE_DOWN: {
+	case ClientOpcode::ATTACK_START: {
 		runAction([playerID]() {
 			if (Player* p = g_game.getPlayerByID(playerID)) {
 				p->handleMouseDown();
@@ -1540,7 +1538,7 @@ void ProtocolGame::parsePacket(NetworkMessage& msg)
 		break;
 	}
 
-	case ClientOpcode::MOUSE_UP: {
+	case ClientOpcode::ATTACK_STOP: {
 		runAction([playerID]() {
 			if (Player* p = g_game.getPlayerByID(playerID)) {
 				p->handleMouseUp();
@@ -1549,7 +1547,7 @@ void ProtocolGame::parsePacket(NetworkMessage& msg)
 		break;
 	}
 
-	case ClientOpcode::SHIFT: {
+	case ClientOpcode::SPRINT: {
 		const bool shiftVal = (msg.getByte() != 0);
 		runAction([playerID, shiftVal]() {
 			if (Player* p = g_game.getPlayerByID(playerID)) {
@@ -1582,7 +1580,7 @@ void ProtocolGame::parsePacket(NetworkMessage& msg)
 		break;
 	}
 
-	case ClientOpcode::THROW_ITEM: {
+	case ClientOpcode::DROP_ITEM: {
 		const uint16_t iid = msg.get<uint16_t>();
 		const uint8_t count = msg.getByte();
 		const uint32_t itemUid = msg.get<uint32_t>();
@@ -1664,7 +1662,7 @@ void ProtocolGame::parsePacket(NetworkMessage& msg)
 		break;
 	}
 
-	case ClientOpcode::TAKE_LOOT: {
+	case ClientOpcode::PICK_UP_LOOT: {
 		// ClientEntityId, not uint16: an id16 is 24 bits now, and truncating
 		// one here would silently address a different entity (or none).
 		const auto lootId = static_cast<ClientEntityId>(msg.get<uint32_t>());
@@ -1683,7 +1681,7 @@ void ProtocolGame::parsePacket(NetworkMessage& msg)
 		break;
 	}
 
-	case ClientOpcode::PLACE_OBJECT: {
+	case ClientOpcode::PLACE_BUILDING: {
 		const uint8_t buildRotate = msg.getByte();
 		const uint16_t iBuild = msg.get<uint16_t>();
 		const uint16_t jBuild = msg.get<uint16_t>();
@@ -1693,12 +1691,7 @@ void ProtocolGame::parsePacket(NetworkMessage& msg)
 		break;
 	}
 
-	case ClientOpcode::OPEN_STATION_15:
-	case ClientOpcode::OPEN_STATION_16:
-	case ClientOpcode::OPEN_CONTAINER:
-	case ClientOpcode::INTERACT_LAMP:
-	case ClientOpcode::INTERACT_SWITCH:
-	case ClientOpcode::INTERACT_TIMER: {
+	case ClientOpcode::INTERACT: {
 		const auto entityId = static_cast<ClientEntityId>(msg.get<uint32_t>());
 		const uint8_t entityPid = msg.getByte();
 		runAction([playerID, entityId, entityPid]() {
@@ -1714,7 +1707,7 @@ void ProtocolGame::parsePacket(NetworkMessage& msg)
 		break;
 	}
 
-	case ClientOpcode::START_CRAFT_STATION: {
+	case ClientOpcode::CRAFT_AT_STATION: {
 		const uint16_t iid = msg.get<uint16_t>();
 		runAction([playerID, iid]() {
 			g_game.playerStartCraft(playerID, iid, true); // station = true
@@ -1722,7 +1715,7 @@ void ProtocolGame::parsePacket(NetworkMessage& msg)
 		break;
 	}
 
-	case ClientOpcode::START_CRAFT_MANUAL: {
+	case ClientOpcode::CRAFT_BY_HAND: {
 		const uint16_t iid = msg.get<uint16_t>();
 		runAction([playerID, iid]() {
 			g_game.playerStartCraft(playerID, iid, false); // station = false
@@ -1793,7 +1786,7 @@ void ProtocolGame::parsePacket(NetworkMessage& msg)
 		break;
 	}
 
-	case ClientOpcode::REQUEST_JOIN_TEAM: {
+	case ClientOpcode::REQUEST_TEAM_JOIN: {
 		const uint8_t clanId = msg.getByte();
 		runAction([playerID, clanId]() {
 			g_game.playerRequestJoinClan(playerID, clanId);
@@ -1801,7 +1794,7 @@ void ProtocolGame::parsePacket(NetworkMessage& msg)
 		break;
 	}
 
-	case ClientOpcode::ACCEPT_JOIN_TEAM: {
+	case ClientOpcode::ACCEPT_TEAM_JOIN: {
 		const uint32_t applicantGuid = msg.get<uint32_t>();
 		runAction([playerID, applicantGuid]() {
 			g_game.playerAcceptJoinClan(playerID, applicantGuid);
@@ -1809,7 +1802,7 @@ void ProtocolGame::parsePacket(NetworkMessage& msg)
 		break;
 	}
 
-	case ClientOpcode::KICK_TEAM: {
+	case ClientOpcode::KICK_FROM_TEAM: {
 		const uint32_t memberGuid = msg.get<uint32_t>();
 		runAction([playerID, memberGuid]() {
 			g_game.playerKickClanMember(playerID, memberGuid);
@@ -1838,7 +1831,7 @@ void ProtocolGame::parsePacket(NetworkMessage& msg)
 		break;
 	}
 
-	case ClientOpcode::INVITE_TEAM: {
+	case ClientOpcode::INVITE_TO_TEAM: {
 		const uint8_t targetGuid = msg.getByte();
 		runAction([playerID, targetGuid]() {
 			g_game.playerInviteToClan(playerID, targetGuid);
@@ -1854,7 +1847,7 @@ void ProtocolGame::parsePacket(NetworkMessage& msg)
 		break;
 	}
 
-	case ClientOpcode::PRIVATE_MESSAGES: {
+	case ClientOpcode::SET_PRIVATE_MESSAGES: {
 		const uint8_t policy = msg.getByte();
 		if (policy > static_cast<uint8_t>(PrivateMessagePolicy::NOBODY)) break;
 		runAction([playerID, policy]() {
@@ -1874,7 +1867,7 @@ void ProtocolGame::parsePacket(NetworkMessage& msg)
 		break;
 	}
 
-	case ClientOpcode::WEAPON_MOD: {
+	case ClientOpcode::FIT_WEAPON_MOD: {
 		const uint8_t weaponUid = msg.getByte();
 		const uint8_t slot = msg.getByte();
 		const bool fit = msg.getByte() != 0;
@@ -1919,7 +1912,7 @@ void ProtocolGame::writeToOutputBuffer(const NetworkMessage& msg)
 	queueMessage(msg);
 }
 
-// An empty UNITS frame is a no-op to the client (len = 0, no records); its only
+// An empty ENTITY_UPDATES frame is a no-op to the client (len = 0, no records); its only
 // job is resetting the client's disconnect watchdog. Any real frame does that
 // too, so a client receiving updates needs none of these at all.
 void ProtocolGame::sendKeepAlive()
@@ -1935,7 +1928,7 @@ void ProtocolGame::sendKeepAlive()
 	}
 	lastKeepAlive = now;
 
-	sendMessage(ServerOpcode::UNITS, static_cast<uint8_t>(0x00));
+	sendMessage(ServerOpcode::ENTITY_UPDATES, static_cast<uint8_t>(0x00));
 }
 
 // The answer to a client keepalive.
@@ -1958,8 +1951,8 @@ void ProtocolGame::sendMapSize()
 	// The second field is a PAD byte, not a spare field. client.js reads this
 	// through `new Uint16Array(data)`, which can only address EVEN byte offsets
 	// -- so a uint16 immediately after a one-byte opcode is unreachable from the
-	// client's own parser. Every packet below opcode 76 that carries 16-bit
-	// values (the handshake, the leaderboard) is laid out the same way.
+	// client's own parser. The other older layouts that carry 16-bit values
+	// (the handshake, the leaderboard) are laid out the same way.
 	//
 	// Tiles rather than world units: it is what the client actually allocates
 	// with, and 255 tiles is the ceiling anyway (MapSize::MAX_TILES), so 16 bits
@@ -1975,7 +1968,7 @@ void ProtocolGame::sendCitiesLocation()
 	if (!player) return;
 
 	NetworkMessage msg;
-	msg.addByte(static_cast<uint8_t>(ServerOpcode::CITIES_LOCATION));
+	msg.addByte(static_cast<uint8_t>(ServerOpcode::CITY_LOCATIONS));
 
 	// Pad byte. Every coordinate below is a uint16 and client.js reads them
 	// through `new Uint16Array(data)`, which can only address EVEN offsets --
@@ -2015,7 +2008,7 @@ void ProtocolGame::sendCitiesLocation()
 		cityCount = std::min(cityCount, MAX_MARKERS);
 		houseCount = MAX_MARKERS - cityCount;
 		fmt::print(fg(fmt::color::orange),
-			">> [minimap] {} structures is more than the {} markers CITIES_LOCATION can "
+			">> [minimap] {} structures is more than the {} markers CITY_LOCATIONS can "
 			"carry; the surplus houses are not drawn.\n",
 			cities.size() + houses.size(), MAX_MARKERS);
 	}
@@ -2043,7 +2036,7 @@ void ProtocolGame::onRecvFirstMessage(NetworkMessage& msg)
 	}
 
 	if (msg.getRemainingLength() > 0 &&
-	    static_cast<ClientOpcode>(msg.peekByte()) == ClientOpcode::CONTENT_REQUEST) {
+	    static_cast<ClientOpcode>(msg.peekByte()) == ClientOpcode::REQUEST_CONTENT) {
 		msg.getByte();
 		handleContentRequest(msg);
 		return;
@@ -2238,7 +2231,7 @@ void ProtocolGame::handleContentRequest(NetworkMessage& msg)
 			}
 		}
 	} catch (const std::exception& e) {
-		fmt::print(">> [ProtocolGame] Invalid CONTENT_REQUEST payload: {}\n", e.what());
+		fmt::print(">> [ProtocolGame] Invalid REQUEST_CONTENT payload: {}\n", e.what());
 	}
 }
 

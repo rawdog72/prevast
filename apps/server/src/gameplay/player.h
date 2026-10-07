@@ -570,7 +570,7 @@ public:
 		bool regenAllowed = false;
 	};
 
-	// Queue an authoritative GAUGES push instead of sending one inline.
+	// Queue an authoritative GAUGE_VALUES push instead of sending one inline.
 	//
 	// The client free-runs all five bars itself between packets, so the server
 	// only has to correct it -- but every correction is its own WebSocket frame
@@ -605,7 +605,7 @@ public:
 		gaugeRatesKnown = false;
 	}
 
-	// The five (max, speedInc, speedDec) triples in MODDED_GAUGES_VALUES order --
+	// The five (max, speedInc, speedDec) triples in GAUGE_RATES order --
 	// life, food, warmth, stamina, radiation -- laid out exactly as ui16[1..15]
 	// on the wire.
 	//
@@ -620,7 +620,7 @@ public:
 	// returns them: the tick integrates exactly what was sent.
 	GaugeRates syncGaugeRates(const GaugeRates& rates);
 
-	// What GAUGES puts on the wire for radiation. The gauge is inverted (the
+	// What GAUGE_VALUES puts on the wire for radiation. The gauge is inverted (the
 	// client's bar is cleanliness) and the inversion is against the radiation
 	// gauge's own ceiling, which `!gauge-rad-size` can move.
 	uint8_t getRadiationWireValue() const;
@@ -765,7 +765,7 @@ public:
 	void cancelReload();
 	void completeReload();
 
-	// WEAPON_MOD: plans and starts a timed fit/swap/remove. Returns the refusal
+	// FIT_WEAPON_MOD: plans and starts a timed fit/swap/remove. Returns the refusal
 	// for the status line, or empty when it started.
 	std::string startModChange(uint8_t weaponWireUid, ModSlot slot, bool fit, uint8_t modWireUid);
 	void completeModChange();
@@ -946,7 +946,7 @@ public:
 		uint32_t accountId = 0;
 	};
 	std::vector<BlockedPlayer> blockedPlayers;
-	// ClientOpcode::PRIVATE_MESSAGES, sent by the client at login and on change.
+	// ClientOpcode::SET_PRIVATE_MESSAGES, sent by the client at login and on change.
 	PrivateMessagePolicy privateMessages = PrivateMessagePolicy::EVERYONE;
 	bool hasBlocked(uint32_t guid) const
 	{
@@ -1056,7 +1056,7 @@ private:
 	// Gauge push bookkeeping. See flushGaugeSync. Deliberately no timer here:
 	// gauges are never resynced on a clock, only when something says the client
 	// is wrong.
-	// The five bytes GAUGES last carried, packed, so a dirty flush that would
+	// The five bytes GAUGE_VALUES last carried, packed, so a dirty flush that would
 	// repeat itself costs nothing. Only ever written where a frame is actually
 	// sent from the tick; a direct sendGauges() elsewhere can leave it stale,
 	// which can only ever cost one redundant frame, never a missed one.
@@ -1089,7 +1089,7 @@ private:
 	//
 	// Which way the server is running each of the five gauges this tick, packed
 	// two bits per gauge in GaugeSlot order. Stated to the client outright
-	// (ServerOpcode::GAUGE_STATE) rather than left to be inferred.
+	// (ServerOpcode::GAUGE_DIRECTIONS) rather than left to be inferred.
 	//
 	// This is one field and one latch because the thing it describes is one
 	// piece of state. It used to be three enums plus three area booleans, sent

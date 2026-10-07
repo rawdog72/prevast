@@ -115,7 +115,7 @@ describe('InventoryStore', () => {
     });
     expect(store.isChestOpen).toBe(false);
 
-    // LOST_BUILDING: the server took the container away (walked off, destroyed)
+    // STATION_CLOSED: the server took the container away (walked off, destroyed)
     bus.emit('fullChest', {
       firstOpen: true,
       slots: 1,
@@ -185,7 +185,7 @@ describe('InventoryStore', () => {
     expect(store.xp).toBe(120);
   });
 
-  it('a hand craft starts on START_CRAFT, is cleared by Cancel, and dies with the player', () => {
+  it('a hand craft starts on CRAFT_STARTED, is cleared by Cancel, and dies with the player', () => {
     const bus = new NetEventBus();
     const store = new InventoryStore();
     store.attachBus(bus);

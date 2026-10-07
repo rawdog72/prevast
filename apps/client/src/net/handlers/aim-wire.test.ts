@@ -4,7 +4,7 @@
 import { describe, expect, it } from 'vitest';
 import { dispatchServerMessage } from '../dispatcher';
 import { NetEventBus } from '../events';
-import { ServerOpcode } from '../opcodes';
+import { ClientOpcode, ServerOpcode } from '../opcodes';
 import { buildAimMessage } from '../outbound';
 
 const u16 = (v: number) => [v & 0xff, v >> 8];
@@ -35,8 +35,8 @@ describe('aiming on the wire (protocol 1415)', () => {
     expect(capture('aimState', [ServerOpcode.AIM_STATE, 1, ...u16(1400)])).toBeUndefined();
   });
 
-  it('AIM is [55][held]', () => {
-    expect([...buildAimMessage(true)]).toEqual([55, 1]);
-    expect([...buildAimMessage(false)]).toEqual([55, 0]);
+  it('AIM is [AIM][held]', () => {
+    expect([...buildAimMessage(true)]).toEqual([ClientOpcode.AIM, 1]);
+    expect([...buildAimMessage(false)]).toEqual([ClientOpcode.AIM, 0]);
   });
 });

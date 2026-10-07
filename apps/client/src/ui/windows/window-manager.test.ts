@@ -163,14 +163,14 @@ describe('WindowManager', () => {
     const layout = root.querySelector('.dv-craft')!;
     expect(root.querySelector('.dv-window-title')!.textContent).toBe('Crafting');
 
-    // OPEN_BUILDING: the same window, now on the station's area.
+    // STATION_OPENED: the same window, now on the station's area.
     inventory.isStationOpen = true;
     inventory.stationArea = 2;
     manager.update();
     expect(manager.activeWindow).toBe('craft'); // already the craft family: nothing to switch
     expect(root.querySelector('.dv-craft')).toBe(layout);
 
-    // LOST_BUILDING: back to By hand, still open.
+    // STATION_CLOSED: back to By hand, still open.
     inventory.closeContainers();
     manager.update();
     expect(manager.isModalOpen()).toBe(true);

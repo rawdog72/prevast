@@ -3,8 +3,8 @@
 
 // apps/client/src/world/gauge-model.ts
 // The old client's Gauge / updateGauge: the server states a gauge's value
-// (GAUGES, PLAYER_LIFE, PLAYER_STAMINA), its rates (MODDED_GAUGES_VALUES,
-// wire units /10000 per ms) and its direction (GAUGE_STATE), and both sides
+// (GAUGE_VALUES, STAMINA), its rates (GAUGE_RATES,
+// wire units /10000 per ms) and its direction (GAUGE_DIRECTIONS), and both sides
 // integrate the same numbers between statements -- so a bar moves smoothly
 // instead of jumping on every server push. `value` is what the model believes
 // the server has; `current` eases toward it for drawing (10 % per frame).
@@ -103,7 +103,6 @@ export class GaugeModel {
         for (const name of GAUGE_SLOTS) this.setDirection(name, ev[name]);
       }),
     );
-    cleanups.push(bus.on('playerLife', (ev) => this.setValue('life', ev.life)));
     cleanups.push(bus.on('playerStamina', (ev) => this.setValue('stamina', ev.stamina)));
     // A fresh session starts every bar where the server says, not easing from full.
     cleanups.push(bus.on('handshake', () => this.snap()));

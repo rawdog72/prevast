@@ -51,7 +51,7 @@ describe('ClanStore (old client World.teams / World.PLAYER team state)', () => {
     expect(clans.listed().map((c) => c.id)).toEqual([1]);
   });
 
-  it('TEAM_CREATED names the clan and seats its leader; ACCEPTED_TEAM adds members and sets our own clan only for us', () => {
+  it('TEAM_CREATED names the clan and seats its leader; TEAM_MEMBER_JOINED adds members and sets our own clan only for us', () => {
     const { bus, clans, roster } = setup();
     bus.emit(
       'handshake',
@@ -101,7 +101,7 @@ describe('ClanStore (old client World.teams / World.PLAYER team state)', () => {
     expect(clans.members(1).map((p) => p.guid)).toEqual([2]);
   });
 
-  it('KICKED_TEAM removes that player; for us it also clears leadership and pending requests', () => {
+  it('TEAM_MEMBER_LEFT removes that player; for us it also clears leadership and pending requests', () => {
     const { bus, clans, roster } = setup();
     bus.emit(
       'handshake',
@@ -122,7 +122,7 @@ describe('ClanStore (old client World.teams / World.PLAYER team state)', () => {
     expect(clans.joinRequest).toBe(0);
   });
 
-  it('queues JOIN_TEAM requests five deep behind the one being shown; nextInvitation pops the queue', () => {
+  it('queues TEAM_JOIN_REQUEST requests five deep behind the one being shown; nextInvitation pops the queue', () => {
     const { bus, clans, roster } = setup();
     bus.emit('handshake', roster([{ guid: 1, team: 51 }]));
     for (const pid of [2, 3, 4, 5, 6, 7, 8]) bus.emit('joinTeam', { pid });

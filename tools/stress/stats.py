@@ -29,8 +29,8 @@ class Stats:
         self._last_time = self.start
 
         # --- server-health metrics -----------------------------------------
-        # The server pushes one UNITS frame per player per game tick, so the
-        # per-bot UNITS rate is a direct read of the achieved server tick rate
+        # The server pushes one ENTITY_UPDATES frame per player per game tick, so the
+        # per-bot ENTITY_UPDATES rate is a direct read of the achieved server tick rate
         # (target 20/s). Movement applies a FIXED distance per tick, so when
         # the tick rate sags, players literally walk slower -- observed_speed
         # measures exactly that symptom in world-units/sec.
@@ -103,7 +103,7 @@ class Stats:
 
     @property
     def units_per_bot(self) -> float:
-        """Mean UNITS frames/sec/bot over the whole run ~= server tick rate."""
+        """Mean ENTITY_UPDATES frames/sec/bot over the whole run ~= server tick rate."""
         uptime = time.monotonic() - self.start
         if uptime <= 0 or self.peak_connected == 0:
             return 0.0
@@ -142,7 +142,7 @@ class Stats:
             f"frames recv:     {self.recv_frames} ({self.recv_bytes/1e6:.1f} MB)",
             "",
             "---- server health (the numbers that matter) ----",
-            f"tick rate:       {self.units_per_bot:.2f} UNITS/s/bot   (target 20.00)",
+            f"tick rate:       {self.units_per_bot:.2f} ENTITY_UPDATES/s/bot   (target 20.00)",
             f"observed speed:  {self.observed_speed:.1f} world-units/s "
             f"(walk 230 / sprint 322 at a healthy 20 Hz)",
         ]

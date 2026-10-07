@@ -8,7 +8,7 @@ export function handleBlueprint(bytes: Uint8Array, bus: NetEventBus): void {
   bus.emit('blueprint', { iid });
 }
 
-export function handleStartCraft(bytes: Uint8Array, bus: NetEventBus): void {
+export function handleCraftStarted(bytes: Uint8Array, bus: NetEventBus): void {
   const iid = bytes.length >= 3 ? bytes[1]! | (bytes[2]! << 8) : (bytes[1] ?? 0);
   bus.emit('startCraft', { iid });
 }

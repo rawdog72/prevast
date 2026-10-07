@@ -101,7 +101,7 @@ bool Game::playerCreateClan(uint32_t playerId, const std::string& name)
 
 	// Broadcast accepted team
 	NetworkMessage msg;
-	msg.addByte(static_cast<uint8_t>(ServerOpcode::ACCEPTED_TEAM));
+	msg.addByte(static_cast<uint8_t>(ServerOpcode::TEAM_MEMBER_JOINED));
 	msg.addByte(static_cast<uint8_t>(player->getGUID()));
 	msg.addByte(freeId);
 	broadcastPacket(msg);
@@ -141,7 +141,7 @@ void Game::disbandClan(uint8_t clanId)
 
 	// Send delete team packet to everyone first so client can reset teamLeader status
 	NetworkMessage deleteMsg;
-	deleteMsg.addByte(static_cast<uint8_t>(ServerOpcode::DELETE_TEAM));
+	deleteMsg.addByte(static_cast<uint8_t>(ServerOpcode::TEAM_DELETED));
 	deleteMsg.addByte(clanId);
 	broadcastPacket(deleteMsg);
 
@@ -154,7 +154,7 @@ void Game::disbandClan(uint8_t clanId)
 		}
 		// Send kicked team packet for all members to everyone
 		NetworkMessage msg;
-		msg.addByte(static_cast<uint8_t>(ServerOpcode::KICKED_TEAM));
+		msg.addByte(static_cast<uint8_t>(ServerOpcode::TEAM_MEMBER_LEFT));
 		msg.addByte(static_cast<uint8_t>(mGuid));
 		broadcastPacket(msg);
 	}
@@ -194,10 +194,10 @@ bool Game::playerRequestJoinClan(uint32_t playerId, uint8_t clanId)
 			player->clanId = -1;
 			player->isClanLeader = false;
 		} else if (player->clanId == clanId) {
-			// Player is already in this clan; re-send ACCEPTED_TEAM to resync client state
+			// Player is already in this clan; re-send TEAM_MEMBER_JOINED to resync client state
 			if (player->client) {
 				NetworkMessage msg;
-				msg.addByte(static_cast<uint8_t>(ServerOpcode::ACCEPTED_TEAM));
+				msg.addByte(static_cast<uint8_t>(ServerOpcode::TEAM_MEMBER_JOINED));
 				msg.addByte(static_cast<uint8_t>(player->getGUID()));
 				msg.addByte(static_cast<uint8_t>(clanId));
 				player->client->writeToOutputBuffer(msg);
@@ -231,7 +231,7 @@ bool Game::playerRequestJoinClan(uint32_t playerId, uint8_t clanId)
 	Player* leader = getPlayerByGUID(clan.leaderGuid);
 	if (leader && leader->client) {
 		NetworkMessage msg;
-		msg.addByte(static_cast<uint8_t>(ServerOpcode::JOIN_TEAM));
+		msg.addByte(static_cast<uint8_t>(ServerOpcode::TEAM_JOIN_REQUEST));
 		msg.addByte(static_cast<uint8_t>(player->getGUID()));
 		leader->client->writeToOutputBuffer(msg);
 		leader->client->flushOutputBatch();
@@ -309,7 +309,7 @@ bool Game::playerKickClanMember(uint32_t playerId, uint32_t memberGuid)
 
 	// Broadcast kicked team
 	NetworkMessage msg;
-	msg.addByte(static_cast<uint8_t>(ServerOpcode::KICKED_TEAM));
+	msg.addByte(static_cast<uint8_t>(ServerOpcode::TEAM_MEMBER_LEFT));
 	msg.addByte(static_cast<uint8_t>(memberGuid));
 	broadcastPacket(msg);
 	broadcastServerLog(ServerLogKind::CLAN_KICKED, static_cast<uint8_t>(memberGuid), 0, clan.name);
@@ -348,7 +348,7 @@ bool Game::playerLeaveClan(uint32_t playerId)
 
 	// Broadcast kicked team
 	NetworkMessage msg;
-	msg.addByte(static_cast<uint8_t>(ServerOpcode::KICKED_TEAM));
+	msg.addByte(static_cast<uint8_t>(ServerOpcode::TEAM_MEMBER_LEFT));
 	msg.addByte(static_cast<uint8_t>(guid));
 	broadcastPacket(msg);
 	broadcastServerLog(ServerLogKind::CLAN_LEFT, static_cast<uint8_t>(guid), 0, clan.name);
@@ -484,7 +484,7 @@ void Game::joinClan(Clan& clan, Player* newcomer, uint64_t now)
 	forgetClanApplications(guid);
 
 	NetworkMessage msg;
-	msg.addByte(static_cast<uint8_t>(ServerOpcode::ACCEPTED_TEAM));
+	msg.addByte(static_cast<uint8_t>(ServerOpcode::TEAM_MEMBER_JOINED));
 	msg.addByte(static_cast<uint8_t>(guid));
 	msg.addByte(clan.id);
 	broadcastPacket(msg);
@@ -524,7 +524,7 @@ void Game::removePlayerFromClan(Player* player)
 		player->lastClanActionTime = OTSYS_TIME();
 
 		NetworkMessage msg;
-		msg.addByte(static_cast<uint8_t>(ServerOpcode::KICKED_TEAM));
+		msg.addByte(static_cast<uint8_t>(ServerOpcode::TEAM_MEMBER_LEFT));
 		msg.addByte(static_cast<uint8_t>(guid));
 		broadcastPacket(msg);
 	}

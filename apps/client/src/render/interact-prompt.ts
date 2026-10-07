@@ -47,13 +47,13 @@ export class InteractPrompt {
   private timer: UseTimer | null = null;
   private wrong: WrongTool | null = null;
 
-  /** START_INTERACTION: the server counts `delayMultiplier * 100` ms before the action lands. */
+  /** INTERACTION_STARTED: the server counts `delayMultiplier * 100` ms before the action lands. */
   startTimer(delayMultiplier: number): void {
     const ms = delayMultiplier * 100;
     this.timer = { remainingMs: ms, totalMs: ms };
   }
 
-  /** INTERRUPT_INTERACTION (or the action completing). */
+  /** INTERACTION_CANCELLED (or the action completing). */
   interrupt(): void {
     this.timer = null;
   }

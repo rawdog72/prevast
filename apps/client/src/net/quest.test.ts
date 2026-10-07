@@ -8,12 +8,13 @@ import { BinaryReader } from './binary-stream';
 import { markersPacket, progressPacket, questEntry, statePacket } from './quest-fixtures';
 import { dispatchServerMessage } from './dispatcher';
 import { NetEventBus } from './events';
+import { ClientOpcode } from './opcodes';
 import { buildQuestActionMessage } from './outbound';
 
 describe('quest wire', () => {
-  it('QUEST_ACTION is [53][questId u16][action u8]', () => {
+  it('QUEST_ACTION is [QUEST_ACTION][questId u16][action u8]', () => {
     const r = new BinaryReader(buildQuestActionMessage(0x0102, QuestAction.ABANDON));
-    expect([r.u8(), r.u16(), r.u8(), r.remaining()]).toEqual([53, 0x0102, 1, 0]);
+    expect([r.u8(), r.u16(), r.u8(), r.remaining()]).toEqual([ClientOpcode.QUEST_ACTION, 0x0102, 1, 0]);
   });
 
   it('QUEST_STATE emits a validated entry and refuses truncated or trailing bytes', () => {

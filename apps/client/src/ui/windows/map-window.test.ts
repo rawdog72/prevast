@@ -124,7 +124,7 @@ describe('MapWindow (M key: GameUI.mapGrid full map with markers)', () => {
     expect(calls.slice(i - 3, i)).toEqual(['save()', 'translate(205,205)', 'rotate(3)']);
   });
 
-  it('marks the bad-karma player with their karma icon (BAD_KARMA, 14 s)', () => {
+  it('marks the bad-karma player with their karma icon (WORST_KARMA_PLAYER, 14 s)', () => {
     const { win, world, clans, calls } = setup();
     world.badKarma = { guid: 9, x: 3000, y: 12000, karma: 4, remainingMs: 9000 };
     const assets = {

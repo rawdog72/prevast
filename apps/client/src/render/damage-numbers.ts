@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: GPL-2.0-only
 
 // apps/client/src/render/damage-numbers.ts
-// DAMAGE_INDICATOR (86): the server states every hit, heal and ambient loss as
+// DAMAGE_INDICATOR: the server states every hit, heal and ambient loss as
 // `[x][y][amount i16][pct]` for whoever can see it -- players and agents alike
 // (Game::broadcastDamageIndicator). The old client predates the message, so
 // this is drawn in the GameUI voice rather than copied: Viga, the danger red /

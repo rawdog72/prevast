@@ -49,7 +49,7 @@ Progress routes require `X-Account-Progress-Token`; they no longer accept the ad
 ## Upgrading and checking
 
 1. Back up the accounts database and private runtime configuration. Run `npm ci` and `npm run setup` from the repository root. Check the progress-token map agrees with each runtime config; explicit empty keys remain disabled.
-2. Deploy matching web/client and C++ builds (protocol **1417**). An older game server is intentionally incompatible with the new client because it could downgrade failed account authentication to a guest login.
+2. Deploy matching web/client and C++ builds (protocol **1418**). An older game server is intentionally incompatible with the new client because it could downgrade failed account authentication to a guest login.
 3. Restart the web host. Additive, versioned migrations run automatically under a database lock and preserve existing accounts, sessions and progress. The database user needs schema-creation privileges. Existing email addresses require verification; lower-cost password hashes are upgraded after a successful login.
 4. Restart game servers with their progress tokens. Preserve their progress outboxes; old acknowledged batch IDs remain recognized during the transition. Configure SMTP and verify a test mailbox you control before relying on email recovery.
 

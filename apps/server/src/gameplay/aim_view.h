@@ -190,7 +190,7 @@ PlayerView normalView(int32_t viewX, int32_t viewY);
 // The view of a player aiming `view` toward `angleRad` (radians, y down: what
 // the client's atan2 facing gives). Anything but a weak or strong view gives the normal one.
 PlayerView aimedView(const ViewData& view, int32_t viewX, int32_t viewY, double angleRad);
-// ROTATION's byte back to radians: protocolgame.cpp stores degrees * 255 / 360.
+// ROTATE's byte back to radians: protocolgame.cpp stores degrees * 255 / 360.
 double rotationToRadians(uint8_t rotation);
 // The cosmetic broadcast test (fanOutToWatchers): within `radius` of the
 // player, of the point a shift moved the view to, or of the segment a stretch

@@ -38,7 +38,7 @@ describe('GaugeModel (old client updateGauge)', () => {
     expect(m.gauge('life').value).toBe(0);
   });
 
-  it('is fed by GAUGES / MODDED_GAUGES_VALUES / GAUGE_STATE / PLAYER_LIFE / PLAYER_STAMINA', () => {
+  it('is fed by GAUGE_VALUES / GAUGE_RATES / GAUGE_DIRECTIONS / STAMINA', () => {
     const m = new GaugeModel();
     const bus = new NetEventBus();
     m.attachBus(bus);
@@ -60,7 +60,7 @@ describe('GaugeModel (old client updateGauge)', () => {
       radiation: GaugeDirection.HOLD,
     });
     expect(m.gauge('food').dir).toBe(GaugeDirection.FALL);
-    bus.emit('playerLife', { life: 77 });
+    bus.emit('gauges', { life: 77, food: 180, warmth: 40, stamina: 255, radiation: 10 });
     bus.emit('playerStamina', { stamina: 33 });
     expect(m.gauge('life').value).toBe(77);
     expect(m.gauge('stamina').value).toBe(33);

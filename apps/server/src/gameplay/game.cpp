@@ -3667,7 +3667,7 @@ void Game::playerStartCraft(uint32_t playerId, uint16_t iid, bool isStation)
 		player->crafting.ingredients = usedIngredients;
 		consumeIngredients();
 		NetworkMessage msg;
-		msg.addByte(44); 
+		msg.addByte(static_cast<uint8_t>(ServerOpcode::CRAFT_STARTED));
 		msg.addByte(static_cast<uint8_t>(iid & 0xFF));
 		player->sendNetworkMessage(msg);
 		player->crafting.eventId = g_scheduler.addEvent(createSchedulerTask(craftTime, [this, playerId, iid]() { this->completeCraft(playerId, iid); }));
@@ -3963,7 +3963,7 @@ void Game::broadcastNotification(uint8_t playerPid, uint8_t type, uint8_t level,
 {
 	// Byte-for-byte what ProtocolGame::sendNotification builds.
 	NetworkMessage msg;
-	msg.addByte(static_cast<uint8_t>(ServerOpcode::NOTIFICATION));
+	msg.addByte(static_cast<uint8_t>(ServerOpcode::OVERHEAD_ALERT));
 	msg.addByte(playerPid);
 	msg.addByte(static_cast<uint8_t>((type << 2) | (level & 3)));
 	broadcastToWatchers(msg, pos);
@@ -3972,7 +3972,7 @@ void Game::broadcastNotification(uint8_t playerPid, uint8_t type, uint8_t level,
 void Game::broadcastPlayerEat(uint8_t playerPid, const Position& pos)
 {
 	NetworkMessage msg;
-	msg.addByte(static_cast<uint8_t>(ServerOpcode::PLAYER_EAT));
+	msg.addByte(static_cast<uint8_t>(ServerOpcode::PLAYER_ATE));
 	msg.addByte(playerPid);
 	broadcastToWatchers(msg, pos);
 }
@@ -3980,7 +3980,7 @@ void Game::broadcastPlayerEat(uint8_t playerPid, const Position& pos)
 void Game::broadcastPlayerHeal(uint8_t playerPid, const Position& pos, Player* subject)
 {
 	NetworkMessage msg;
-	msg.addByte(static_cast<uint8_t>(ServerOpcode::PLAYER_HEAL));
+	msg.addByte(static_cast<uint8_t>(ServerOpcode::PLAYER_HEALED));
 	msg.addByte(playerPid);
 	broadcastToWatchers(msg, pos, subject);
 }
@@ -7416,7 +7416,7 @@ void Game::updateBadKarmaPositions()
 
 	if (worstPlayer) {
 		NetworkMessage msg;
-		msg.addByte(static_cast<uint8_t>(ServerOpcode::BAD_KARMA));
+		msg.addByte(static_cast<uint8_t>(ServerOpcode::WORST_KARMA_PLAYER));
 		msg.addByte(static_cast<uint8_t>(worstPlayer->getGUID()));
 		
 		Position pos = worstPlayer->getPosition();
@@ -7512,7 +7512,7 @@ void Game::updateTeamPositions()
 				clan.lastSyncTime = now;
 
 				NetworkMessage msg;
-				msg.addByte(static_cast<uint8_t>(ServerOpcode::TEAM_POSITION));
+				msg.addByte(static_cast<uint8_t>(ServerOpcode::PLAYER_POSITIONS));
 				for (uint32_t mGuid : clan.members) {
 					Player* m = getPlayerByGUID(mGuid);
 					if (m) {

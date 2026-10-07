@@ -5,7 +5,7 @@
 // The old client's generated clan request card (GameUI.invitation): fixed
 // top-center, shown to a clan leader while someone is asking to join --
 // "CLAN REQUEST", the requester's name, "+N waiting" when more are queued,
-// Accept (ACCEPT_JOIN_TEAM) and Decline (which, like the old client, only
+// Accept (ACCEPT_TEAM_JOIN) and Decline (which, like the old client, only
 // moves on to the next request; the server keeps the applicant listed).
 // The same card, to a player with no clan, carries a leader's invitation
 // (TEAM_INVITE): Accept sends ACCEPT_TEAM_INVITE, Decline just drops it.

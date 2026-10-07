@@ -4,14 +4,13 @@
 // Launched only against run-smoke.mjs's fresh, isolated game server.
 // Weapon mods end to end: a created gun carries its default mods, and they
 // survive a drop and pickup, a chest and a trade; mods are fitted, swapped and
-// removed through WEAPON_MOD, and non-default mods survive every move too.
+// removed through FIT_WEAPON_MOD, and non-default mods survive every move too.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import WebSocket from 'ws';
 import { unwrapBatch } from '../../apps/client/src/net/batch';
 import { dispatchServerMessage } from '../../apps/client/src/net/dispatcher';
 import { NetEventBus, type TradeStateEvent } from '../../apps/client/src/net/events';
-import { ClientOpcode } from '../../apps/client/src/net/opcodes';
 import * as wire from '../../apps/client/src/net/outbound';
 import { EntityType } from '../../apps/client/src/world/entity-types';
 import { InventoryStore } from '../../apps/client/src/world/inventory-store';
@@ -139,7 +138,7 @@ async function openNewChest(bot: Bot): Promise<void> {
   const fresh = bot.world.entities
     .all()
     .find((e) => e.id === chests().find((id) => !oldChests.has(id)))!;
-  bot.send(wire.buildInteractMessage(ClientOpcode.OPEN_CONTAINER, fresh.id, fresh.pid));
+  bot.send(wire.buildInteractMessage(fresh.id, fresh.pid));
   await until(() => bot.inventory.isChestOpen, `open the chest of ${bot.name}`);
 }
 

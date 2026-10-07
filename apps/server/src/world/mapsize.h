@@ -64,7 +64,7 @@ static constexpr int32_t MIN_TILES = EditorContract::World::minTiles;
 static constexpr int32_t MAX_TILES = EditorContract::World::maxTiles;
 
 // CITY_LOCATION_NONE is gone. It was a sentinel filling the single city slot
-// CITIES_LOCATION reserved when no city had been built; that packet now leads
+// CITY_LOCATIONS reserved when no city had been built; that packet now leads
 // with a CITY COUNT and carries every city, so "no city" is the count 0 and
 // there is nothing to reserve a magic value for.
 

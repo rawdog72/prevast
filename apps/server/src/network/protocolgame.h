@@ -97,7 +97,7 @@ public:
 	void sendHandshake();
 	void sendGauges();
 	// The five (max, speedInc, speedDec) triples, in GaugeSlot order. Sized from
-	// the same constant GAUGE_STATE's bit pairs are, so the two gauge messages
+	// the same constant GAUGE_DIRECTIONS's bit pairs are, so the two gauge messages
 	// cannot disagree about how many gauges there are.
 	void sendModdedGaugesValues(const std::array<uint16_t, GAUGE_SLOT_COUNT * GAUGE_RATE_FIELD_COUNT>& rates);
 	// The whole world clock: cycle length and where in it we are. Sent at login,
@@ -107,7 +107,7 @@ public:
 	void sendWorldTime();
 
 	// All five gauge directions at once, two bits each. Built by
-	// Player::packGaugeDirections; see ServerOpcode::GAUGE_STATE for why this
+	// Player::packGaugeDirections; see ServerOpcode::GAUGE_DIRECTIONS for why this
 	// is one message rather than the fifteen edges it replaced.
 	void sendGaugeState(uint16_t packedDirections);
 
@@ -146,7 +146,7 @@ public:
 	void sendPlayerHeal(uint8_t playerPid);
 	void sendDamageIndicator(uint16_t x, uint16_t y, int16_t amount, uint8_t pct);
 	void sendStoleYourSession();
-	// One chat line (ServerOpcode::CHAT_CHANNEL). `from` is the speaker, or
+	// One chat line (ServerOpcode::CHAT_LINE). `from` is the speaker, or
 	// CHAT_SYSTEM_PID for a line the server wrote; `peer` is the other party of
 	// a PRIVATE conversation and 0 otherwise.
 	void sendChatChannel(ChatChannel channel, uint8_t from, uint8_t peer, uint8_t flags, const std::string& text);
@@ -347,7 +347,7 @@ private:
 	int64_t lastClientPacket = 0;
 };
 
-// [u8 n]([u8 slot][u16 modIid])*n -- the fitted-mods list ITEM_MODS, FULL_CHEST
+// [u8 n]([u8 slot][u16 modIid])*n -- the fitted-mods list ITEM_MODS, CONTAINER_CONTENTS
 // and TRADE_STATE share. Empty slots are left out.
 inline void appendWeaponMods(NetworkMessage& msg, const WeaponMods& mods)
 {

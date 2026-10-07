@@ -211,7 +211,7 @@ export interface DamageIndicatorEvent {
 }
 
 /**
- * NOTIFICATION: a player's gauge crossed a threshold (server checkGaugeNotification).
+ * OVERHEAD_ALERT: a player's gauge crossed a threshold (server checkGaugeNotification).
  * type 0 health / 1 hunger / 2 cold / 3 radiation; level 0 ~80% / 1 ~50% / 2 ~20%.
  * Broadcast to everyone in range -- the old client pops alert{type}_{level}.png over that player.
  */
@@ -228,10 +228,6 @@ export interface PlayerHitEvent {
 
 export interface PlayerHealEvent {
   pid: number;
-}
-
-export interface PlayerLifeEvent {
-  life: number;
 }
 
 export interface PlayerStaminaEvent {
@@ -358,10 +354,6 @@ export interface BadKarmaEvent {
   karma: number;
 }
 
-export interface AreasEvent {
-  areas: number[];
-}
-
 export interface ShakeExplosionStateEvent {
   shake: number;
 }
@@ -404,10 +396,6 @@ export interface ScoreEvent {
 
 export interface StartInteractionEvent {
   delayMultiplier: number;
-}
-
-export interface OldVersionEvent {
-  requiredVersion: number;
 }
 
 export interface TradeItem { uid: number; iid: number; count: number; ammo: number; mods: FittedMod[]; }
@@ -467,7 +455,6 @@ export interface NetEventMap {
   playerHit: PlayerHitEvent;
   notification: NotificationEvent;
   playerHeal: PlayerHealEvent;
-  playerLife: PlayerLifeEvent;
   playerStamina: PlayerStaminaEvent;
   playerDie: PlayerDieEvent;
   otherDie: OtherDieEvent;
@@ -491,7 +478,6 @@ export interface NetEventMap {
   teamPosition: TeamPositionEvent;
   karma: KarmaEvent;
   badKarma: BadKarmaEvent;
-  areas: AreasEvent;
   shakeExplosionState: ShakeExplosionStateEvent;
   playerEat: PlayerEatEvent;
   citiesLocation: CitiesLocationEvent;
@@ -501,13 +487,7 @@ export interface NetEventMap {
   score: ScoreEvent;
   startInteraction: StartInteractionEvent;
   interruptInteraction: void;
-  oldVersion: OldVersionEvent;
-  full: void;
-  kickInactivity: void;
-  failRestoreSession: void;
   stoleYourSession: void;
-  mute: { durationSec: number };
-  wrongPassword: void;
   pong: void;
   contentManifest: ContentManifest;
   contentTable: ContentTable;

@@ -47,11 +47,11 @@ New server opcode `DISCONNECT_REASON = 99`: `[u8 reason][str detail]`, sent imme
 
 `disconnectClient` takes `(DisconnectReason, std::string detail = {})`. `Game::kickPlayer` takes the reason as well. Every existing call site passes the matching code.
 
-**Version mismatch stays `ALERT`.** A client of another protocol version cannot be assumed to decode opcode 99, but every version decodes `ALERT`. The new client treats any `ALERT` that arrives before HANDSHAKE as a rejection. This also covers a new client talking to an older server.
+**Version mismatch stays `ALERT`.** A client of another protocol version cannot be assumed to decode DISCONNECT_REASON, but every version decodes `ALERT`. The new client treats any `ALERT` that arrives before HANDSHAKE as a rejection. This also covers a new client talking to an older server.
 
 **Graceful shutdown notice.** On graceful shutdown the server sends `SHUTTING_DOWN` to connected players before the dispatcher stops. The implementation must confirm the shutdown path can still flush sockets at that point. If it cannot, this part is dropped: clients see a plain drop and their automatic reconnect fails cleanly.
 
-`STOLE_YOUR_SESSION` is unchanged.
+`SESSION_TAKEN` is unchanged.
 
 Server list: no protocol change. The option label adds "(full)" when players >= max > 0, as a hint only; the server still decides.
 
@@ -134,10 +134,10 @@ A disconnect with a reason never reconnects automatically:
 | PLAYER_LIMIT_LOWERED | Server capacity was reduced | Reconnect, Main menu |
 | IP_BANNED | You were banned (detail) | Main menu |
 | SHUTTING_DOWN | Server is shutting down | Main menu |
-| LOGGED_IN_ELSEWHERE, STOLE_YOUR_SESSION | Your character was opened in another tab or device | Reconnect here, Main menu |
+| LOGGED_IN_ELSEWHERE, SESSION_TAKEN | Your character was opened in another tab or device | Reconnect here, Main menu |
 | OTHER / unknown | Disconnected (detail) | Reconnect, Main menu |
 
-Death is unchanged: the death window owns the session after PLAYER_DIE. **Play again** now runs through `JoinSession`; a refusal lands on the start screen with the matching notice.
+Death is unchanged: the death window owns the session after YOU_DIED. **Play again** now runs through `JoinSession`; a refusal lands on the start screen with the matching notice.
 
 **Main menu** stops the frozen loop and shows the start screen with no error.
 

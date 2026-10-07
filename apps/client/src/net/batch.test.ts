@@ -3,6 +3,7 @@
 
 import { describe, expect, it } from 'vitest';
 import { BATCH_OPCODE, unwrapBatch, wrapBatch } from './batch';
+import { ServerOpcode } from './opcodes';
 
 describe('unwrapBatch and wrapBatch', () => {
   it('returns non-batched frames as a single message directly', () => {
@@ -19,7 +20,7 @@ describe('unwrapBatch and wrapBatch', () => {
   it('unwraps a batch containing multiple messages into standalone slices', () => {
     const m1 = new Uint8Array([9, 10, 11, 12]);
     const m2 = new Uint8Array([85, 1, 2, 3, 4, 5, 6, 7, 8]);
-    const m3 = new Uint8Array([82]); // PONG
+    const m3 = new Uint8Array([ServerOpcode.PONG]);
 
     const batched = wrapBatch([m1, m2, m3]);
     expect(batched[0]).toBe(BATCH_OPCODE);

@@ -14,7 +14,7 @@ BEHAVIORS below, without touching the network/plumbing layer. A behavior can
 read `bot.view` (own x/y, aim, sprint, other visible entities) and call the
 `bot.send(...)` helpers via the protocol builders.
 
-Because MOVE/ROTATION/SHIFT are state-change opcodes (client.js only sends
+Because MOVE/ROTATE/SPRINT are state-change opcodes (client.js only sends
 them when the value actually changes), behaviors should mirror that: only
 send when the intent changes. WanderBehavior does this via _set_move / etc.
 """
@@ -28,7 +28,7 @@ import protocol as P
 
 
 class _StatefulInput:
-    """Mixin: remember last MOVE/ROT/SHIFT/mouse we sent and only resend on
+    """Mixin: remember last MOVE/ROT/SPRINT/mouse we sent and only resend on
     change, matching how the real client throttles input."""
 
     def __init__(self) -> None:
@@ -278,7 +278,7 @@ class CombatBehavior(BenchBehavior):
     """`bench`, plus sustained automatic fire.
 
     Why this exists: **no shipped benchmark has ever created a single
-    projectile.** `bench` never sends MOUSE_DOWN, `march` and `spin` never
+    projectile.** `bench` never sends ATTACK_START, `march` and `spin` never
     attack, and only `wander` clicks (2% per tick, with bare hands, which is
     melee). So every capture in `captures/` measures a server on which the
     entire combat path is idle -- projectile simulation, the per-projectile

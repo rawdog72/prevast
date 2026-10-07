@@ -7,7 +7,8 @@ import { ContentStore } from '../../content/store';
 import type { WorldEntity } from '../../world/entity-types';
 import { InventoryStore } from '../../world/inventory-store';
 import { NetEventBus } from '../../net/events';
-import { handleOpenBuilding, handleNewFuelValue } from '../../net/handlers/interaction';
+import { handleStationOpened, handleStationFuel } from '../../net/handlers/interaction';
+import { ServerOpcode } from '../../net/opcodes';
 import {
   CraftingWindow,
   type CraftingWindowCallbacks,
@@ -389,7 +390,7 @@ describe('CraftingWindow (old client _Craft)', () => {
       const bytes = new Uint8Array(20).subarray(3, 17);
       bytes.set([46, 2, 255, 0, 0, 0, 0, 0, update, fuel]);
       new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength).setUint32(10, fuelMs, true);
-      handleOpenBuilding(bytes, bus);
+      handleStationOpened(bytes, bus);
       at(now);
     };
     const text = () => body.querySelector('.dv-craft-fuel-text')!.textContent;
@@ -405,9 +406,9 @@ describe('CraftingWindow (old client _Craft)', () => {
       open(3, 30500, 1); // Queue refresh with the same rounded fuel count.
       expect(inventory.fuelMs).toBe(30500);
       now = 6000;
-      const refill = new Uint8Array([47, 4, 0, 0, 0, 0]);
+      const refill = new Uint8Array([ServerOpcode.STATION_FUEL, 4, 0, 0, 0, 0]);
       new DataView(refill.buffer).setUint32(2, 56900, true);
-      handleNewFuelValue(refill, bus);
+      handleStationFuel(refill, bus);
       at(now);
       expect(text()).toBe('4 / 254 · 0:57');
       inventory.closeContainers();

@@ -102,7 +102,7 @@ describe('minimapView (old _Minimap: a fixed-span window on the world around the
 });
 
 describe('HudMinimap render', () => {
-  it('draws the bad-karma badge inside the frame (BAD_KARMA marker)', () => {
+  it('draws the bad-karma badge inside the frame (WORST_KARMA_PLAYER marker)', () => {
     const calls: string[] = [];
     const ctx = new Proxy({} as Record<string, unknown>, {
       get: (target, prop: string) => {

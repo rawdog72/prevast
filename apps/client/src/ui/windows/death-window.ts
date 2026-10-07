@@ -5,7 +5,7 @@
 // The old client's generated death window (GameUI.death): "You died", three
 // stat tiles (Level / Score / Kills, the middle one highlighted), the items
 // carried at death with "Respawn level" beside them, then Play again (which
-// reconnects) and Main menu. The server closed the socket after PLAYER_DIE,
+// reconnects) and Main menu. The server closed the socket after YOU_DIED,
 // so this window owns the session until one of the two is pressed.
 
 import { itemIconUrl } from '../../assets/asset-loader';

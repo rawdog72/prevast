@@ -5,7 +5,7 @@ import { BinaryReader } from '../binary-stream';
 import type { NetEventBus } from '../events';
 
 export function handleAimState(bytes: Uint8Array, bus: NetEventBus): void {
-  // Layout: [110][active u8][viewX u16 LE][viewY u16 LE]
+  // Layout: [AIM_STATE][active u8][viewX u16 LE][viewY u16 LE]
   const r = new BinaryReader(bytes, 1);
   const active = r.u8() !== 0;
   const viewX = r.u16();

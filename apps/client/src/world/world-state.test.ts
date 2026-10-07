@@ -194,7 +194,7 @@ describe('WorldState roster', () => {
     };
   }
 
-  it('keeps nicknames that NICKNAMES / PLAYER_INFO delivered before the handshake', () => {
+  it('keeps nicknames that PLAYER_NAMES / PLAYER_INFO delivered before the handshake', () => {
     const world = new WorldState();
     const bus = new NetEventBus();
     world.attachBus(bus);
@@ -310,7 +310,7 @@ describe('WorldState drug state (old client repellent / withdrawal timers)', () 
     expect(world.players.get(9)!.nickname).toBe('');
   });
 
-  it('REPELLENT / LAPADOINE set the timers, which count down with the world clock', () => {
+  it('REPELLENT_ACTIVE / LAPADONE_ACTIVE set the timers, which count down with the world clock', () => {
     const world = new WorldState();
     const bus = new NetEventBus();
     world.attachBus(bus);
@@ -338,7 +338,7 @@ describe('WorldState drug state (old client repellent / withdrawal timers)', () 
     expect(world.players.get(2)?.repellentMs).toBe(2800);
   });
 
-  it('RESET_DRUG clears both timers and states the withdrawn marker', () => {
+  it('DRUG_RESET clears both timers and states the withdrawn marker', () => {
     const world = new WorldState();
     const bus = new NetEventBus();
     world.attachBus(bus);

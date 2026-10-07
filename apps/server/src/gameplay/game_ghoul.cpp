@@ -208,7 +208,7 @@ void Game::sendGhoulRoundState(Player* player)
 
 // The client owns its own alive count: allocatePlayers seeds it from the
 // nickname table, onNewPlayer increments it for each non-ghoul arrival, and
-// OTHER_DIE is the only thing that ever decrements it. Without this the number
+// PLAYER_DIED is the only thing that ever decrements it. Without this the number
 // in the ghouls' HUD would only ever go up, and the reveal -- which the client
 // gates on `playerAlive < 6` -- would never arm.
 //
@@ -251,7 +251,7 @@ void Game::broadcastGhoulChrono()
 
 // Positions of everyone still alive, to everyone still hunting.
 //
-// Reuses TEAM_POSITION, which is what the client already draws minimap arrows
+// Reuses PLAYER_POSITIONS, which is what the client already draws minimap arrows
 // from -- for teammates normally, and for exactly this once `playerAlive < 6`
 // (client.js _Minimap). So there is no new packet and no new client code: the
 // endgame reveal is the team tracker pointed at the other side.
@@ -279,7 +279,7 @@ void Game::updateGhoulReveal()
 	// Built once and sent to every ghoul: the packet does not depend on who is
 	// receiving it, and a crowd of ghouls is the normal case by this point.
 	NetworkMessage msg;
-	msg.addByte(static_cast<uint8_t>(ServerOpcode::TEAM_POSITION));
+	msg.addByte(static_cast<uint8_t>(ServerOpcode::PLAYER_POSITIONS));
 	for (const auto& [id, player] : players) {
 		if (!player || player->isGhoul()) {
 			continue;
@@ -494,7 +494,7 @@ void Game::clearRoundEntities()
 
 // The horde won. Everyone out, world rebuilt, next round open for business.
 //
-// PLAYER_DIE rather than a kick alert, for everyone still connected including
+// YOU_DIED rather than a kick alert, for everyone still connected including
 // the ghouls: it is the one path client.js has that ends a session cleanly and
 // drops straight to the score screen with a play-again button (Client.close ->
 // the death overlay). A kick puts up an error box instead, which reads as a

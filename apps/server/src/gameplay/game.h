@@ -89,7 +89,7 @@ struct Clan {
 	std::set<uint32_t> members; // member GUIDs (including leader)
 	bool locked = false;
 	std::set<uint32_t> joinRequests; // applicant GUIDs
-	std::set<uint32_t> invites; // GUIDs the leader has invited (INVITE_TEAM)
+	std::set<uint32_t> invites; // GUIDs the leader has invited (INVITE_TO_TEAM)
 	uint64_t lastSyncTime = 0;
 };
 
@@ -454,7 +454,7 @@ public:
 	// and always echoes the sender: a client never shows a line the server did
 	// not deliver. `!commands` are recognised on every channel.
 	void playerSayChannel(uint32_t playerId, ChatChannel channel, uint8_t target, const std::string& message);
-	// LOCAL shorthand, kept for the older CHAT_MESSAGE opcode and the map tools.
+	// LOCAL shorthand, kept for the older CHAT_LOCAL opcode and the map tools.
 	void playerSay(uint32_t playerId, const std::string& message) { playerSayChannel(playerId, ChatChannel::LOCAL, 0, message); }
 	// A SERVER_LOG event to everyone online (`skip` excluded -- e.g. the player
 	// the line is about while it is still logging in).
@@ -747,7 +747,7 @@ public:
 	void playerStoreItem(uint32_t playerId, uint16_t iid, uint8_t count, uint32_t uid, uint8_t ammo, uint8_t containerSlot);
 	void playerMoveContainerItem(uint32_t playerId, uint8_t from, uint8_t to);
 	void playerTakeItem(uint32_t playerId, uint8_t slotIndex);
-	// WEAPON_MOD: fit (or swap in) the mod with that uid, or remove what is in `slot`.
+	// FIT_WEAPON_MOD: fit (or swap in) the mod with that uid, or remove what is in `slot`.
 	void playerWeaponMod(uint32_t playerId, uint8_t weaponUid, uint8_t slot, bool fit, uint8_t modUid);
 	// Is this inventory item (full uid) in the player's side of an open trade?
 	bool isOfferedInTrade(uint32_t playerId, uint32_t uid) const;

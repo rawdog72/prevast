@@ -225,7 +225,7 @@ public:
 		} else {
 			b.send(proto::mouseDown());
 			// One mouse_down is one magazine: the server owns the repeat loop,
-			// the client sends MOUSE_DOWN once per press and never auto-reloads.
+			// the client sends ATTACK_START once per press and never auto-reloads.
 			b.stats().shots.fetch_add(MAGAZINE, std::memory_order_relaxed);
 			m_firing = true;
 			m_countdown = FIRE_TICKS;
@@ -326,7 +326,7 @@ public:
 				const int64_t dx = static_cast<int64_t>(tracked.endX) - b.x();
 				const int64_t dy = static_cast<int64_t>(tracked.endY) - b.y();
 				const uint64_t d2 = static_cast<uint64_t>(dx * dx + dy * dy);
-				// TAKE_LOOT wants the entity's own id, not our composite map
+				// PICK_UP_LOOT wants the entity's own id, not our composite map
 				// key. Fits an int: ids are 24-bit.
 				if (d2 < bestDist) { bestDist = d2; bestId = static_cast<int>(tracked.id); }
 			}
@@ -342,7 +342,7 @@ public:
 private:
 	// Acquire a stack of stone to throw.
 	//
-	// The uid comes from FULL_INVENTORY, not a slot arrival: the starting kit already
+	// The uid comes from INVENTORY, not a slot arrival: the starting kit already
 	// grants stone, so `!item=stone*N` stacks into that existing slot and sends
 	// no arrival at all. Waiting for one is why the first version of this
 	// behavior threw seven stones in twenty seconds across six bots instead of
@@ -391,7 +391,7 @@ private:
 	}
 
 	// items.xml: stone is clientItemId 2, and clientItemId is the iid the
-	// THROW_ITEM opcode matches against.
+	// DROP_ITEM opcode matches against.
 	static constexpr int STONE_IID = 2;
 	static constexpr int RESTOCK_COUNT = 20;
 	static constexpr int ARM_DELAY_TICKS = 20;

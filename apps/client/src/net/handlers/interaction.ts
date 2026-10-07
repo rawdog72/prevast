@@ -5,17 +5,17 @@ import { BinaryReader } from '../binary-stream';
 import type { NetEventBus, FullChestSlot } from '../events';
 import { readFittedMods } from './inventory';
 
-export function handleStartInteraction(bytes: Uint8Array, bus: NetEventBus): void {
+export function handleInteractionStarted(bytes: Uint8Array, bus: NetEventBus): void {
   const delayMultiplier = bytes.length >= 3 ? bytes[1]! | (bytes[2]! << 8) : (bytes[1] ?? 1);
   bus.emit('startInteraction', { delayMultiplier });
 }
 
-export function handleInterruptInteraction(_bytes: Uint8Array, bus: NetEventBus): void {
+export function handleInteractionCancelled(_bytes: Uint8Array, bus: NetEventBus): void {
   bus.emit('interruptInteraction', undefined as unknown as void);
 }
 
-export function handleOpenBuilding(bytes: Uint8Array, bus: NetEventBus): void {
-  // Layout (ProtocolGame::sendOpenStation): [46][area u8][progress u8, inverted:
+export function handleStationOpened(bytes: Uint8Array, bus: NetEventBus): void {
+  // Layout (ProtocolGame::sendOpenStation): [STATION_OPENED][area u8][progress u8, inverted:
   // 255 = nothing elapsed][activeSlot u8][queue iid u8 x4][isLogin u8: 0 = open
   // the window, 1 = contents update][fuel u8][fuelMs u32 LE]
   if (bytes.length < 14) return;
@@ -29,11 +29,11 @@ export function handleOpenBuilding(bytes: Uint8Array, bus: NetEventBus): void {
   bus.emit('openBuilding', { area, progress, activeSlot, queue, isLogin, fuel, fuelMs });
 }
 
-export function handleLostBuilding(_bytes: Uint8Array, bus: NetEventBus): void {
+export function handleStationClosed(_bytes: Uint8Array, bus: NetEventBus): void {
   bus.emit('lostBuilding', undefined as unknown as void);
 }
 
-export function handleNewFuelValue(bytes: Uint8Array, bus: NetEventBus): void {
+export function handleStationFuel(bytes: Uint8Array, bus: NetEventBus): void {
   if (bytes.length < 6) return;
   const fuel = bytes[1] ?? 0;
   const fuelMs = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength).getUint32(2, true);
@@ -45,8 +45,8 @@ export function handleWrongTool(bytes: Uint8Array, bus: NetEventBus): void {
   bus.emit('wrongTool', { toolIid });
 }
 
-export function handleFullChest(bytes: Uint8Array, bus: NetEventBus): void {
-  // Layout (ProtocolGame::sendFullChest): [53][firstOpen u8] then, per storage
+export function handleContainerContents(bytes: Uint8Array, bus: NetEventBus): void {
+  // Layout (ProtocolGame::sendFullChest): [CONTAINER_CONTENTS][firstOpen u8] then, per storage
   // slot, [iid u16][count u8][ammo u8][n u8]([slot u8][modIid u16])*n.
   // firstOpen 1 means "you just opened it" (old client: open the box + sound);
   // 0 is a contents refresh after a take or store. The slot count is whatever

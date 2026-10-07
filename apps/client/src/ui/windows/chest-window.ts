@@ -115,7 +115,7 @@ export class ChestWindow {
       const rot = slot.querySelector<HTMLElement>('.dv-slot-rot')!;
       rot.hidden = stage < 0;
       rot.style.backgroundImage = stage < 0 ? '' : `url(/img/rotten${stage}.png)`;
-      // A stored gun keeps its rounds (FULL_CHEST carries the ammo byte).
+      // A stored gun keeps its rounds (CONTAINER_CONTENTS carries the ammo byte).
       const mag = it && it.iid > 0 ? magazine(it, content, it.mods) : null;
       const ammo = slot.querySelector<HTMLElement>('.dv-slot-ammo')!;
       ammo.hidden = !mag;

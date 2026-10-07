@@ -5,6 +5,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { BinaryWriter } from './binary-stream';
 import { dispatchServerMessage } from './dispatcher';
 import { NetEventBus } from './events';
+import { ClientOpcode, ServerOpcode } from './opcodes';
 import {
   buildTradeAcceptMessage,
   buildTradeCancelMessage,
@@ -17,20 +18,20 @@ import {
 describe('trade wire', () => {
   it('encodes session and exact offer revision, with quantities and item identity', () => {
     expect([...buildTradeOfferMessage(0x12345678, 9, 300, 250, 17)]).toEqual([
-      43, 120, 86, 52, 18, 9, 0, 0, 0, 44, 1, 250, 17,
+      ClientOpcode.TRADE_OFFER, 120, 86, 52, 18, 9, 0, 0, 0, 44, 1, 250, 17,
     ]);
-    expect([...buildTradeAcceptMessage(7, 12)]).toEqual([44, 7, 0, 0, 0, 12, 0, 0, 0]);
-    expect([...buildTradeReplyMessage(7, true)]).toEqual([42, 7, 0, 0, 0, 1]);
-    expect([...buildTradeCancelMessage(7)]).toEqual([45, 7, 0, 0, 0]);
-    expect([...buildTradeRequestMessage(3)]).toEqual([41, 3]);
-    expect([...buildLookAtMessage(0x010203, 3)]).toEqual([46, 3, 2, 1, 0, 3]);
+    expect([...buildTradeAcceptMessage(7, 12)]).toEqual([ClientOpcode.TRADE_ACCEPT, 7, 0, 0, 0, 12, 0, 0, 0]);
+    expect([...buildTradeReplyMessage(7, true)]).toEqual([ClientOpcode.TRADE_REPLY, 7, 0, 0, 0, 1]);
+    expect([...buildTradeCancelMessage(7)]).toEqual([ClientOpcode.TRADE_CANCEL, 7, 0, 0, 0]);
+    expect([...buildTradeRequestMessage(3)]).toEqual([ClientOpcode.TRADE_REQUEST, 3]);
+    expect([...buildLookAtMessage(0x010203, 3)]).toEqual([ClientOpcode.LOOK_AT, 3, 2, 1, 0, 3]);
   });
   it('decodes both offers and rejects every truncated or overlong state', () => {
     const bus = new NetEventBus(),
       state = vi.fn();
     bus.on('tradeState', state);
     const w = new BinaryWriter();
-    w.u8(93);
+    w.u8(ServerOpcode.TRADE_STATE);
     w.u32(7);
     w.u32(9);
     w.u8(3);

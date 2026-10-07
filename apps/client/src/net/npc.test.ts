@@ -6,6 +6,7 @@ import { NpcAction, npcKeywords, type NpcState } from '../../../../shared/typesc
 import { BinaryReader, BinaryWriter } from './binary-stream';
 import { dispatchServerMessage } from './dispatcher';
 import { NetEventBus } from './events';
+import { ClientOpcode, ServerOpcode } from './opcodes';
 import { buildNpcActionMessage } from './outbound';
 import { GameSocket } from './socket';
 import { NpcStore } from '../world/npc-store';
@@ -17,14 +18,14 @@ export const npcState = (overrides: Partial<NpcState> = {}): NpcState => ({
   text: 'Welcome. {trade}', banker: false, tradeAllowed: true, balance: 0, wallet: 20000,
   range: 200, request: 0, restockSeconds: 300, offers: [], ...overrides,
 });
-const packet = (s: unknown) => { const w = new BinaryWriter(); w.u8(95); w.str(JSON.stringify(s)); return w.build(); };
+const packet = (s: unknown) => { const w = new BinaryWriter(); w.u8(ServerOpcode.NPC_STATE); w.str(JSON.stringify(s)); return w.build(); };
 
 describe('NPC wire and authority', () => {
   it('uses 32-bit entity/session/request/amount fields without truncating stacks', () => {
     const bytes = buildNpcActionMessage({session: 21, revision: 9, request: 12, action: NpcAction.BUY, target: 70001, amount: 4096});
     const r = new BinaryReader(bytes);
     expect([r.u8(), r.u32(), r.u32(), r.u32(), r.u8(), r.u32(), r.u32(), r.str(), r.remaining()])
-      .toEqual([47,21,9,12,2,70001,4096,'',0]);
+      .toEqual([ClientOpcode.NPC_ACTION,21,9,12,2,70001,4096,'',0]);
   });
   it('rejects malformed, truncated, excessive and trailing state without emitting partial data', () => {
     const bus=new NetEventBus(), receive=vi.fn(); bus.on('npcState', receive);

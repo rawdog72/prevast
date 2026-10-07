@@ -8,7 +8,7 @@ lightweight view of the world (own position/guid/health + other visible
 entities), and a fixed-rate "tick" that asks a Behavior what to do next.
 
 The world-view is intentionally minimal right now (enough for movement and
-future targeting). It is populated from UNITS frames, so smarter behaviors
+future targeting). It is populated from ENTITY_UPDATES frames, so smarter behaviors
 later can read `self.others` to chase/avoid/attack without touching this file.
 """
 
@@ -332,7 +332,7 @@ class Bot:
             hs = P.parse_handshake(data)
             self.view.guid = hs.own_guid
             self.view.mode_id = hs.mode_id
-        elif op == P.ServerOp.UNITS:
+        elif op == P.ServerOp.ENTITY_UPDATES:
             if self.stats:
                 self.stats.on_units()
             if self.track_others:
@@ -353,7 +353,7 @@ class Bot:
                 if len(self.view.new_items) >= 16:
                     del self.view.new_items[0]
                 self.view.new_items.append(item)
-        elif op == P.ServerOp.PLAYER_DIE:
+        elif op == P.ServerOp.YOU_DIED:
             self.view.alive = False
             if self.stats:
                 self.stats.on_death()

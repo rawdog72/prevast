@@ -9,7 +9,6 @@ import type { AssetLoader } from '../../assets/asset-loader';
 import type { ContentStore } from '../../content/store';
 import type { StationInReach } from '../../game/input-manager';
 import type { BRZone } from '../../game/modes/br-zone';
-import { ClientOpcode } from '../../net/opcodes';
 import type { GameSocket } from '../../net/socket';
 import type { ClanStore } from '../../world/clan-store';
 import type { InventoryStore } from '../../world/inventory-store';
@@ -262,8 +261,8 @@ export class WindowManager {
     } else if (this.inventory.isChestOpen && this.activeWindow !== 'chest') {
       this.activeWindow = 'chest';
     } else if (this.inventory.isStationOpen && !CRAFT_FAMILY.has(this.activeWindow)) {
-      // OPEN_BUILDING: the craft window on that station's area. Losing the
-      // station later (LOST_BUILDING) only drops the window back to By hand.
+      // STATION_OPENED: the craft window on that station's area. Losing the
+      // station later (STATION_CLOSED) only drops the window back to By hand.
       this.activeWindow = 'station';
     } else if (!this.inventory.isChestOpen && this.activeWindow === 'chest') {
       this.activeWindow = 'none';
@@ -423,7 +422,7 @@ export class WindowManager {
       onAddFuel: (amount) => this.socket.addFuel(amount),
       // A station tab sends what E sends for that building (old client 11488).
       onOpenStation: (station) =>
-        this.socket.interact(ClientOpcode.OPEN_STATION_15, station.entity.id, station.entity.pid),
+        this.socket.interact(station.entity.id, station.entity.pid),
       onLeaveStation: () => {
         this.socket.closeContainer();
         this.inventory.closeContainers();

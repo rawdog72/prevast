@@ -2457,7 +2457,7 @@ void Game::adminSetCraftSpeed(const std::string& args)
 //   field  increase | decrease | size
 //
 // increase/decrease are rates in the same /10000 domain as modes.xml and the
-// MODDED_GAUGES_VALUES packet, 0..10000. size is the gauge's ceiling, 1..255.
+// GAUGE_RATES packet, 0..10000. size is the gauge's ceiling, 1..255.
 //
 // Runtime only: this edits the resolved activeGauges rather than modes.xml, so
 // !reload-xml puts the mode's own numbers back. Nothing is broadcast from here —

@@ -10,7 +10,7 @@
 //
 // The first client frame must begin with 30 (protocolgame.h
 // protocol_identifier) or ServicePort::make_protocol never selects the game
-// protocol. That byte is NOT a ClientOp -- 30 is REQUEST_JOIN_TEAM in the
+// protocol. That byte is NOT a ClientOp -- 30 is REQUEST_TEAM_JOIN in the
 // in-game opcode space; the two spaces only meet on the first frame.
 //
 // Payload sizes must match clientPayloadBytes() in opcodes.h exactly. The
@@ -30,31 +30,180 @@ namespace bot::proto {
 inline constexpr int GAME_PROTOCOL_IDENTIFIER = 30;
 
 enum class ClientOp : uint8_t {
+	// Connection
 	PING = 0,
-	CHAT = 1,
-	MOVE = 2,
-	MOUSE_DIRECTION = 3,
-	MOUSE_DOWN = 4,
-	MOUSE_UP = 5,
-	ROTATION = 6,
-	SHIFT = 7,
-	EQUIP_ITEM = 8,
-	THROW_ITEM = 9,
-	TAKE_LOOT = 12,
-	RELOAD = 13,
+	REQUEST_CONTENT = 1,
+
+	// Movement and combat
+	MOVE = 10,
+	ROTATE = 11,
+	FACE = 12,
+	ATTACK_START = 13,
+	ATTACK_STOP = 14,
+	SPRINT = 15,
+	AIM = 16,
+	RELOAD = 17,
+
+	// Items
+	EQUIP_ITEM = 20,
+	DROP_ITEM = 21,
+	STACK_ITEM = 22,
+	SPLIT_ITEM = 23,
+	PICK_UP_LOOT = 24,
+	FIT_WEAPON_MOD = 25,
+
+	// Interaction and containers
+	INTERACT = 30,
+	CLOSE_CONTAINER = 31,
+	STORE_ITEM = 32,
+	TAKE_ITEM = 33,
+	MOVE_CONTAINER_ITEM = 34,
+	LOOK_AT = 35,
+
+	// Building and crafting
+	PLACE_BUILDING = 40,
+	CRAFT_AT_STATION = 41,
+	CRAFT_BY_HAND = 42,
+	CANCEL_CRAFT = 43,
+	TAKE_FROM_STATION = 44,
+	ADD_FUEL = 45,
+	UNLOCK_SKILL = 46,
+
+	// Chat and social
+	CHAT_LOCAL = 50,
+	SEND_CHAT = 51,
+	BLOCK_PLAYER = 52,
+	SET_PRIVATE_MESSAGES = 53,
+
+	// Teams
+	CREATE_TEAM = 60,
+	DELETE_TEAM = 61,
+	REQUEST_TEAM_JOIN = 62,
+	ACCEPT_TEAM_JOIN = 63,
+	KICK_FROM_TEAM = 64,
+	LOCK_TEAM = 65,
+	UNLOCK_TEAM = 66,
+	LEAVE_TEAM = 67,
+	INVITE_TO_TEAM = 68,
+	ACCEPT_TEAM_INVITE = 69,
+
+	// Trade and NPCs
+	TRADE_REQUEST = 70,
+	TRADE_REPLY = 71,
+	TRADE_OFFER = 72,
+	TRADE_ACCEPT = 73,
+	TRADE_CANCEL = 74,
+	NPC_ACTION = 75,
+
+	// Quests
+	QUEST_ACTION = 80,
 };
 
 enum class ServerOp : uint8_t {
-	UNITS = 0,
-	PLAYER_DIE = 3,
-	HANDSHAKE = 9,
-	FULL_INVENTORY = 15,
-	BATCH = 75,
-	INVENTORY_SLOT = 84,
-	DAMAGE_INDICATOR = 86,
+	// Connection and session
+	HANDSHAKE = 0,
+	BATCH = 1,
+	PONG = 2,
+	ALERT = 3,
+	DISCONNECT_REASON = 4,
+	SESSION_TAKEN = 5,
+	STATUS_MESSAGE = 6,
+	SERVER_LOG = 7,
+
+	// Content
+	CONTENT_MANIFEST = 10,
+	CONTENT_TABLE = 11,
+	CONTENT_PATCH = 12,
+
+	// World
+	ENTITY_UPDATES = 20,
+	MAP_SIZE = 21,
+	WORLD_TIME = 22,
+	CITY_LOCATIONS = 23,
+	LEADERBOARD = 24,
+	DAMAGE_INDICATOR = 25,
+	EXPLOSION_SHAKE = 26,
+	OVERHEAD_ALERT = 27,
+	PLAYER_HIT = 28,
+	PLAYER_HEALED = 29,
+	PLAYER_ATE = 30,
+	PLAYER_DIED = 31,
+
+	// Players
+	PLAYER_INFO = 40,
+	PLAYER_NAMES = 41,
+	GROUPS = 42,
+	BLOCKED_PLAYERS = 43,
+	PLAYER_POSITIONS = 44,
+	WORST_KARMA_PLAYER = 45,
+
+	// Your character
+	YOU_DIED = 50,
+	GAUGE_VALUES = 51,
+	GAUGE_RATES = 52,
+	GAUGE_DIRECTIONS = 53,
+	STAMINA = 54,
+	SCORE = 55,
+	XP = 56,
+	LEVEL_STATE = 57,
+	SKILL_UNLOCKED = 58,
+	KARMA = 59,
+	POISONED = 60,
+	REPELLENT_ACTIVE = 61,
+	LAPADONE_ACTIVE = 62,
+	DRUG_RESET = 63,
+	COUNTDOWN = 64,
+	AIM_STATE = 65,
+	INTERACTION_STARTED = 66,
+	INTERACTION_CANCELLED = 67,
+
+	// Inventory
+	INVENTORY = 80,
+	INVENTORY_SLOT = 81,
+	ITEM_MODS = 82,
+	SELECTED_ITEM = 83,
+	WRONG_TOOL = 84,
+
+	// Crafting and stations
+	BLUEPRINT = 90,
+	CRAFT_STARTED = 91,
+	STATION_OPENED = 92,
+	STATION_CLOSED = 93,
+	STATION_FUEL = 94,
+	CONTAINER_CONTENTS = 95,
+
+	// Teams
+	TEAM_CREATED = 100,
+	TEAM_NAMES = 101,
+	TEAM_DELETED = 102,
+	TEAM_JOIN_REQUEST = 103,
+	TEAM_MEMBER_JOINED = 104,
+	TEAM_MEMBER_LEFT = 105,
+	TEAM_INVITE = 106,
+	TEAM_LOCKED = 107,
+
+	// Chat
+	CHAT_LINE = 110,
+	CHAT_ACCESS = 111,
+
+	// Trade and NPCs
+	TRADE_STATE = 120,
+	TRADE_CLOSED = 121,
+	NPC_STATE = 122,
+	NPC_CLOSED = 123,
+
+	// Quests, progress and account
+	QUEST_STATE = 130,
+	QUEST_PROGRESS = 131,
+	QUEST_MARKERS = 132,
+	PROGRESS_STATE = 133,
+	PROGRESS_UPDATE = 134,
+	ACHIEVEMENT_UNLOCKED = 135,
+	ACCOUNT_RUN = 136,
+	ACCOUNT_CLANS = 137,
 };
 
-// ServerOp::BATCH envelope: [75][0] then, repeated, [u16 length LE][length
+// ServerOp::BATCH envelope: [BATCH][0] then, repeated, [u16 length LE][length
 // bytes]. Each payload is byte-identical to the frame that message would have
 // arrived as unbatched, so a receiver unwraps by re-dispatching each slice.
 // Ignoring this opcode does not lose one message, it loses a whole tick's
@@ -71,7 +220,7 @@ inline constexpr int MOVE_UP = 8;
 inline constexpr int MOUSE_LEFT = 0;
 inline constexpr int MOUSE_RIGHT = 1;
 
-// Entity type ids as they appear in a UNITS record's `type` field.
+// Entity type ids as they appear in a ENTITY_UPDATES record's `type` field.
 inline constexpr uint8_t TYPE_PLAYER = 0;
 inline constexpr uint8_t TYPE_LOOT = 1;
 inline constexpr uint8_t TYPE_PROJECTILE = 2;
@@ -108,7 +257,7 @@ inline void putString(std::string& out, std::string_view s)
 }
 
 // [u8 30][u16 protocolVersion][str token][u32 tokenId][u32 playerId]
-// [str nickname][u8 adBlocker][str password]
+// [str nickname][u8 adBlocker][str password][str accountTicket]
 //
 // Version 0 is the harness's long-standing exemption from the client version
 // gate (`data.version != 0 && ...` in onRecvFirstMessage): the bot is not the
@@ -129,6 +278,7 @@ inline std::string login(std::string_view token, std::string_view nickname,
 	putString(s, nickname);
 	putU8(s, 0);  // adBlocker
 	putString(s, password);
+	putString(s, {}); // accountTicket: empty = guest
 	return s;
 }
 
@@ -148,19 +298,19 @@ inline std::string opU8(ClientOp op, uint8_t a)
 }
 
 inline std::string ping()                  { return op0(ClientOp::PING); }
-inline std::string mouseDown()             { return op0(ClientOp::MOUSE_DOWN); }
-inline std::string mouseUp()               { return op0(ClientOp::MOUSE_UP); }
+inline std::string mouseDown()             { return op0(ClientOp::ATTACK_START); }
+inline std::string mouseUp()               { return op0(ClientOp::ATTACK_STOP); }
 inline std::string reload()                { return op0(ClientOp::RELOAD); }
 inline std::string move(int mask)          { return opU8(ClientOp::MOVE, static_cast<uint8_t>(mask)); }
-inline std::string shift(bool on)          { return opU8(ClientOp::SHIFT, on ? 1 : 0); }
-inline std::string mouseDirection(int dir) { return opU8(ClientOp::MOUSE_DIRECTION, static_cast<uint8_t>(dir)); }
+inline std::string shift(bool on)          { return opU8(ClientOp::SPRINT, on ? 1 : 0); }
+inline std::string mouseDirection(int dir) { return opU8(ClientOp::FACE, static_cast<uint8_t>(dir)); }
 
 // Degrees, 0-359. The server rejects anything outside that range outright now,
 // so the normalisation here is load-bearing rather than tidiness.
 inline std::string rotation(int degrees)
 {
 	std::string s;
-	putU8(s, static_cast<uint8_t>(ClientOp::ROTATION));
+	putU8(s, static_cast<uint8_t>(ClientOp::ROTATE));
 	putU16(s, static_cast<uint16_t>(((degrees % 360) + 360) % 360));
 	return s;
 }
@@ -168,7 +318,7 @@ inline std::string rotation(int degrees)
 inline std::string takeLoot(uint32_t lootId)
 {
 	std::string s;
-	putU8(s, static_cast<uint8_t>(ClientOp::TAKE_LOOT));
+	putU8(s, static_cast<uint8_t>(ClientOp::PICK_UP_LOOT));
 	putU32(s, lootId);
 	return s;
 }
@@ -177,7 +327,7 @@ inline std::string chat(std::string_view text)
 {
 	std::string s;
 	s.reserve(3 + text.size());
-	putU8(s, static_cast<uint8_t>(ClientOp::CHAT));
+	putU8(s, static_cast<uint8_t>(ClientOp::CHAT_LOCAL));
 	putString(s, text);
 	return s;
 }
@@ -198,7 +348,7 @@ inline std::string equipItem(int iid, int uid)
 inline std::string throwItem(int iid, int count, int uid)
 {
 	std::string s;
-	putU8(s, static_cast<uint8_t>(ClientOp::THROW_ITEM));
+	putU8(s, static_cast<uint8_t>(ClientOp::DROP_ITEM));
 	putU16(s, static_cast<uint16_t>(iid));
 	putU8(s, static_cast<uint8_t>(count));
 	putU32(s, static_cast<uint32_t>(uid));
@@ -208,7 +358,7 @@ inline std::string throwItem(int iid, int count, int uid)
 
 // --- incoming (binary) -----------------------------------------------------
 
-// One 18-byte record of a UNITS frame (ProtocolGame::flushUpdates).
+// One 18-byte record of a ENTITY_UPDATES frame (ProtocolGame::flushUpdates).
 // state == 0 is a removal.
 //
 // `id` is 24 bits and arrives SPLIT: the low 16 at an even offset (client.js
@@ -233,7 +383,7 @@ inline constexpr size_t UNITS_HEADER_BYTES = 2;
 
 inline uint16_t readU16(const uint8_t* p) { uint16_t v; std::memcpy(&v, p, 2); return v; }
 
-// Decodes record `i` of a UNITS frame. The caller has already bounds-checked
+// Decodes record `i` of a ENTITY_UPDATES frame. The caller has already bounds-checked
 // via unitRecordCount.
 inline UnitRecord unitRecord(const uint8_t* data, size_t i)
 {
@@ -271,7 +421,7 @@ struct Handshake {
 // bytes, then one 10-byte entry per player.
 //
 // The head was 8 bytes until 2026-08-12: a u16 `timeSync` sat where the roster
-// now starts. ServerOpcode::WORLD_TIME (85) carries the clock instead.
+// now starts. ServerOpcode::WORLD_TIME carries the clock instead.
 inline bool parseHandshake(const uint8_t* data, size_t n, Handshake& out)
 {
 	if (n < 6) return false;
@@ -289,7 +439,7 @@ struct ItemSlot {
 	uint8_t ammo;
 };
 
-// INVENTORY_SLOT: [84][u8 uid][u16 iid LE][u8 count][u8 ammo]. One slot's
+// INVENTORY_SLOT: [INVENTORY_SLOT][u8 uid][u16 iid LE][u8 count][u8 ammo]. One slot's
 // complete contents, keyed by the uid -- it replaced NEW_ITEM, DELETE_ITEM and
 // the REPLACE_* family, so callers wanting "an item arrived" want iid != 0.
 inline bool parseInventorySlot(const uint8_t* data, size_t n, ItemSlot& out)
@@ -302,7 +452,7 @@ inline bool parseInventorySlot(const uint8_t* data, size_t n, ItemSlot& out)
 	return true;
 }
 
-// FULL_INVENTORY: [15, (u16 iid, count, uid, ammo) x slotCount] -- FIVE bytes
+// INVENTORY: [15, (u16 iid, count, uid, ammo) x slotCount] -- FIVE bytes
 // per slot, all-zero for an empty one (sendFullInventory).
 //
 // This is the only reliable way for a bot to learn the uid of a stackable item

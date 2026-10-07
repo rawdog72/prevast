@@ -41,9 +41,9 @@ describe('weapon mods on the wire (protocol 1414)', () => {
     expect(capture('itemMods', [ServerOpcode.ITEM_MODS, 7, 2, 0, ...u16(174)])).toBeUndefined();
   });
 
-  it('FULL_CHEST carries a two-byte iid and each item`s mods', () => {
+  it('CONTAINER_CONTENTS carries a two-byte iid and each item`s mods', () => {
     const e = capture<FullChestEvent>('fullChest', [
-      ServerOpcode.FULL_CHEST,
+      ServerOpcode.CONTAINER_CONTENTS,
       1,
       ...u16(172),
       1,

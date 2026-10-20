@@ -53,6 +53,14 @@ void ConnectionManager::releaseConnection(const Connection_ptr& connection)
     }
 }
 
+Connection::Address Connection::canonicalAddress(const Address& address)
+{
+    if (address.is_v6() && address.to_v6().is_v4_mapped()) {
+        return boost::asio::ip::make_address_v4(boost::asio::ip::v4_mapped, address.to_v6());
+    }
+    return address;
+}
+
 Connection::Connection(boost::asio::io_context& io, ConstServicePort_ptr service) :
     readBuffer(CONNECTION_MAX_MESSAGE), readTimer(io), writeTimer(io),
     service_port(std::move(service)), strand(boost::asio::make_strand(io)), ws(strand),
@@ -220,8 +228,9 @@ void Connection::send(const OutputMessage_ptr& message) { enqueue(message); }
 void Connection::sendJSON(const boost::json::value& value) { enqueue(boost::json::serialize(value)); }
 void Connection::sendBinary(BinaryPayload_ptr payload) { enqueue(payload); }
 void Connection::sendBinary(std::vector<uint8_t> payload) { enqueue(std::make_shared<std::vector<uint8_t>>(std::move(payload))); }
+void Connection::sendSharedBinary(BinaryPayload_ptr payload) { enqueue(std::move(payload), true); }
 
-void Connection::enqueue(PayloadVariant payload)
+void Connection::enqueue(PayloadVariant payload, bool sharedBuffer)
 {
     std::lock_guard lock(connectionLock);
     if (!isOpen()) return;
@@ -231,7 +240,7 @@ void Connection::enqueue(PayloadVariant payload)
             ? std::get<std::string>(payload).size()
             : std::get<BinaryPayload_ptr>(payload)->size());
     const size_t memory = sizeof(PendingWrite) + (std::holds_alternative<OutputMessage_ptr>(payload)
-        ? sizeof(OutputMessage) : bytes);
+        ? sizeof(OutputMessage) : (sharedBuffer ? 0 : bytes));
     const auto now = std::chrono::steady_clock::now();
     if (messageQueue.size() >= CONNECTION_MAX_QUEUED_FRAMES || queuedBytes + bytes > CONNECTION_MAX_QUEUED_BYTES ||
         (!messageQueue.empty() && now - messageQueue.front().queuedAt >= CONNECTION_QUEUE_MAX_AGE)) {

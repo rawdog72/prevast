@@ -44,6 +44,15 @@ int32_t uniform_random(int32_t minNumber, int32_t maxNumber);
 // websocket text frame for every receiving client).
 std::string truncateUtf8(std::string str, size_t maxLength);
 
+// Client-supplied text made safe to store, relay and print: valid UTF-8 only,
+// without control characters (C0, DEL, C1 -- the terminal escapes a name or a
+// chat line could otherwise write into the operator's console) or the bidi
+// controls that make text render in another order than it is stored.
+// `stripInvisible` also drops zero-width and other invisible format
+// characters: right for names, where they only serve to impersonate, wrong
+// for chat, where U+200D joins emoji sequences.
+std::string sanitizeDisplayText(std::string_view text, bool stripInvisible);
+
 std::string formatDateShort(time_t time);
 
 bool booleanString(std::string_view str);

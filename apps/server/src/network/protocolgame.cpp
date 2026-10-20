@@ -50,6 +50,7 @@ namespace {
 	{
 		switch (opcode) {
 			case ClientOpcode::PING:    // keepalive
+			case ClientOpcode::REQUEST_CONTENT: // read-only: a stale content patch
 			case ClientOpcode::CHAT_LOCAL:    // ghouls talk like anyone else
 			case ClientOpcode::SEND_CHAT:
 			case ClientOpcode::MOVE:
@@ -82,6 +83,19 @@ namespace {
 	// few happen to decode.
 	// `pg` prefix: this project builds with unity files on, where an unprefixed
 	// file-local name collides across .cpp files.
+	// What the admin key's failure throttle counts against. An IPv6 client is
+	// routinely handed a whole /64, so counting single addresses would let it
+	// take a fresh one for every guess.
+	std::string pgAdminThrottleKey(const Connection::Address& ip)
+	{
+		if (!ip.is_v6()) {
+			return ip.to_string();
+		}
+		auto bytes = ip.to_v6().to_bytes();
+		std::fill(bytes.begin() + 8, bytes.end(), static_cast<unsigned char>(0));
+		return boost::asio::ip::address_v6(bytes).to_string() + "/64";
+	}
+
 	bool pgPayloadSizeOk(ClientOpcode opcode, size_t payloadBytes)
 	{
 		const int expected = clientPayloadBytes(opcode);
@@ -533,8 +547,11 @@ void ProtocolGame::createNewPlayer(const LoginData& data)
 	if (!g_game.placeThing(player, authoredSpawn ? authoredSpawn->at : g_game.findSpawnPosition(player))) {
 		// The player is already registered at this point but never made it into
 		// the world. release() no longer removes players, so unregister here or
-		// the lookup maps keep a pointer to a character nothing can reach.
+		// the lookup maps keep a pointer to a character nothing can reach. Then
+		// let go of it: release() would otherwise run the session-lost path on
+		// a character that is no longer in the game.
 		g_game.removePlayer(player);
+		detachPlayerSession();
 		disconnectClient(DisconnectReason::SPAWN_FAILED);
 		return;
 	}
@@ -1329,9 +1346,15 @@ void ProtocolGame::parsePacket(NetworkMessage& msg)
 		return;
 	}
 
-	// One dispatcher turn: stale sessions cannot leave deferred player actions.
-	const auto runAction = [](auto&& action) { action(); };
 	if (player->client.get() != this || g_game.getGameState() == GAME_STATE_SHUTDOWN || msg.isEmpty()) {
+		return;
+	}
+
+	// Every handler below acts on the registered character. A session whose
+	// player is no longer registered (a failed spawn, a removal racing the
+	// socket close) has nothing to act on.
+	const uint32_t playerID = player->getID();
+	if (g_game.getPlayerByID(playerID) != player) {
 		return;
 	}
 
@@ -1348,20 +1371,12 @@ void ProtocolGame::parsePacket(NetworkMessage& msg)
 	// Values only, not the direction signals: a hidden tab still runs its JS
 	// event loop, so every WARM_ON/FOOD_OFF/... sent meanwhile was received and
 	// latched correctly. Only the integration between them went wrong.
-	//
-	// Hopped to the dispatcher: parsePacket runs on the network thread and the
-	// gauge flags belong to the tick.
 	{
 		const int64_t now = OTSYS_TIME();
 		const int64_t previous = lastClientPacket;
 		lastClientPacket = now;
 		if (previous != 0 && now - previous >= CLIENT_RESUME_GAP_MS) {
-			const uint32_t resumeId = player->getID();
-			runAction([resumeId]() {
-				if (Player* p = g_game.getPlayerByID(resumeId)) {
-					p->forceGaugeResync();
-				}
-			});
+			player->forceGaugeResync();
 		}
 	}
 
@@ -1398,83 +1413,84 @@ void ProtocolGame::parsePacket(NetworkMessage& msg)
 		if (!allowed) return;
 	}
 
-    // Includes admins: a test/admin client must not spam another player's invitations.
-    if (opcode == ClientOpcode::TRADE_REQUEST && !tradeRequestBudget.consume(0.5, 2)) return;
-    if ((opcode == ClientOpcode::TRADE_REPLY || opcode == ClientOpcode::TRADE_OFFER ||
-         opcode == ClientOpcode::TRADE_ACCEPT) && !tradeBudget.consume(10, 20)) return;
+	// Includes admins: a test/admin client must not spam another player's invitations.
+	if (opcode == ClientOpcode::TRADE_REQUEST && !tradeRequestBudget.consume(0.5, 2)) return;
+	if ((opcode == ClientOpcode::TRADE_REPLY || opcode == ClientOpcode::TRADE_OFFER ||
+	     opcode == ClientOpcode::TRADE_ACCEPT) && !tradeBudget.consume(10, 20)) return;
 	if ((opcode == ClientOpcode::NPC_ACTION || opcode == ClientOpcode::QUEST_ACTION) && !npcBudget.consume(20, 30)) return;
-	const uint32_t playerID = player->getID();
 
+	// Packets are decoded and handled on the dispatcher (Connection::onRead
+	// posts them there), so every handler below runs inline, in this turn.
 	switch (opcode) {
-    case ClientOpcode::NPC_ACTION: {
-        if (msg.getRemainingLength() < 23 || msg.getRemainingLength() > 279) break;
-        const auto session = msg.get<uint32_t>(), revision = msg.get<uint32_t>(), request = msg.get<uint32_t>();
-        const auto action = msg.getByte();
-        const auto target = msg.get<uint32_t>(), amount = msg.get<uint32_t>();
-        const auto text = msg.getString(256);
-        if (msg.hasReadError() || msg.getRemainingLength() || action > 8) break;
-        runAction([playerID, session, revision, request, action, target, amount, text]() {
-            g_npcs.action(g_game.getPlayerByID(playerID), session, revision, request, action, target, amount, text);
-        });
-        break;
-    }
-    case ClientOpcode::TRADE_REQUEST: {
-        const uint8_t target = msg.getByte();
-        runAction([playerID, target]() { g_game.playerRequestTrade(playerID, target); });
-        break;
-    }
-    case ClientOpcode::LOOK_AT: {
-        const auto entityId = static_cast<ClientEntityId>(msg.get<uint32_t>());
-        const uint8_t target = msg.getByte();
-        runAction([playerID, entityId, target]() { g_game.playerLook(playerID, entityId, target); });
-        break;
-    }
-    case ClientOpcode::TRADE_REPLY: {
-        const uint32_t id = msg.get<uint32_t>();
-        const uint8_t accept = msg.getByte();
-        if (accept > 1) break;
-        runAction([playerID, id, accept]() { g_game.playerReplyTrade(playerID, id, accept != 0); });
-        break;
-    }
-    case ClientOpcode::TRADE_OFFER: {
-        const uint32_t id = msg.get<uint32_t>();
-        const uint32_t revision = msg.get<uint32_t>();
-        const uint16_t iid = msg.get<uint16_t>();
-        const uint8_t uid = msg.getByte();
-        const uint8_t count = msg.getByte();
-        runAction([playerID, id, revision, iid, uid, count]() { g_game.playerOfferTrade(playerID, id, revision, iid, uid, count); });
-        break;
-    }
-    case ClientOpcode::TRADE_ACCEPT: {
-        const uint32_t id = msg.get<uint32_t>();
-        const uint32_t revision = msg.get<uint32_t>();
-        runAction([playerID, id, revision]() { g_game.playerAcceptTrade(playerID, id, revision); });
-        break;
-    }
-    case ClientOpcode::TRADE_CANCEL: {
-        const uint32_t id = msg.get<uint32_t>();
-        runAction([playerID, id]() { g_game.playerCancelTrade(playerID, id); });
-        break;
-    }
-	case ClientOpcode::PING: {
-		runAction([playerID]() { g_game.playerReceivePingBack(playerID); });
-		// The client's own keepalive expects an answer. Hopped to the dispatcher
-		// like every other handler here: the reply goes through the output
-		// batch, and the batch is dispatcher-owned.
-		runAction([thisPtr = getThis()]() { thisPtr->sendPingBack(); });
+	case ClientOpcode::REQUEST_CONTENT:
+		// A hot-reload patch the client could not apply comes back here as a
+		// request for the whole table. Budgeted per table inside.
+		handleContentRequest(msg);
+		break;
+
+	case ClientOpcode::NPC_ACTION: {
+		if (msg.getRemainingLength() < 23 || msg.getRemainingLength() > 279) break;
+		const auto session = msg.get<uint32_t>(), revision = msg.get<uint32_t>(), request = msg.get<uint32_t>();
+		const auto action = msg.getByte();
+		const auto target = msg.get<uint32_t>(), amount = msg.get<uint32_t>();
+		const auto text = msg.getString(256);
+		if (msg.hasReadError() || msg.getRemainingLength() || action > 8) break;
+		g_npcs.action(player, session, revision, request, action, target, amount, text);
 		break;
 	}
+	case ClientOpcode::TRADE_REQUEST: {
+		const uint8_t target = msg.getByte();
+		g_game.playerRequestTrade(playerID, target);
+		break;
+	}
+	case ClientOpcode::LOOK_AT: {
+		const auto entityId = static_cast<ClientEntityId>(msg.get<uint32_t>());
+		const uint8_t target = msg.getByte();
+		g_game.playerLook(playerID, entityId, target);
+		break;
+	}
+	case ClientOpcode::TRADE_REPLY: {
+		const uint32_t id = msg.get<uint32_t>();
+		const uint8_t accept = msg.getByte();
+		if (accept > 1) break;
+		g_game.playerReplyTrade(playerID, id, accept != 0);
+		break;
+	}
+	case ClientOpcode::TRADE_OFFER: {
+		const uint32_t id = msg.get<uint32_t>();
+		const uint32_t revision = msg.get<uint32_t>();
+		const uint16_t iid = msg.get<uint16_t>();
+		const uint8_t uid = msg.getByte();
+		const uint8_t count = msg.getByte();
+		g_game.playerOfferTrade(playerID, id, revision, iid, uid, count);
+		break;
+	}
+	case ClientOpcode::TRADE_ACCEPT: {
+		const uint32_t id = msg.get<uint32_t>();
+		const uint32_t revision = msg.get<uint32_t>();
+		g_game.playerAcceptTrade(playerID, id, revision);
+		break;
+	}
+	case ClientOpcode::TRADE_CANCEL: {
+		const uint32_t id = msg.get<uint32_t>();
+		g_game.playerCancelTrade(playerID, id);
+		break;
+	}
+	case ClientOpcode::PING:
+		g_game.playerReceivePingBack(playerID);
+		// The client's own keepalive expects an answer, through the batch like
+		// everything else.
+		sendPingBack();
+		break;
 
 	case ClientOpcode::CHAT_LOCAL: {
 		// The only inbound string with no natural bound of its own. Capped at the
 		// wire limit here and trimmed to the game's own limit in playerSay.
-		std::string text = msg.getString(MAX_CHAT_MESSAGE_BYTES);
+		const std::string text = msg.getString(MAX_CHAT_MESSAGE_BYTES);
 		if (msg.hasReadError() || msg.getRemainingLength() != 0) {
 			break;
 		}
-		runAction([playerID, text = std::move(text)]() {
-			g_game.playerSayChannel(playerID, ChatChannel::LOCAL, 0, text);
-		});
+		g_game.playerSayChannel(playerID, ChatChannel::LOCAL, 0, text);
 		break;
 	}
 
@@ -1484,27 +1500,20 @@ void ProtocolGame::parsePacket(NetworkMessage& msg)
 		// server does not have must not end up shouting in public.
 		const uint8_t channelByte = msg.getByte();
 		const uint8_t target = msg.getByte();
-		std::string text = msg.getString(MAX_CHAT_MESSAGE_BYTES);
+		const std::string text = msg.getString(MAX_CHAT_MESSAGE_BYTES);
 		if (msg.hasReadError() || msg.getRemainingLength() != 0) {
 			break;
 		}
 		if (channelByte >= static_cast<uint8_t>(ChatChannel::COUNT)) {
 			break;
 		}
-		const ChatChannel channel = static_cast<ChatChannel>(channelByte);
-		runAction([playerID, channel, target, text = std::move(text)]() {
-			g_game.playerSayChannel(playerID, channel, target, text);
-		});
+		g_game.playerSayChannel(playerID, static_cast<ChatChannel>(channelByte), target, text);
 		break;
 	}
 
-	case ClientOpcode::MOVE: {
-		const uint8_t moveMask = msg.getByte();
-		runAction([playerID, moveMask]() {
-			g_game.playerMove(playerID, moveMask);
-		});
+	case ClientOpcode::MOVE:
+		g_game.playerMove(playerID, msg.getByte());
 		break;
-	}
 
 	case ClientOpcode::ROTATE: {
 		// Degrees on the wire, 0-359, quantised to the byte the entity record
@@ -1514,69 +1523,39 @@ void ProtocolGame::parsePacket(NetworkMessage& msg)
 		if (degrees >= 360) {
 			break; // out of range: a real client cannot produce this
 		}
-		const uint8_t rot = static_cast<uint8_t>((degrees * 255) / 360);
-		runAction([playerID, rot]() {
-			g_game.playerTurn(playerID, rot);
-		});
+		g_game.playerTurn(playerID, static_cast<uint8_t>((degrees * 255) / 360));
 		break;
 	}
 
-	case ClientOpcode::FACE: {
+	case ClientOpcode::FACE:
 		// Consumed and ignored, exactly as before: the facing the server acts on
 		// comes from ROTATE. Listed so the size table stays honest about what
 		// the client actually sends.
 		msg.getByte();
 		break;
-	}
 
-	case ClientOpcode::ATTACK_START: {
-		runAction([playerID]() {
-			if (Player* p = g_game.getPlayerByID(playerID)) {
-				p->handleMouseDown();
-			}
-		});
+	case ClientOpcode::ATTACK_START:
+		player->handleMouseDown();
 		break;
-	}
 
-	case ClientOpcode::ATTACK_STOP: {
-		runAction([playerID]() {
-			if (Player* p = g_game.getPlayerByID(playerID)) {
-				p->handleMouseUp();
-			}
-		});
+	case ClientOpcode::ATTACK_STOP:
+		player->handleMouseUp();
 		break;
-	}
 
-	case ClientOpcode::SPRINT: {
-		const bool shiftVal = (msg.getByte() != 0);
-		runAction([playerID, shiftVal]() {
-			if (Player* p = g_game.getPlayerByID(playerID)) {
-				p->setShift(shiftVal);
-			}
-		});
+	case ClientOpcode::SPRINT:
+		player->setShift(msg.getByte() != 0);
 		break;
-	}
 
-	case ClientOpcode::AIM: {
-		const bool held = msg.getByte() != 0;
-		runAction([playerID, held]() {
-			if (Player* p = g_game.getPlayerByID(playerID)) {
-				p->setAimHeld(held);
-			}
-		});
+	case ClientOpcode::AIM:
+		player->setAimHeld(msg.getByte() != 0);
 		break;
-	}
 
 	case ClientOpcode::EQUIP_ITEM: {
 		const uint16_t iid = msg.get<uint16_t>();
 		msg.getByte();                              // count, unused here
 		const uint32_t itemUid = msg.get<uint32_t>();
 		msg.getByte();                              // ammo, unused here
-		runAction([playerID, iid, itemUid]() {
-			if (Player* p = g_game.getPlayerByID(playerID)) {
-				p->startEquipping(iid, itemUid);
-			}
-		});
+		player->startEquipping(iid, itemUid);
 		break;
 	}
 
@@ -1585,14 +1564,10 @@ void ProtocolGame::parsePacket(NetworkMessage& msg)
 		const uint8_t count = msg.getByte();
 		const uint32_t itemUid = msg.get<uint32_t>();
 		msg.getByte();                              // ammo, unused here
-		runAction([playerID, iid, count, itemUid]() {
-			if (Player* p = g_game.getPlayerByID(playerID)) {
-				int8_t slot = p->inventory.findItemByUidSlot(itemUid, iid);
-				if (slot != -1) {
-					p->inventory.dropItem(slot, count);
-				}
-			}
-		});
+		const int8_t slot = player->inventory.findItemByUidSlot(itemUid, iid);
+		if (slot != -1) {
+			player->inventory.dropItem(slot, count);
+		}
 		break;
 	}
 
@@ -1602,11 +1577,7 @@ void ProtocolGame::parsePacket(NetworkMessage& msg)
 		const uint32_t dragUid = msg.get<uint32_t>();
 		msg.getByte();                              // target count, unused here
 		const uint32_t targetUid = msg.get<uint32_t>();
-		runAction([playerID, dragIid, dragUid, targetUid]() {
-			if (Player* p = g_game.getPlayerByID(playerID)) {
-				p->inventory.stackItem(dragUid, dragIid, targetUid);
-			}
-		});
+		player->inventory.stackItem(dragUid, dragIid, targetUid);
 		break;
 	}
 
@@ -1614,14 +1585,10 @@ void ProtocolGame::parsePacket(NetworkMessage& msg)
 		const uint16_t iid = msg.get<uint16_t>();
 		msg.getByte();                              // count, unused here
 		const uint32_t itemUid = msg.get<uint32_t>();
-		runAction([playerID, iid, itemUid]() {
-			if (Player* p = g_game.getPlayerByID(playerID)) {
-				int8_t slot = p->inventory.findItemByUidSlot(itemUid, iid);
-				if (slot != -1) {
-					p->inventory.splitItem(slot);
-				}
-			}
-		});
+		const int8_t slot = player->inventory.findItemByUidSlot(itemUid, iid);
+		if (slot != -1) {
+			player->inventory.splitItem(slot);
+		}
 		break;
 	}
 
@@ -1631,239 +1598,152 @@ void ProtocolGame::parsePacket(NetworkMessage& msg)
 		const uint32_t itemUid = msg.get<uint32_t>();
 		const uint8_t ammo = msg.getByte();
 		const uint8_t containerSlot = msg.getByte();
-		runAction([playerID, iid, count, itemUid, ammo, containerSlot]() {
-			g_game.playerStoreItem(playerID, iid, count, itemUid, ammo, containerSlot);
-		});
+		g_game.playerStoreItem(playerID, iid, count, itemUid, ammo, containerSlot);
 		break;
 	}
 
 	case ClientOpcode::MOVE_CONTAINER_ITEM: {
 		const uint8_t from = msg.getByte();
 		const uint8_t to = msg.getByte();
-		runAction([playerID, from, to]() {
-			g_game.playerMoveContainerItem(playerID, from, to);
-		});
+		g_game.playerMoveContainerItem(playerID, from, to);
 		break;
 	}
 
-	case ClientOpcode::TAKE_ITEM: {
-		const uint8_t slotIndex = msg.getByte();
-		runAction([playerID, slotIndex]() {
-			g_game.playerTakeItem(playerID, slotIndex);
-		});
+	case ClientOpcode::TAKE_ITEM:
+		g_game.playerTakeItem(playerID, msg.getByte());
 		break;
-	}
 
-	case ClientOpcode::TAKE_FROM_STATION: {
-		const uint8_t slotIndex = msg.getByte();
-		runAction([playerID, slotIndex]() {
-			g_game.playerTakeFromStation(playerID, slotIndex);
-		});
+	case ClientOpcode::TAKE_FROM_STATION:
+		g_game.playerTakeFromStation(playerID, msg.getByte());
 		break;
-	}
 
-	case ClientOpcode::PICK_UP_LOOT: {
+	case ClientOpcode::PICK_UP_LOOT:
 		// ClientEntityId, not uint16: an id16 is 24 bits now, and truncating
 		// one here would silently address a different entity (or none).
-		const auto lootId = static_cast<ClientEntityId>(msg.get<uint32_t>());
-		runAction([playerID, lootId]() {
-			g_game.playerTakeLoot(playerID, lootId);
-		});
+		g_game.playerTakeLoot(playerID, static_cast<ClientEntityId>(msg.get<uint32_t>()));
 		break;
-	}
 
-	case ClientOpcode::RELOAD: {
-		runAction([playerID]() {
-			if (Player* p = g_game.getPlayerByID(playerID)) {
-				p->startReload();
-			}
-		});
+	case ClientOpcode::RELOAD:
+		player->startReload();
 		break;
-	}
 
 	case ClientOpcode::PLACE_BUILDING: {
 		const uint8_t buildRotate = msg.getByte();
 		const uint16_t iBuild = msg.get<uint16_t>();
 		const uint16_t jBuild = msg.get<uint16_t>();
-		runAction([playerID, buildRotate, iBuild, jBuild]() {
-			g_game.playerPlaceObject(playerID, buildRotate, iBuild, jBuild);
-		});
+		g_game.playerPlaceObject(playerID, buildRotate, iBuild, jBuild);
 		break;
 	}
 
 	case ClientOpcode::INTERACT: {
 		const auto entityId = static_cast<ClientEntityId>(msg.get<uint32_t>());
 		const uint8_t entityPid = msg.getByte();
-		runAction([playerID, entityId, entityPid]() {
-			g_game.playerOpenInteraction(playerID, entityId, entityPid);
-		});
+		g_game.playerOpenInteraction(playerID, entityId, entityPid);
 		break;
 	}
 
-	case ClientOpcode::CLOSE_CONTAINER: {
-		runAction([playerID]() {
-			g_game.playerCloseContainer(playerID, true);
-		});
+	case ClientOpcode::CLOSE_CONTAINER:
+		g_game.playerCloseContainer(playerID, true);
 		break;
-	}
 
-	case ClientOpcode::CRAFT_AT_STATION: {
-		const uint16_t iid = msg.get<uint16_t>();
-		runAction([playerID, iid]() {
-			g_game.playerStartCraft(playerID, iid, true); // station = true
-		});
+	case ClientOpcode::CRAFT_AT_STATION:
+		g_game.playerStartCraft(playerID, msg.get<uint16_t>(), true);
 		break;
-	}
 
-	case ClientOpcode::CRAFT_BY_HAND: {
-		const uint16_t iid = msg.get<uint16_t>();
-		runAction([playerID, iid]() {
-			g_game.playerStartCraft(playerID, iid, false); // station = false
-		});
+	case ClientOpcode::CRAFT_BY_HAND:
+		g_game.playerStartCraft(playerID, msg.get<uint16_t>(), false);
 		break;
-	}
 
-	case ClientOpcode::CANCEL_CRAFT: {
-		runAction([playerID]() {
-			g_game.playerCancelCraft(playerID);
-		});
+	case ClientOpcode::CANCEL_CRAFT:
+		g_game.playerCancelCraft(playerID);
 		break;
-	}
 
-	case ClientOpcode::ADD_FUEL: {
-		const uint8_t amount = msg.get<uint8_t>();
-		runAction([playerID, amount]() {
-			g_game.playerAddFuel(playerID, amount);
-		});
+	case ClientOpcode::ADD_FUEL:
+		g_game.playerAddFuel(playerID, msg.getByte());
 		break;
-	}
 
 	case ClientOpcode::UNLOCK_SKILL: {
 		const uint16_t iid = msg.get<uint16_t>();
-		runAction([playerID, iid]() {
-			if (Player* p = g_game.getPlayerByID(playerID)) {
-				const ItemData* idata = ItemManager::getInstance().getItemData(iid);
-				if (!idata || !(idata->isCraftable || idata->requiresUnlock)) {
-					return;
-				}
-				if (p->hasSkill(iid)) {
-					return;
-				}
-				if (idata->crafting.prerequisiteIid != 0 && !p->hasSkill(idata->crafting.prerequisiteIid)) {
-					return;
-				}
-				const uint32_t cost = idata->crafting.skillCost;
-				if (p->getSkillPoints() >= cost && p->getLevel() >= idata->crafting.requiredLevel) {
-					if (cost > 0) {
-						p->spendSkillPoints(cost);
-					}
-					p->unlockSkill(iid);
-					p->sendBoughtSkill(iid);
-					if (idata->bagSlots > 0) {
-						p->sendFullInventory();
-					}
-				}
+		const ItemData* idata = ItemManager::getInstance().getItemData(iid);
+		if (!idata || !(idata->isCraftable || idata->requiresUnlock)) {
+			break;
+		}
+		if (player->hasSkill(iid)) {
+			break;
+		}
+		if (idata->crafting.prerequisiteIid != 0 && !player->hasSkill(idata->crafting.prerequisiteIid)) {
+			break;
+		}
+		const uint32_t cost = idata->crafting.skillCost;
+		if (player->getSkillPoints() >= cost && player->getLevel() >= idata->crafting.requiredLevel) {
+			if (cost > 0) {
+				player->spendSkillPoints(cost);
 			}
-		});
+			player->unlockSkill(iid);
+			player->sendBoughtSkill(iid);
+			if (idata->bagSlots > 0) {
+				player->sendFullInventory();
+			}
+		}
 		break;
 	}
 
 	case ClientOpcode::CREATE_TEAM: {
-		std::string name = msg.getString(MAX_CLAN_NAME_BYTES);
+		const std::string name = msg.getString(MAX_CLAN_NAME_BYTES);
 		if (msg.hasReadError() || msg.getRemainingLength() != 0) {
 			break;
 		}
-		runAction([playerID, name = std::move(name)]() {
-			g_game.playerCreateClan(playerID, name);
-		});
+		g_game.playerCreateClan(playerID, name);
 		break;
 	}
 
-	case ClientOpcode::DELETE_TEAM: {
-		runAction([playerID]() {
-			g_game.playerDeleteClan(playerID);
-		});
+	case ClientOpcode::DELETE_TEAM:
+		g_game.playerDeleteClan(playerID);
 		break;
-	}
 
-	case ClientOpcode::REQUEST_TEAM_JOIN: {
-		const uint8_t clanId = msg.getByte();
-		runAction([playerID, clanId]() {
-			g_game.playerRequestJoinClan(playerID, clanId);
-		});
+	case ClientOpcode::REQUEST_TEAM_JOIN:
+		g_game.playerRequestJoinClan(playerID, msg.getByte());
 		break;
-	}
 
-	case ClientOpcode::ACCEPT_TEAM_JOIN: {
-		const uint32_t applicantGuid = msg.get<uint32_t>();
-		runAction([playerID, applicantGuid]() {
-			g_game.playerAcceptJoinClan(playerID, applicantGuid);
-		});
+	case ClientOpcode::ACCEPT_TEAM_JOIN:
+		g_game.playerAcceptJoinClan(playerID, msg.get<uint32_t>());
 		break;
-	}
 
-	case ClientOpcode::KICK_FROM_TEAM: {
-		const uint32_t memberGuid = msg.get<uint32_t>();
-		runAction([playerID, memberGuid]() {
-			g_game.playerKickClanMember(playerID, memberGuid);
-		});
+	case ClientOpcode::KICK_FROM_TEAM:
+		g_game.playerKickClanMember(playerID, msg.get<uint32_t>());
 		break;
-	}
 
-	case ClientOpcode::LOCK_TEAM: {
-		runAction([playerID]() {
-			g_game.playerLockClan(playerID);
-		});
+	case ClientOpcode::LOCK_TEAM:
+		g_game.playerLockClan(playerID);
 		break;
-	}
 
-	case ClientOpcode::UNLOCK_TEAM: {
-		runAction([playerID]() {
-			g_game.playerUnlockClan(playerID);
-		});
+	case ClientOpcode::UNLOCK_TEAM:
+		g_game.playerUnlockClan(playerID);
 		break;
-	}
 
-	case ClientOpcode::LEAVE_TEAM: {
-		runAction([playerID]() {
-			g_game.playerLeaveClan(playerID);
-		});
+	case ClientOpcode::LEAVE_TEAM:
+		g_game.playerLeaveClan(playerID);
 		break;
-	}
 
-	case ClientOpcode::INVITE_TO_TEAM: {
-		const uint8_t targetGuid = msg.getByte();
-		runAction([playerID, targetGuid]() {
-			g_game.playerInviteToClan(playerID, targetGuid);
-		});
+	case ClientOpcode::INVITE_TO_TEAM:
+		g_game.playerInviteToClan(playerID, msg.getByte());
 		break;
-	}
 
-	case ClientOpcode::ACCEPT_TEAM_INVITE: {
-		const uint8_t clanId = msg.getByte();
-		runAction([playerID, clanId]() {
-			g_game.playerAcceptClanInvite(playerID, clanId);
-		});
+	case ClientOpcode::ACCEPT_TEAM_INVITE:
+		g_game.playerAcceptClanInvite(playerID, msg.getByte());
 		break;
-	}
 
 	case ClientOpcode::SET_PRIVATE_MESSAGES: {
 		const uint8_t policy = msg.getByte();
 		if (policy > static_cast<uint8_t>(PrivateMessagePolicy::NOBODY)) break;
-		runAction([playerID, policy]() {
-			if (Player* p = g_game.getPlayerByID(playerID)) {
-				p->privateMessages = static_cast<PrivateMessagePolicy>(policy);
-			}
-		});
+		player->privateMessages = static_cast<PrivateMessagePolicy>(policy);
 		break;
 	}
 
 	case ClientOpcode::QUEST_ACTION: {
 		const uint16_t questId = msg.get<uint16_t>();
 		const uint8_t action = msg.getByte();
-		runAction([playerID, questId, action]() {
-			g_quests.action(g_game.getPlayerByID(playerID), questId, action);
-		});
+		g_quests.action(player, questId, action);
 		break;
 	}
 
@@ -1872,18 +1752,14 @@ void ProtocolGame::parsePacket(NetworkMessage& msg)
 		const uint8_t slot = msg.getByte();
 		const bool fit = msg.getByte() != 0;
 		const uint8_t modUid = msg.getByte();
-		runAction([playerID, weaponUid, slot, fit, modUid]() {
-			g_game.playerWeaponMod(playerID, weaponUid, slot, fit, modUid);
-		});
+		g_game.playerWeaponMod(playerID, weaponUid, slot, fit, modUid);
 		break;
 	}
 
 	case ClientOpcode::BLOCK_PLAYER: {
 		const uint8_t targetGuid = msg.getByte();
 		const bool blocked = msg.getByte() != 0;
-		runAction([playerID, targetGuid, blocked]() {
-			g_game.playerBlock(playerID, targetGuid, blocked);
-		});
+		g_game.playerBlock(playerID, targetGuid, blocked);
 		break;
 	}
 
@@ -2073,7 +1949,8 @@ void ProtocolGame::onRecvFirstMessage(NetworkMessage& msg)
 		return;
 	}
 
-	data.identity = resolveLoginIdentity(data.nickname, data.password, data.accountTicket, std::time(nullptr));
+	data.identity = resolveLoginIdentity(data.nickname, data.password, data.accountTicket, std::time(nullptr),
+		pgAdminThrottleKey(ip));
 	// A player who requested account play must explicitly choose guest play
 	// if the ticket is refused. Never create an untracked guest on their behalf.
 	if (!data.accountTicket.empty() && data.identity.accountId == 0) {
@@ -2194,44 +2071,94 @@ void ProtocolGame::onConnect()
 	sendContentManifest();
 }
 
+namespace {
+	// One frame per content version, shared by every connection that is sent
+	// it (Connection::sendSharedBinary): a server restart reconnects every
+	// client at once, and a copy per client is what the global write-memory cap
+	// would then see. Keyed by the JSON's identity, which changes exactly when
+	// the content does. Dispatcher thread only.
+	struct PgContentFrame
+	{
+		std::shared_ptr<const std::string> json;
+		Connection::BinaryPayload_ptr frame;
+	};
+
+	Connection::BinaryPayload_ptr pgContentFrame(PgContentFrame& cached, ServerOpcode opcode,
+		const std::shared_ptr<const std::string>& json)
+	{
+		if (cached.json != json) {
+			auto frame = std::make_shared<std::vector<uint8_t>>(1 + json->size());
+			(*frame)[0] = static_cast<uint8_t>(opcode);
+			std::memcpy(frame->data() + 1, json->data(), json->size());
+			cached = {json, std::move(frame)};
+		}
+		return cached.frame;
+	}
+
+	PgContentFrame pgManifestFrame;
+	std::map<std::string, PgContentFrame> pgTableFrames;
+
+	// A fresh client asks for every table once; a later stale patch costs one.
+	// The burst covers a full first load twice over, and the refill is far
+	// below what content would ever be re-requested at.
+	constexpr double CONTENT_TABLES_PER_SECOND = 0.5;
+	constexpr double CONTENT_TABLE_BURST = 48;
+	// More distinct names than this in one request is not a client asking for
+	// what it is missing.
+	constexpr size_t CONTENT_REQUEST_MAX_NAMES = 64;
+}
+
 void ProtocolGame::sendContentManifest()
 {
-	const std::string manifest = contentexport::ContentManager::getInstance().getManifestJson();
-	if (manifest.empty()) return;
-	std::vector<uint8_t> frame(1 + manifest.size());
-	frame[0] = static_cast<uint8_t>(ServerOpcode::CONTENT_MANIFEST);
-	std::memcpy(frame.data() + 1, manifest.data(), manifest.size());
+	const auto manifest = contentexport::ContentManager::getInstance().getManifestJson();
+	if (!manifest || manifest->empty()) return;
 	if (auto conn = getConnection()) {
-		conn->sendBinary(std::move(frame));
+		conn->sendSharedBinary(pgContentFrame(pgManifestFrame, ServerOpcode::CONTENT_MANIFEST, manifest));
 	}
 }
 
-void ProtocolGame::sendContentTable(const std::string& name)
+bool ProtocolGame::sendContentTable(const std::string& name)
 {
-	const std::string tableJson = contentexport::ContentManager::getInstance().getTableJson(name);
-	if (tableJson.empty()) return;
-	std::vector<uint8_t> frame(1 + tableJson.size());
-	frame[0] = static_cast<uint8_t>(ServerOpcode::CONTENT_TABLE);
-	std::memcpy(frame.data() + 1, tableJson.data(), tableJson.size());
+	const auto tableJson = contentexport::ContentManager::getInstance().getTableJson(name);
+	if (!tableJson || tableJson->empty()) return false;
 	if (auto conn = getConnection()) {
-		conn->sendBinary(std::move(frame));
+		conn->sendSharedBinary(pgContentFrame(pgTableFrames[name], ServerOpcode::CONTENT_TABLE, tableJson));
 	}
+	return true;
 }
 
+// [str json array of table names]. Answered before login (the client loads
+// what its cache is missing) and after it (a hot-reload patch the client could
+// not apply sends it back for the whole table).
+//
+// The list is the client's, so it is reduced to distinct names first and every
+// table sent is paid for from contentBudget. Before that, one 8 KB pre-login
+// frame naming the largest table a thousand times was a thousand serializations
+// and sends, and held the dispatcher -- the whole game -- for over half a
+// second; a handful of connections froze it for several.
 void ProtocolGame::handleContentRequest(NetworkMessage& msg)
 {
-	std::string jsonStr = msg.getString();
-	if (jsonStr.empty()) return;
-	try {
-		boost::json::value val = boost::json::parse(jsonStr);
-		if (!val.is_array()) return;
-		for (const auto& item : val.as_array()) {
-			if (item.is_string()) {
-				sendContentTable(std::string(item.as_string()));
-			}
-		}
-	} catch (const std::exception& e) {
-		fmt::print(">> [ProtocolGame] Invalid REQUEST_CONTENT payload: {}\n", e.what());
+	const std::string jsonStr = msg.getString();
+	if (msg.hasReadError() || msg.getRemainingLength() != 0 || jsonStr.empty()) return;
+
+	// No log line on a parse failure: it is the client's mistake, and a line
+	// per bad frame is a way to make the server print.
+	boost::system::error_code ec;
+	const boost::json::value val = boost::json::parse(jsonStr, ec);
+	if (ec || !val.is_array()) return;
+
+	std::set<std::string> names;
+	for (const auto& item : val.as_array()) {
+		if (!item.is_string()) continue;
+		names.emplace(item.as_string());
+		if (names.size() > CONTENT_REQUEST_MAX_NAMES) return;
+	}
+
+	const auto& content = contentexport::ContentManager::getInstance();
+	for (const std::string& name : names) {
+		if (!content.getTableJson(name)) continue; // unknown names cost nothing to refuse
+		if (!contentBudget.consume(CONTENT_TABLES_PER_SECOND, CONTENT_TABLE_BURST)) return;
+		sendContentTable(name);
 	}
 }
 

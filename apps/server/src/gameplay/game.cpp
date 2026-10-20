@@ -1408,9 +1408,10 @@ void Game::addPlayer(Player* player)
 
 void Game::removePlayer(Player* player)
 {
-	if (player) g_npcs.forget(player->getID());
-	if (player) g_quests.forget(player->getID());
-	if (player) g_progress.detach(player->getID());
+	if (!player) return;
+	g_npcs.forget(player->getID());
+	g_quests.forget(player->getID());
+	g_progress.detach(player->getID());
 	cancelTrade(player->getID(), "Trade cancelled: player left.");
 	auto it = players.find(player->getID());
 	if (it == players.end()) {
@@ -1474,8 +1475,9 @@ void Game::removePlayer(Player* player)
 // disconnects holding the mouse would keep swinging.
 void Game::onPlayerSessionLost(Player* player)
 {
-	if (player) g_npcs.close(player->getID(), "Connection closed.");
-	if (player) g_progress.sessionLost(player);
+	if (!player) return;
+	g_npcs.close(player->getID(), "Connection closed.");
+	g_progress.sessionLost(player);
 	cancelTrade(player->getID(), "Trade cancelled: player disconnected.");
 	player->setMoveMask(0);
 	player->setShift(false);
@@ -1530,7 +1532,7 @@ void Game::destroyObjectsOwnedBy(uint32_t ownerGuid)
 	}
 }
 
-void Game::playerSayChannel(uint32_t playerId, ChatChannel channel, uint8_t target, const std::string& message)
+void Game::playerSayChannel(uint32_t playerId, ChatChannel channel, uint8_t target, const std::string& rawMessage)
 {
 	Player* player = getPlayerByID(playerId);
 	if (!player) {
@@ -1539,6 +1541,9 @@ void Game::playerSayChannel(uint32_t playerId, ChatChannel channel, uint8_t targ
 
 	player->resetIdleTime();
 
+	// Relayed to other clients and, for commands, echoed to the console: no
+	// control characters, broken UTF-8 or bidi overrides past this point.
+	const std::string message = sanitizeDisplayText(rawMessage, false);
 	if (message.empty()) {
 		return;
 	}
@@ -2182,29 +2187,17 @@ void Game::playerTakeLoot(uint32_t playerId, ClientEntityId lootId)
 	// hoping. Every class draws from one id16 space now, so an id16 the client
 	// sends is only loot if the pool says a Loot currently holds it -- and the
 	// pool answers that in one array read.
+	//
+	// The refusals below are silent. The id, the range and the taken flag all
+	// come from a client that may be stale or hostile, and a console line per
+	// refused packet let any client make the dispatcher print as fast as its
+	// inventory budget allowed.
 	const uint32_t fullUid = map.fullIdForId16(lootId);
 	Thing* thing = fullUid ? map.getThingByID(fullUid) : nullptr;
+	Loot* loot = thing ? thing->getLoot() : nullptr;
+	if (!loot || loot->isTaken()) return;
 
-	if (!thing) {
-		fmt::print("[Debug] Player {} tried to take lootId {:X}, but no live entity holds that id.\n",
-			player->getName(), lootId);
-		return;
-	}
-
-	Loot* loot = thing->getLoot();
-	if (!loot) return;
-
-	if (loot->isTaken()) {
-		fmt::print("[Debug] Player {} tried to take loot {:X}, but it is already marked as taken.\n", player->getName(), fullUid);
-		return;
-	}
-
-	if (player->getPosition().getDistanceX(loot->getPosition()) > LOOT_PICKUP_RANGE ||
-		player->getPosition().getDistanceY(loot->getPosition()) > LOOT_PICKUP_RANGE) {
-		fmt::print("[Debug] Player {} too far from loot {:X} (Dist: {}, {})\n", 
-			player->getName(), fullUid, 
-			player->getPosition().getDistanceX(loot->getPosition()),
-			player->getPosition().getDistanceY(loot->getPosition()));
+	if (!player->getPosition().isInRange(loot->getPosition(), LOOT_PICKUP_RANGE, LOOT_PICKUP_RANGE)) {
 		return;
 	}
 
@@ -2227,8 +2220,9 @@ void Game::playerTakeLoot(uint32_t playerId, ClientEntityId lootId)
 			broadcastSurgicalUpdate(update, loot->getPosition());
 		}
 	} else {
+		// Inventory full: restate it, so a client that predicted the pickup
+		// puts the slots back.
 		player->sendFullInventory();
-		fmt::print("[Debug] Player {} could not take loot {:X}: Inventory Full.\n", player->getName(), fullUid);
 	}
 }
 
@@ -3015,6 +3009,10 @@ void Game::playerPlaceObject(uint32_t playerId, uint8_t rotation, uint16_t i, ui
 	// the way to refusing.
 	if (player->cannot(CONTROL_NO_BUILD)) return;
 
+	// A quarter-turn index, 0-3, as the client sends it. Anything else is a
+	// forged packet, and it used to be stored as-is on the object.
+	if (rotation > 3) return;
+
 	uint16_t blueprintIid = player->getEquippedWeaponIID();
 	if (blueprintIid == 0) return;
 
@@ -3033,8 +3031,7 @@ void Game::playerPlaceObject(uint32_t playerId, uint8_t rotation, uint16_t i, ui
 
 	Position targetPos(j * TILE_SIZE + (TILE_SIZE / 2), i * TILE_SIZE + (TILE_SIZE / 2));
 
-	if (player->getPosition().getDistanceX(targetPos) > INTERACTION_RANGE || 
-		player->getPosition().getDistanceY(targetPos) > INTERACTION_RANGE) {
+	if (!player->getPosition().isInRange(targetPos, INTERACTION_RANGE, INTERACTION_RANGE)) {
 		return;
 	}
 
@@ -3143,8 +3140,7 @@ bool Game::isObjectHeldByAnotherPlayer(const Player* player, const Object* obj)
 
 	Player* other = getPlayerByGUID(activePid);
 	return other && other->getOpenedInteractionId() == obj->getID() &&
-		other->getPosition().getDistanceX(obj->getPosition()) <= INTERACTION_RANGE &&
-		other->getPosition().getDistanceY(obj->getPosition()) <= INTERACTION_RANGE;
+		other->getPosition().isInRange(obj->getPosition(), INTERACTION_RANGE, INTERACTION_RANGE);
 }
 
 // Clicking a container while one is already open steps to the next in the
@@ -3208,11 +3204,14 @@ Object* Game::findNextCycleContainer(const Player* player, uint32_t currentInter
 void Game::applySwitchInteraction(Object* obj, const ObjectData* od, uint64_t now)
 {
 	if (od->key == "gate_timer") {
-		// Cycle within the configured rate list (the parser guarantees it is
-		// non-empty); a fixed % 4 read out of bounds for shorter lists.
+		// Cycle within the configured rate list; a fixed % 4 read out of bounds
+		// for shorter lists. The <logic> parser guarantees the list is
+		// non-empty, but only for an object that HAS a <logic> node.
+		if (od->timerRatesMs.empty()) return;
 		obj->logicState.timerRateIndex = static_cast<uint8_t>((obj->logicState.timerRateIndex + 1) % od->timerRatesMs.size());
 		obj->logicState.nextTimerFire = now + od->timerRatesMs[obj->logicState.timerRateIndex];
 	} else if (od->key == "lamp") {
+		if (od->lampColorCount == 0) return;
 		obj->logicState.lampColorIndex = (obj->logicState.lampColorIndex + 1) % od->lampColorCount;
 	} else if (od->key == "switch") {
 		obj->logicState.switchOn = !obj->logicState.switchOn;
@@ -3260,8 +3259,14 @@ void Game::playerOpenInteraction(uint32_t playerId, ClientEntityId entityId, uin
 	const ObjectData* od = obj->getData();
 	if (!od) return;
 
-	if (player->getPosition().getDistanceX(obj->getPosition()) > INTERACTION_RANGE ||
-		player->getPosition().getDistanceY(obj->getPosition()) > INTERACTION_RANGE) {
+	if (!player->getPosition().isInRange(obj->getPosition(), INTERACTION_RANGE, INTERACTION_RANGE)) {
+		return;
+	}
+
+	// The id is the client's to choose. A concealed object (a hidden logic
+	// switch) that this player does not perceive was never sent to it, so it
+	// cannot be operated by guessing its id either.
+	if (!perceivesConcealed(player, obj)) {
 		return;
 	}
 
@@ -3361,8 +3366,7 @@ Object* Game::getActiveInteractionObject(Player* player)
 	Object* obj = interactionThing ? interactionThing->getObject() : nullptr;
 	if (!obj) return nullptr;
 
-	if (player->getPosition().getDistanceX(obj->getPosition()) > INTERACTION_RANGE ||
-		player->getPosition().getDistanceY(obj->getPosition()) > INTERACTION_RANGE) {
+	if (!player->getPosition().isInRange(obj->getPosition(), INTERACTION_RANGE, INTERACTION_RANGE)) {
 		playerCloseContainer(player->getID());
 		player->sendLostStation();
 		return nullptr;
@@ -3670,7 +3674,8 @@ void Game::playerStartCraft(uint32_t playerId, uint16_t iid, bool isStation)
 		msg.addByte(static_cast<uint8_t>(ServerOpcode::CRAFT_STARTED));
 		msg.addByte(static_cast<uint8_t>(iid & 0xFF));
 		player->sendNetworkMessage(msg);
-		player->crafting.eventId = g_scheduler.addEvent(createSchedulerTask(craftTime, [this, playerId, iid]() { this->completeCraft(playerId, iid); }));
+		player->crafting.eventId = player->scheduleLifeAction(craftTime,
+			[this, iid](Player& p) { completeCraft(p.getID(), iid); });
 	} else if (stationObj) {
 		const ObjectData* od = stationObj->getData();
 		if (od && !od->fuelItemKey.empty() && stationObj->getFuelMs() < 100) return;
@@ -6624,7 +6629,7 @@ void Game::updateStationObject(Object* obj, const ObjectData* od, uint32_t elaps
 			slot.progressMs += elapsedMs;
 			if (slot.progressMs >= slot.totalTimeMs) {
 				slot.progressMs = slot.totalTimeMs;
-				if (auto* creator = getPlayerByID(slot.creator); creator && creator->getLifeGeneration() == slot.creatorLife) {
+				if (Player* creator = Player::findLife(slot.creator, slot.creatorLife)) {
 					if (const ItemData* made = ItemManager::getInstance().getItemData(slot.iid))
 						g_events.emit({EventType::Craft, creator, made->key, slot.yield});
 				}

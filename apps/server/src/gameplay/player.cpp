@@ -623,6 +623,29 @@ Player::Player(ProtocolGame_ptr p) :
 	lastSentTeamPositionTime = 0;
 }
 
+uint32_t Player::nextLifeGeneration()
+{
+	// Process-wide, so two characters that share a slot never share a life.
+	static std::atomic<uint32_t> counter{0};
+	return ++counter;
+}
+
+Player* Player::findLife(uint32_t playerId, uint32_t life)
+{
+	Player* player = g_game.getPlayerByID(playerId);
+	return player && player->lifeGeneration == life ? player : nullptr;
+}
+
+uint32_t Player::scheduleLifeAction(uint32_t delayMs, std::function<void(Player&)> action)
+{
+	return g_scheduler.addEvent(createSchedulerTask(delayMs,
+		[pid = getID(), life = lifeGeneration, action = std::move(action)]() {
+			if (Player* player = findLife(pid, life)) {
+				action(*player);
+			}
+		}));
+}
+
 Player::~Player()
 {
 	// These scheduler tasks capture `this`; if the player is deleted (disconnect,
@@ -1030,7 +1053,7 @@ void Player::applyResurrection(const RespawnerData& data)
 	// half-applied tick batch in Creature::updateConditions, whose entries came
 	// from conditions the sweep above has just destroyed -- tests this to find
 	// out. See Player::conditionTicksShouldContinue.
-	++lifeGeneration;
+	lifeGeneration = nextLifeGeneration();
 
 	const Game::ActiveGauges& modes = g_game.getActiveGauges();
 	health = std::max<uint8_t>(1, percentToGaugeValue(data.healthPercent, gaugeCeiling(modes.life)));
@@ -2260,12 +2283,8 @@ void Player::beginConsumableAction(uint16_t iid, uint32_t itemUid, const Equipab
 {
 	if (edata.consumeDelayMs > 0) {
 		sendStartInteraction(static_cast<uint16_t>(edata.consumeDelayMs / 100));
-		// Re-resolve by id at fire time: the scheduled task can outlive this
-		// player (disconnect/death), and player ids are reused across slots.
-		const uint32_t pid = getID();
-		actionEventId = g_scheduler.addEvent(createSchedulerTask(edata.consumeDelayMs, [pid, iid, itemUid]() {
-			if (Player* p = g_game.getPlayerByID(pid)) p->consumeItem(iid, itemUid);
-		}));
+		actionEventId = scheduleLifeAction(edata.consumeDelayMs,
+			[iid, itemUid](Player& p) { p.consumeItem(iid, itemUid); });
 		return;
 	}
 
@@ -2275,10 +2294,8 @@ void Player::beginConsumableAction(uint16_t iid, uint32_t itemUid, const Equipab
 void Player::beginThrowAction(uint16_t iid, const EquipableData& edata)
 {
 	attackPulse = true; // Start animation
-	const uint32_t pid = getID();
-	actionEventId = g_scheduler.addEvent(createSchedulerTask(edata.impactMs, [pid, iid]() {
-		if (Player* p = g_game.getPlayerByID(pid)) p->completeThrow(iid, p->getEquippedWeaponUID());
-	}));
+	actionEventId = scheduleLifeAction(edata.impactMs,
+		[iid](Player& p) { p.completeThrow(iid, p.getEquippedWeaponUID()); });
 }
 
 void Player::beginRemoteTrigger(const EquipableData& edata)
@@ -2290,13 +2307,10 @@ void Player::beginRemoteTrigger(const EquipableData& edata)
 		return;
 	}
 
-	// Re-resolve by id at fire time: the task can outlive this player, and the
-	// charges must still go off if the plunger was already pressed.
-	const uint32_t pid = getID();
-	const std::string channel = edata.remoteTriggerChannel;
-	actionEventId = g_scheduler.addEvent(createSchedulerTask(edata.impactMs, [pid, channel]() {
-		if (Player* p = g_game.getPlayerByID(pid)) p->fireRemoteTrigger(channel);
-	}));
+	// Bound to this life: a character who took over the slot must not set off
+	// the previous owner's press against its own charges.
+	actionEventId = scheduleLifeAction(edata.impactMs,
+		[channel = edata.remoteTriggerChannel](Player& p) { p.fireRemoteTrigger(channel); });
 }
 
 void Player::fireRemoteTrigger(const std::string& channel)
@@ -2776,16 +2790,13 @@ void Player::performAction()
 		if (!edata->projectileKey.empty()) {
 			if (edata->impactMs > 0) {
 				windingUp = true;
-				// Re-resolve by id at release: the task can outlive this player
-				// (disconnect, death), and player ids are reused across slots.
-				// Not stored in actionEventId -- the cooldown is always longer
-				// than the wind-up (equipment.cpp clamps it), so at most one
-				// shot is ever pending and there is nothing to cancel against.
-				const uint32_t pid = getID();
-				const uint32_t drawnUid = equippedWeaponUID;
-				g_scheduler.addEvent(createSchedulerTask(edata->impactMs, [pid, iid, drawnUid]() {
-					if (Player* p = g_game.getPlayerByID(pid)) p->releaseShot(iid, drawnUid);
-				}));
+				// Bound to this life: the task can outlive it (disconnect,
+				// death) and the id can pass to another character. Not stored
+				// in actionEventId -- the cooldown is always longer than the
+				// wind-up (equipment.cpp clamps it), so at most one shot is ever
+				// pending and there is nothing to cancel against.
+				scheduleLifeAction(edata->impactMs,
+					[iid, drawnUid = equippedWeaponUID](Player& p) { p.releaseShot(iid, drawnUid); });
 			} else {
 				spawnProjectiles(edata, equippedItem);
 			}
@@ -2799,13 +2810,10 @@ void Player::performAction()
 			//
 			// Not stored in actionEventId: the cooldown is longer than the
 			// wind-up for every ghoul in agents.xml, so at most one swing is
-			// pending and there is nothing to cancel against. Re-resolved by id
-			// at landing time because the task can outlive this player.
+			// pending and there is nothing to cancel against. Bound to this
+			// life because the task can outlive it.
 			windingUp = true;
-			const uint32_t pid = getID();
-			g_scheduler.addEvent(createSchedulerTask(edata->impactMs, [pid]() {
-				if (Player* p = g_game.getPlayerByID(pid)) p->releaseMeleeSwing();
-			}));
+			scheduleLifeAction(edata->impactMs, [](Player& p) { p.releaseMeleeSwing(); });
 		} else {
 			performMeleeAttack(edata);
 		}
@@ -2853,10 +2861,7 @@ void Player::startReload()
 
 	// Start reload interaction
 	sendStartInteraction(static_cast<uint16_t>(edata->reloadMs / 100));
-	const uint32_t pid = getID();
-	reloadEventId = g_scheduler.addEvent(createSchedulerTask(edata->reloadMs, [pid]() {
-		if (Player* p = g_game.getPlayerByID(pid)) p->completeReload();
-	}));
+	reloadEventId = scheduleLifeAction(edata->reloadMs, [](Player& p) { p.completeReload(); });
 }
 
 void Player::completeReload()
@@ -2965,10 +2970,7 @@ std::string Player::startModChange(uint8_t weaponWireUid, ModSlot slot, bool fit
 
 	modChange = PendingModChange{0, weaponUid, modUid, slot, fit};
 	sendStartInteraction(static_cast<uint16_t>(plan.durationMs / 100));
-	const uint32_t pid = getID();
-	modChange.eventId = g_scheduler.addEvent(createSchedulerTask(plan.durationMs, [pid]() {
-		if (Player* p = g_game.getPlayerByID(pid)) p->completeModChange();
-	}));
+	modChange.eventId = scheduleLifeAction(plan.durationMs, [](Player& p) { p.completeModChange(); });
 	return {};
 }
 
@@ -3567,10 +3569,8 @@ void Player::queueEquipCompletion(uint32_t delay, uint16_t targetIid, uint32_t t
 		pendingEquipUID = targetUid;
 		sendStartInteraction(static_cast<uint16_t>(delay / 100));
 
-		const uint32_t pid = getID();
-		equipEventId = g_scheduler.addEvent(createSchedulerTask(delay, [pid, targetIid, targetUid, type]() {
-			if (Player* p = g_game.getPlayerByID(pid)) p->completeEquip(targetIid, targetUid, type);
-		}));
+		equipEventId = scheduleLifeAction(delay,
+			[targetIid, targetUid, type](Player& p) { p.completeEquip(targetIid, targetUid, type); });
 		return;
 	}
 
@@ -3606,9 +3606,11 @@ void Player::completeEquip(uint16_t iid, uint32_t itemUid, EquipmentType type)
 		return;
 	}
 
+	// The item can be gone by now (dropped, traded, eaten), or never have been
+	// there: the iid and uid come from the client. Refused silently, so a
+	// client cannot make the server print by asking for items it lacks.
 	Item* invItem = getInventoryItemByUid(iid, itemUid);
 	if (!invItem) {
-		fmt::print(">> [Equip Error] Item IID {} UID {} not found in inventory for {}.\n", iid, itemUid, getName());
 		return;
 	}
 
@@ -3631,7 +3633,6 @@ void Player::completeEquip(uint16_t iid, uint32_t itemUid, EquipmentType type)
 			} else {
 				sendBlueprint(0);
 			}
-			fmt::print(">> Player {} equipped weapon {}, visual index: {}\n", getName(), idata->name, edata->weaponId);
 		} else {
 			fmt::print(">> [Equip Error] No equipable data for key '{}' (item: {})\n", getEffectiveEquipKey(idata), idata->name);
 		}
@@ -3643,7 +3644,6 @@ void Player::completeEquip(uint16_t iid, uint32_t itemUid, EquipmentType type)
 			setSkin(static_cast<uint8_t>(wdata->skinId));
 			// New armour, new weight penalty. See Player::markWearableCacheDirty.
 			markWearableCacheDirty();
-			fmt::print(">> Player {} equipped wearable {}, skin: {}\n", getName(), idata->name, skin);
 		} else {
 			fmt::print(">> [Equip Error] No wearable data for key '{}' (item: {})\n", getEffectiveEquipKey(idata), idata->name);
 		}

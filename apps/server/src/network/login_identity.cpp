@@ -9,6 +9,7 @@
 #include "gameplay/groups.h"
 #include "network/account_ticket.h"
 #include "network/serverinfo.h"
+#include "core/tools.h"
 
 namespace {
 
@@ -41,7 +42,82 @@ namespace {
 
 	bool identityIsSpace(char c) { return c == ' ' || (c >= '\t' && c <= '\r'); }
 
+	// Every byte is looked at whatever the input, so how long a wrong key
+	// takes to refuse says nothing about how much of it was right.
+	bool identityConstantTimeEquals(std::string_view a, std::string_view b)
+	{
+		unsigned char difference = a.size() == b.size() ? 0 : 1;
+		const size_t length = std::max(a.size(), b.size());
+		for (size_t i = 0; i < length; ++i) {
+			const unsigned char x = i < a.size() ? static_cast<unsigned char>(a[i]) : 0;
+			const unsigned char y = i < b.size() ? static_cast<unsigned char>(b[i]) : 0;
+			difference |= static_cast<unsigned char>(x ^ y);
+		}
+		return difference == 0;
+	}
+
+	struct AdminPasswordFailures
+	{
+		uint32_t count = 0;
+		int64_t windowStart = 0;
+	};
+
+	// Dispatcher thread only, like every login.
+	std::unordered_map<std::string, AdminPasswordFailures> adminPasswordFailures;
+	// Bounds the table. Full after pruning, an address with no history yet is
+	// refused rather than forgetting another's failures -- forgetting is what
+	// would let a guesser reset its own count.
+	constexpr size_t ADMIN_PASSWORD_MAX_TRACKED = 4096;
+
 } // namespace
+
+bool checkAdminPassword(std::string_view supplied, std::string_view expected, std::string_view clientAddress,
+    int64_t nowSeconds, std::string& notice)
+{
+	if (supplied.empty() || expected.empty()) {
+		return false;
+	}
+
+	const std::string key(clientAddress);
+	auto it = adminPasswordFailures.find(key);
+	if (it != adminPasswordFailures.end() &&
+	    nowSeconds - it->second.windowStart >= ADMIN_PASSWORD_FAILURE_WINDOW_SECONDS) {
+		adminPasswordFailures.erase(it);
+		it = adminPasswordFailures.end();
+	}
+	if (it != adminPasswordFailures.end() && it->second.count >= ADMIN_PASSWORD_MAX_FAILURES) {
+		notice = "Too many wrong admin passwords from your address. Try again later.";
+		return false;
+	}
+
+	if (identityConstantTimeEquals(supplied, expected)) {
+		if (it != adminPasswordFailures.end()) {
+			adminPasswordFailures.erase(it);
+		}
+		return true;
+	}
+
+	if (it == adminPasswordFailures.end()) {
+		if (adminPasswordFailures.size() >= ADMIN_PASSWORD_MAX_TRACKED) {
+			std::erase_if(adminPasswordFailures, [nowSeconds](const auto& entry) {
+				return nowSeconds - entry.second.windowStart >= ADMIN_PASSWORD_FAILURE_WINDOW_SECONDS;
+			});
+		}
+		if (adminPasswordFailures.size() >= ADMIN_PASSWORD_MAX_TRACKED) {
+			notice = "Too many wrong admin passwords right now. Try again later.";
+			return false;
+		}
+		it = adminPasswordFailures.emplace(key, AdminPasswordFailures{0, nowSeconds}).first;
+	}
+	if (++it->second.count == ADMIN_PASSWORD_MAX_FAILURES) {
+		fmt::print(fg(fmt::color::orange), ">> [Security] {} wrong admin passwords from {}; refusing its admin "
+			"logins for {} minutes.\n", ADMIN_PASSWORD_MAX_FAILURES, key, ADMIN_PASSWORD_FAILURE_WINDOW_SECONDS / 60);
+	}
+	notice = "Wrong admin password. You joined without admin rights.";
+	return false;
+}
+
+void clearAdminPasswordFailures() { adminPasswordFailures.clear(); }
 
 std::string ticketServerId(std::string_view listingId, std::string_view host, uint16_t port)
 {
@@ -79,7 +155,7 @@ std::string stripBadgeGlyphs(std::string_view nickname)
 }
 
 LoginIdentity resolveLoginIdentity(const std::string& nickname, const std::string& password,
-    const std::string& accountTicket, int64_t nowSeconds)
+    const std::string& accountTicket, int64_t nowSeconds, std::string_view clientAddress)
 {
 	LoginIdentity identity;
 	identity.name = nickname;
@@ -107,14 +183,22 @@ LoginIdentity resolveLoginIdentity(const std::string& nickname, const std::strin
 		}
 	}
 
+	// Every name the server keeps is printable: it is broadcast to every client
+	// and written to the console. A guest's also loses the badge glyphs, which
+	// sanitizing first keeps a zero-width character from hiding.
+	identity.name = sanitizeDisplayText(identity.name, true);
 	if (identity.accountId == 0) {
 		identity.name = stripBadgeGlyphs(identity.name);
 	}
 
 	// The emergency key, in both modes.
-	if (!password.empty() && password == ConfigManager::getString(ConfigManager::ADMIN_PASSWORD)) {
+	std::string passwordNotice;
+	if (checkAdminPassword(password, ConfigManager::getString(ConfigManager::ADMIN_PASSWORD), clientAddress,
+	        nowSeconds, passwordNotice)) {
 		identity.groupId = g_groups.highest().id;
 		identity.passwordAdmin = true;
+	} else if (!passwordNotice.empty()) {
+		identity.notice = identity.notice.empty() ? passwordNotice : identity.notice + " " + passwordNotice;
 	}
 	return identity;
 }
@@ -141,6 +225,43 @@ int runLoginIdentitySelfTest()
 	expect(stripBadgeGlyphs("\xE2\x9C\xEF\xB8\x8F\x94x"), "x", "stripBadgeGlyphs(split by FE0F)");
 	expect(stripBadgeGlyphs("J\xC3\xBCrgen\xF0\x9F\x91\x91"), "J\xC3\xBCrgen", "stripBadgeGlyphs(keeps other UTF-8)");
 	expect(stripBadgeGlyphs(" \xE2\x9C\x85 "), "", "stripBadgeGlyphs(only badges)");
+
+	// Names and chat: escapes, controls, bidi and broken UTF-8 go; text stays.
+	expect(sanitizeDisplayText("Bob\x1B[2J\r\n\x7F", true), "Bob[2J", "sanitizeDisplayText(controls)");
+	expect(sanitizeDisplayText("J\xC3\xBCrgen \xE6\x97\xA5\xF0\x9F\x98\x80", true), "J\xC3\xBCrgen \xE6\x97\xA5\xF0\x9F\x98\x80",
+	    "sanitizeDisplayText(keeps UTF-8)");
+	expect(sanitizeDisplayText("ab\xE2\x80\xAE" "cd\xC2\x85", true), "abcd", "sanitizeDisplayText(bidi, C1)");
+	expect(sanitizeDisplayText("a\xC0\xAF" "b\xED\xA0\x80" "c\xF4\x90\x80\x80" "d\xE2\x82", true), "abcd",
+	    "sanitizeDisplayText(overlong, surrogate, >U+10FFFF, truncated)");
+	expect(sanitizeDisplayText("Ad\xE2\x80\x8Bmin", true), "Admin", "sanitizeDisplayText(zero-width in a name)");
+	expect(sanitizeDisplayText("\xF0\x9F\x91\xA8\xE2\x80\x8D\xF0\x9F\x91\xA9", false), "\xF0\x9F\x91\xA8\xE2\x80\x8D\xF0\x9F\x91\xA9",
+	    "sanitizeDisplayText(ZWJ kept in chat)");
+	expect(stripBadgeGlyphs(sanitizeDisplayText("Bob\xE2\x80\x8B\xE2\x9C\x94\xE2\x80\x8B", true)), "Bob",
+	    "stripBadgeGlyphs after sanitize (no zero-width left beside a badge)");
+
+	// The admin key: right, wrong, throttled, and per address.
+	const auto check = [](std::string_view supplied, std::string_view address, int64_t now) {
+		std::string notice;
+		const bool accepted = checkAdminPassword(supplied, "s3cret-key", address, now, notice);
+		return std::string(accepted ? "ok" : "refused") + (notice.empty() ? "" : " (notice)");
+	};
+	clearAdminPasswordFailures();
+	expect(check("s3cret-key", "10.0.0.1", 1000), "ok", "checkAdminPassword(right)");
+	expect(check("", "10.0.0.1", 1000), "refused", "checkAdminPassword(none supplied)");
+	{
+		std::string notice;
+		expect(checkAdminPassword("anything", "", "10.0.0.1", 1000, notice) ? "ok" : "refused", "refused",
+		    "checkAdminPassword(no key configured)");
+	}
+	expect(check("s3cret-ke", "10.0.0.1", 1000), "refused (notice)", "checkAdminPassword(prefix)");
+	expect(check("s3cret-key!", "10.0.0.1", 1000), "refused (notice)", "checkAdminPassword(longer)");
+	for (uint32_t i = 2; i < ADMIN_PASSWORD_MAX_FAILURES; ++i) check("wrong", "10.0.0.1", 1000);
+	expect(check("s3cret-key", "10.0.0.1", 1001), "refused (notice)", "checkAdminPassword(throttled even when right)");
+	expect(check("s3cret-key", "10.0.0.2", 1001), "ok", "checkAdminPassword(another address unaffected)");
+	expect(check("s3cret-key", "10.0.0.1", 1000 + ADMIN_PASSWORD_FAILURE_WINDOW_SECONDS), "ok",
+	    "checkAdminPassword(window passed)");
+	clearAdminPasswordFailures();
+
 	fmt::print(">> login identity self-test: {} passed, {} failed\n", passed, failed);
 	return failed == 0 ? 0 : 1;
 }

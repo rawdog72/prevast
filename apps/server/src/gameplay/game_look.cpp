@@ -100,6 +100,10 @@ void Game::playerLook(uint32_t playerId, ClientEntityId entityId, uint8_t target
         if (!thing) return;
         where = thing->getPosition();
         if (const Object* obj = thing->getObject()) {
+            // The id comes from the client, which can name any id16 it likes:
+            // a concealed object (a trap) this player does not perceive was
+            // never sent to it, and must not be described to it either.
+            if (!admin && !perceivesConcealed(player, obj)) return;
             text = describeObject(player, *obj, admin);
         } else if (const Agent* agent = thing->getAgent()) {
             const AgentData* data = agent->getData();

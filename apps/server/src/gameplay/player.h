@@ -157,6 +157,17 @@ public:
 	uint32_t getGUID() const { return guid; }
 	uint32_t getLifeGeneration() const { return lifeGeneration; }
 
+	// The player with this id, but only while it is still the life that was
+	// observed. Player ids derive from the login slot (playerAutoID + guid), so
+	// an id alone can name a different character once the slot is reused.
+	static Player* findLife(uint32_t playerId, uint32_t lifeGeneration);
+
+	// Runs `action` after `delayMs` on this same life, or not at all: the
+	// character died, left, was resurrected into a new life, or another
+	// character took over the slot (and with it the id) in the meantime.
+	// Returns the scheduler event id, for stopEvent.
+	uint32_t scheduleLifeAction(uint32_t delayMs, std::function<void(Player&)> action);
+
 	const std::string& getToken() const { return token; }
 	void setToken(std::string_view token) { this->token = token; }
 
@@ -1229,13 +1240,16 @@ private:
 	// "this character has been resurrected at some point in the past".
 	uint32_t tickLifeGeneration = 0;
 
-	// Bumped every time a resurrection starts a new life. Nothing reads the
-	// value, only whether it CHANGED across a call that could have ended the
-	// life -- which is the one question a caller holding state about the old
-	// life needs answered, and which health alone cannot answer (a resurrection
-	// puts health straight back above zero, so a before/after health test sees
-	// a life end as an ordinary heal). See Player::updateConditions.
-	uint32_t lifeGeneration = 0;
+	// Renewed every time a resurrection starts a new life, from a process-wide
+	// counter, so (id, lifeGeneration) names one life of one character even
+	// across slot reuse. Nothing reads the value, only whether it CHANGED
+	// across a call that could have ended the life -- which is the one question
+	// a caller holding state about the old life needs answered, and which
+	// health alone cannot answer (a resurrection puts health straight back
+	// above zero, so a before/after health test sees a life end as an ordinary
+	// heal). See Player::updateConditions and Player::findLife.
+	uint32_t lifeGeneration = nextLifeGeneration();
+	static uint32_t nextLifeGeneration();
 
 	// The last ConditionVisual put on the wire, and whether anything has been put
 	// there at all. `conditionVisualKnown` is false for a fresh character, which is

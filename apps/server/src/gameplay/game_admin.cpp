@@ -49,11 +49,25 @@
 #include <cmath>
 #include <fstream>
 
-void Game::adminBanIp(Player* admin, const Connection::Address& ip, uint32_t minutes, const std::string& reason)
+void Game::adminBanIp(Player* admin, const Connection::Address& address, uint32_t minutes, const std::string& reason)
 {
+	// Typed addresses may be in either spelling; players' are canonical.
+	const Connection::Address ip = Connection::canonicalAddress(address);
 	if (ip.is_unspecified()) {
 		fmt::print(">> [Admin] ban: no valid IP to ban.\n");
 		return;
+	}
+
+	// The rank rule !ban applies to a player, applied to the address: one a
+	// peer or senior plays from is not this admin's to close. The ban is
+	// checked before a login proves anything, so it would lock them out
+	// whatever their group -- a gamemaster could shut an admin out.
+	for (const auto& [id, p] : players) {
+		if (p != admin && p->getIP() == ip && p->getAuthorityRank() >= admin->getAuthorityRank()) {
+			adminReply(admin, fmt::format("You cannot ban {}: {} plays from it and is your rank or higher.",
+				ip.to_string(), p->getName()));
+			return;
+		}
 	}
 
 	IOBan::BanInfo info;
@@ -422,34 +436,19 @@ void Game::adminAddLevel(Player* player, const std::string& args)
 
 void Game::adminPrintBanList()
 {
-	if (getBoolean(ConfigManager::USE_DATABASE)) {
-		// The database is the source of truth when enabled (memory only
-		// caches bans seen since this server start).
-		DBResult_ptr result = Database::getInstance().storeQuery(
-			"SELECT INET6_NTOA(`ip`) AS `ip`, `reason`, `expires_at`, `banned_by` FROM `ip_bans`");
-		if (!result) {
-			fmt::print(">> [Admin] Ban list is empty.\n");
-			return;
-		}
-		fmt::print(">> [Admin] Ban list (database):\n");
-		do {
-			time_t expiresAt = result->getNumber<time_t>("expires_at");
-			fmt::print("   {} — {} — by {} — {}\n", result->getString("ip"),
-				expiresAt == 0 ? std::string("permanent") : fmt::format("until {}", formatDateShort(expiresAt)),
-				result->getString("banned_by"), result->getString("reason"));
-		} while (result->next());
-	} else {
-		const auto bans = IOBan::getMemoryBans();
-		if (bans.empty()) {
-			fmt::print(">> [Admin] Ban list is empty.\n");
-			return;
-		}
-		fmt::print(">> [Admin] Ban list (in-memory, resets on restart):\n");
-		for (const auto& [ip, info] : bans) {
-			fmt::print("   {} — {} — by {} — {}\n", ip.to_string(),
-				info.expiresAt == 0 ? std::string("permanent") : fmt::format("until {}", formatDateShort(info.expiresAt)),
-				info.bannedBy, info.reason);
-		}
+	// The memory store holds every ban in force either way: with a database it
+	// is loaded from `ip_bans` at startup and written through on every change.
+	const auto bans = IOBan::getMemoryBans();
+	if (bans.empty()) {
+		fmt::print(">> [Admin] Ban list is empty.\n");
+		return;
+	}
+	fmt::print(">> [Admin] Ban list ({}):\n",
+		getBoolean(ConfigManager::USE_DATABASE) ? "kept in the database" : "in-memory, resets on restart");
+	for (const auto& [ip, info] : bans) {
+		fmt::print("   {} — {} — by {} — {}\n", ip.to_string(),
+			info.expiresAt == 0 ? std::string("permanent") : fmt::format("until {}", formatDateShort(info.expiresAt)),
+			info.bannedBy, info.reason);
 	}
 }
 
@@ -522,7 +521,7 @@ void Game::parseAdminCommand(Player* player, const std::string& cmdLine)
 	} else if (cmd == "teleport-to") {
 		adminTeleportToPlayer(player, args);
 	} else if (cmd == "teleport-player-to") {
-		adminTeleportPlayerTo(args);
+		adminTeleportPlayerTo(player, args);
 	} else if (cmd == "teleport-all") {
 		adminTeleportAll(player, args);
 	} else if (cmd == "spawn-natural" || cmd == "o") {
@@ -581,7 +580,7 @@ void Game::parseAdminCommand(Player* player, const std::string& cmdLine)
 	} else if (cmd == "banlist") {
 		adminPrintBanList();
 	} else if (cmd == "karma") {
-		adminSetKarma(args);
+		adminSetKarma(player, args);
 	} else if (cmd == "set-daynight") {
 		adminSetDayNight(args);
 	} else if (cmd == "craft-speed") {
@@ -1043,6 +1042,9 @@ void Game::adminConditionsPlayer(Player* player, const std::string& args)
 	}
 
 	if (!keyPart.empty()) {
+		if (adminOutranked(player, target)) {
+			return;
+		}
 		if (keyPart == "cure") {
 			g_accountRuns.disqualify(target);
 			target->cureConditions({"all"});
@@ -1990,6 +1992,15 @@ Player* Game::resolveAdminTarget(uint32_t id)
 	return target ? target : getPlayerByID(id);
 }
 
+bool Game::adminOutranked(Player* admin, const Player* target) const
+{
+	if (target == admin || target->getAuthorityRank() <= admin->getAuthorityRank()) {
+		return false;
+	}
+	adminReply(admin, fmt::format("You cannot do that to {}: they outrank you.", target->getName()));
+	return true;
+}
+
 Position Game::tileCenterPosition(int32_t tileX, int32_t tileY) const
 {
 	return clampPositionToMap(tileX * TILE_SIZE + (TILE_SIZE / 2), tileY * TILE_SIZE + (TILE_SIZE / 2));
@@ -2027,7 +2038,7 @@ void Game::adminTeleportToPlayer(Player* player, const std::string& args)
 	}
 }
 
-void Game::adminTeleportPlayerTo(const std::string& args)
+void Game::adminTeleportPlayerTo(Player* admin, const std::string& args)
 {
 	auto [idPart, posPart, ok] = splitOnce(args, ':');
 	if (!ok) return;
@@ -2035,7 +2046,7 @@ void Game::adminTeleportPlayerTo(const std::string& args)
 	auto [xPart, yPart, posOk] = splitOnce(posPart, ':');
 	if (!posOk) return;
 
-	if (Player* target = getPlayerByGUID(std::stoul(idPart))) {
+	if (Player* target = getPlayerByGUID(std::stoul(idPart)); target && !adminOutranked(admin, target)) {
 		adminPlacePlayerOnTile(target, std::stoi(xPart), std::stoi(yPart));
 	}
 }
@@ -2344,13 +2355,13 @@ void Game::adminUnban(Player* admin, const std::string& args)
 	}
 }
 
-void Game::adminSetKarma(const std::string& args)
+void Game::adminSetKarma(Player* admin, const std::string& args)
 {
 	auto [idPart, karmaPart, ok] = splitOnce(args, ':');
 	if (!ok) return;
 
 	Player* target = resolveAdminTarget(std::stoul(idPart));
-	if (!target) return;
+	if (!target || adminOutranked(admin, target)) return;
 
 	const uint8_t karmaVal = static_cast<uint8_t>(std::stoi(karmaPart));
 

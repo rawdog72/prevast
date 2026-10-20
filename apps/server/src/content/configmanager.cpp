@@ -129,7 +129,11 @@ bool ConfigManager::load()
 
 		string[MAP_NAME] = getGlobalString(L, "mapName", "forgotten");
 		string[MAP_AUTHOR] = getGlobalString(L, "mapAuthor", "Unknown");
-		string[ADMIN_PASSWORD] = getGlobalString(L, "adminPassword", "prevast");
+		// No default key: a config.lua without adminPassword has no emergency
+		// login. The default used to be "prevast" -- a password printed in the
+		// source, which made anyone who typed it the highest group on every
+		// server whose config had lost or never had the line.
+		string[ADMIN_PASSWORD] = getGlobalString(L, "adminPassword", "");
 
 		// Both default to 0 = "not in the file", which is what lets
 		// MapSize::loadFromConfig tell an absent key from a deliberate one and

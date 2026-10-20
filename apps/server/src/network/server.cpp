@@ -82,6 +82,20 @@ namespace {
 		}
 	}
 
+	// Failures of one pending connection, or a momentary shortage of sockets
+	// or memory under a connection burst: nothing wrong with the listening
+	// socket itself. Treating them like a broken port closed the listener for
+	// fifteen seconds -- an outage anyone able to cause a burst could repeat.
+	bool isTransientAcceptError(const boost::system::error_code& error)
+	{
+		namespace err = boost::asio::error;
+		return error == err::connection_aborted || error == err::connection_reset ||
+		       error == err::connection_refused || error == err::no_descriptors ||
+		       error == err::no_buffer_space || error == err::no_memory || error == err::try_again;
+	}
+
+	constexpr auto ACCEPT_RETRY_DELAY = std::chrono::milliseconds(100);
+
 } // namespace
 
 ServiceManager::~ServiceManager() { stop(); }
@@ -207,7 +221,7 @@ void ServicePort::onAccept(Connection_ptr connection, const boost::system::error
 
 		boost::system::error_code endpointError;
 		const auto endpoint = connection->getSocket().remote_endpoint(endpointError);
-		connection->remoteAddress = endpoint.address();
+		connection->remoteAddress = Connection::canonicalAddress(endpoint.address());
 		const auto& remote_ip = connection->getIP();
 		if (!endpointError && acceptConnection(remote_ip) && ConnectionManager::getInstance().admit(connection, remote_ip)) {
 			Service_ptr service = services.front();
@@ -223,6 +237,17 @@ void ServicePort::onAccept(Connection_ptr connection, const boost::system::error
 		}
 
 		accept();
+	}
+	else if (isTransientAcceptError(error)) {
+		// Paced rather than immediate: a shortage that has not cleared would
+		// otherwise fail again at once, in a loop.
+		connection->close(Connection::FORCE_CLOSE);
+		acceptRetry.expires_after(ACCEPT_RETRY_DELAY);
+		acceptRetry.async_wait([thisPtr = shared_from_this()](const boost::system::error_code& ec) {
+			if (!ec) {
+				thisPtr->accept();
+			}
+		});
 	}
 	else if (error != boost::asio::error::operation_aborted) {
 		connection->close(Connection::FORCE_CLOSE);
@@ -325,6 +350,7 @@ void ServicePort::open(uint16_t port)
 
 void ServicePort::close()
 {
+	acceptRetry.cancel();
 	if (acceptor && acceptor->is_open()) {
 		boost::system::error_code error;
 		acceptor->close(error);

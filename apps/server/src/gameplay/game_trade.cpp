@@ -87,7 +87,7 @@ bool Game::validateTrade(const TradeSession& trade) {
     std::string reason;
     if (!tradeParticipantReady(a) || !tradeParticipantReady(b)) reason = "Trade cancelled: player unavailable.";
     else if (!tradeInRange(a, b)) reason = "Trade cancelled: stay within 2 tiles of each other.";
-    else if (OTSYS_TIME() >= trade.expiresAt) reason = "Trade request or idle trade expired.";
+    else if (static_cast<uint64_t>(OTSYS_TIME()) >= trade.expiresAt) reason = "Trade request or idle trade expired.";
     else {
         for (int side = 0; side < 2; ++side) {
             auto& inv = (side == 0 ? a : b)->inventory;

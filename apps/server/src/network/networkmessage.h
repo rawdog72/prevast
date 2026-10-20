@@ -96,7 +96,7 @@ public:
 	// `maxBytes` is a hard cap, not a hint: a string longer than it is a
 	// protocol violation and latches `readError` rather than being truncated,
 	// because a truncated nickname is still a nickname and would be stored.
-	std::string getString(uint16_t maxBytes = 8192);
+	std::string getString(uint16_t maxBytes = MAX_STRING_BYTES);
 
 	// Did any read run off the end (or violate a declared limit)?
 	bool hasReadError() const { return info.readError; }

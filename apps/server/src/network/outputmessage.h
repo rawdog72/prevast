@@ -51,10 +51,11 @@ public:
 		info.position += count;
 	}
 
-	// Room left before NetworkMessage::canAdd would start silently dropping.
+	// Room left before NetworkMessage::canAdd would start silently dropping:
+	// the same `<=`, so a write that ends exactly at capacity fits here too.
 	bool canFit(size_t count) const
 	{
-		return static_cast<size_t>(info.position) + count < static_cast<size_t>(MAX_BODY_LENGTH);
+		return static_cast<size_t>(info.position) + count <= static_cast<size_t>(MAX_BODY_LENGTH);
 	}
 
 	// Drop `count` bytes from the front of the frame. Used to unwrap a batch

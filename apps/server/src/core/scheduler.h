@@ -33,6 +33,9 @@ class Scheduler : public ThreadHolder<Scheduler>
 {
 public:
 	uint32_t addEvent(SchedulerTask* task);
+	// Once this returns, the event's task will not run -- including an event
+	// whose timer has already expired and whose task is queued on the
+	// dispatcher behind other work.
 	void stopEvent(uint32_t eventId);
 
 	void shutdown();
@@ -40,7 +43,18 @@ public:
 	void threadMain() { io_context.run(); }
 
 private:
+	// Claims a fired event for execution. False when it was stopped first.
+	bool claimEvent(uint32_t eventId);
+	void forgetEvent(uint32_t eventId);
+
 	std::atomic<uint32_t> lastEventId{ 0 };
+	// Events added and neither run nor stopped yet. Timer cancellation alone
+	// cannot stop a task that already reached the dispatcher queue: callers that
+	// stopped an action and started the next one used to see the old one
+	// complete anyway (a cancelled craft finishing the new craft at once, a
+	// cancelled meal still being eaten).
+	std::mutex pendingLock;
+	std::unordered_set<uint32_t> pendingEvents;
 	std::unordered_map<uint32_t, boost::asio::steady_timer> eventIdTimerMap;
 	boost::asio::io_context io_context;
 	boost::asio::executor_work_guard<boost::asio::io_context::executor_type> work{ io_context.get_executor() };

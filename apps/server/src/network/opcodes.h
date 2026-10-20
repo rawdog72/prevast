@@ -28,7 +28,7 @@
 enum class ClientOpcode : uint8_t {
     // Connection
     PING = 0,                  // keepalive; answered with PONG
-    REQUEST_CONTENT = 1,       // [str json]
+    REQUEST_CONTENT = 1,       // [str json array of table names]; before login, and after it for a stale patch
 
     // Movement and combat
     MOVE = 10,                 // [u8 direction bitmask]

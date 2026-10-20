@@ -17,8 +17,8 @@ extern DatabaseTasks g_databaseTasks;
 
 namespace {
 
-	// Guarded: connection checks run on io threads, admin commands on the
-	// dispatcher thread.
+	// Guarded: logins run on the dispatcher, but the lock keeps the store safe
+	// for any caller.
 	std::mutex banLock;
 	std::map<Connection::Address, IOBan::BanInfo> memoryBans;
 
@@ -32,70 +32,49 @@ namespace {
 		return info.expiresAt != 0 && time(nullptr) > info.expiresAt;
 	}
 
+	// The row(s) for one canonical address. Rows written before addresses were
+	// canonicalised hold an IPv4 client as ::ffff:a.b.c.d, so both spellings
+	// are matched.
+	std::string banRowCondition(const Connection::Address& ip)
+	{
+		const Database& db = Database::getInstance();
+		if (ip.is_v4()) {
+			const auto mapped = boost::asio::ip::make_address_v6(boost::asio::ip::v4_mapped, ip.to_v4());
+			return fmt::format("`ip` IN (INET6_ATON({:s}), INET6_ATON({:s}))",
+				db.escapeString(ip.to_string()), db.escapeString(mapped.to_string()));
+		}
+		return fmt::format("`ip` = INET6_ATON({:s})", db.escapeString(ip.to_string()));
+	}
+
 } // namespace
 
 namespace IOBan {
 
 	const std::optional<BanInfo> getIpBanInfo(const Connection::Address& clientIP)
 	{
-		if (clientIP.is_unspecified()) {
+		const Connection::Address ip = Connection::canonicalAddress(clientIP);
+		if (ip.is_unspecified()) {
 			return std::nullopt;
 		}
 
-		{
-			std::lock_guard<std::mutex> guard(banLock);
-			auto it = memoryBans.find(clientIP);
-			if (it != memoryBans.end()) {
-				if (isExpired(it->second)) {
-					memoryBans.erase(it);
-					// fall through: an unexpired database row would be stale
-					// too, and the query below deletes it
-				} else {
-					return it->second;
-				}
+		std::lock_guard<std::mutex> guard(banLock);
+		auto it = memoryBans.find(ip);
+		if (it == memoryBans.end()) {
+			return std::nullopt;
+		}
+		if (isExpired(it->second)) {
+			memoryBans.erase(it);
+			if (databaseEnabled()) {
+				g_databaseTasks.addTask(fmt::format("DELETE FROM `ip_bans` WHERE {:s}", banRowCondition(ip)));
 			}
-		}
-
-		if (!databaseEnabled()) {
 			return std::nullopt;
 		}
-
-		Database& db = Database::getInstance();
-
-		DBResult_ptr result = db.storeQuery(fmt::format(
-			"SELECT `reason`, `expires_at`, `banned_by` FROM `ip_bans` WHERE `ip` = INET6_ATON('{:s}')",
-			clientIP.to_string()));
-		if (!result) {
-			return std::nullopt;
-		}
-
-		time_t expiresAt = result->getNumber<time_t>("expires_at");
-		if (expiresAt != 0 && std::chrono::system_clock::now() > std::chrono::system_clock::from_time_t(expiresAt)) {
-			g_databaseTasks.addTask(
-				fmt::format("DELETE FROM `ip_bans` WHERE `ip` = INET6_ATON('{:s}')", clientIP.to_string()));
-			return std::nullopt;
-		}
-
-		auto banInfo = std::make_optional<BanInfo>();
-		banInfo->expiresAt = expiresAt;
-
-		banInfo->reason = result->getString("reason");
-		if (banInfo->reason.empty()) {
-			banInfo->reason = "(none)";
-		}
-
-		banInfo->bannedBy = result->getString("banned_by");
-
-		// Cache in memory so !banlist shows it and repeat checks skip the query
-		{
-			std::lock_guard<std::mutex> guard(banLock);
-			memoryBans[clientIP] = *banInfo;
-		}
-		return banInfo;
+		return it->second;
 	}
 
-	void addIpBan(const Connection::Address& ip, const BanInfo& info)
+	void addIpBan(const Connection::Address& clientIP, const BanInfo& info)
 	{
+		const Connection::Address ip = Connection::canonicalAddress(clientIP);
 		{
 			std::lock_guard<std::mutex> guard(banLock);
 			memoryBans[ip] = info;
@@ -105,16 +84,17 @@ namespace IOBan {
 			Database& db = Database::getInstance();
 			g_databaseTasks.addTask(fmt::format(
 				"INSERT INTO `ip_bans` (`ip`, `reason`, `banned_at`, `expires_at`, `banned_by`) "
-				"VALUES (INET6_ATON('{:s}'), {:s}, {:d}, {:d}, {:s}) "
+				"VALUES (INET6_ATON({:s}), {:s}, {:d}, {:d}, {:s}) "
 				"ON DUPLICATE KEY UPDATE `reason` = VALUES(`reason`), `banned_at` = VALUES(`banned_at`), "
 				"`expires_at` = VALUES(`expires_at`), `banned_by` = VALUES(`banned_by`)",
-				ip.to_string(), db.escapeString(info.reason), static_cast<int64_t>(time(nullptr)),
+				db.escapeString(ip.to_string()), db.escapeString(info.reason), static_cast<int64_t>(time(nullptr)),
 				static_cast<int64_t>(info.expiresAt), db.escapeString(info.bannedBy)));
 		}
 	}
 
-	bool removeIpBan(const Connection::Address& ip)
+	bool removeIpBan(const Connection::Address& clientIP)
 	{
+		const Connection::Address ip = Connection::canonicalAddress(clientIP);
 		bool found;
 		{
 			std::lock_guard<std::mutex> guard(banLock);
@@ -122,10 +102,8 @@ namespace IOBan {
 		}
 
 		if (databaseEnabled()) {
-			// The ban may exist only in the database (placed before a restart)
-			g_databaseTasks.addTask(
-				fmt::format("DELETE FROM `ip_bans` WHERE `ip` = INET6_ATON('{:s}')", ip.to_string()));
-			found = true;
+			// Matches a row in either spelling of the address.
+			g_databaseTasks.addTask(fmt::format("DELETE FROM `ip_bans` WHERE {:s}", banRowCondition(ip)));
 		}
 		return found;
 	}
@@ -160,6 +138,38 @@ namespace IOBan {
 			"`banned_by` VARCHAR(64) NOT NULL DEFAULT '', "
 			"PRIMARY KEY (`ip`)"
 			") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+	}
+
+	void loadIpBans()
+	{
+		Database& db = Database::getInstance();
+		const int64_t now = static_cast<int64_t>(time(nullptr));
+
+		db.executeQuery(fmt::format("DELETE FROM `ip_bans` WHERE `expires_at` <> 0 AND `expires_at` < {:d}", now));
+
+		size_t loaded = 0;
+		DBResult_ptr result = db.storeQuery(
+			"SELECT INET6_NTOA(`ip`) AS `address`, `reason`, `expires_at`, `banned_by` FROM `ip_bans`");
+		if (result) {
+			std::lock_guard<std::mutex> guard(banLock);
+			do {
+				boost::system::error_code ec;
+				const auto ip = boost::asio::ip::make_address(std::string(result->getString("address")), ec);
+				if (ec) {
+					continue;
+				}
+				BanInfo info;
+				info.expiresAt = result->getNumber<time_t>("expires_at");
+				info.reason = std::string(result->getString("reason"));
+				if (info.reason.empty()) {
+					info.reason = "(none)";
+				}
+				info.bannedBy = std::string(result->getString("banned_by"));
+				memoryBans[Connection::canonicalAddress(ip)] = std::move(info);
+				++loaded;
+			} while (result->next());
+		}
+		fmt::print(">> {} IP ban{} in force\n", loaded, loaded == 1 ? "" : "s");
 	}
 
 } // namespace IOBan

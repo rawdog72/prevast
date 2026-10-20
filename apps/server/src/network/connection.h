@@ -86,8 +86,19 @@ public:
 	void sendJSON(const boost::json::value& val);
 	void sendBinary(BinaryPayload_ptr payload);
 	void sendBinary(std::vector<uint8_t> payload);
+	// A buffer owned elsewhere and shared, unmodified, by many connections (the
+	// content tables). It still counts against this connection's queue, but not
+	// once per connection against the process-wide write memory, which is what
+	// a burst of reconnecting clients would otherwise exhaust.
+	void sendSharedBinary(BinaryPayload_ptr payload);
 
 	const Address& getIP() const { return remoteAddress; };
+
+	// The listener is dual-stack, so an IPv4 client arrives as IPv4-mapped IPv6
+	// (::ffff:a.b.c.d). Everything that keys on an address -- bans, per-IP caps,
+	// the status query's loopback exemption, logs -- uses this form instead, so
+	// the IPv4 address an admin types names the client the socket reports.
+	static Address canonicalAddress(const Address& address);
 
 	// Takes this connection out of the packet-per-second budget.
 	//
@@ -115,7 +126,7 @@ private:
 	void internalSendBinary(const BinaryPayload_ptr& payload);
 	void startWrite();
 	void clearWrites();
-	void enqueue(PayloadVariant payload);
+	void enqueue(PayloadVariant payload, bool sharedBuffer = false);
 
 	bool consumePacketToken();
 

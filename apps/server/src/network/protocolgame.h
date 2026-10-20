@@ -218,8 +218,8 @@ public:
 	// send paths honour that -- Protocol::sendJSON flushes first, and the only
 	// binary sender is flushBatch itself.
 	//
-	// Dispatcher thread only. Packet handlers hop to the dispatcher before they
-	// touch a player, so the batch needs no lock.
+	// Dispatcher thread only. Packets are parsed and handled there
+	// (Connection::onRead posts them), so the batch needs no lock.
 	void queueMessage(const NetworkMessage& msg);
 	void flushOutputBatch() const override;
 
@@ -285,7 +285,8 @@ public:
 	void sendAlertAndDisconnect(const std::string& text) const;
 
 	void sendContentManifest();
-	void sendContentTable(const std::string& name);
+	// False when this server has no such table.
+	bool sendContentTable(const std::string& name);
 	void sendContentPatch(const contentexport::ContentPatch& patch);
 
 private:
@@ -338,6 +339,9 @@ private:
 	bool acceptPackets = false;
 	bool isReconnecting = false;
 	ActionBudget chatBudget, inventoryBudget, craftBudget, pingBudget, tradeBudget, tradeRequestBudget, npcBudget, lookBudget;
+	// Content tables sent on request, counted per table: a request is a few
+	// bytes and its answer is up to a few hundred kilobytes.
+	ActionBudget contentBudget;
 
 	int64_t lastKeepAlive = 0; // last time anything reached this client
 

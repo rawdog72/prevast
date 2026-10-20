@@ -166,21 +166,14 @@ retry:
 
 std::string Database::escapeBlob(const char* s, uint32_t length) const
 {
-	// the worst case is 2n + 1
-	size_t maxLength = (length * 2) + 1;
-
-	std::string escaped;
-	escaped.reserve(maxLength + 2);
-	escaped.push_back('\'');
-
-	if (length != 0) {
-		char* output = new char[maxLength];
-		mysql_real_escape_string(handle.get(), output, s, length);
-		escaped.append(output);
-		delete[] output;
-	}
-
-	escaped.push_back('\'');
+	// Escaped in place: at worst 2n bytes plus the terminator the API writes,
+	// between the two quotes.
+	std::string escaped(static_cast<size_t>(length) * 2 + 3, '\0');
+	escaped[0] = '\'';
+	const size_t written = length == 0 ? 0
+		: static_cast<size_t>(mysql_real_escape_string(handle.get(), escaped.data() + 1, s, length));
+	escaped[1 + written] = '\'';
+	escaped.resize(written + 2);
 	return escaped;
 }
 

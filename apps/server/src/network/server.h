@@ -37,7 +37,7 @@ class ServicePort : public std::enable_shared_from_this<ServicePort>
 {
 public:
 	explicit ServicePort(boost::asio::io_context& io_context) :
-		io_context(io_context), strand(boost::asio::make_strand(io_context))
+		io_context(io_context), strand(boost::asio::make_strand(io_context)), acceptRetry(strand)
 	{}
 	~ServicePort();
 
@@ -65,6 +65,8 @@ private:
 	// the io_context: accept completions against each other, and against the
 	// close() that shutdown posts.
 	boost::asio::strand<boost::asio::io_context::executor_type> strand;
+	// Paces the next accept after a transient failure (see onAccept).
+	boost::asio::steady_timer acceptRetry;
 	std::unique_ptr<boost::asio::ip::tcp::acceptor> acceptor;
 	std::vector<Service_ptr> services;
 

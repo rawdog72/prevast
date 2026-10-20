@@ -5,6 +5,7 @@
 #define FS_CONTENTEXPORT_H
 
 #include <map>
+#include <memory>
 #include <mutex>
 #include <string>
 #include <vector>
@@ -57,8 +58,11 @@ public:
 
 	void init(const std::string& xmlDir, const std::string& configLuaPath);
 
-	std::string getManifestJson() const;
-	std::string getTableJson(const std::string& name) const;
+	// Serialized once per table version and shared, never per request: every
+	// client that connects asks for these, and a pre-login request may name a
+	// table as many times as it likes. Null when there is no such table.
+	std::shared_ptr<const std::string> getManifestJson() const;
+	std::shared_ptr<const std::string> getTableJson(const std::string& name) const;
 	std::string getCombinedHash() const;
 
 	std::vector<ContentPatch> reloadTable(const std::string& name, const std::string& xmlDir = "");
@@ -74,10 +78,17 @@ private:
 		uint32_t version = 1;
 		std::string hash;
 		boost::json::object table;
+		std::shared_ptr<const std::string> json; // `table`, serialized
 	};
+
+	// Stores or replaces a table and refreshes its serialized form. contentMutex held.
+	void storeTable(const std::string& name, uint32_t version, std::string hash, boost::json::object table);
+	// Rebuilds `manifestJson` from storedTables. contentMutex held.
+	void refreshManifest();
 
 	mutable std::mutex contentMutex;
 	std::map<std::string, StoredTable> storedTables;
+	std::shared_ptr<const std::string> manifestJson;
 	std::string xmlDirectory;
 	std::string configPath;
 };

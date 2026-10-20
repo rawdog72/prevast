@@ -155,6 +155,56 @@ std::string truncateUtf8(std::string str, size_t maxLength)
 	return str;
 }
 
+std::string sanitizeDisplayText(std::string_view text, bool stripInvisible)
+{
+	std::string out;
+	out.reserve(text.size());
+	size_t i = 0;
+	while (i < text.size()) {
+		const unsigned char lead = static_cast<unsigned char>(text[i]);
+		size_t length = 0;
+		uint32_t codepoint = 0;
+		if (lead < 0x80) {
+			length = 1;
+			codepoint = lead;
+		} else if (lead >= 0xC2 && lead <= 0xDF) {
+			length = 2;
+			codepoint = lead & 0x1F;
+		} else if (lead >= 0xE0 && lead <= 0xEF) {
+			length = 3;
+			codepoint = lead & 0x0F;
+		} else if (lead >= 0xF0 && lead <= 0xF4) {
+			length = 4;
+			codepoint = lead & 0x07;
+		}
+
+		bool valid = length != 0 && i + length <= text.size();
+		for (size_t k = 1; valid && k < length; ++k) {
+			const unsigned char next = static_cast<unsigned char>(text[i + k]);
+			valid = (next & 0xC0) == 0x80;
+			codepoint = (codepoint << 6) | (next & 0x3F);
+		}
+		// Overlong forms, UTF-16 surrogates and anything past U+10FFFF.
+		valid = valid && !(length == 3 && codepoint < 0x800) && !(length == 4 && codepoint < 0x10000) &&
+		        !(codepoint >= 0xD800 && codepoint <= 0xDFFF) && codepoint <= 0x10FFFF;
+		if (!valid) {
+			++i; // skip one byte and resynchronise on the next lead byte
+			continue;
+		}
+
+		const bool control = codepoint < 0x20 || (codepoint >= 0x7F && codepoint <= 0x9F);
+		const bool bidi = codepoint == 0x061C || codepoint == 0x200E || codepoint == 0x200F ||
+		                  (codepoint >= 0x202A && codepoint <= 0x202E) || (codepoint >= 0x2066 && codepoint <= 0x2069);
+		const bool invisible = codepoint == 0x00AD || (codepoint >= 0x200B && codepoint <= 0x200D) ||
+		                       (codepoint >= 0x2060 && codepoint <= 0x2064) || codepoint == 0xFEFF;
+		if (!control && !bidi && !(stripInvisible && invisible)) {
+			out.append(text.substr(i, length));
+		}
+		i += length;
+	}
+	return out;
+}
+
 int64_t OTSYS_TIME()
 {
 	return duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();

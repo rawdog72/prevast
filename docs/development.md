@@ -45,7 +45,7 @@ See [account operations](accounts.md) for SMTP, recovery, session controls and u
 - Behind a reverse proxy, set `TRUST_PROXY` to Express's `trust proxy` value (a hop count such as `1`, or addresses such as `loopback`). Without it every client shares the proxy's rate-limit budget and `req.secure` never sees the HTTPS. Leave it unset when clients connect directly, or they can spoof `X-Forwarded-For`.
 - `!setgroup` sends the account admin token, and progress sync sends the separate progress token, to `accountServiceUrl` over plain HTTP (the game server has no TLS). Keep that URL on loopback or a private network. Game-server environment overrides use `PREVAST_ACCOUNT_ADMIN_TOKEN` / `PREVAST_ACCOUNT_PROGRESS_TOKEN`; web-host credentials use `ACCOUNT_ADMIN_TOKEN` / `ACCOUNT_PROGRESS_TOKENS`.
 
-`useDatabase = false` is guests plus `adminPassword` only. Groups and command ranks are in `data/XML/groups.xml` and `data/XML/commands.xml`; `!reload=groups` applies edits live. `npm run server:selftest` checks ticket verification against `tests/fixtures/accounts` (regenerate with `npm run accounts:fixtures`).
+`useDatabase = false` is guests plus `adminPassword` only. `adminPassword` grants the highest group and has no built-in default (an empty or missing key disables it); five wrong tries lock an address out of it for 15 minutes. Groups and command ranks are in `data/XML/groups.xml` and `data/XML/commands.xml`; `!reload=groups` applies edits live. `npm run server:selftest` checks ticket verification against `tests/fixtures/accounts` (regenerate with `npm run accounts:fixtures`).
 
 ## Stress tests
 

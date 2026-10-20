@@ -436,7 +436,7 @@ void ContentManager::init(const std::string& xmlDir, const std::string& configLu
 		try {
 			json::object table = exportTable(spec, xmlDir + "/" + spec.file);
 			std::string hash = std::string(table.at("hash").as_string());
-			storedTables[spec.name] = StoredTable{spec.name, 1, hash, std::move(table)};
+			storeTable(spec.name, 1, std::move(hash), std::move(table));
 		} catch (const std::exception& e) {
 			fmt::print(fmt::fg(fmt::color::crimson) | fmt::emphasis::bold,
 				">> [ContentManager] Error exporting {}: {}\n", spec.name, e.what());
@@ -448,18 +448,28 @@ void ContentManager::init(const std::string& xmlDir, const std::string& configLu
 		try {
 			json::object cfg = exportConfigTable(configLuaPath, modesIt->second.table);
 			std::string hash = std::string(cfg.at("hash").as_string());
-			storedTables["config"] = StoredTable{"config", 1, hash, std::move(cfg)};
+			storeTable("config", 1, std::move(hash), std::move(cfg));
 		} catch (const std::exception& e) {
 			fmt::print(fmt::fg(fmt::color::crimson) | fmt::emphasis::bold,
 				">> [ContentManager] Error exporting config: {}\n", e.what());
 		}
 	}
+	refreshManifest();
 	fmt::print(">> [ContentManager] Loaded {} content tables\n", storedTables.size());
 }
 
-std::string ContentManager::getManifestJson() const
+void ContentManager::storeTable(const std::string& name, uint32_t version, std::string hash, json::object table)
 {
-	std::lock_guard<std::mutex> lock(contentMutex);
+	StoredTable& stored = storedTables[name];
+	stored.name = name;
+	stored.version = version;
+	stored.hash = std::move(hash);
+	stored.table = std::move(table);
+	stored.json = std::make_shared<const std::string>(json::serialize(stored.table));
+}
+
+void ContentManager::refreshManifest()
+{
 	json::object root;
 	root["protocol"] = 1;
 	json::object tablesObj;
@@ -470,15 +480,20 @@ std::string ContentManager::getManifestJson() const
 		tablesObj[name] = t;
 	}
 	root["tables"] = tablesObj;
-	return json::serialize(root);
+	manifestJson = std::make_shared<const std::string>(json::serialize(root));
 }
 
-std::string ContentManager::getTableJson(const std::string& name) const
+std::shared_ptr<const std::string> ContentManager::getManifestJson() const
+{
+	std::lock_guard<std::mutex> lock(contentMutex);
+	return manifestJson;
+}
+
+std::shared_ptr<const std::string> ContentManager::getTableJson(const std::string& name) const
 {
 	std::lock_guard<std::mutex> lock(contentMutex);
 	auto it = storedTables.find(name);
-	if (it == storedTables.end()) return {};
-	return json::serialize(it->second.table);
+	return it == storedTables.end() ? nullptr : it->second.json;
 }
 
 std::string ContentManager::getCombinedHash() const
@@ -508,9 +523,8 @@ std::vector<ContentPatch> ContentManager::reloadTable(const std::string& name, c
 				uint32_t toV = fromV + 1;
 				newTable["version"] = toV;
 				json::value patch = diffMergePatch(it->second.table.at("entries"), newTable.at("entries"));
-				it->second.version = toV;
-				it->second.hash = newHash;
-				it->second.table = newTable;
+				storeTable("config", toV, newHash, std::move(newTable));
+				refreshManifest();
 				patches.push_back(ContentPatch{"config", fromV, toV, newHash, std::move(patch)});
 			}
 		}
@@ -537,13 +551,13 @@ std::vector<ContentPatch> ContentManager::reloadTable(const std::string& name, c
 				uint32_t toV = fromV + 1;
 				newTable["version"] = toV;
 				json::value patch = diffMergePatch(it->second.table.at("entries"), newTable.at("entries"));
-				it->second.version = toV;
-				it->second.hash = newHash;
-				it->second.table = newTable;
+				storeTable(name, toV, newHash, std::move(newTable));
+				refreshManifest();
 				patches.push_back(ContentPatch{name, fromV, toV, newHash, std::move(patch)});
 			}
 		} else {
-			storedTables[name] = StoredTable{name, 1, newHash, newTable};
+			storeTable(name, 1, newHash, std::move(newTable));
+			refreshManifest();
 		}
 	} catch (const std::exception& e) {
 		fmt::print(">> [ContentManager] Reload failed for {}: {}\n", name, e.what());

@@ -24,6 +24,22 @@ extern Game g_game;
 // A damaging trap shakes the screen at most this often (see executeTrigger).
 static constexpr uint64_t TRAP_SHAKE_INTERVAL_MS = 1000;
 
+// Expires this object once its lifetime is up. Resolved again by id when the
+// timer fires, and only if the id still names the same object: entity ids go
+// back to the pool when an object is destroyed early and are handed out again,
+// so a timer holding the id alone could expire whatever was built under it
+// later.
+static void scheduleObjectExpiry(const Object& obj, uint32_t lifetimeMs)
+{
+	g_scheduler.addEvent(createSchedulerTask(lifetimeMs, [objId = obj.getID(), placedTime = obj.placedTime]() {
+		if (Thing* t = g_game.getThingByID(objId)) {
+			if (Object* o = t->getObject(); o && o->placedTime == placedTime) {
+				g_game.expireObject(o);
+			}
+		}
+	}));
+}
+
 // --- Object Entity ---
 
 Object::Object(const std::string& key) : key(key)
@@ -181,17 +197,7 @@ void Object::onCreatureEnter(Creature* c)
 			isTriggered = true;
 
 			if (od->lifetimeMs > 0 && od->startLifetimeOnTrigger) {
-				uint32_t objId = getID();
-				uint32_t lifetimeMs = od->lifetimeMs;
-				g_scheduler.addEvent(createSchedulerTask(lifetimeMs, [objId]() {
-					g_dispatcher.addTask([objId]() {
-						if (Thing* t = g_game.getThingByID(objId)) {
-							if (Object* o = t->getObject()) {
-								g_game.expireObject(o);
-							}
-						}
-					});
-				}));
+				scheduleObjectExpiry(*this, od->lifetimeMs);
 			}
 
 			EntityUpdate update;
@@ -495,7 +501,9 @@ bool Object::getCollisionRect(CollisionRect& rect) const
 	// 1. Calculate Rotated Dimensions
 	float w = static_cast<float>(od->width);
 	float h = static_cast<float>(od->height);
-	if (rotation == 1 || rotation == 3) {
+	// Odd quarter turns, the same test getFootprintTileReach and the alignment
+	// below (% 4) use: `== 1 || == 3` disagreed with both for rotation >= 4.
+	if ((rotation & 0x01) != 0) {
 		std::swap(w, h);
 	}
 	rect.halfWidth = w / 2.0f;
@@ -876,7 +884,9 @@ static void parseLogic(const pugi::xml_node& logicNode, ObjectData& od, const st
 	od.inputMask[2] = parseSideMask(logicNode.attribute("input_rot2").as_string());
 	od.inputMask[3] = parseSideMask(logicNode.attribute("input_rot3").as_string());
 
-	od.lampColorCount = static_cast<uint8_t>(std::max(1u, logicNode.attribute("colorCount").as_uint(7)));
+	// Clamped before the narrowing: colorCount="256" used to wrap to 0, the
+	// divisor of every lamp click.
+	od.lampColorCount = static_cast<uint8_t>(std::clamp(logicNode.attribute("colorCount").as_uint(7), 1u, 255u));
 	od.pulseIsOneShot = std::string(logicNode.attribute("pulseType").as_string("pulse")) == "pulse";
 	od.pulseDurationMs = logicNode.attribute("pulseDurationMs").as_uint(100);
 	od.platformDelayInMs = logicNode.attribute("platformDelayInMs").as_uint(500);
@@ -1481,16 +1491,7 @@ Object* ObjectManager::createObject(const std::string& key, const Position& pos,
 	}
 
 	if (od->lifetimeMs > 0 && !od->startLifetimeOnTrigger) {
-		uint32_t objId = obj->getID();
-		g_scheduler.addEvent(createSchedulerTask(od->lifetimeMs, [objId]() {
-			g_dispatcher.addTask([objId]() {
-				if (Thing* t = g_game.getThingByID(objId)) {
-					if (Object* o = t->getObject()) {
-						g_game.expireObject(o);
-					}
-				}
-			});
-		}));
+		scheduleObjectExpiry(*obj, od->lifetimeMs);
 	}
 
 	return obj;

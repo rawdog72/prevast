@@ -10,7 +10,18 @@ uint32_t Scheduler::addEvent(SchedulerTask* task)
 {
 	// check if the event has a valid id
 	if (task->getEventId() == 0) {
-		task->setEventId(++lastEventId);
+		// 0 means "no event" to every caller holding an id, so the counter must
+		// skip it when it wraps.
+		uint32_t id = ++lastEventId;
+		while (id == 0) {
+			id = ++lastEventId;
+		}
+		task->setEventId(id);
+	}
+
+	{
+		std::lock_guard lock(pendingLock);
+		pendingEvents.insert(task->getEventId());
 	}
 
 	boost::asio::post(io_context, [this, task]() {
@@ -24,13 +35,21 @@ uint32_t Scheduler::addEvent(SchedulerTask* task)
 
 			if (error == boost::asio::error::operation_aborted || getState() == THREAD_STATE_TERMINATED) {
 				// the timer has been manually canceled(timer->cancel()) or Scheduler::shutdown has been called
+				forgetEvent(task->getEventId());
 				delete task;
 				return;
 			}
 
-			g_dispatcher.addTask(task);
+			// Owned by the dispatcher task from here, so a dispatcher that is
+			// already shutting down (and drops the task) frees it too.
+			std::shared_ptr<SchedulerTask> owned(task);
+			g_dispatcher.addTask([this, owned]() {
+				if (claimEvent(owned->getEventId())) {
+					(*owned)();
+				}
 			});
 		});
+	});
 
 	return task->getEventId();
 }
@@ -41,13 +60,27 @@ void Scheduler::stopEvent(uint32_t eventId)
 		return;
 	}
 
+	forgetEvent(eventId);
+
 	boost::asio::post(io_context, [this, eventId]() {
 		// search the event id
 		auto it = eventIdTimerMap.find(eventId);
 		if (it != eventIdTimerMap.end()) {
 			it->second.cancel();
 		}
-		});
+	});
+}
+
+bool Scheduler::claimEvent(uint32_t eventId)
+{
+	std::lock_guard lock(pendingLock);
+	return pendingEvents.erase(eventId) != 0;
+}
+
+void Scheduler::forgetEvent(uint32_t eventId)
+{
+	std::lock_guard lock(pendingLock);
+	pendingEvents.erase(eventId);
 }
 
 void Scheduler::shutdown()
@@ -60,7 +93,7 @@ void Scheduler::shutdown()
 		}
 
 		io_context.stop();
-		});
+	});
 }
 
 SchedulerTask* createSchedulerTask(uint32_t delay, TaskFunc&& f) { return new SchedulerTask(delay, std::move(f)); }

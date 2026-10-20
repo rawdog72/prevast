@@ -573,13 +573,13 @@ struct ItemDrop {
 };
 
 struct AreaEffect {
-	uint16_t id;
+	uint16_t id = 0;
 	std::string type;
 	// Derived from `type`, never set by hand: every construction site runs it
 	// through noteAreaEffectReach, which is where this is filled in.
 	AreaEffectKind kind = AreaEffectKind::Other;
-	uint16_t strength;
-	uint16_t radius;   // circular pixel range, used only when `area` is absent
+	uint16_t strength = 0;
+	uint16_t radius = 0; // circular pixel range, used only when `area` is absent
 
 	// Tiles around the source's own tile, as a Chebyshev radius: 0 = that one
 	// tile and nothing else, 1 = 3x3, 2 = 5x5. Overrides `radius` whenever the

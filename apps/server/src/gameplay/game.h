@@ -1298,7 +1298,7 @@ private:
 
 	void adminTeleport(Player* player, const std::string& args);
 	void adminTeleportToPlayer(Player* player, const std::string& args);
-	void adminTeleportPlayerTo(const std::string& args);
+	void adminTeleportPlayerTo(Player* admin, const std::string& args);
 	void adminTeleportAll(Player* player, const std::string& args);
 	void adminAdvance(Player* player, const std::string& args);
 	void adminKick(Player* admin, const std::string& args);
@@ -1316,7 +1316,7 @@ private:
 	void adminBanPlayer(Player* admin, const std::string& args);
 	void adminBanAddress(Player* admin, const std::string& args);
 	void adminUnban(Player* admin, const std::string& args);
-	void adminSetKarma(const std::string& args);
+	void adminSetKarma(Player* admin, const std::string& args);
 	void adminQuest(Player* admin, const std::string& args);
 	void adminAchievement(Player* admin, const std::string& args);
 	void adminSetDayNight(const std::string& args);
@@ -1459,6 +1459,9 @@ private:
 
 	// Admin commands accept either a GUID or an internal player id.
 	Player* resolveAdminTarget(uint32_t id);
+	// True, after telling `admin`, when `target` outranks `admin`: staff do not
+	// use commands on their seniors. !kick and !ban refuse peers as well.
+	bool adminOutranked(Player* admin, const Player* target) const;
 
 	// The last top ten put on the wire, so an unchanged board is not resent.
 	// Kept as the values rather than the encoded frame: the comparison is what

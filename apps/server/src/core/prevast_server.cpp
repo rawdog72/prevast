@@ -659,6 +659,19 @@ namespace {
 				                      : "no-pvp (players cannot damage each other; raiding still allowed)");
 		}
 
+		// The emergency key grants the highest group from any address that types
+		// it. Wrong guesses are throttled per address (checkAdminPassword), which
+		// slows a guesser down but cannot make a short key long.
+		if (const std::string& adminPassword = getString(ConfigManager::ADMIN_PASSWORD); !adminPassword.empty()) {
+			if (adminPassword == "prevast") {
+				reportStartupWarning("adminPassword is \"prevast\", the old built-in default that anyone can look "
+					"up. Set a long random one (npm run setup generates one) or \"\" to disable it.");
+			} else if (adminPassword.size() < 12) {
+				reportStartupWarning("adminPassword is shorter than 12 characters. Use a long random one "
+					"(npm run setup generates one) or \"\" to disable it.");
+			}
+		}
+
 		if (getBoolean(ConfigManager::USE_DATABASE)) {
 			std::cout << ">> Establishing database connection..." << std::flush;
 
@@ -676,6 +689,7 @@ namespace {
 			g_databaseTasks.start();
 
 			IOBan::ensureIpBanTable();
+			IOBan::loadIpBans();
 
 			// useDatabase = true is the full account system, which is useless
 			// without the key to check tickets with -- refuse rather than run

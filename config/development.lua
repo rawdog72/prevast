@@ -167,6 +167,9 @@ ip = "127.0.0.1"
 bindOnlyGlobalAddress = false
 gameProtocolPort = 8172
 statusProtocolPort = 8171
+-- Emergency admin key: logging in with it grants the highest group. "" disables
+-- it; npm run setup fills in a random one. Five wrong tries from one address
+-- lock that address out of it for 15 minutes.
 adminPassword = ""
 httpPort = 8180
 httpWorkers = 1

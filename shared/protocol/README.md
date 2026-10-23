@@ -20,7 +20,7 @@ a generated schema.
 
 - Change both sides in the same change, and bump `CLIENT_VERSION_MIN/MAX` in
   `apps/server/src/core/definitions.h` together with `PROTOCOL_VERSION` in
-  `opcodes.ts`. The current version is **1418**. A client of another version
+  `opcodes.ts`. The current version is **1423**. A client of another version
   is refused with `ALERT`, which every version can decode.
 - Preserve batching, integer widths, IDs and message ordering. Wire enums
   (`DisconnectReason`, `ChatChannel`, `QuestCause`, `ModSlot` and the rest)

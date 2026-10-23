@@ -123,6 +123,20 @@ export function buildAimMessage(held: boolean): Uint8Array {
   return new Uint8Array([ClientOpcode.AIM, held ? 1 : 0]);
 }
 
+/**
+ * [THROW_TARGET][i16 dx][i16 dy]: where the throw marker is, from the player's
+ * centre; sent right before the release. The server throws that way and that
+ * far (clamped to the weapon), so the grenade lands where the marker was.
+ */
+export function buildThrowTargetMessage(dx: number, dy: number): Uint8Array {
+  const i16 = (v: number) => Math.max(-0x8000, Math.min(0x7fff, Math.round(v)));
+  const w = new BinaryWriter();
+  w.u8(ClientOpcode.THROW_TARGET);
+  w.i16(i16(dx));
+  w.i16(i16(dy));
+  return w.build();
+}
+
 export function buildEquipItemMessage(iid: number, uid: number, count = 0, ammo = 0): Uint8Array {
   const w = new BinaryWriter();
   w.u8(ClientOpcode.EQUIP_ITEM);

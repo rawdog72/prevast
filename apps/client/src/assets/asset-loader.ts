@@ -20,7 +20,9 @@
 //     HTTP-cache trickle ('low') only runs when nothing else is waiting;
 //   - the manifest (built from public/img at build time) versions URLs so
 //     the host can serve them immutable, and lets us skip names that do not
-//     exist instead of 404ing.
+//     exist instead of 404ing;
+//   - project art may ship only its day picture: the manifest names the night
+//     sprite `from` that day file and the decoder darkens it (nightPixels).
 import type { ContentStore } from '../content/store';
 
 /** What the renderers draw. `image` is an ImageBitmap where supported. */
@@ -45,6 +47,11 @@ export interface SpriteDecoder {
   decode(url: string, priority: LoadPriority): Promise<DecodedImage>;
   /** Fetches without decoding so a later load is an HTTP-cache hit. Optional. */
   prefetch?(url: string): Promise<void>;
+  /**
+   * The night palette of a decoded day picture (nightPixels), for a manifest
+   * night entry with `from`. Without it the day picture is used as it is.
+   */
+  night?(decoded: DecodedImage, dim: number): Promise<DecodedImage>;
 }
 
 export interface SpriteManifestEntry {
@@ -52,6 +59,10 @@ export interface SpriteManifestEntry {
   h: number;
   /** Content hash: appended as `?v=` so the URL can be cached forever. */
   v: string;
+  /** No file of its own: the night palette of this day sprite (tools/assets/sprite-manifest.ts). */
+  from?: string;
+  /** That night sprite's brightness, 0..1 of the day one. */
+  dim?: number;
 }
 
 export type SpriteManifest = Record<string, SpriteManifestEntry>;
@@ -129,6 +140,28 @@ function dayVariant(name: string): string | undefined {
   return name.startsWith('night-') ? `day-${name.slice(6)}` : undefined;
 }
 
+/**
+ * The night palette, in place on RGBA pixels: a little desaturated, `dim` as
+ * bright and tinted blue, alpha kept. The same formula draws the project's
+ * own night art (tools/assets/molotov-art.py), so made and drawn night
+ * sprites match.
+ */
+export function nightPixels(data: Uint8ClampedArray, dim: number): void {
+  // The blue cast deepens as the picture darkens: (0, 3, 10) at 0.42, (0, 2, 6) at 0.66.
+  const cast = Math.max(0, 1 - dim) / 0.58;
+  const tg = 3 * cast;
+  const tb = 10 * cast;
+  for (let i = 0; i < data.length; i += 4) {
+    const r = data[i];
+    const g = data[i + 1];
+    const b = data[i + 2];
+    const grey = 0.4 * (0.3 * r + 0.59 * g + 0.11 * b);
+    data[i] = (r * 0.6 + grey) * dim;
+    data[i + 1] = (g * 0.6 + grey) * dim + tg;
+    data[i + 2] = (b * 0.6 + grey) * dim + tb;
+  }
+}
+
 const PRIORITY_RANK: Record<LoadPriority, number> = { high: 0, normal: 1, low: 2 };
 
 /**
@@ -164,6 +197,28 @@ export function browserSpriteDecoder(): SpriteDecoder {
       });
       if (typeof img.decode === 'function') await img.decode().catch(() => undefined);
       return { image: img, width: img.naturalWidth, height: img.naturalHeight };
+    },
+    async night(decoded, dim) {
+      const { width, height } = decoded;
+      const canvas: OffscreenCanvas | HTMLCanvasElement | null =
+        typeof OffscreenCanvas !== 'undefined'
+          ? new OffscreenCanvas(width, height)
+          : typeof document !== 'undefined'
+            ? Object.assign(document.createElement('canvas'), { width, height })
+            : null;
+      const ctx = canvas?.getContext('2d', { willReadFrequently: true }) as
+        OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D | null | undefined;
+      if (!canvas || !ctx) return decoded;
+      ctx.drawImage(decoded.image, 0, 0);
+      const pixels = ctx.getImageData(0, 0, width, height);
+      nightPixels(pixels.data, dim);
+      ctx.putImageData(pixels, 0, 0);
+      decoded.close?.();
+      if (typeof createImageBitmap === 'function') {
+        const bitmap = await createImageBitmap(canvas);
+        return { image: bitmap, width, height, close: () => bitmap.close() };
+      }
+      return { image: canvas, width, height };
     },
     async prefetch(url) {
       if (typeof fetch !== 'function') return;
@@ -248,9 +303,11 @@ export class AssetLoader {
     this.memoryBudgetBytes = bytes;
   }
 
+  /** Where a sprite's picture is: a derived night sprite is fetched as its day file. */
   spriteUrl(name: string): string {
-    const v = this.manifest?.[name]?.v;
-    return `${this.basePath}${name}.png${v ? `?v=${v}` : ''}`;
+    const entry = this.manifest?.[name];
+    const v = entry?.v;
+    return `${this.basePath}${entry?.from ?? name}.png${v ? `?v=${v}` : ''}`;
   }
 
   /**
@@ -514,8 +571,12 @@ export class AssetLoader {
     if (low) this.inflightLow++;
     else this.inflightHigh++;
     const t0 = typeof performance !== 'undefined' ? performance.now() : 0;
+    const entry = this.manifest?.[e.name];
+    const night =
+      entry?.from && this.decoder.night ? this.decoder.night.bind(this.decoder) : undefined;
     this.decoder
       .decode(this.spriteUrl(e.name), e.priority)
+      .then((decoded) => (night ? night(decoded, entry?.dim ?? 0.42) : decoded))
       .then(
         (decoded) => {
           this.stats.decoded++;

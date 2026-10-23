@@ -13,6 +13,7 @@
 #include "gameplay/trade.h"
 #include "network/opcodes.h"
 #include "gameplay/npc.h"
+#include "gameplay/scenery_geometry.h"
 #include "world/scenario_world.h"
 
 #include <span>
@@ -26,6 +27,10 @@ struct AgentAbility;
 struct AgentData;
 struct AgentTarget;
 struct ProjectileData;
+struct ProjectileFragments;
+struct ProjectileCloud;
+struct ActiveCloud;
+enum class AgentDamageKind : uint8_t;
 struct EquipableData;
 struct ObjectData;
 struct ObjectStage;
@@ -830,23 +835,58 @@ public:
 	// (Game::updateMovement removes them from the old tile before calling
 	// onCreatureLeave), so a trap firing on leave would otherwise deny the
 	// victim their own hit flash -- the same gap that produced the landmine bug.
-	void broadcastToWatchers(const NetworkMessage& msg, const Position& pos, Player* subject = nullptr);
+	//
+	// `throughSmoke`: whether the event is seen through smoke. False for what
+	// reveals a creature (a hit flash, a damage number); true for what is no
+	// secret anyway (a frag going off, a cloud itself). See smokeHides.
+	void broadcastToWatchers(const NetworkMessage& msg, const Position& pos, Player* subject = nullptr,
+	                         bool throughSmoke = false);
 
 	// Same recipients, same sharing, but never dropped: for a message that says
 	// what something IS rather than what happened to it. See the implementation
 	// for why the event frame budget is wrong for those.
-	void broadcastStateToWatchers(const NetworkMessage& msg, const Position& pos, Player* subject = nullptr);
+	void broadcastStateToWatchers(const NetworkMessage& msg, const Position& pos, Player* subject = nullptr,
+	                              bool throughSmoke = false);
 
 	// `onHit` is what the blast inflicts on every CREATURE it catches (players
 	// and agents alike), from <explosion><onHit/></explosion>. Passed by pointer
 	// so the many existing call sites that have nothing to inflict stay as they
 	// are; nullptr means damage and knockback only.
+	//
+	// `throughWall` is the share of damage, knockback and condition chance that
+	// reaches a creature with scenery between it and the blast (<explosion
+	// throughWall>): 0 = cover protects completely, 1 = walls do not matter.
+	// Buildings are never sheltered. See isBlastOccluded.
 	void executeExplosion(const Position& pos, uint16_t radius, uint16_t area, uint32_t playerDamage, uint32_t buildingDamage, float knockback, uint32_t attackerId,
-	                      const ConditionApplication* onHit = nullptr);
+	                      const ConditionApplication* onHit = nullptr, float throughWall = 0.0f);
+	// The scenery that can shelter creatures from one blast, gathered once per
+	// blast, and whether any of it stands between the blast at `origin` and a
+	// creature at `target`. See executeExplosion.
+	struct BlastCover {
+		scenery_geometry::Shape shape;
+		float minX = 0.0f, minY = 0.0f, maxX = 0.0f, maxY = 0.0f;
+	};
+	void gatherBlastCover(int32_t tileX, int32_t tileY, int32_t reachTiles, std::vector<BlastCover>& out);
+	static bool isBlastOccluded(const std::vector<BlastCover>& cover, const Position& origin, const Position& target);
 	// Splash damage applied later and resolved by ID, so a target destroyed by
 	// an earlier blast in the same chain is simply not found. `impactAngle` is
 	// the 0..31 hit direction the non-player damage paths use.
 	void scheduleExplosionDamage(uint32_t targetId, uint32_t damage, uint32_t attackerId, uint32_t delayMs, uint8_t impactAngle = 0);
+	// The same, for damage of another kind: an agent resists shrapnel as the
+	// piercing damage it is, not as a blast.
+	void scheduleSplashDamage(uint32_t targetId, uint32_t damage, uint32_t attackerId, uint32_t delayMs,
+	                          uint8_t impactAngle, AgentDamageKind kind);
+
+	// Everything a projectile does where it goes off: its <explosion>, its
+	// <fragments>, its <cloud>. The ONE detonation path, for a grenade that
+	// lands and for one held until it goes off in the hand, so the two cannot
+	// drift apart.
+	void detonateProjectile(const ProjectileData& pdata, const Position& pos, uint32_t attackerId);
+	// A frag's fragments: real projectiles fired out of the blast; see
+	// ProjectileFragments.
+	void fireFragments(const Position& pos, const ProjectileFragments& fragments, uint32_t attackerId);
+	// A gas (later smoke, fire) cloud where something went off; see ProjectileCloud.
+	void spawnCloud(const Position& pos, const ProjectileCloud& cloud, uint32_t attackerId);
 
 	// --- On-hit effects ------------------------------------------------------
 	//
@@ -896,9 +936,27 @@ public:
 	// is the other half of the create/retract pair that has to agree on it.
 	int32_t projectileViewRange() const;
 
+	// A new projectile's creation record, to every one of `spectators` who can
+	// see its path, recording who was told (Projectile::markSentTo) -- the set
+	// every later record about it goes to. Through smoke, a watcher is shown it
+	// from the first point they can see; `owner` (the shooter) always sees
+	// their own shot whole. Shared by guns, throws and a frag's fragments, so
+	// none of them can drift from the retract path.
+	void announceProjectile(Projectile& projectile, const std::vector<Player*>& spectators, const Creature* owner);
+	// A grenade is about for seconds -- in flight, then lying where it landed --
+	// so the players told about it at the throw are not the only ones who will
+	// see it. Tells anyone now in range who was not told yet, adding them to
+	// the recorded set every later record goes to. Called every tick for a live
+	// grenade; see the definition.
+	void introduceProjectile(Projectile& projectile);
+
 	void applyProjectilePayload(Projectile* projectile, const ProjectileData* pdata, const Position& pos);
 	void destroyProjectileAfterHit(Projectile* projectile, const ProjectileData* pdata, const Position& hitPos);
 	bool parkProjectileOnImpact(Projectile* projectile, const ProjectileData* pdata, const Position& hitPos);
+	// A grenade meeting a wall, rock or tree: glance off it per <bounce>, or
+	// return false to let the caller park it there. See the definition.
+	bool tryBounceProjectile(Projectile& projectile, const ProjectileData* pdata, Thing* hitTarget,
+	                         const Position& oldPos, float hitX, float hitY);
 
 	void updateMovement();
 	void updateAgents();
@@ -909,6 +967,31 @@ public:
 	// targeting machinery is not.
 	void agentProvoked(Agent* agent, Thing* attacker);
 	void updateProjectiles(uint32_t elapsedMs);
+	// Grows, ticks and retires the live clouds; once per movement tick.
+	void updateClouds(uint32_t elapsedMs);
+	void applyCloudTick(const ActiveCloud& cloud);
+	void sendCloud(const ActiveCloud& cloud);
+	// Whether a cloud cannot spread onto this tile: off the map, or a wall or
+	// closed door covers its middle.
+	bool isCloudBlockedTile(int32_t tileX, int32_t tileY);
+	// Keeps the smoke grid in step with what a vision-blocking cloud covers now.
+	void syncCloudSmoke(ActiveCloud& cloud, bool ending);
+	// The smoke box (smokeMin*/smokeMax*) from the tiles still counted.
+	void recomputeSmokeBox();
+
+	// Whether smoke stands between a viewer and a target, by the rule in
+	// smoke_sight.h. Free when there is no smoke anywhere. Every path that tells
+	// a client where a creature is asks this: the visibility scan, surgical
+	// updates, cosmetic events, bullets fired out of smoke, and agents choosing
+	// whom to chase.
+	bool smokeHides(const Position& viewer, const Position& target) const;
+	// The first point of a projectile's path `viewer` can see through smoke,
+	// for a tracer that comes out of a cloud; false if none.
+	bool firstVisibleThroughSmoke(const Position& viewer, const Position& from, const Position& to, Position& out) const;
+	// Cheap pre-reject: whether any smoke lies in the box spanning two points.
+	bool smokeNear(const Position& a, const Position& b) const;
+	bool isSmokeTile(int32_t tileX, int32_t tileY) const;
+
 	void addProjectile(std::unique_ptr<Projectile> p);
 	bool findClosestObstacleHit(const Creature* shooter, const Position& startPos, const Position& endPos, Position& hitPos);
 	void updateStations();
@@ -1041,10 +1124,27 @@ private:
 	void pruneGuestRewards();
 
 	std::vector<std::unique_ptr<Projectile>> projectiles;
+	// Scratch for fireFragments: the scenery at the blast, and who can see it.
+	std::vector<Thing*> fragmentScenery;
+	std::vector<Player*> fragmentSpectators;
+	// Scratch for introduceProjectile.
+	std::vector<Player*> introduceCandidates;
 	std::vector<std::unique_ptr<Projectile>> freeProjectiles;
 	
 	// Scratch space for findClosestObstacleHit
 	std::vector<Thing*> projectileCandidates;
+
+	// Live clouds (spawnCloud), and the id the next one gets on the wire.
+	std::vector<std::unique_ptr<ActiveCloud>> clouds;
+	uint16_t nextCloudId = 1;
+
+	// How many vision-blocking clouds cover each tile, one byte per map tile,
+	// allocated the first time smoke appears. smokeTiles counts the covered
+	// tiles so "no smoke anywhere" costs one compare, and the box bounds where
+	// any has been since the grid was last empty.
+	std::vector<uint8_t> smokeGrid;
+	uint32_t smokeTiles = 0;
+	int32_t smokeMinX = 0, smokeMinY = 0, smokeMaxX = -1, smokeMaxY = -1;
 
 	// Scratch for broadcastSurgicalUpdate's candidate list. A member rather
 	// than a local so the allocation is reused: the hot callers fire several
@@ -1054,7 +1154,8 @@ private:
 
 	// The shared body of broadcastToWatchers and broadcastStateToWatchers; a
 	// frameBudget of 0 means every recipient gets it.
-	void fanOutToWatchers(const NetworkMessage& msg, const Position& pos, Player* subject, int32_t frameBudget);
+	void fanOutToWatchers(const NetworkMessage& msg, const Position& pos, Player* subject, int32_t frameBudget,
+	                      bool throughSmoke);
 
 	// Separate scratch for broadcastToWatchers. Deliberately NOT shared with
 	// surgicalSpectators: the two are leaf calls today, but one growing a call

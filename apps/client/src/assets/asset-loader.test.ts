@@ -5,7 +5,13 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { CONTENT_TABLES, type ContentTable } from '../../../../shared/typescript/content-format';
 import { ContentStore } from '../content/store';
-import { AssetLoader, skinArmIndex, type DecodedImage, type SpriteDecoder } from './asset-loader';
+import {
+  AssetLoader,
+  nightPixels,
+  skinArmIndex,
+  type DecodedImage,
+  type SpriteDecoder,
+} from './asset-loader';
 
 /**
  * A decoder that resolves by hand: `finish(name)` completes a request in
@@ -194,6 +200,45 @@ describe('AssetLoader', () => {
     loader.setManifest({ 'day-wood1': { w: 10, h: 10, v: 'c0ffee' } });
     await loader.load('day-wood1');
     expect(urls).toEqual(['/img/day-wood1.png?v=c0ffee']);
+  });
+
+  it('makes a derived night sprite from its day file, darkened once by the decoder', async () => {
+    const urls: string[] = [];
+    const dims: number[] = [];
+    const decoder: SpriteDecoder = {
+      decode: async (url) => {
+        urls.push(url);
+        return { image: { tag: 'day' } as unknown as CanvasImageSource, width: 4, height: 2 };
+      },
+      night: async (decoded, dim) => {
+        dims.push(dim);
+        return { ...decoded, image: { tag: 'night' } as unknown as CanvasImageSource };
+      },
+    };
+    const loader = new AssetLoader({ decoder, basePath: '/img/' });
+    loader.setManifest({
+      'day-hand-thing': { w: 4, h: 2, v: 'abc' },
+      'night-hand-thing': { w: 4, h: 2, v: 'abc', from: 'day-hand-thing', dim: 0.42 },
+    });
+    expect(loader.spriteUrl('night-hand-thing')).toBe('/img/day-hand-thing.png?v=abc');
+    const night = await loader.load('night-hand-thing');
+    const day = await loader.load('day-hand-thing');
+    expect(urls).toEqual(['/img/day-hand-thing.png?v=abc', '/img/day-hand-thing.png?v=abc']);
+    expect(dims).toEqual([0.42]);
+    expect((night.image as unknown as { tag: string }).tag).toBe('night');
+    expect((day.image as unknown as { tag: string }).tag).toBe('day');
+    expect(loader.get('day-hand-thing', true)).toBe(night);
+  });
+
+  it('nightPixels darkens and cools a picture and keeps its alpha', () => {
+    const px = new Uint8ClampedArray([200, 180, 60, 255, 0, 0, 0, 0]);
+    nightPixels(px, 0.42);
+    expect(Array.from(px.slice(0, 4))).toEqual([79, 77, 54, 255]);
+    expect(px[7]).toBe(0);
+    const ground = new Uint8ClampedArray([200, 180, 60, 255]);
+    nightPixels(ground, 0.66);
+    expect(ground[0]).toBeGreaterThan(px[0]);
+    expect(ground[3]).toBe(255);
   });
 
   it('evicts the least recently used unpinned sprites once over the memory budget, never recent or pinned ones', async () => {

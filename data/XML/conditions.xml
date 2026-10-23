@@ -255,6 +255,38 @@
         </stage>
     </condition>
 
+    <!-- Choking: breathing a gas grenade's cloud. The cloud re-applies it every
+         tick (<cloud tickMs> in projectiles.xml) while you stand in it, so it is
+         short and ends soon after you walk out. It carries only the slow and the
+         green screen; the cloud deals its damage itself, because a refresh
+         restarts a <healthTick>. Resisted by <modifier key="chokingResistance">
+         on a wearable; the damage by gasResistance. Tagged poison, so anything
+         that cures poison clears it. -->
+    <condition key="choking" name="Choking" tags="gas,poison" removeOnDeath="true">
+        <stacking mode="refresh"/>
+        <stage key="active" durationMs="1000">
+            <modifiers>
+                <speed multiplier="0.8"/>
+            </modifiers>
+            <visuals poisonScreenEffect="true"/>
+        </stage>
+    </condition>
+
+    <!-- Burning: what a molotov's fire leaves on you. The fire re-applies it
+         every tick (<cloud tickMs>) while you stand in it and deals its own
+         damage meanwhile; a re-application restarts the healthTick below, so
+         it never fires while you are in the flames. Step out and it runs its
+         course: the afterburn. Resisted by <modifier key="burningResistance">
+         on a wearable; the fire's own damage by fireResistance. -->
+    <condition key="burning" name="Burning" tags="fire" removeOnDeath="true">
+        <stacking mode="refresh"/>
+        <stage key="active" durationMs="3000">
+            <modifiers>
+                <healthTick amount="-5" intervalMs="1000"/>
+            </modifiers>
+        </stage>
+    </condition>
+
     <!-- Slowed: the plain "you got caught in something" movement penalty. A
          blast wave, a gas cloud, a net. No control bits - you can still run,
          you are just worse at it - which is what makes it the right thing for

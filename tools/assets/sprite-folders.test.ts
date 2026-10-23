@@ -41,6 +41,27 @@ describe('buildSpriteManifest', () => {
     expect(manifest['only-original']).toMatchObject({ w: 3, h: 5 });
   });
 
+  it("derives a night entry for the project's day art that has no night file", () => {
+    writeFileSync(join(ours, 'day-hand-thing.png'), png(6, 4, 10));
+    writeFileSync(join(ours, 'day-ground-thing.png'), png(6, 4, 10));
+    writeFileSync(join(ours, 'day-lit.png'), png(2, 2, 10));
+    writeFileSync(join(ours, 'night-lit.png'), png(2, 2, 5));
+    writeFileSync(join(originals, 'day-old.png'), png(2, 2, 10));
+    const out = join(root, 'out', 'sprite-manifest.json');
+
+    buildSpriteManifest([ours, originals], out);
+    const manifest = JSON.parse(readFileSync(out, 'utf8'));
+    expect(manifest['night-hand-thing']).toEqual({
+      ...manifest['day-hand-thing'],
+      from: 'day-hand-thing',
+      dim: 0.42,
+    });
+    expect(manifest['night-ground-thing']).toMatchObject({ from: 'day-ground-thing', dim: 0.66 });
+    // A real night file wins; original art is never derived.
+    expect(manifest['night-lit'].from).toBeUndefined();
+    expect(manifest['night-old']).toBeUndefined();
+  });
+
   it('skips a folder that does not exist', () => {
     writeFileSync(join(ours, 'a.png'), png(1, 1, 0));
     const out = join(root, 'out', 'sprite-manifest.json');

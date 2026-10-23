@@ -43,6 +43,7 @@ enum class ClientOp : uint8_t {
 	SPRINT = 15,
 	AIM = 16,
 	RELOAD = 17,
+	THROW_TARGET = 18,
 
 	// Items
 	EQUIP_ITEM = 20,
@@ -128,6 +129,7 @@ enum class ServerOp : uint8_t {
 	PLAYER_HEALED = 29,
 	PLAYER_ATE = 30,
 	PLAYER_DIED = 31,
+	AREA_EFFECT = 33,
 
 	// Players
 	PLAYER_INFO = 40,
@@ -156,6 +158,7 @@ enum class ServerOp : uint8_t {
 	AIM_STATE = 65,
 	INTERACTION_STARTED = 66,
 	INTERACTION_CANCELLED = 67,
+	COOK_STATE = 68,
 
 	// Inventory
 	INVENTORY = 80,

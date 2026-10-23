@@ -391,6 +391,87 @@ describe('GameRenderer', () => {
     expect(plate).toBeGreaterThan(head);
   });
 
+  it('rolls a render="tumble" grenade with the ground it covers, one sprite and a drawn streak', async () => {
+    const hand = 'day-hand-frag-grenade';
+    const store = new ContentStore();
+    for (const name of CONTENT_TABLES) {
+      const table = fixture(name);
+      if (name === 'projectiles') {
+        const entries = table.entries as Record<string, Record<string, unknown>>;
+        entries.granade = {
+          ...entries.granade,
+          client: {
+            render: 'tumble',
+            roll: 20,
+            frame: [0, 1, 2].map((index) => ({ index, sprite: hand })),
+          },
+        };
+      }
+      store.load(table);
+    }
+    const world = new WorldState();
+    world.ownGuid = 1;
+    world.entities.processUnits([
+      {
+        pid: 0,
+        id: 11,
+        type: EntityType.BULLET,
+        rotation: 0,
+        state: 1,
+        startX: 500,
+        startY: 500,
+        endX: 700,
+        endY: 500,
+        extra: 8, // granade
+      },
+    ]);
+    const camera = new Camera({ viewportWidth: 800, viewportHeight: 600 });
+    camera.update(500, 500);
+    const assets = await loadedAssets([hand]);
+    const { ctx } = createMockContext();
+    const rotations: number[] = [];
+    let gradients = 0;
+    Object.assign(ctx, {
+      rotate: (a: number) => rotations.push(a),
+      createLinearGradient: () => {
+        gradients++;
+        return { addColorStop: () => {} };
+      },
+      beginPath: () => {},
+      moveTo: () => {},
+      lineTo: () => {},
+      quadraticCurveTo: () => {},
+      closePath: () => {},
+      fill: () => {},
+    });
+    const draws = drawnImages(ctx);
+    const renderer = new GameRenderer();
+    const grenade = world.entities.get(0, 11)!;
+    const frame = (x: number, t: number) => {
+      grenade.x = x;
+      rotations.length = 0;
+      draws.length = 0;
+      renderer.render({ ctx, camera, world, content: store, assets, timeMs: t });
+      return rotations[rotations.length - 1];
+    };
+
+    const first = frame(500, 1000);
+    expect(draws.filter((d) => d.url.includes(hand))).toHaveLength(1);
+    expect(draws.some((d) => d.url.includes('day-grenade'))).toBe(false);
+    expect(gradients).toBe(0); // not moving yet: no streak
+    // 40 units in 100 ms: turned 40 / roll radians, streak behind it.
+    const second = frame(540, 1100);
+    expect(second - first).toBeCloseTo(2, 5);
+    expect(gradients).toBe(1);
+    // Come to rest: no more turning, the streak fades out.
+    let last = second;
+    for (let t = 1200; t <= 2000; t += 100) last = frame(540, t);
+    expect(last).toBeCloseTo(second, 5);
+    gradients = 0;
+    frame(540, 2100);
+    expect(gradients).toBe(0);
+  });
+
   it('draws the correct projectile sprite in flight and on landing', async () => {
     const store = new ContentStore();
     for (const name of CONTENT_TABLES) store.load(fixture(name));

@@ -9,6 +9,7 @@
 // the hurt / heal / eat overlays and the death fade. Pure reader: all state
 // lives in CharacterAnimator and WorldState.
 
+import { drawRagFlame } from './fire';
 import { skinArmIndex, type AssetLoader } from '../assets/asset-loader';
 import { wearableClientFor } from './player-marker';
 import type { ContentStore } from '../content/store';
@@ -74,6 +75,8 @@ interface EquipClient {
   pencil?: string;
   held?: Held;
   projectileHeld?: Held;
+  /** A flame on the held item (a molotov's rag), in the same frame as `held`: drawn live, always upright. */
+  flame?: { x: number; y: number; size?: number };
   rightArm?: Limb;
   leftArm?: Limb;
 }
@@ -133,6 +136,7 @@ export class CharacterRenderer {
   private ctx!: CanvasRenderingContext2D;
   private assets!: AssetLoader;
   private isNight = false;
+  private timeMs = 0;
   /** When set, the primitives only ask the loader to warm the sprite instead of drawing. */
   private warmOnly = false;
 
@@ -191,6 +195,7 @@ export class CharacterRenderer {
     this.ctx = rc.ctx;
     this.assets = rc.assets;
     this.isNight = rc.isNight;
+    this.timeMs = rc.timeMs;
 
     const playerInfo =
       entity.type === EntityType.PLAYER ? rc.world.players.get(entity.pid) : undefined;
@@ -591,6 +596,16 @@ export class CharacterRenderer {
         held.y ?? 0,
         scale,
       );
+    }
+    const flame = client.flame;
+    if (flame && !this.warmOnly) {
+      // Where the rag is, turned with the player; the flame itself stays upright.
+      const fx = (flame.x + m.move * m.orient + m.breathWeapon + rightX) * scale;
+      const fy = flame.y * scale;
+      const angle = (held?.angle ?? 0) + A;
+      const c = Math.cos(angle);
+      const sn = Math.sin(angle);
+      drawRagFlame(this.ctx, fx * c - fy * sn, fx * sn + fy * c, (flame.size ?? 24) * scale, this.timeMs, _entity.id);
     }
   }
 

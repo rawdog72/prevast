@@ -1735,7 +1735,7 @@
 			<loot id="113" sprite="day-ground-laser-submachine" scale="0.8" angle="0" amount="1"/>
 		</client>
 	</item>
-	<item clientItemId="113" key="granade" name="Grenade">
+	<item clientItemId="113" key="granade" name="Offensive Grenade">
 		<properties stack="10" lootId="114" score="0"/>
 		<equipable key="granade" equipTimeMs="1000"/>
 		<skill type="weapon" requiredLevel="10" skillCost="1"/>
@@ -1750,8 +1750,8 @@
 				<station key="research_bench" timeMs="30000" />
 			</stations>
 		</crafting>
-		<client icon="inv-grenade" description="Throw it and it explodes.">
-			<loot id="114" sprite="day-ground-grenade" scale="0.8" angle="0" amount="1"/>
+		<client icon="inv-offensive-grenade" description="A big blast that throws people around. Nothing flies far from it.">
+			<loot id="114" sprite="day-ground-offensive-grenade" scale="0.8" angle="0" amount="1"/>
 		</client>
 	</item>
 	<item clientItemId="114" key="super_hammer" name="Super Hammer">
@@ -2709,6 +2709,81 @@
     </crafting>
     <client icon="inv-handguard-vented" description="Slightly tighter hip fire.">
       <loot id="177" sprite="day-ground-handguard-vented" scale="0.6" angle="0" amount="1"/>
+    </client>
+  </item>
+  <item clientItemId="185" key="frag_grenade" name="Frag Grenade">
+    <properties stack="10" lootId="178" score="0"/>
+    <equipable key="frag_grenade" equipTimeMs="1000"/>
+    <skill type="weapon" requiredLevel="12" skillCost="1" prerequisite="granade"/>
+    <crafting yield="2">
+      <recipe>
+        <ingredient itemKey="junk" amount="2" />
+        <ingredient itemKey="sulfur" amount="2" />
+        <ingredient itemKey="animal_fat" amount="2" />
+        <ingredient itemKey="shaped_metal" amount="4" />
+      </recipe>
+      <stations>
+        <station key="research_bench" timeMs="30000" />
+      </stations>
+    </crafting>
+    <client icon="inv-frag-grenade" description="Throws fragments in every direction. Anything solid stops them.">
+      <loot id="178" sprite="day-ground-frag-grenade" scale="0.8" angle="0" amount="1"/>
+    </client>
+  </item>
+  <item clientItemId="186" key="gas_grenade" name="Gas Grenade">
+    <properties stack="10" lootId="179" score="0"/>
+    <equipable key="gas_grenade" equipTimeMs="1000"/>
+    <skill type="weapon" requiredLevel="14" skillCost="1" prerequisite="granade"/>
+    <crafting yield="2">
+      <recipe>
+        <ingredient itemKey="junk" amount="2" />
+        <ingredient itemKey="sulfur" amount="4" />
+        <ingredient itemKey="animal_fat" amount="2" />
+        <ingredient itemKey="shaped_metal" amount="2" />
+      </recipe>
+      <stations>
+        <station key="research_bench" timeMs="30000" />
+      </stations>
+    </crafting>
+    <client icon="inv-gas-grenade" description="Fills a room with choking gas. Walls hold it; doorways let it out.">
+      <loot id="179" sprite="day-ground-gas-grenade" scale="0.8" angle="0" amount="1"/>
+    </client>
+  </item>
+  <item clientItemId="187" key="smoke_grenade" name="Smoke Grenade">
+    <properties stack="10" lootId="180" score="0"/>
+    <equipable key="smoke_grenade" equipTimeMs="1000"/>
+    <skill type="weapon" requiredLevel="10" skillCost="1" prerequisite="granade"/>
+    <crafting yield="2">
+      <recipe>
+        <ingredient itemKey="junk" amount="2" />
+        <ingredient itemKey="sulfur" amount="1" />
+        <ingredient itemKey="animal_fat" amount="4" />
+        <ingredient itemKey="shaped_metal" amount="1" />
+      </recipe>
+      <stations>
+        <station key="research_bench" timeMs="30000" />
+      </stations>
+    </crafting>
+    <client icon="inv-smoke-grenade" description="A thick cloud nobody can see into, out of or through.">
+      <loot id="180" sprite="day-ground-smoke-grenade" scale="0.8" angle="0" amount="1"/>
+    </client>
+  </item>
+  <item clientItemId="188" key="molotov" name="Molotov">
+    <properties stack="5" lootId="181" score="0"/>
+    <equipable key="molotov" equipTimeMs="1000"/>
+    <skill type="weapon" requiredLevel="8" skillCost="1"/>
+    <crafting yield="1">
+      <recipe>
+        <ingredient itemKey="gasoline" amount="1" />
+        <ingredient itemKey="junk" amount="1" />
+        <ingredient itemKey="string" amount="2" />
+      </recipe>
+      <stations>
+        <station key="workbench" timeMs="15000" />
+      </stations>
+    </crafting>
+    <client icon="inv-molotov" description="Breaks where it lands and sets it alight. Burns wood, not stone.">
+      <loot id="181" sprite="day-ground-molotov" scale="0.8" angle="0" amount="1"/>
     </client>
   </item>
 </items>

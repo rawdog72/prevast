@@ -1,13 +1,13 @@
 // Copyright (c) 2026 rawdog72 and Prevast Open Server Contributors
 // SPDX-License-Identifier: GPL-2.0-only
 
-import { handleAimState } from './handlers/aim';
+import { handleAimState, handleCookState } from './handlers/aim';
 import { handleNpcState, handleNpcClosed } from './handlers/npc';
 import { handleQuestMarkers, handleQuestProgress, handleQuestState } from './handlers/quest';
 import { handleAchievementUnlocked, handleProgressState, handleProgressUpdate } from './handlers/progress';
 import type { NetEventBus } from './events';
 import { handleTradeState, handleTradeClosed } from './handlers/trade';
-import { handleDamageIndicator, handleExplosionShake } from './handlers/combat';
+import { handleAreaEffect, handleDamageIndicator, handleExplosionShake } from './handlers/combat';
 import { handleContentManifest, handleContentPatch, handleContentTable } from './handlers/content';
 import { handleBlueprint, handleCraftStarted } from './handlers/craft';
 import {
@@ -207,6 +207,9 @@ export function dispatchServerMessage(bytes: Uint8Array, bus: NetEventBus): void
     case ServerOpcode.EXPLOSION_SHAKE:
       handleExplosionShake(bytes, bus);
       break;
+    case ServerOpcode.AREA_EFFECT:
+      handleAreaEffect(bytes, bus);
+      break;
     case ServerOpcode.PLAYER_ATE:
       handlePlayerAte(bytes, bus);
       break;
@@ -287,6 +290,9 @@ export function dispatchServerMessage(bytes: Uint8Array, bus: NetEventBus): void
       break;
     case ServerOpcode.AIM_STATE:
       handleAimState(bytes, bus);
+      break;
+    case ServerOpcode.COOK_STATE:
+      handleCookState(bytes, bus);
       break;
     case ServerOpcode.WORLD_TIME:
       handleWorldTime(bytes, bus);

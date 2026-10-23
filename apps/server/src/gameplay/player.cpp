@@ -241,6 +241,60 @@ static ProjectileTrajectory buildProjectileTrajectory(const Position& origin, co
 	return trajectory;
 }
 
+// A cooked grenade leaving the hand (Player::ThrowLaunch). Unlike a shot it is
+// aimed at a POINT -- launch.distance along the facing from the thrower's
+// centre, which is where the client's cursor was -- so the path runs from the
+// hand to that point instead of a fixed range out of the muzzle, and it lands
+// where the marker said. The hand is the weapon's <animOffset>; when something
+// solid stands between the body and the hand the throw starts at that obstacle,
+// so hugging a wall cannot throw through it.
+static ProjectileTrajectory buildThrowTrajectory(const Position& origin, const EquipableData& edata, float angle,
+                                                 const Creature* shooter, float projectileBaseSpeed,
+                                                 const Player::ThrowLaunch& launch)
+{
+	ProjectileTrajectory trajectory;
+	if (launch.atFeet) {
+		// No velocity: Projectile::setFuse parks it where it lies.
+		trajectory.startPos = origin;
+		trajectory.animStartPos = origin;
+		trajectory.endPos = origin;
+		return trajectory;
+	}
+
+	const float mapWidth = static_cast<float>(MapSize::widthUnits());
+	const float mapHeight = static_cast<float>(MapSize::heightUnits());
+	const float cosA = std::cos(angle);
+	const float sinA = std::sin(angle);
+	const float ox = static_cast<float>(origin.x);
+	const float oy = static_cast<float>(origin.y);
+
+	float handX = clampToMap(ox + (edata.animOffsetX * cosA) - (edata.animOffsetY * sinA), mapWidth);
+	float handY = clampToMap(oy + (edata.animOffsetX * sinA) + (edata.animOffsetY * cosA), mapHeight);
+	const Position hand(static_cast<uint16_t>(std::round(handX)), static_cast<uint16_t>(std::round(handY)));
+	Position blocked;
+	if (g_game.findClosestObstacleHit(shooter, origin, hand, blocked)) {
+		handX = static_cast<float>(blocked.x);
+		handY = static_cast<float>(blocked.y);
+	}
+
+	const float targetX = clampToMap(ox + cosA * launch.distance, mapWidth);
+	const float targetY = clampToMap(oy + sinA * launch.distance, mapHeight);
+
+	trajectory.startPos = Position(static_cast<uint16_t>(std::round(handX)), static_cast<uint16_t>(std::round(handY)));
+	trajectory.animStartPos = trajectory.startPos;
+	trajectory.endPos = Position(static_cast<uint16_t>(std::round(targetX)), static_cast<uint16_t>(std::round(targetY)));
+
+	const float dx = targetX - handX;
+	const float dy = targetY - handY;
+	const float len = std::sqrt(dx * dx + dy * dy);
+	if (len >= 1.0f) {
+		const float speed = PROJECTILE_REFERENCE_SPEED * projectileBaseSpeed * edata.speedMultiplier;
+		trajectory.velocityX = speed * dx / len;
+		trajectory.velocityY = speed * dy / len;
+	}
+	return trajectory;
+}
+
 static MeleeTrace buildMeleeTrace(const Position& origin, uint8_t rotation, float offsetX, float offsetY, uint16_t range)
 {
 	const float angleRad = (rotation * MATH_TWO_PI) / 255.0f;
@@ -658,6 +712,8 @@ Player::~Player()
 	g_scheduler.stopEvent(equipEventId);
 	g_scheduler.stopEvent(modChange.eventId);
 	g_scheduler.stopEvent(crafting.eventId);
+	g_scheduler.stopEvent(cook.fuseEventId);
+	g_scheduler.stopEvent(cook.stepEventId);
 }
 
 void Player::setShift(bool val)
@@ -914,6 +970,10 @@ int32_t Player::changeHealth(int32_t healthDelta, bool broadcast, bool force, bo
 		}
 
 		if (health == 0 && oldHealth > 0) {
+			// A grenade cooking in a dying hand falls with its fuse running --
+			// before the resurrect check, which starts a new life that the
+			// cook's scheduled fuse would no longer find.
+			dropCookedGrenade(true);
 			g_npcs.forget(getID());
 			g_quests.forget(getID());
 			if (g_game.tryResurrectPlayer(this)) {
@@ -1937,6 +1997,8 @@ void Player::handleMouseDown()
 	// long stretch without ever sending a move or a turn.
 	resetIdleTime();
 	if (modChange.eventId != 0) return; // the hands are busy with the gun
+	// The pin is out: there is nothing to press until it has been thrown.
+	if (cook.active) return;
 
 	// A press cancels a running reload, the same way a press during an eat
 	// cancels that. A loaded weapon still fires on that same press, which is
@@ -1997,6 +2059,11 @@ void Player::handleMouseDown()
 		// shot. Both halves of "throwable" now read the same field.
 		if (actionEventId != 0) {
 			cancelAction();
+		} else if (edata->throwing.cookable) {
+			// A stun stops the pin pull like it stops a swing (updateActions).
+			if (!cannot(CONTROL_NO_ATTACK)) {
+				beginCook(iid, *edata);
+			}
 		} else {
 			beginThrowAction(iid, *edata);
 		}
@@ -2009,6 +2076,9 @@ void Player::handleMouseDown()
 void Player::handleMouseUp()
 {
 	isClicking = false;
+	if (cook.active) {
+		requestCookRelease();
+	}
 }
 
 void Player::cancelAction()
@@ -2204,7 +2274,8 @@ void Player::dropGhoulRemains()
 	if (ghoulData->explosion.enabled) {
 		g_game.executeExplosion(pos, ghoulData->explosion.radius, ghoulData->explosion.area,
 			ghoulData->explosion.playerDamage, ghoulData->explosion.buildingDamage,
-			ghoulData->explosion.knockback, 0, &ghoulData->explosion.onHit);
+			ghoulData->explosion.knockback, 0, &ghoulData->explosion.onHit,
+			ghoulData->explosion.throughWall);
 	}
 }
 
@@ -2296,6 +2367,178 @@ void Player::beginThrowAction(uint16_t iid, const EquipableData& edata)
 	attackPulse = true; // Start animation
 	actionEventId = scheduleLifeAction(edata.impactMs,
 		[iid](Player& p) { p.completeThrow(iid, p.getEquippedWeaponUID()); });
+}
+
+const EquipableData* Player::cookEquipable() const
+{
+	return cook.equipKey.empty() ? nullptr : EquipmentManager::getInstance().getEquipable(cook.equipKey);
+}
+
+// The press of a cookable throwable: the pin comes out, and that is the
+// commitment. The item is spent NOW rather than at the throw, so nothing done
+// with the stack meanwhile -- dropping it, storing it, trading it -- can keep
+// a grenade that is already live in the hand.
+void Player::beginCook(uint16_t iid, const EquipableData& edata)
+{
+	const ProjectileData* pdata = ProjectileManager::getInstance().getProjectileData(edata.projectileKey);
+	if (!pdata || pdata->lifetimeMs == 0) {
+		// Nothing to cook without a fuse: an ordinary throw.
+		beginThrowAction(iid, edata);
+		return;
+	}
+
+	const int8_t slot = inventory.findItemByUidSlot(equippedWeaponUID, iid);
+	if (slot == -1) return;
+	if (!consumeStaminaForAction(edata.staminaUsage, true)) return;
+
+	cook = CookState{};
+	cook.active = true;
+	cook.equipKey = edata.key;
+	cook.weaponId = edata.weaponId;
+	cook.pinAt = OTSYS_TIME();
+	cook.fuseMs = pdata->lifetimeMs;
+	// A marker from an earlier throw must not aim this one; the client sends a
+	// fresh THROW_TARGET right before it lets go.
+	hasThrowTarget = false;
+
+	// Before the item goes: the client reads what is being cooked off the item
+	// in hand, and taking the last of a stack unequips it.
+	if (client) {
+		client->sendCookState(cook.fuseMs, cook.fuseMs);
+	}
+
+	// Taking the last of the stack unequips it (Inventory's auto-unequip), but
+	// the grenade is still in the hand until it is thrown.
+	inventory.removeItem(static_cast<uint8_t>(slot), 1);
+	setHeldItemIID(cook.weaponId);
+
+	cook.fuseEventId = scheduleLifeAction(cook.fuseMs, [](Player& p) {
+		p.cook.fuseEventId = 0;
+		p.cookFuseOut();
+	});
+	cook.stepEventId = scheduleLifeAction(edata.throwing.pinMs, [](Player& p) {
+		p.cook.stepEventId = 0;
+		if (p.cook.active && p.cook.releaseQueued) {
+			p.releaseCook();
+		}
+	});
+}
+
+void Player::requestCookRelease()
+{
+	if (!cook.active || cook.releasing || cook.releaseQueued) return;
+	if (cook.stepEventId != 0) {
+		// Still pulling the pin: the throw goes as soon as it is out.
+		cook.releaseQueued = true;
+		return;
+	}
+	releaseCook();
+}
+
+// Letting go: the throwing motion starts, toward the distance the client last
+// reported, and the grenade leaves the hand releaseMs later. The fuse keeps
+// running through the motion, so a grenade cooked to the last instant can
+// still go off in the hand.
+void Player::releaseCook()
+{
+	cook.releaseQueued = false;
+	const EquipableData* edata = cookEquipable();
+	if (!edata || cannot(CONTROL_NO_ATTACK)) {
+		// Stunned, or the weapon is gone from content: it slips from the hand.
+		launchCook(true);
+		return;
+	}
+
+	// Where and which way, both fixed NOW, at the release, from the marker the
+	// client stated. The direction used to be read off the facing when the
+	// grenade left the hand, releaseMs later -- so turning during the throwing
+	// motion threw it somewhere else -- and the facing is whole degrees on the
+	// wire and 1/255 of a turn here, which alone put a long throw 10-20 units
+	// off the marker. No marker at all (a scripted client): the facing, full
+	// range. A marker on the thrower: the facing, as short as it goes.
+	const uint16_t maxRange = edata->range > 0 ? edata->range : 800;
+	float wanted = hasThrowTarget ? 0.0f : static_cast<float>(maxRange);
+	float angle = (getRotation() * MATH_TWO_PI) / 255.0f;
+	if (hasThrowTarget && (throwTargetDx != 0 || throwTargetDy != 0)) {
+		wanted = std::hypot(static_cast<float>(throwTargetDx), static_cast<float>(throwTargetDy));
+		angle = std::atan2(static_cast<float>(throwTargetDy), static_cast<float>(throwTargetDx));
+	}
+	const float minRange = static_cast<float>(std::min(edata->throwing.minRange, maxRange));
+	cook.distance = static_cast<uint16_t>(std::lround(std::clamp(wanted, minRange, static_cast<float>(maxRange))));
+	cook.angle = angle;
+	cook.releasing = true;
+	attackPulse = true; // the throwing animation
+
+	if (edata->throwing.releaseMs == 0) {
+		launchCook(false);
+		return;
+	}
+	cook.stepEventId = scheduleLifeAction(edata->throwing.releaseMs, [](Player& p) {
+		p.cook.stepEventId = 0;
+		p.launchCook(false);
+	});
+}
+
+void Player::launchCook(bool atFeet)
+{
+	if (!cook.active) return;
+
+	const EquipableData* edata = cookEquipable();
+	const uint64_t held = OTSYS_TIME() - cook.pinAt;
+	ThrowLaunch launch;
+	launch.atFeet = atFeet;
+	launch.distance = cook.distance;
+	launch.angle = cook.angle;
+	// At least one tick of fuse: a grenade that leaves the hand on its last
+	// millisecond still leaves it, and goes off where it is.
+	launch.fuseMs = held >= cook.fuseMs ? 1 : static_cast<uint32_t>(cook.fuseMs - held);
+
+	endCook();
+	if (edata) {
+		spawnProjectiles(edata, nullptr, &launch);
+	}
+}
+
+// Held too long.
+void Player::cookFuseOut()
+{
+	if (!cook.active) return;
+
+	const EquipableData* edata = cookEquipable();
+	const ProjectileData* pdata = edata
+		? ProjectileManager::getInstance().getProjectileData(edata->projectileKey) : nullptr;
+	const Position pos = getPosition();
+
+	// Ended BEFORE the blast: it can kill this player, and the death path
+	// asks whether anything is still cooking.
+	endCook();
+	if (pdata && pdata->detonates()) {
+		g_game.detonateProjectile(*pdata, pos, getID());
+	}
+}
+
+void Player::endCook()
+{
+	g_scheduler.stopEvent(cook.fuseEventId);
+	g_scheduler.stopEvent(cook.stepEventId);
+	const bool wasActive = cook.active;
+	cook = CookState{};
+	if (!wasActive) return;
+
+	// The hand shows what is equipped now: the next grenade of the stack, or
+	// nothing when that was the last.
+	const EquipableData* equipped = getEquippedWeaponData();
+	setHeldItemIID(equipped ? equipped->weaponId : 0);
+	if (client) {
+		client->sendCookState(0, 0);
+	}
+}
+
+void Player::dropCookedGrenade(bool evenMidThrow)
+{
+	if (!cook.active) return;
+	if (cook.releasing && !evenMidThrow) return; // already on its way out of the hand
+	launchCook(true);
 }
 
 void Player::beginRemoteTrigger(const EquipableData& edata)
@@ -2545,7 +2788,7 @@ void Player::applyMeleeHit(Thing* target, const EquipableData& edata, const Posi
 	}
 }
 
-void Player::spawnProjectiles(const EquipableData* edata, Item* equippedItem)
+void Player::spawnProjectiles(const EquipableData* edata, Item* equippedItem, const ThrowLaunch* launch)
 {
 	if (!edata || edata->projectileKey.empty()) return;
 
@@ -2576,7 +2819,9 @@ void Player::spawnProjectiles(const EquipableData* edata, Item* equippedItem)
 	// than this cannot be drawn by the client at all. MUST match the range
 	// Game::removeProjectile retracts with -- see there.
 	const int32_t projRange = g_game.projectileViewRange();
-	if (edata->pellets > 0) {
+	// A grenade is one grenade, whatever the weapon's pellet count says.
+	const uint8_t pellets = launch ? 1 : edata->pellets;
+	if (pellets > 0) {
 		g_game.map.getPotentialSpectatorPlayers(getPosition(), spectators, projRange);
 	}
 
@@ -2584,7 +2829,7 @@ void Player::spawnProjectiles(const EquipableData* edata, Item* equippedItem)
 	const float spreadNow = aim_view::spreadAt(edata->spreadRadians, edata->aim, aimActive,
 		static_cast<uint64_t>(OTSYS_TIME()) - aimSince);
 
-	for (uint8_t i = 0; i < edata->pellets; i++) {
+	for (uint8_t i = 0; i < pellets; i++) {
 		const uint32_t projectileId = g_game.map.acquireEntityId(EntityClass::Projectile);
 		if (projectileId == 0) {
 			// Transient entities, so this means an implausible number are in
@@ -2605,39 +2850,23 @@ void Player::spawnProjectiles(const EquipableData* edata, Item* equippedItem)
 
 		float spread = ((static_cast<float>(rand() % 1000) / 1000.0f) - 0.5f) * spreadNow;
 		float finalAngle = baseAngle + spread;
-		const ProjectileTrajectory trajectory = buildProjectileTrajectory(getPosition(), *edata, finalAngle, this, projBaseSpeed);
+		const ProjectileTrajectory trajectory = launch
+			? buildThrowTrajectory(getPosition(), *edata, launch->angle, this, projBaseSpeed, *launch)
+			: buildProjectileTrajectory(getPosition(), *edata, finalAngle, this, projBaseSpeed);
 
 		auto projectile = std::make_unique<Projectile>(projectileId, trajectory.startPos, trajectory.endPos, trajectory.animStartPos, trajectory.velocityX, trajectory.velocityY, edata->damage, edata->knockback, this, projExtraId, edata->key);
 		projectile->setSkipVisual(trajectory.skipVisualAnimation);
+		if (launch) {
+			projectile->setFuse(launch->fuseMs);
+		}
 
 		if (edata->typeId == 3 && equippedItem) {
 			projectile->setDropItemIid(equippedItem->getIID());
 		}
 
-		// Initial broadcast for visual sync (check both start and end positions like old code)
-		if (!trajectory.skipVisualAnimation) {
-			EntityUpdate bullet;
-			projectile->buildUpdate(bullet);
-			
-			// No knownCreatures.insert here, deliberately. A projectile is never
-			// placed on the map, so it never appears in the visibility diff's
-			// `visible` set -- an id inserted here was therefore dropped again by
-			// the very same tick's diff (in `known`, not in `visible` -> the
-			// removal branch), which meant the insert bought nothing and cost an
-			// O(n) memmove through a ~600-entry sorted vector, once per spectator
-			// per pellet. In the 250-bot combat capture that was ~62,500 of them
-			// per tick. Retraction is positional instead; see Game::removeProjectile.
-			for (Player* p : spectators) {
-				if (p->canSeeWithin(trajectory.startPos, projRange, projRange) ||
-				    p->canSeeWithin(trajectory.endPos, projRange, projRange) ||
-				    p->canSeeWithin(trajectory.animStartPos, projRange, projRange)) {
-					p->pushUpdate(bullet);
-					// Recorded so the retract path can reach exactly this set
-					// again, whatever has moved since. See Projectile::markSentTo.
-					projectile->markSentTo(static_cast<uint8_t>(p->getGUID()));
-				}
-			}
-		}
+		// Its creation record to whoever can see its path, recording who was
+		// told -- the set every later record about it goes to.
+		g_game.announceProjectile(*projectile, spectators, this);
 
 		// Projectiles are no longer placed in the map grid for extreme performance.
 
@@ -3514,6 +3743,9 @@ void Player::startEquipping(uint16_t iid, uint32_t itemUid)
 		return;
 	}
 
+	// Reaching for something else while cooking: the grenade has to go
+	// somewhere, and with its pin out that is the floor, still live.
+	dropCookedGrenade(false);
 	cancelReload();
 	cancelModChange(); // switching weapon cancels a mod change
 	cancelEquipping();

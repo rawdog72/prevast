@@ -31,6 +31,8 @@ import type { ExplosionAnimator } from './explosions';
 import { type CanvasFactory, nameplateFor, Nameplates } from './nameplates';
 import type { ClanStore } from '../world/clan-store';
 import type { ParticleSystem } from './particles/particle-system';
+import type { CloudLayer } from './clouds';
+import { drawRagFlame } from './fire';
 import type { StatusVignette } from './status-vignette';
 
 export interface RenderContext {
@@ -40,6 +42,12 @@ export interface RenderContext {
   content: ContentStore;
   assets: AssetLoader;
   particles?: ParticleSystem;
+  /**
+   * Gas, smoke and fire. Fire's flames and scorch go on the ground under
+   * creatures; its light, smoke and the clouds themselves over the scene,
+   * under names.
+   */
+  clouds?: CloudLayer;
   brZone?: BRZone;
   ghoulEffects?: GhoulEffects;
   /** Screen-edge glow for the local player's life / radiation / cold and hits. */
@@ -66,6 +74,56 @@ export interface RenderContext {
 
 const WARM_EVERY = 15;
 
+/** projectiles.xml <client render="molotov" flameX flameY flameSize spin> */
+interface MolotovClient {
+  render?: string;
+  frame?: Array<{ sprite?: string }>;
+  flameX?: number;
+  flameY?: number;
+  flameSize?: number;
+  /** Radians per ms. */
+  spin?: number;
+}
+
+/**
+ * projectiles.xml <client render="tumble" roll trail>: a thrown grenade. One
+ * picture (frame 0, the same sprite as in the hand) for the whole flight: it
+ * rolls with the ground it covers, so it spins fast off the hand, slows with
+ * each bounce and lies still where it stops. The streak behind it is drawn
+ * here, not a sprite.
+ */
+interface TumbleClient {
+  render?: string;
+  frame?: Array<{ sprite?: string }>;
+  /** World units of travel per radian turned: bigger rolls slower. */
+  roll?: number;
+  /** The streak's colour "r,g,b"; "none" for no streak. */
+  trail?: string;
+}
+
+/** What a tumbling projectile carries from frame to frame (client-only, never sent). */
+interface Tumble {
+  spin: number;
+  x: number;
+  y: number;
+  t: number;
+  /** Smoothed world units per ms. */
+  speed: number;
+  /** Heading of the last real movement. */
+  dir: number;
+}
+
+const TUMBLE_ROLL = 24;
+const TUMBLE_TRAIL = '236,240,232';
+/** Below this (world units per ms) the streak is gone; it is whole by TRAIL_FULL. */
+const TRAIL_MIN = 0.05;
+const TRAIL_FULL = 0.3;
+/** Streak length per unit of speed, and its cap (world units). */
+const TRAIL_PER_SPEED = 140;
+const TRAIL_MAX = 60;
+/** The streak's brightness at night. */
+const TRAIL_NIGHT = 0.5;
+
 /** A flying pickup is drawn at LOOT_ABSORB_MIN of its size once it is on the player, full size LOOT_ABSORB_DIST units out. */
 const LOOT_ABSORB_MIN = 0.45;
 const LOOT_ABSORB_DIST = 120;
@@ -83,6 +141,8 @@ export class GameRenderer {
   private visibleCount = 0;
   private explosions?: ExplosionAnimator;
   private frameNo = 0;
+  /** Spin and speed of each thrown grenade on screen, dropped with the entity. */
+  private readonly tumbles = new WeakMap<WorldEntity, Tumble>();
   /**
    * Every WARM_EVERY frames the off-screen entities the server already sent
    * get their sprites requested (AssetLoader.warm), so by the time they
@@ -125,6 +185,15 @@ export class GameRenderer {
     // Labels and markers go over both palettes, drawn once.
     ctx.save();
     camera.applyTransform(ctx);
+
+    // Clouds over everything standing in them, but under the names, so who
+    // is in the gas can still be read.
+    // The local player decides whether smoke is seen from inside.
+    if (rc.clouds) {
+      rc.profiler?.begin('render.clouds');
+      rc.clouds.render(ctx, camera, rc.timeMs ?? 0, world.getLocalEntity());
+      rc.profiler?.end('render.clouds');
+    }
 
     // _playerName: the old client drew every nickname after the tree tops,
     // walls and explosions, so a name is never hidden behind scenery.
@@ -224,6 +293,13 @@ export class GameRenderer {
     prof?.begin('render.buildings');
     if (brc) this.buildings.drawLayer(brc, EntityType.BUILD_DOWN);
     prof?.end('render.buildings');
+
+    // Fire on the ground: scorch and flames over floors, under loot, creatures and walls.
+    if (rc.clouds) {
+      prof?.begin('render.clouds');
+      rc.clouds.renderGround(ctx, camera, rc.timeMs ?? 0, isNight ? 1 : 0);
+      prof?.end('render.clouds');
+    }
     prof?.begin('render.world');
     this.renderLayer(
       ctx,
@@ -245,6 +321,7 @@ export class GameRenderer {
       assets,
       buildingAnim,
       world.entities,
+      rc.timeMs ?? 0,
     );
     this.renderLayer(
       ctx,
@@ -415,6 +492,16 @@ export class GameRenderer {
       // Bullet/projectile landing light effect: frame 2 drawn under landed frame 1
       if (entity.type === EntityType.BULLET && content.has('projectiles')) {
         const proj = content.byId('projectiles', entity.extra);
+        const client = proj?.client as MolotovClient | undefined;
+        if (client?.render === 'molotov') {
+          if (!entity.removed) this.drawMolotov(ctx, entity, client, assets, isNight, timeMs);
+          continue;
+        }
+        if (client?.render === 'tumble') {
+          if (!entity.removed)
+            this.drawTumble(ctx, entity, client as TumbleClient, assets, isNight, timeMs);
+          continue;
+        }
         const frames = proj?.client?.frame;
         const dx = entity.nx - entity.x;
         const dy = entity.ny - entity.y;
@@ -521,6 +608,119 @@ export class GameRenderer {
       ctx.drawImage(top.image, -tw / 2, -th / 2, tw, th);
       ctx.restore();
     }
+  }
+
+  /**
+   * A molotov in flight: the bottle tumbling end over end, its rag alight.
+   * The flame is drawn upright whatever the spin -- fire goes up -- at the
+   * rag's end, which <client flameX flameY> places from the bottle's middle.
+   */
+  private drawMolotov(
+    ctx: CanvasRenderingContext2D,
+    entity: WorldEntity,
+    client: MolotovClient,
+    assets: AssetLoader,
+    isNight: boolean,
+    timeMs: number,
+  ): void {
+    const spin = entity.angle + timeMs * (client.spin ?? 0.014) + entity.id * 1.3;
+    const sprite = client.frame?.[0]?.sprite;
+    const img = sprite ? assets.get(sprite, isNight) : undefined;
+    if (img) {
+      const w = img.naturalWidth / 2;
+      const h = img.naturalHeight / 2;
+      ctx.save();
+      ctx.translate(entity.x, entity.y);
+      ctx.rotate(spin);
+      ctx.drawImage(img.image, -w / 2, -h / 2, w, h);
+      ctx.restore();
+    }
+    const fx = client.flameX ?? 0;
+    const fy = client.flameY ?? 0;
+    const c = Math.cos(spin);
+    const s = Math.sin(spin);
+    drawRagFlame(ctx, entity.x + fx * c - fy * s, entity.y + fx * s + fy * c, client.flameSize ?? 24, timeMs, entity.id);
+  }
+
+  /**
+   * A thrown grenade: its one sprite turned by how far it has rolled, and a
+   * fading streak behind it while it is moving fast.
+   */
+  private drawTumble(
+    ctx: CanvasRenderingContext2D,
+    entity: WorldEntity,
+    client: TumbleClient,
+    assets: AssetLoader,
+    isNight: boolean,
+    timeMs: number,
+  ): void {
+    let st = this.tumbles.get(entity);
+    if (!st) {
+      // Leaves the hand at the angle it was thrown, turned a little per grenade.
+      st = {
+        spin: entity.angle + entity.id * 1.3,
+        x: entity.x,
+        y: entity.y,
+        t: timeMs,
+        speed: 0,
+        dir: entity.angle,
+      };
+      this.tumbles.set(entity, st);
+    }
+    const dx = entity.x - st.x;
+    const dy = entity.y - st.y;
+    const moved = Math.hypot(dx, dy);
+    const dt = Math.max(1, timeMs - st.t);
+    if (moved > 0.01) {
+      st.dir = Math.atan2(dy, dx);
+      st.spin += moved / (client.roll ?? TUMBLE_ROLL);
+    }
+    // A short average, so a frame that lands between two packets does not flicker the streak.
+    st.speed += (moved / dt - st.speed) * Math.min(1, dt / 80);
+    st.x = entity.x;
+    st.y = entity.y;
+    st.t = timeMs;
+
+    const sprite = client.frame?.[0]?.sprite;
+    const img = sprite ? assets.get(sprite, isNight) : undefined;
+    if (!img) return;
+    const w = img.naturalWidth / 2;
+    const h = img.naturalHeight / 2;
+
+    const trail = client.trail ?? TUMBLE_TRAIL;
+    if (trail !== 'none' && st.speed > TRAIL_MIN) {
+      // At night the streak takes the night palette too, rather than glowing.
+      const rgb = isNight
+        ? trail
+            .split(',')
+            .map((c) => Math.round(Number(c) * TRAIL_NIGHT))
+            .join(',')
+        : trail;
+      const strength = Math.min(1, (st.speed - TRAIL_MIN) / (TRAIL_FULL - TRAIL_MIN));
+      const len = Math.min(TRAIL_MAX, st.speed * TRAIL_PER_SPEED);
+      const half = Math.min(w, h) * 0.32;
+      ctx.save();
+      ctx.translate(entity.x, entity.y);
+      ctx.rotate(st.dir);
+      const g = ctx.createLinearGradient(-len, 0, 0, 0);
+      g.addColorStop(0, `rgba(${rgb},0)`);
+      g.addColorStop(1, `rgba(${rgb},${(0.5 * strength).toFixed(3)})`);
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.moveTo(-len, 0);
+      ctx.quadraticCurveTo(-len * 0.35, -half, 0, -half);
+      ctx.lineTo(0, half);
+      ctx.quadraticCurveTo(-len * 0.35, half, -len, 0);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+
+    ctx.save();
+    ctx.translate(entity.x, entity.y);
+    ctx.rotate(st.spin);
+    ctx.drawImage(img.image, -w / 2, -h / 2, w, h);
+    ctx.restore();
   }
 
   private renderCharacters(

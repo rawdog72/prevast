@@ -118,6 +118,12 @@ export interface SelectedItemEvent {
   iid: number;
 }
 
+/** COOK_STATE: a grenade's pin is out (fuseMs > 0) with remainingMs left on it, or it is gone (0). */
+export interface CookStateEvent {
+  fuseMs: number;
+  remainingMs: number;
+}
+
 /** One chat line as the server delivered it (our own lines come back as echoes). */
 export interface ChatEvent {
   channel: ChatChannel;
@@ -354,6 +360,24 @@ export interface BadKarmaEvent {
   karma: number;
 }
 
+/**
+ * AREA_EFFECT: a gas, smoke or fire cloud (CloudKind in render/clouds.ts). The
+ * cells are tile offsets from (tileX, tileY) in growth order; at age a the
+ * first ceil(n * a / growMs) are covered. A repeat of a known id restates the
+ * age for whoever was already shown it.
+ */
+export interface AreaEffectEvent {
+  id: number;
+  kind: number;
+  tileX: number;
+  tileY: number;
+  growMs: number;
+  holdMs: number;
+  fadeMs: number;
+  ageMs: number;
+  cells: Array<[number, number]>;
+}
+
 export interface ShakeExplosionStateEvent {
   shake: number;
 }
@@ -430,6 +454,7 @@ export interface NetEventMap {
   inventorySlot: InventorySlotEvent;
   itemMods: ItemModsEvent;
   aimState: AimStateEvent;
+  cookState: CookStateEvent;
   fullInventory: FullInventoryEvent;
   selectedItem: SelectedItemEvent;
   chat: ChatEvent;
@@ -479,6 +504,7 @@ export interface NetEventMap {
   karma: KarmaEvent;
   badKarma: BadKarmaEvent;
   shakeExplosionState: ShakeExplosionStateEvent;
+  areaEffect: AreaEffectEvent;
   playerEat: PlayerEatEvent;
   citiesLocation: CitiesLocationEvent;
   drug: DrugEvent;

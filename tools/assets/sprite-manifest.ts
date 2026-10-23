@@ -6,6 +6,12 @@
 // sprite URLs (`/img/<name>.png?v=<hash>`), which the host serves with an
 // immutable one-year cache, and the name list to skip sprites that do not
 // exist instead of requesting a 404 for each one.
+//
+// Project art (the first folder) may ship a `day-` sprite without its
+// `night-` twin: the manifest then lists the night name with `from` (the day
+// sprite to fetch) and `dim` (how far down to take it), and the client
+// darkens the day picture itself (asset-loader.ts nightPixels). Pickups on
+// the ground stay a little brighter at night, as the original art does.
 import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -17,11 +23,21 @@ export interface SpriteEntry {
   w: number;
   h: number;
   v: string;
+  /** A night sprite made by the client from this day sprite, not a file. */
+  from?: string;
+  /** Its brightness, 0..1 of the day sprite's. */
+  dim?: number;
+}
+
+/** Night brightness for a derived night sprite: loot on the ground keeps more light. */
+export function derivedNightDim(dayName: string): number {
+  return dayName.startsWith('day-ground-') ? 0.66 : 0.42;
 }
 
 export function buildSpriteManifest(imgDirs = SPRITE_DIRS, outFile = 'dist/client/sprite-manifest.json'): number {
   const manifest: Record<string, SpriteEntry> = {};
-  for (const dir of imgDirs) {
+  const projectArt: string[] = [];
+  for (const [i, dir] of imgDirs.entries()) {
     if (!existsSync(dir)) continue;
     for (const file of readdirSync(dir)) {
       const name = file.slice(0, -4);
@@ -31,7 +47,13 @@ export function buildSpriteManifest(imgDirs = SPRITE_DIRS, outFile = 'dist/clien
       if (buf.length < 24 || buf.readUInt32BE(12) !== 0x49484452) continue;
       const v = createHash('sha1').update(buf).digest('hex').slice(0, 8);
       manifest[name] = { w: buf.readUInt32BE(16), h: buf.readUInt32BE(20), v };
+      if (i === 0 && name.startsWith('day-')) projectArt.push(name);
     }
+  }
+  for (const day of projectArt) {
+    const night = `night-${day.slice(4)}`;
+    if (night in manifest) continue;
+    manifest[night] = { ...manifest[day], from: day, dim: derivedNightDim(day) };
   }
   mkdirSync(dirname(outFile), { recursive: true });
   writeFileSync(outFile, JSON.stringify(manifest));

@@ -452,6 +452,9 @@ bool parseExplosionChild(const pugi::xml_node& parentNode, Explosion& explosion,
 	}
 	explosion.radius = static_cast<uint16_t>(explosionNode.attribute("radius").as_uint());
 	explosion.area = static_cast<uint16_t>(explosionNode.attribute("area").as_uint());
+	// How much of the blast reaches a creature behind a wall: 0 = none (default),
+	// 1 = walls do not matter. See Game::isBlastOccluded.
+	explosion.throughWall = std::clamp(explosionNode.attribute("throughWall").as_float(0.0f), 0.0f, 1.0f);
 
 	// <explosion><onHit condition= chance= durationMs=/></explosion>: what the
 	// blast inflicts on every creature it catches -- a stun grenade, a gas

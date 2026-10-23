@@ -119,6 +119,8 @@ public:
 	void sendItemMods(uint32_t uid, const WeaponMods& mods);
 	// AIM_STATE: aiming turned on or off, and the viewport the aimed box is built from.
 	void sendAimState(bool active, uint16_t viewX, uint16_t viewY);
+	// A grenade's pin is out (fuseMs > 0) or no longer (0). See Player::beginCook.
+	void sendCookState(uint32_t fuseMs, uint32_t remainingMs);
 	void sendSelectedItem(uint16_t iid);
 	
 	void sendPlayerXp(uint16_t xp);

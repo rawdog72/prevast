@@ -763,7 +763,16 @@ public:
 	void cancelAction();
 	void performAction();
 	void performMeleeAttack(const struct EquipableData* edata);
-	void spawnProjectiles(const struct EquipableData* edata, class Item* equippedItem);
+	// How a cooked throw leaves the hand (see EquipableData::ThrowData). Null
+	// for every other shot: full weapon range, the projectile's own lifetime.
+	struct ThrowLaunch {
+		uint16_t distance = 0; // from the thrower's centre to the landing point
+		float angle = 0.0f;    // the direction, decided at the release
+		uint32_t fuseMs = 0;   // what is left of the fuse
+		bool atFeet = false;   // dropped, not thrown: lies where the thrower stands
+	};
+	void spawnProjectiles(const struct EquipableData* edata, class Item* equippedItem,
+	                      const ThrowLaunch* launch = nullptr);
 	// Deferred half of a wind-up shot (<timing impactMs>): the draw finished, so
 	// the projectile leaves now. iid/uid identify the weapon that was DRAWN.
 	void releaseShot(uint16_t iid, uint32_t itemUid);
@@ -794,6 +803,24 @@ public:
 	bool cancelInteractionEvent(uint32_t& eventId);
 	void beginConsumableAction(uint16_t iid, uint32_t itemUid, const EquipableData& edata);
 	void beginThrowAction(uint16_t iid, const EquipableData& edata);
+
+	// Cooking a grenade (EquipableData::ThrowData). The press pulls the pin --
+	// the item is spent and the fuse runs from that moment, server-side. The
+	// release throws it toward the THROW_TARGET marker with the fuse that is
+	// left; a fuse that runs out first goes off in the hand.
+	void setThrowTarget(int16_t dx, int16_t dy) { throwTargetDx = dx; throwTargetDy = dy; hasThrowTarget = true; }
+	bool isCooking() const { return cook.active; }
+	// The hands are needed elsewhere (a weapon swap, death, leaving): a live
+	// grenade falls at the feet with its fuse still running. A swap leaves a
+	// throw that is already on its way alone; death and leaving do not.
+	void dropCookedGrenade(bool evenMidThrow);
+	void beginCook(uint16_t iid, const EquipableData& edata);
+	void requestCookRelease();
+	void releaseCook();
+	void launchCook(bool atFeet);
+	void cookFuseOut();
+	void endCook();
+	const EquipableData* cookEquipable() const;
 	// Detonator press. The signal goes out after <timing impactMs>, so a
 	// trigger can have a delay between the plunger and the blast.
 	void beginRemoteTrigger(const EquipableData& edata);
@@ -984,6 +1011,26 @@ private:
 	uint32_t pendingEquipUID = 0;
 	uint32_t actionEventId = 0;
 	uint32_t reloadEventId = 0;
+
+	// A grenade with its pin out. Keyed by the equipable, not a pointer to it,
+	// so a content reload mid-cook cannot leave this dangling.
+	struct CookState {
+		bool active = false;
+		bool releaseQueued = false; // let go while the pin was still being pulled
+		bool releasing = false;     // let go: the throwing motion is under way
+		std::string equipKey;
+		uint16_t weaponId = 0;      // what the hand shows meanwhile
+		uint64_t pinAt = 0;         // OTSYS_TIME() of the pin pull; the fuse runs from here
+		uint32_t fuseMs = 0;
+		uint16_t distance = 0;      // decided at release
+		float angle = 0.0f;         // decided at release, with the distance
+		uint32_t fuseEventId = 0;   // goes off in the hand
+		uint32_t stepEventId = 0;   // end of the pin pull, or the release
+	};
+	CookState cook;
+	int16_t throwTargetDx = 0;  // THROW_TARGET: the marker, from the thrower's centre
+	int16_t throwTargetDy = 0;
+	bool hasThrowTarget = false;
 
 	// A mod being fitted, swapped or removed; eventId 0 = none. Uids are full,
 	// resolved from the wire bytes when the change starts.

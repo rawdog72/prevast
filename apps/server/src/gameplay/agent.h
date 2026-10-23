@@ -132,6 +132,7 @@ struct AgentExplosion {
 	float knockback = 0.0f;
 	uint16_t radius = 0;
 	uint16_t area = 0;
+	float throughWall = 0.0f; // share reaching a creature behind a wall; see ProjectileExplosion
 	// What the BLAST inflicts on every creature caught in it -- a plague ghoul
 	// bursting into a cloud. See ProjectileExplosion::onHit.
 	ConditionApplication onHit;

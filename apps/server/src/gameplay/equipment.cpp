@@ -295,6 +295,28 @@ bool EquipmentManager::loadEquipables(const std::string& equipFilename)
 			if (pugi::xml_node cons = node.child("consumable")) {
 				parseConsumable(cons, ed);
 			}
+
+			// After <fire>, because minRange is checked against its range.
+			if (pugi::xml_node thr = node.child("throw")) {
+				ed.throwing.cookable = thr.attribute("cookable").as_bool(false);
+				ed.throwing.minRange = static_cast<uint16_t>(thr.attribute("minRange").as_uint(0));
+				ed.throwing.pinMs = thr.attribute("pinMs").as_uint(0);
+				ed.throwing.releaseMs = thr.attribute("releaseMs").as_uint(0);
+				if (ed.typeId != 3) {
+					reportDataWarning(equipFilename, fmt::format(
+						"equipable '{}' has <throw> but is not a throwable (typeId 3); ignored", ed.key));
+					ed.throwing = EquipableData::ThrowData{};
+				} else if (ed.throwing.cookable && ed.projectileKey.empty()) {
+					reportDataWarning(equipFilename, fmt::format(
+						"equipable '{}' is cookable but has no <fire projectileKey>; it cannot be thrown", ed.key));
+					ed.throwing.cookable = false;
+				} else if (ed.range > 0 && ed.throwing.minRange > ed.range) {
+					reportDataWarning(equipFilename, fmt::format(
+						"equipable '{}' has <throw minRange> {} beyond its <fire range> {}; clamped",
+						ed.key, ed.throwing.minRange, ed.range));
+					ed.throwing.minRange = ed.range;
+				}
+			}
 			newEquipables[ed.key] = std::move(ed);
 		}
 	}

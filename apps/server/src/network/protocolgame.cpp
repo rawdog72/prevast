@@ -951,6 +951,13 @@ void ProtocolGame::sendAimState(bool active, uint16_t viewX, uint16_t viewY)
 	sendMessage(ServerOpcode::AIM_STATE, static_cast<uint8_t>(active ? 1 : 0), viewX, viewY);
 }
 
+void ProtocolGame::sendCookState(uint32_t fuseMs, uint32_t remainingMs)
+{
+	sendMessage(ServerOpcode::COOK_STATE,
+		static_cast<uint16_t>(std::min<uint32_t>(fuseMs, 0xFFFF)),
+		static_cast<uint16_t>(std::min<uint32_t>(remainingMs, 0xFFFF)));
+}
+
 // BIG-endian, unlike everything else on this wire: the client reads these two as
 // `(ui8[1] << 8) + ui8[2]` rather than through a typed view. Kept as two explicit
 // bytes so that is visible instead of hidden behind a u16 that would be wrong.
@@ -1541,6 +1548,15 @@ void ProtocolGame::parsePacket(NetworkMessage& msg)
 	case ClientOpcode::ATTACK_STOP:
 		player->handleMouseUp();
 		break;
+
+	case ClientOpcode::THROW_TARGET: {
+		// Any value is safe: Player::releaseCook clamps the distance to the
+		// weapon, and any direction is one the thrower could have faced.
+		const int16_t dx = msg.get<int16_t>();
+		const int16_t dy = msg.get<int16_t>();
+		player->setThrowTarget(dx, dy);
+		break;
+	}
 
 	case ClientOpcode::SPRINT:
 		player->setShift(msg.getByte() != 0);

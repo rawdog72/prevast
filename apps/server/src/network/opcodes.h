@@ -39,6 +39,12 @@ enum class ClientOpcode : uint8_t {
     SPRINT = 15,               // [u8 0 or 1]
     AIM = 16,                  // [u8 held]: 1 while the aim button is held, 0 on release
     RELOAD = 17,
+    // [i16 dx][i16 dy]: where the throw marker is, from the player's centre,
+    // in world units. Sent right before ATTACK_STOP while a cookable throwable
+    // is held; the release throws that way and that far, the distance clamped
+    // to the weapon's range. Without it (a scripted client) the throw goes the
+    // full range along the facing.
+    THROW_TARGET = 18,
 
     // Items
     EQUIP_ITEM = 20,           // [u16 iid][u8 count][u32 uid][u8 ammo]
@@ -146,6 +152,7 @@ constexpr int clientPayloadBytes(ClientOpcode op)
         return 3;
 
     case ClientOpcode::PICK_UP_LOOT:
+    case ClientOpcode::THROW_TARGET:
     case ClientOpcode::ACCEPT_TEAM_JOIN:
     case ClientOpcode::KICK_FROM_TEAM:
     case ClientOpcode::FIT_WEAPON_MOD:
@@ -226,6 +233,17 @@ enum class ServerOpcode : uint8_t {
     PLAYER_HEALED = 29,        // [u8 pid]
     PLAYER_ATE = 30,
     PLAYER_DIED = 31,          // [u8 pid]: another player died
+    // 32 is free: it was SHRAPNEL_BURST until 1421. A frag's fragments are
+    // ordinary projectiles now, sent as entity records like any bullet.
+    // A cloud on the ground: gas, smoke or fire (Game::spawnCloud).
+    //     [u16 id][u8 kind][u16 tileX][u16 tileY][u16 growMs][u16 holdMs][u16 fadeMs]
+    //     [u16 ageMs][u8 n]([i8 dx][i8 dy])*n
+    // kind is CloudKind. The n tiles are offsets from (tileX, tileY) in growth
+    // order: at age a the first ceil(n * a / growMs) of them are covered. It is
+    // over at growMs + holdMs + fadeMs and needs no removal. Sent when the cloud
+    // appears and every CLOUD_RESEND_MS after, so a player who walks into view
+    // learns of it; a repeat of a known id only resyncs the age.
+    AREA_EFFECT = 33,
 
     // --- Players ----------------------------------------------------------
     // [u8 guid][u32 tokenId][u8 skin][u8 ghoul][str name][u8 groupId][u8 identityFlags]
@@ -268,6 +286,9 @@ enum class ServerOpcode : uint8_t {
     AIM_STATE = 65,
     INTERACTION_STARTED = 66,
     INTERACTION_CANCELLED = 67,
+    // [u16 fuseMs][u16 remainingMs]: a grenade's pin is out and its fuse runs
+    // (Player::beginCook); fuseMs 0 = it left the hand or went off in it.
+    COOK_STATE = 68,
 
     // --- Inventory --------------------------------------------------------
     // The login snapshot, and the only message that carries the inventory's
@@ -336,6 +357,13 @@ enum class ServerOpcode : uint8_t {
     ACHIEVEMENT_UNLOCKED = 135, // [u16 id][u32 unlockedAt][str json {name, description}]
     ACCOUNT_RUN = 136,         // [str json]: own survivor run and cap progress
     ACCOUNT_CLANS = 137,       // [str json {players:[{pid,clan}]}]: online permanent clan identities
+};
+
+// AREA_EFFECT kinds: what a cloud looks like. Wire values: never renumber.
+enum class CloudKind : uint8_t {
+    GAS = 1,
+    SMOKE = 2,
+    FIRE = 3,
 };
 
 // QUEST_STATE causes. Wire values: never renumber.

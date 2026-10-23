@@ -11,10 +11,91 @@
         fires it, and a stronger bow makes that same arrow faster.
 
     <damage type="piercing|melee|explosion|energy"/>
-        Which resistance applies to it.
+        Which resistance applies to it when no weapon fired it (a frag's
+        fragments). A round a weapon fires takes the weapon's own type.
 
     <lifetime durationMs="..."/>  <onDestroy><explosion .../></onDestroy>
-        Grenade-shaped rounds: how long before it goes off, and the blast.
+        Grenade-shaped rounds: how long before it goes off, and the blast. For a
+        cooked throwable (equipables.xml <throw>) the fuse starts at the pin.
+
+    <bounce restitution="0.45" maxBounces="3"/>
+        Fused rounds only. Glances off walls, doors, rocks and trees instead of
+        stopping on them: each bounce mirrors the path about the surface and
+        keeps `restitution` (0.05..1) of the speed and of the distance it had
+        left. After maxBounces, or when too little is left, it stops where it
+        hits, as it does without this. Players and ghouls always stop it.
+
+    <fragments projectile="frag_fragment" count="22" range="400" damage="40"
+               buildingDamage="40" knockback="0" speedMultiplier="1.0"
+               spread="1" rangeVariation="0.6" speedVariation="0.4" falloff="0.4"/>
+        Inside <onDestroy>: a frag's fragments. `count` (at most 48) REAL
+        projectiles of the `projectile` entry below fly out of the blast, one
+        somewhere in each slice of the circle (`spread`, 0..1, is how much of
+        its slice it may wander over). Each falls up to `rangeVariation`
+        (0..0.9) short of `range` (at most 2000) and flies up to
+        `speedVariation` (0..0.9) slower than the fastest, so the burst is
+        ragged rather than a ring. Each one flies, collides and is drawn
+        exactly like a bullet: it stops at the first wall, rock, tree, player
+        or ghoul in its way, which takes `damage` (the fragment's <damage
+        type>, so armour counts) or, for buildings and resources,
+        `buildingDamage` (the same as `damage` unless stated, like a gun's),
+        with the same hit shake a gunshot gives them. `falloff` (0..1, default
+        1 = none) is the share of both still done by a fragment landing at
+        `range`, falling in a straight line from all of it at the blast, like
+        a gun's <falloff minMultiplier>. Nothing protects the thrower from
+        their own. Fewer fragments reach a far target too, and cover in front
+        absorbs them.
+        The fastest fly at the fragment entry's <physics baseSpeed> times
+        speedMultiplier. A grenade lying against a wall loses the fragments
+        heading into it; the rest fly out from its face. Every fragment is an
+        entity sent to every watcher, which is why the count is capped.
+        With or without an <explosion>.
+
+    <cloud kind="gas" tiles="30" growMs="3000" holdMs="10000" fadeMs="3000"
+           tickMs="500" damage="6" damageType="gas">
+        <onHit condition="choking"/>
+    </cloud>
+        Inside <onDestroy>: something left lying on the ground. It spreads over
+        at most `tiles` tiles (up to 255), nearest first, within `radius` tiles
+        (default: what `tiles` covers as a disc plus one; at most 12). Walls
+        and closed doors stop it; a room fills and a doorway lets it out. It
+        grows over growMs, stays holdMs, thins out over fadeMs (each at most
+        60000). Every tickMs while grown or holding, each player and ghoul
+        standing in it takes `damage` of `damageType` (a wearable's
+        <modifier key="gasResistance"> reduces "gas") and gets the <onHit>
+        condition. kind is what clients draw: gas, smoke or fire.
+        A gas or fire cloud landing on one of the same type that is still
+        burning (same kind, damage, timings and condition) does not lie on top
+        of it: it feeds it. The first cloud takes in the new one's tiles and
+        starts its hold again, and the latest thrower gets the kills, so five
+        molotovs on one spot are one fire: one damage tick, one cloud on the
+        wire, one fire to draw. Smoke clouds always stay separate.
+        buildingDamage, burns="wood,cloth": every tick, each building on or
+        right next to a covered tile whose material is listed takes
+        buildingDamage (fire burns a wooden wall, not a stone one). An object's
+        material is its material= in objects.xml, or read off its
+        <client particles=>: wood/woodlight wood, fur cloth, metal/steel/gold
+        metal, stone stone.
+        blocksVision (default true for kind="smoke", false otherwise): while
+        it is there, until half faded, nobody is sent a player, ghoul or
+        anything else that moves if the line to it crosses from clear air
+        into smoke or back - so from outside you see neither into nor past
+        it, and from inside you see only the inside. Ghouls cannot target
+        through it either. Over the first half of the fade it gives its tiles
+        back last-grown first, so it shrinks to where it went off rather than
+        lifting everywhere at once.
+
+    <shatter/>
+        Breaks where it lands or on the first thing it hits (a molotov's
+        bottle) and goes off there and then: never parks, never bounces. With a
+        cookable <throw>, <lifetime> is only how long it can be held lit; one
+        dropped or held too long breaks at the thrower's feet.
+
+    <explosion ... throughWall="0"/>
+        The share of damage, knockback and condition chance that reaches a
+        creature with a wall, rock or tree between it and the blast. 0 (the
+        default, on every explosion in every file) means cover protects
+        completely; 1 means walls do not matter. Buildings are never sheltered.
 
     <onHit condition="toxic_poison" chance="0.5" durationMs="0" chancePerDamage="0"/>
         A CONDITION the round inflicts on a player it lands on (conditions.xml).
@@ -114,21 +195,125 @@
         </client>
     </projectile>
 
+    <!-- Grenades draw with render="tumble": one sprite, the one in the hand
+         (every frame names it), for the whole flight. It rolls with the
+         ground it covers, `roll` world units per radian (default 24), so it
+         spins off the hand, slows with each bounce and lies still where it
+         stops; a streak of `trail` ("r,g,b", or "none") follows it while
+         it is fast. No in-flight or landed frames to draw. -->
     <projectile clientProjectileId="8" key="granade">
         <physics baseSpeed="1.0"/>
         <damage type="piercing"/>
         <lifetime durationMs="3000" />
+        <bounce restitution="0.45" maxBounces="3"/>
         <onDestroy>
-            <explosion area="1" playerDamage="200" buildingDamage="400" knockback="10">
+            <explosion area="1" playerDamage="200" buildingDamage="400" knockback="20">
                 <onHit condition="slowed" chance="1" durationMs="600" strength="0.2"/>
             </explosion>
         </onDestroy>
-        <client>
-            <frame index="0" sprite="day-grenade0"/>
-            <frame index="1" sprite="day-grenade1"/>
-            <frame index="2" sprite="day-grenadel"/>
+        <client render="tumble">
+            <frame index="0" sprite="day-hand-offensive-grenade"/>
+            <frame index="1" sprite="day-hand-offensive-grenade"/>
+            <frame index="2" sprite="day-hand-offensive-grenade"/>
         </client>
     </projectile>
 
+    <!-- The frag: a small blast and a ring of fragments. Lethal in the open,
+         survivable behind anything solid. The offensive grenade above is the
+         opposite: a big blast and shove, nothing that flies. -->
+    <projectile clientProjectileId="9" key="frag_grenade">
+        <physics baseSpeed="1.0"/>
+        <damage type="piercing"/>
+        <lifetime durationMs="3500" />
+        <bounce restitution="0.45" maxBounces="3"/>
+        <onDestroy>
+            <explosion radius="90" playerDamage="40" buildingDamage="30" knockback="4"/>
+            <fragments projectile="frag_fragment" count="22" range="400" damage="40" buildingDamage="40"
+                       spread="1" rangeVariation="0.6" speedVariation="0.4" falloff="0.4"/>
+        </onDestroy>
+        <client render="tumble">
+            <frame index="0" sprite="day-hand-frag-grenade"/>
+            <frame index="1" sprite="day-hand-frag-grenade"/>
+            <frame index="2" sprite="day-hand-frag-grenade"/>
+        </client>
+    </projectile>
+
+    <!-- The gas grenade: no blast at all. A cloud that fills a room or a
+         corridor and hurts whoever stays in it. -->
+    <projectile clientProjectileId="10" key="gas_grenade">
+        <physics baseSpeed="1.0"/>
+        <damage type="piercing"/>
+        <lifetime durationMs="2500" />
+        <bounce restitution="0.45" maxBounces="3"/>
+        <onDestroy>
+            <cloud kind="gas" tiles="30" growMs="3000" holdMs="10000" fadeMs="3000"
+                   tickMs="500" damage="6" damageType="gas">
+                <onHit condition="choking"/>
+            </cloud>
+        </onDestroy>
+        <client render="tumble" trail="206,222,140">
+            <frame index="0" sprite="day-hand-gas-grenade"/>
+            <frame index="1" sprite="day-hand-gas-grenade"/>
+            <frame index="2" sprite="day-hand-gas-grenade"/>
+        </client>
+    </projectile>
+
+    <!-- The smoke grenade: no blast, no damage. A thick cloud nobody can see
+         into, out of or through; the server stops sending what it hides. -->
+    <projectile clientProjectileId="11" key="smoke_grenade">
+        <physics baseSpeed="1.0"/>
+        <damage type="piercing"/>
+        <lifetime durationMs="2000" />
+        <bounce restitution="0.45" maxBounces="3"/>
+        <onDestroy>
+            <cloud kind="smoke" tiles="40" growMs="2000" holdMs="15000" fadeMs="4000"/>
+        </onDestroy>
+        <client render="tumble" trail="226,228,226">
+            <frame index="0" sprite="day-hand-smoke-grenade"/>
+            <frame index="1" sprite="day-hand-smoke-grenade"/>
+            <frame index="2" sprite="day-hand-smoke-grenade"/>
+        </client>
+    </projectile>
+
+    <!-- The molotov: lit like a grenade's pin is pulled, it breaks where it
+         lands and leaves a patch of fire that burns whoever stands in it,
+         keeps burning them a moment after they leave, and eats wooden
+         buildings next to it. Stone and metal do not burn. -->
+    <projectile clientProjectileId="12" key="molotov">
+        <physics baseSpeed="1.0"/>
+        <damage type="piercing"/>
+        <lifetime durationMs="8000" />
+        <shatter/>
+        <onDestroy>
+            <cloud kind="fire" tiles="9" radius="2" growMs="500" holdMs="8000" fadeMs="1500"
+                   tickMs="500" damage="8" damageType="fire" buildingDamage="90" burns="wood,cloth">
+                <onHit condition="burning"/>
+            </cloud>
+        </onDestroy>
+        <!-- render="molotov": the client draws the bottle (frame 0) tumbling
+             `spin` radians per ms with its rag alight at (flameX, flameY) from
+             the bottle's middle, trailing fire. Frames are kept for the shape
+             every projectile entry has. -->
+        <client render="molotov" flameX="24" flameY="-3" flameSize="22" spin="0.014">
+            <frame index="0" sprite="day-hand-molotov"/>
+            <frame index="1" sprite="day-hand-molotov"/>
+            <frame index="2" sprite="day-hand-molotov"/>
+        </client>
+    </projectile>
+
+    <!-- What a frag grenade throws out: small, fast, and real. Fired by the
+         blast (<fragments projectile="frag_fragment">), never by a weapon, so
+         its damage and range live on the grenade and only how it flies and
+         looks lives here. 3.5 x the reference speed is faster than any gun's
+         round and still inside what the wire can state (2.55 units/ms). -->
+    <projectile clientProjectileId="13" key="frag_fragment">
+        <physics baseSpeed="3.5"/>
+        <damage type="piercing"/>
+        <client>
+            <frame index="0" sprite="day-bullet5"/>
+            <frame index="1" sprite="day-bullet6"/>
+            <frame index="2" sprite="day-bullet6l"/>
+        </client>
+    </projectile>
 
 </projectiles>

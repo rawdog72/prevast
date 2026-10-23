@@ -17,10 +17,28 @@ static constexpr auto STATUS_SERVER_DEVELOPERS = "rawdog72";
 // apps/client/src/net/opcodes.ts) and the server must match exactly: a mismatch
 // is a refused login with ALERT, never a misparse. Bump it on any wire change.
 // 1418: opcodes renamed and grouped by area (network/opcodes.h).
-static constexpr auto CLIENT_VERSION_MIN = 1418;
-static constexpr auto CLIENT_VERSION_MAX = 1418;
-static constexpr auto CLIENT_VERSION_STR = "14.18";
+// 1419: cooked grenades -- THROW_TARGET in, COOK_STATE out.
+// 1420: frag grenades -- SHRAPNEL_BURST out.
+// 1421: gas grenades -- AREA_EFFECT out.
+// 1422: frag fragments are real projectiles -- SHRAPNEL_BURST retired.
+// 1423: THROW_TARGET is the marker's [i16 dx][i16 dy], not a u16 distance.
+static constexpr auto CLIENT_VERSION_MIN = 1423;
+static constexpr auto CLIENT_VERSION_MAX = 1423;
+static constexpr auto CLIENT_VERSION_STR = "14.23";
 static constexpr auto TILE_SIZE = 100;
+// <fragments> limits. Every fragment is a projectile entity sent to every
+// watcher -- created, stopped and removed -- so the count is what one blast
+// costs in bandwidth and in projectile ids (a shotgun shot is 5). The range is
+// how far one can be told to fly.
+static constexpr uint32_t PROJECTILE_FRAGMENT_MAX_COUNT = 48;
+static constexpr uint32_t PROJECTILE_FRAGMENT_MAX_RANGE = 2000;
+// <cloud> limits: its three phases are u16 milliseconds on the wire (AREA_EFFECT),
+// and a tick faster than the 50 ms game loop could not happen anyway.
+static constexpr uint32_t CLOUD_MAX_PHASE_MS = 60000;
+static constexpr uint32_t CLOUD_MIN_TICK_MS = 50;
+// How often a live cloud is restated to whoever can see it, so a player who
+// walks into view of one learns it is there.
+static constexpr uint32_t CLOUD_RESEND_MS = 2000;
 
 // --- Math ---
 static constexpr float MATH_PI     = 3.14159265358979f;

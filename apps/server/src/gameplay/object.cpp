@@ -301,7 +301,7 @@ void Object::executeExplosion(const ObjectExplosion& exp, Player* attacker)
 	// target: its damage is applied deferred by ID, and by then this object is
 	// destroyed and off the map. Unlike the old inline copy this also respects
 	// player invincibility, matching projectile explosions.
-	g_game.executeExplosion(position, exp.radius, exp.area, exp.playerDamage, exp.buildingDamage, exp.knockback, attacker ? attacker->getID() : 0, &exp.onHit);
+	g_game.executeExplosion(position, exp.radius, exp.area, exp.playerDamage, exp.buildingDamage, exp.knockback, attacker ? attacker->getID() : 0, &exp.onHit, exp.throughWall);
 }
 
 // Shared destruction tail: removal broadcast, map removal, subtype refresh,
@@ -1128,6 +1128,22 @@ bool ObjectManager::loadFromXml(const std::string& filename)
 			}
 		}
 		
+		// What it is made of: stated, or read off its hit particles. See ObjectData::material.
+		od.material = objNode.attribute("material").as_string();
+		if (!od.material.empty()) {
+			if (od.material != "wood" && od.material != "cloth" && od.material != "metal" && od.material != "stone") {
+				reportDataWarning(filename, fmt::format(
+					"object '{}' has material=\"{}\"; the materials are wood, cloth, metal and stone",
+					od.key, od.material));
+			}
+		} else {
+			const std::string particles = objNode.child("client").attribute("particles").as_string();
+			if (particles == "wood" || particles == "woodlight") od.material = "wood";
+			else if (particles == "fur") od.material = "cloth";
+			else if (particles == "metal" || particles == "steel" || particles == "gold") od.material = "metal";
+			else if (particles == "stone") od.material = "stone";
+		}
+
 		if (!align.empty()) {
 			if (align == "bottom" || align == "edge") od.alignType = AlignType::BOTTOM;
 			else if (align == "left") od.alignType = AlignType::LEFT;

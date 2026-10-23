@@ -555,6 +555,11 @@ Thing* Game::findAgentTarget(Agent* agent)
 		Thing* current = map.getThingByID(stickyId);
 		const int64_t loseRange = static_cast<int64_t>(data->loseTargetRange());
 		bool keep = isAgentHostileTo(agent, current) && distSqTo(current) <= loseRange * loseRange;
+		// A creature it was after that smoke now hides: lost, as a player who
+		// ducks into a smoke cloud should be. Buildings stay where they were.
+		if (keep && current->getCreature() && smokeHides(apos, current->getPosition())) {
+			keep = false;
+		}
 
 		// Re-confirm REACHABILITY on the throttle. Something that was reachable
 		// when it was acquired can stop being so, and for a target that MOVES
@@ -618,6 +623,8 @@ Thing* Game::findAgentTarget(Agent* agent)
 			// Proved unreachable a moment ago: not a candidate, so the agent
 			// picks the next nearest instead of re-proving the same wall.
 			if (agent->knownUnreachable(p->getID(), now)) continue;
+			// Not through smoke, by the same rule a player's client is held to.
+			if (smokeHides(apos, p->getPosition())) continue;
 			bestDistSq = d2;
 			best = p;
 		}
@@ -745,7 +752,7 @@ Thing* Game::scanAgentSecondaryTargets(Agent* agent, bool scanDue, const Thing* 
 		const int64_t d2 = dx * dx + dy * dy;
 
 		if (isAgentThing) {
-			if (d2 <= bestAgentD2) {
+			if (d2 <= bestAgentD2 && !smokeHides(apos, thing->getPosition())) {
 				bestAgentD2 = d2;
 				bestAgent = thing;
 			}

@@ -27,6 +27,7 @@ import { StatusVignette } from '../render/status-vignette';
 import { PoisonEffect } from '../render/poison-effect';
 import { BuildingAnimator } from '../render/building-animator';
 import { ParticleSystem } from '../render/particles/particle-system';
+import { CloudLayer } from '../render/clouds';
 import { GameRenderer } from '../render/renderer';
 import { drawScopeMask, ShapeMask } from '../render/scope-view';
 import { nightAt, SKY_FADE_MS } from '../render/sky';
@@ -59,7 +60,8 @@ import { GhoulEffects } from './modes/ghoul-effects';
 import { PlacementEngine } from './placement';
 import { TradeTargeting, playerAt } from './trade-targeting';
 import { worldTargetAt, worldTargetTitle } from './world-target';
-import type { WorldEntity } from '../world/entity-types';
+import { CookTimer, drawThrowAim, throwProfileFor, throwTargetFor, type ThrowProfile } from './throw-aim';
+import { EntityType, type WorldEntity } from '../world/entity-types';
 import type { HudAction, HudControlsState, UiScaleAction } from '../ui/hud/hud-controls';
 import {
   DEFAULT_UI_SCALE,
@@ -138,6 +140,8 @@ export class GameLoop {
   /** Weapon, eat and structure hit/break sounds, off the same pulses the animators read. */
   readonly worldSounds: WorldSounds;
   readonly particles: ParticleSystem;
+  /** Gas, smoke and fire clouds (AREA_EFFECT). */
+  readonly clouds = new CloudLayer();
   readonly buildingAnimator: BuildingAnimator;
   readonly brZone: BRZone;
   readonly ghoulEffects: GhoulEffects;
@@ -189,6 +193,15 @@ export class GameLoop {
   private scopeBlend = 0;
   /** The strong scope's darkening, on a canvas of its own made on first use. */
   private readonly shapeMask = new ShapeMask();
+  /** The fuse of a grenade whose pin is out (COOK_STATE), and the throwable it belongs to. */
+  private readonly cookTimer = new CookTimer();
+  private cookProfile: ThrowProfile | null = null;
+  /**
+   * The cookable throwable last seen in hand. Pulling the pin on the last of a
+   * stack unequips it before the throw, so the release still needs to know
+   * what is being thrown.
+   */
+  private lastThrowProfile: ThrowProfile | null = null;
   private static readonly ZOOM_EASE_PER_FRAME = 0.18;
 
   private readonly cleanups: (() => void)[] = [];
@@ -455,6 +468,21 @@ export class GameLoop {
         },
         onOutsideClick: () => this.windows.closeFromOutside(),
         isPlacing: () => this.placement.isPlacing(),
+        throwTarget: () => {
+          const profile = this.cookProfile ?? this.heldThrowable() ?? this.lastThrowProfile;
+          const local = this.world.getLocalEntity();
+          if (!profile || !local || !this.mouse.hasPosition) return null;
+          const cursor = this.mouse.getWorldPos(this.camera);
+          const target = throwTargetFor(
+            local.x,
+            local.y,
+            cursor.x,
+            cursor.y,
+            this.world.localPlayerAngle,
+            profile,
+          );
+          return { dx: target.x - local.x, dy: target.y - local.y };
+        },
         onRotatePlacement: () => {
           this.placement.rotate();
           this.audio.playUi('drag');
@@ -641,6 +669,8 @@ export class GameLoop {
     this.cleanups.push(
       this.socket.bus.on('shakeExplosionState', (ev) => this.camera.explosionShake(ev.shake)),
     );
+    // Gas, smoke and fire clouds.
+    this.cleanups.push(this.socket.bus.on('areaEffect', (ev) => this.clouds.apply(ev)));
     // POISONED [seconds]: the throbbing, pixelated screen; 0 stops it. The other
     // drug kinds are player state (WorldState) that the character renderer draws.
     this.cleanups.push(
@@ -651,6 +681,12 @@ export class GameLoop {
     this.cleanups.push(
       this.socket.bus.on('selectedItem', () => {
         this.audio.playEquip();
+      }),
+    );
+    this.cleanups.push(
+      this.socket.bus.on('cookState', (e) => {
+        this.cookTimer.set(e.fuseMs, e.remainingMs, performance.now());
+        this.cookProfile = e.fuseMs > 0 ? (this.heldThrowable() ?? this.lastThrowProfile) : null;
       }),
     );
     this.cleanups.push(
@@ -777,6 +813,41 @@ export class GameLoop {
     const active = this.inventory.getActiveItem();
     if (active?.iid === iid) return active;
     return this.inventory.slots.find((s) => s.iid === iid) ?? null;
+  }
+
+  /**
+   * What the fire effects need from the world: who could be standing in a
+   * fire, and which molotovs are in the air (they trail flame, and their last
+   * position is where the bottle broke).
+   */
+  private fireSurroundings(): { creatures: WorldEntity[]; molotovs: WorldEntity[] } {
+    const entities = this.world.entities;
+    const creatures: WorldEntity[] = [];
+    for (const type of [EntityType.PLAYER, EntityType.AI]) {
+      for (const e of entities.getByType(type)) if (!e.removed) creatures.push(e);
+    }
+    const molotovs: WorldEntity[] = [];
+    if (this.content.has('projectiles')) {
+      for (const e of entities.getByType(EntityType.BULLET)) {
+        if (e.removed) continue;
+        const client = this.content.byId('projectiles', e.extra)?.client as { render?: string } | undefined;
+        if (client?.render === 'molotov') molotovs.push(e);
+      }
+    }
+    return { creatures, molotovs };
+  }
+
+  /** The cookable grenade in hand, or null. */
+  private heldThrowable(): ThrowProfile | null {
+    return throwProfileFor(this.content, this.inventory.selectedIid);
+  }
+
+  /** The grenade being aimed: the one cooking, else the one held. Remembers it for the release. */
+  private activeThrowProfile(): ThrowProfile | null {
+    const held = this.heldThrowable();
+    if (held) this.lastThrowProfile = held;
+    else if (this.inventory.selectedIid !== 0 && !this.cookTimer.active) this.lastThrowProfile = null;
+    return this.cookTimer.active ? this.cookProfile : held;
   }
 
   /** The view the held gun shows when aimed, or null. */
@@ -1110,6 +1181,8 @@ export class GameLoop {
     this.warmPaletteBeforeSwitch();
     prof.begin('anim');
     this.particles.update(delta);
+    this.clouds.fire.reduced = this.hudControlsState.particlesDisabled;
+    this.clouds.update(delta, this.fireSurroundings());
     this.brZone.update(delta);
     this.ghoulEffects.update(delta);
     // Sounds first: the animators clear the one-tick pulses they play on.
@@ -1221,6 +1294,8 @@ export class GameLoop {
       content: this.content,
       assets: this.assets,
       particles: this.hudControlsState.particlesDisabled ? undefined : this.particles,
+      // Not behind the particles switch: gas hurts, so it is always shown.
+      clouds: this.clouds,
       buildingAnimator: this.buildingAnimator,
       brZone: this.brZone,
       ghoulEffects: this.ghoulEffects,
@@ -1258,6 +1333,30 @@ export class GameLoop {
     prof.begin('overlay');
     // 5. Placement ghost preview
     this.placement.render(ctx, this.assets, night >= 0.5);
+
+    // 5-. A grenade in hand: where it lands, its blast, its arc, its fuse.
+    const throwProfile = this.activeThrowProfile();
+    if (
+      local &&
+      throwProfile &&
+      this.mouse.hasPosition &&
+      !this.inventory.isDead &&
+      !this.placement.isPlacing() &&
+      !this.windows.isModalOpen()
+    ) {
+      const cursor = this.mouse.getWorldPos(this.camera);
+      const timeMs = performance.now();
+      drawThrowAim(ctx, this.camera, {
+        originX: local.x,
+        originY: local.y,
+        target: throwTargetFor(local.x, local.y, cursor.x, cursor.y, this.world.localPlayerAngle, throwProfile),
+        profile: throwProfile,
+        cook: this.cookTimer.active
+          ? { remainingMs: this.cookTimer.remainingMs(timeMs), fraction: this.cookTimer.fraction(timeMs) }
+          : null,
+        timeMs,
+      });
+    }
 
     // 5a. Gauge alert bubbles over players (screen space, never under a wall)
     this.playerAlerts.render(ctx, this.camera, this.assets, this.world);

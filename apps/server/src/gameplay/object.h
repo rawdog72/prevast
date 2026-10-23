@@ -32,6 +32,7 @@ struct ObjectExplosion {
 	float knockback = 0.0f;
 	uint16_t radius = 0;   // circular pixel range (used when area == 0)
 	uint16_t area = 0;     // tiles around the explosion's tile; overrides radius when > 0
+	float throughWall = 0.0f; // share reaching a creature behind a wall; see ProjectileExplosion
 	// What the BLAST inflicts on every creature caught in it. See
 	// ProjectileExplosion::onHit -- one shape, one shared parser.
 	ConditionApplication onHit;
@@ -232,6 +233,14 @@ struct ObjectData {
 	bool collision = false;
 	bool blocksProjectiles = false;
 	AlignType alignType = AlignType::NONE;
+
+	// <object material="wood|cloth|metal|stone">: what it is made of, for what
+	// treats materials differently -- fire burns wood and cloth. Absent, it is
+	// read off the hit effect the object already names (<client particles=>:
+	// wood and woodlight are wood, fur is cloth, metal, steel and gold are metal,
+	// stone is stone), so every existing object has one without being edited.
+	// Empty: none of these.
+	std::string material;
 
 	std::vector<AreaEffect> areaEffects;
 

@@ -15,6 +15,7 @@ import type { NetEventBus } from './events';
 import { type ChatChannel, type MouseDirection, type MoveMask } from './opcodes';
 import {
   buildAimMessage,
+  buildThrowTargetMessage,
   buildNpcActionMessage,
   buildTradeRequestMessage,
   buildTradeReplyMessage,
@@ -262,6 +263,11 @@ export class GameSocket {
   /** AIM; the server decides whether aiming is active and says so with AIM_STATE. */
   aim(held: boolean): void {
     this.send(buildAimMessage(held));
+  }
+
+  /** Where a cooked grenade should land, as an offset from the player; precedes mouseUp. */
+  throwTarget(dx: number, dy: number): void {
+    this.send(buildThrowTargetMessage(dx, dy));
   }
 
   chat(text: string): void {

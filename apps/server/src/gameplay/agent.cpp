@@ -366,7 +366,7 @@ void Agent::die(Player* killer)
 			g_game.executeExplosion(pos, data->explosion.radius, data->explosion.area,
 				data->explosion.playerDamage, data->explosion.buildingDamage,
 				data->explosion.knockback, killer ? killer->getID() : 0,
-				&data->explosion.onHit);
+				&data->explosion.onHit, data->explosion.throughWall);
 		}
 	}
 

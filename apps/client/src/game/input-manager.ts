@@ -37,6 +37,12 @@ export interface InputManagerDelegates {
    * partner), and the game sees neither the press nor its release.
    */
   onPickTarget?: () => boolean;
+  /**
+   * While a cookable grenade is in hand: where the throw marker is, as an
+   * offset from the player. Sent as THROW_TARGET just before the release, so
+   * the server throws to where the marker was. Null for anything else held.
+   */
+  throwTarget?: () => { dx: number; dy: number } | null;
 }
 
 export interface InputManagerOptions {
@@ -322,7 +328,21 @@ export class InputManager {
       this.pressTaken = false;
       return;
     }
-    if (modalOpen || !this.delegates.isPlacing?.()) this.socket.mouseUp();
+    if (modalOpen || !this.delegates.isPlacing?.()) {
+      const throwTarget = this.delegates.throwTarget?.() ?? null;
+      if (throwTarget !== null) {
+        // The throw goes where the marker is, not along the facing, but the
+        // others should see this player turn to it: state the facing too.
+        this.lastAngleDeg = this.angleDegrees(this.world.localPlayerAngle);
+        this.socket.rotation(this.lastAngleDeg);
+        this.socket.throwTarget(throwTarget.dx, throwTarget.dy);
+      }
+      this.socket.mouseUp();
+    }
+  }
+
+  private angleDegrees(rad: number): number {
+    return Math.round((((rad * 180) / Math.PI) % 360) + 360) % 360;
   }
 
   // Old client handleProximity/_Loots: the nearest usable building takes the

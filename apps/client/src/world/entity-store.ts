@@ -320,6 +320,14 @@ export class EntityStore {
           // server's last-tick position and let the smoothing carry the sprite.
           entity.rx = record.startX;
           entity.ry = record.startY;
+        } else if (record.type === EntityType.BULLET) {
+          // A projectile record is a whole flight leg: where it starts and where
+          // it lands. A later one is a new leg -- a grenade glancing off a wall,
+          // or anything stopping -- so the logical position restarts from the
+          // server's leg start instead of cutting the corner from wherever dead
+          // reckoning had carried it. Smoothing carries the sprite there.
+          entity.rx = record.startX;
+          entity.ry = record.startY;
         }
       }
     }

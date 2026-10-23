@@ -12,3 +12,11 @@ export function handleAimState(bytes: Uint8Array, bus: NetEventBus): void {
   const viewY = r.u16();
   if (!r.hasError && r.remaining() === 0) bus.emit('aimState', { active, viewX, viewY });
 }
+
+export function handleCookState(bytes: Uint8Array, bus: NetEventBus): void {
+  // Layout: [COOK_STATE][fuseMs u16 LE][remainingMs u16 LE]
+  const r = new BinaryReader(bytes, 1);
+  const fuseMs = r.u16();
+  const remainingMs = r.u16();
+  if (!r.hasError && r.remaining() === 0) bus.emit('cookState', { fuseMs, remainingMs });
+}

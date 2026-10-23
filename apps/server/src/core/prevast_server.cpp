@@ -202,6 +202,9 @@ namespace {
 		checkFileRefs(contentFile("projectiles.xml"), {
 			{"onHit", "condition", &effects, "condition in conditions.xml", nullptr},
 			{"crit",  "condition", &effects, "condition in conditions.xml", nullptr},
+			// A frag's <fragments projectile=>: resolved by key when it goes
+			// off, and the entry may come later in the same file.
+			{"fragments", "projectile", &projectiles, "projectile in projectiles.xml", nullptr},
 		});
 		// <explosion><onHit condition=> lives in objects.xml and furnitures.xml
 		// too, and the `onHit` rule below already covers whichever file it is in

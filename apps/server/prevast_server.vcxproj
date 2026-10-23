@@ -188,6 +188,8 @@
     <ClCompile Include="src\gameplay\weapon_mods.cpp" />
     <ClCompile Include="src\gameplay\weapon_mods_selftest.cpp" />
     <ClCompile Include="src\gameplay\aim_view.cpp" />
+    <ClCompile Include="src\gameplay\area_fill.cpp" />
+    <ClCompile Include="src\gameplay\area_fill_selftest.cpp" />
     <ClCompile Include="src\gameplay\aim_view_selftest.cpp" />
     <ClCompile Include="src\gameplay\game.cpp" />
     <ClCompile Include="src\gameplay\game_admin.cpp" />
@@ -224,6 +226,9 @@
     <ClCompile Include="src\network\protocolgame.cpp" />
     <ClCompile Include="src\network\protocolstatus.cpp" />
     <ClCompile Include="src\gameplay\resource.cpp" />
+    <ClCompile Include="src\gameplay\scenery_geometry.cpp" />
+    <ClCompile Include="src\gameplay\scenery_geometry_selftest.cpp" />
+    <ClCompile Include="src\gameplay\smoke_sight_selftest.cpp" />
     <ClCompile Include="src\core\scheduler.cpp" />
     <ClCompile Include="src\network\server.cpp" />
     <ClCompile Include="src\network\serverinfo.cpp" />
@@ -278,6 +283,7 @@
     <ClInclude Include="src\gameplay\weapon_mod_types.h" />
     <ClInclude Include="src\gameplay\weapon_mods.h" />
     <ClInclude Include="src\gameplay\aim_view.h" />
+    <ClInclude Include="src\gameplay\area_fill.h" />
     <ClInclude Include="src\gameplay\game.h" />
     <ClInclude Include="src\gameplay\groups.h" />
     <ClInclude Include="src\gameplay\inventory.h" />
@@ -302,6 +308,8 @@
     <ClInclude Include="src\network\protocolstatus.h" />
     <ClInclude Include="src\core\pugicast.h" />
     <ClInclude Include="src\gameplay\resource.h" />
+    <ClInclude Include="src\gameplay\scenery_geometry.h" />
+    <ClInclude Include="src\gameplay\smoke_sight.h" />
     <ClInclude Include="src\core\scheduler.h" />
     <ClInclude Include="src\network\server.h" />
     <ClInclude Include="src\network\serverinfo.h" />

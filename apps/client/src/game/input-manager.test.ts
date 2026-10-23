@@ -50,6 +50,7 @@ describe('InputManager', () => {
     vi.spyOn(socket, 'mouseDirection').mockImplementation(() => {});
     vi.spyOn(socket, 'mouseDown').mockImplementation(() => {});
     vi.spyOn(socket, 'mouseUp').mockImplementation(() => {});
+    vi.spyOn(socket, 'throwTarget').mockImplementation(() => {});
     vi.spyOn(socket, 'shift').mockImplementation(() => {});
     vi.spyOn(socket, 'equipItem').mockImplementation(() => {});
     vi.spyOn(socket, 'takeLoot').mockImplementation(() => {});
@@ -636,6 +637,41 @@ describe('InputManager', () => {
     expect(ctx.socket.mouseDown).toHaveBeenCalledTimes(1);
     expect(ctx.socket.mouseUp).toHaveBeenCalledTimes(1);
 
+    manager.destroy();
+    ctx.keyboard.destroy();
+    ctx.mouse.destroy();
+  });
+
+  it('states the facing and the throw marker right before releasing a cooked grenade', () => {
+    const ctx = setup();
+    const manager = new InputManager({
+      ...ctx,
+      delegates: { throwTarget: () => ({ dx: 144, dy: -192 }) },
+    });
+    ctx.el.dispatchEvent(new MouseEvent('mousedown', { button: 0, clientX: 500, clientY: 400 }));
+    manager.update(16);
+    const rotations = vi.mocked(ctx.socket.rotation).mock.calls.length;
+    ctx.el.dispatchEvent(new MouseEvent('mouseup', { button: 0, clientX: 500, clientY: 400 }));
+    manager.update(16);
+    expect(ctx.socket.throwTarget).toHaveBeenCalledExactlyOnceWith(144, -192);
+    expect(vi.mocked(ctx.socket.rotation).mock.calls.length).toBe(rotations + 1);
+    const order = (fn: unknown) => vi.mocked(fn as () => void).mock.invocationCallOrder.at(-1)!;
+    expect(order(ctx.socket.rotation)).toBeLessThan(order(ctx.socket.throwTarget));
+    expect(order(ctx.socket.throwTarget)).toBeLessThan(order(ctx.socket.mouseUp));
+    manager.destroy();
+    ctx.keyboard.destroy();
+    ctx.mouse.destroy();
+  });
+
+  it('sends no throw marker when nothing cookable is held', () => {
+    const ctx = setup();
+    const manager = new InputManager({ ...ctx, delegates: { throwTarget: () => null } });
+    ctx.el.dispatchEvent(new MouseEvent('mousedown', { button: 0, clientX: 500, clientY: 400 }));
+    manager.update(16);
+    ctx.el.dispatchEvent(new MouseEvent('mouseup', { button: 0, clientX: 500, clientY: 400 }));
+    manager.update(16);
+    expect(ctx.socket.throwTarget).not.toHaveBeenCalled();
+    expect(ctx.socket.mouseUp).toHaveBeenCalledOnce();
     manager.destroy();
     ctx.keyboard.destroy();
     ctx.mouse.destroy();

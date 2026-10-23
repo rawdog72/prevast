@@ -20,6 +20,17 @@
 	as loot. A bow has a wind-up without being consumed, which is exactly why
 	the two are separate fields.
 
+	<throw cookable="true" minRange="100" pinMs="250" releaseMs="150"/> makes a
+	throwable COOKED instead of clicked. Pressing pulls the pin: the item is spent
+	right then and the projectile's fuse (projectiles.xml <lifetime>) starts
+	running. Releasing throws it at the cursor, clamped to [minRange, <fire range>]
+	from the thrower, with whatever fuse is left. Held to the end of the fuse it
+	goes off in the hand; swapping weapons, dying or leaving drops it live.
+	    pinMs      the pin pull: the earliest the throw can leave after the press
+	    releaseMs  the throwing motion: from letting go to leaving the hand
+	A cooked throwable ignores <timing impactMs>; a spear has no <throw> and keeps
+	the click, the wind-up and the full range.
+
 	<remoteTrigger channel="NAME"/> makes an item a DETONATOR. Using it signals
 	every object the same player placed whose objects.xml entry carries a
 	matching <remote channel="NAME"/>, anywhere on the map. The two sides only
@@ -643,12 +654,12 @@
 	<equipable key="granade" typeId="3" idWeapon="38">
 		<muzzleOffset x="70" y="37"/>
 		<animOffset x="80" y="37"/>
-		<timing impactMs="850"/>
 		<damage amount="15" type="piercing" knockback="5"/>
 		<usage stamina="15"/>
 		<fire mode="semi" projectileKey="granade" speedMultiplier="0.6" spreadRadians="0" range="380"/>
-		<client render="throwable" breath="0.05" move="3" breathWeapon="2" x="-50" distance="25" hitAnimMs="100">
-			<held sprite="day-hand-grenade" angle="0" x="25" y="50"/>
+		<throw cookable="true" minRange="100" pinMs="250" releaseMs="150"/>
+		<client render="throwable" breath="0.05" move="3" breathWeapon="2" x="-50" distance="25" hitAnimMs="100" swingAnimMs="450">
+			<held sprite="day-hand-offensive-grenade" angle="0" x="25" y="50"/>
 			<rightArm angle="0" x="10" y="44"/>
 			<leftArm angle="0" x="22" y="-39"/>
 		</client>
@@ -917,6 +928,64 @@
 				<anchor slot="stock" x="187" y="79"/>
 				<anchor slot="handguard" x="350" y="65"/>
 			</modArt>
+		</client>
+	</equipable>
+
+	<equipable key="frag_grenade" typeId="3" idWeapon="55">
+		<muzzleOffset x="70" y="37"/>
+		<animOffset x="80" y="37"/>
+		<damage amount="15" type="piercing" knockback="5"/>
+		<usage stamina="15"/>
+		<fire mode="semi" projectileKey="frag_grenade" speedMultiplier="0.6" spreadRadians="0" range="380"/>
+		<throw cookable="true" minRange="100" pinMs="250" releaseMs="150"/>
+		<client render="throwable" breath="0.05" move="3" breathWeapon="2" x="-50" distance="25" hitAnimMs="100" swingAnimMs="450">
+			<held sprite="day-hand-frag-grenade" angle="0" x="25" y="50"/>
+			<rightArm angle="0" x="10" y="44"/>
+			<leftArm angle="0" x="22" y="-39"/>
+		</client>
+	</equipable>
+
+	<equipable key="gas_grenade" typeId="3" idWeapon="56">
+		<muzzleOffset x="70" y="37"/>
+		<animOffset x="80" y="37"/>
+		<damage amount="10" type="piercing" knockback="3"/>
+		<usage stamina="15"/>
+		<fire mode="semi" projectileKey="gas_grenade" speedMultiplier="0.6" spreadRadians="0" range="380"/>
+		<throw cookable="true" minRange="100" pinMs="250" releaseMs="150"/>
+		<client render="throwable" breath="0.05" move="3" breathWeapon="2" x="-50" distance="25" hitAnimMs="100" swingAnimMs="450">
+			<held sprite="day-hand-gas-grenade" angle="0" x="25" y="50"/>
+			<rightArm angle="0" x="10" y="44"/>
+			<leftArm angle="0" x="22" y="-39"/>
+		</client>
+	</equipable>
+
+	<equipable key="smoke_grenade" typeId="3" idWeapon="57">
+		<muzzleOffset x="70" y="37"/>
+		<animOffset x="80" y="37"/>
+		<damage amount="10" type="piercing" knockback="3"/>
+		<usage stamina="15"/>
+		<fire mode="semi" projectileKey="smoke_grenade" speedMultiplier="0.6" spreadRadians="0" range="380"/>
+		<throw cookable="true" minRange="100" pinMs="250" releaseMs="150"/>
+		<client render="throwable" breath="0.05" move="3" breathWeapon="2" x="-50" distance="25" hitAnimMs="100" swingAnimMs="450">
+			<held sprite="day-hand-smoke-grenade" angle="0" x="25" y="50"/>
+			<rightArm angle="0" x="10" y="44"/>
+			<leftArm angle="0" x="22" y="-39"/>
+		</client>
+	</equipable>
+
+	<equipable key="molotov" typeId="3" idWeapon="58">
+		<muzzleOffset x="70" y="37"/>
+		<animOffset x="80" y="37"/>
+		<damage amount="10" type="piercing" knockback="2"/>
+		<usage stamina="15"/>
+		<fire mode="semi" projectileKey="molotov" speedMultiplier="0.55" spreadRadians="0" range="360"/>
+		<throw cookable="true" minRange="100" pinMs="400" releaseMs="150"/>
+		<!-- <flame>: the lit rag, drawn live at the bottle's mouth (same frame as <held>). -->
+		<client render="throwable" breath="0.05" move="3" breathWeapon="2" x="-50" distance="25" hitAnimMs="100" swingAnimMs="450">
+			<held sprite="day-hand-molotov" angle="0" x="28" y="47"/>
+			<flame x="51" y="44" size="22"/>
+			<rightArm angle="0" x="10" y="44"/>
+			<leftArm angle="0" x="22" y="-39"/>
 		</client>
 	</equipable>
 

@@ -148,6 +148,25 @@ struct EquipableData {
 		return nullptr;
 	}
 
+	// <throw cookable="true" minRange= pinMs= releaseMs=/>: a throwable that is
+	// COOKED rather than clicked. Pressing pulls the pin, and that commits: one
+	// item leaves the inventory and the projectile's fuse (projectiles.xml
+	// <lifetime>) starts running in the hand. Releasing throws it at the marker
+	// the client reports (THROW_TARGET), its distance clamped to [minRange, <fire
+	// range>], carrying whatever fuse is left. Held too long it goes off in the
+	// hand; swapping weapons, dying or leaving drops it live at the feet.
+	//   pinMs     the pin pull: the earliest a throw can leave after the press
+	//   releaseMs the throwing motion: from letting go to leaving the hand
+	// Absent (or cookable="false") keeps the click-to-throw of a spear: the
+	// <timing impactMs> wind-up, then the full <fire range>.
+	struct ThrowData {
+		bool cookable = false;
+		uint16_t minRange = 0;
+		uint32_t pinMs = 0;
+		uint32_t releaseMs = 0;
+	};
+	ThrowData throwing;
+
 	// <aim>: absent = cannot aim. See AimData.
 	AimData aim;
 	// <view>: a built-in scope. A fitted optic's <view> replaces it (weapon_mods::effectiveView).

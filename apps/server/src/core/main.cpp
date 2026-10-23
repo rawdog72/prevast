@@ -19,6 +19,9 @@
 #include "gameplay/weapon_mods.h"
 #include "gameplay/aim_view.h"
 #include "gameplay/loot_placement.h"
+#include "gameplay/scenery_geometry.h"
+#include "gameplay/area_fill.h"
+#include "gameplay/smoke_sight.h"
 
 #include <filesystem>
 
@@ -89,7 +92,10 @@ int main(int argc, char* argv[])
 			const int aimView = aim_view::runSelfTest(
 				(std::filesystem::path(argv[i + 1]).parent_path() / "weapon-mods").string());
 			const int lootPlacement = loot_placement::runSelfTest();
-			return tickets != 0 || identity != 0 || disconnect != 0 || events != 0 || quests != 0 || progress != 0 || lua != 0 || intents != 0 || scenarios != 0 || regions != 0 || population != 0 || weaponMods != 0 || aimView != 0 || lootPlacement != 0 ? 1 : 0;
+			const int sceneryGeometry = scenery_geometry::runSelfTest();
+			const int areaFill = area_fill::runSelfTest();
+			const int smokeSight = smoke_sight::runSelfTest();
+			return tickets != 0 || identity != 0 || disconnect != 0 || events != 0 || quests != 0 || progress != 0 || lua != 0 || intents != 0 || scenarios != 0 || regions != 0 || population != 0 || weaponMods != 0 || aimView != 0 || lootPlacement != 0 || sceneryGeometry != 0 || areaFill != 0 || smokeSight != 0 ? 1 : 0;
 		}
 		if (arg == "--help" || arg == "-h") {
 			printUsage(argv[0]);

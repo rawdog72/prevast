@@ -271,6 +271,43 @@ describe('EntityStore', () => {
       store.update(100);
       expect(store.get(0, 9)!.rx).toBeCloseTo(100);
     });
+
+    it('restarts a projectile from the start of a new leg when it bounces', () => {
+      const store = new EntityStore();
+      const leg = (state: number, startX: number, startY: number, endX: number, endY: number): UnitRecord => ({
+        pid: 0,
+        id: 11,
+        type: EntityType.BULLET,
+        rotation: 0,
+        state,
+        startX,
+        startY,
+        endX,
+        endY,
+        extra: 0,
+      });
+      store.processUnits([leg((100 << 8) | 1, 0, 100, 1000, 100)]); // 1 u/ms east
+      store.update(300);
+      expect(store.get(0, 11)!.rx).toBeCloseTo(300);
+
+      // Off a wall at x=250 the server already reached: back west at 0.45 u/ms.
+      store.processUnits([leg((45 << 8) | 1, 247, 100, 0, 100)]);
+      const grenade = store.get(0, 11)!;
+      expect(grenade.rx).toBe(247);
+      expect(grenade.ry).toBe(100);
+      store.update(100);
+      expect(grenade.rx).toBeCloseTo(202);
+    });
+
+    it('puts a stopping projectile on its resting point', () => {
+      const store = new EntityStore();
+      const base = { pid: 0, id: 12, type: EntityType.BULLET, rotation: 0, startY: 0, endY: 0, extra: 0 };
+      store.processUnits([{ ...base, state: (100 << 8) | 1, startX: 0, endX: 1000 }]);
+      store.update(100);
+      store.processUnits([{ ...base, state: 1, startX: 60, endX: 60 }]);
+      store.update(16);
+      expect(store.get(0, 12)!.rx).toBe(60);
+    });
   });
 
   it('latches a one-tick hurt pulse (state bit 1) on buildings and resources with the impact direction', () => {

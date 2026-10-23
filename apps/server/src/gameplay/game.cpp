@@ -28,6 +28,9 @@
 #include "gameplay/agent.h"
 #include "gameplay/item.h"
 #include "world/collision.h"
+#include "gameplay/scenery_geometry.h"
+#include "gameplay/area_fill.h"
+#include "gameplay/smoke_sight.h"
 #include "gameplay/projectile.h"
 #include "gameplay/equipment.h"
 #include "gameplay/kit.h"
@@ -221,6 +224,41 @@ namespace {
 		return false;
 	}
 
+	// The solid outline of a piece of SCENERY -- a wall, door, rock or tree --
+	// exactly as checkProjectileTargetHit sees it. Creatures and NPCs have none
+	// on purpose: they do not shelter what stands behind them from a blast, and
+	// a grenade does not bounce off a person. See scenery_geometry.h.
+	bool gameSceneryShape(Thing* thing, scenery_geometry::Shape& out)
+	{
+		if (Object* obj = thing->getObject()) {
+			const ObjectData* od = obj->getData();
+			if (!od || !obj->blocksProjectiles()) {
+				return false;
+			}
+			CollisionRect rect;
+			if (obj->getCollisionRect(rect)) {
+				out = scenery_geometry::Shape::ofRect(rect);
+				return true;
+			}
+			if (od->radius > 0) {
+				out = scenery_geometry::Shape::ofCircle({ static_cast<float>(obj->getPosition().x),
+					static_cast<float>(obj->getPosition().y), static_cast<float>(od->radius) });
+				return true;
+			}
+			return false;
+		}
+		if (Resource* res = thing->getResource()) {
+			const float radius = res->getCollisionRadius();
+			if (radius <= 0.0f) {
+				return false;
+			}
+			out = scenery_geometry::Shape::ofCircle({ static_cast<float>(res->getPosition().x),
+				static_cast<float>(res->getPosition().y), radius });
+			return true;
+		}
+		return false;
+	}
+
 	// How long a bullet has to stay parked on its impact point before the client
 	// has walked its drawn sprite onto it. The sprite trails the dead-reckoned
 	// position by one lerp lag at this speed and closes (1 - lerp) of what is
@@ -251,6 +289,54 @@ namespace {
 			static_cast<int64_t>(range) * range;
 	}
 }
+
+// One live cloud (Game::spawnCloud). Complete here, before Game's constructor
+// and destructor, because Game holds these by unique_ptr.
+struct ActiveCloud {
+	uint16_t id = 0;
+	ProjectileCloud data;
+	int32_t tileX = 0;          // the tile it started on
+	int32_t tileY = 0;
+	std::vector<area_fill::Cell> cells; // offsets from (tileX, tileY), in growth order
+	uint32_t attackerId = 0;
+	uint32_t ageMs = 0;
+	uint32_t tickAccumMs = 0;
+	uint32_t sinceSentMs = 0;
+	size_t smoked = 0;          // how many of `cells` are counted in Game::smokeGrid
+
+	// How many of `cells` smoke hides now, always a prefix in growth order.
+	// It grows with the cloud and holds; then, over the first half of the
+	// fade, it gives its tiles back last-grown first, so the cloud shrinks to
+	// its middle instead of letting everyone in it be seen in the same tick.
+	// From half faded on it hides nothing: what the client draws as too thin
+	// to hide anything is not hiding anything. Tile i is hidden while
+	// ageMs < fadeStart + half - half * i / n; the client draws it on the same
+	// clock (smokeHeld in render/clouds.ts).
+	size_t hiding() const
+	{
+		const size_t n = cells.size();
+		if (!data.blocksVision || n == 0) return 0;
+		const uint32_t fadeStart = static_cast<uint32_t>(data.growMs) + data.holdMs;
+		const uint32_t half = data.fadeMs / 2u;
+		if (ageMs < fadeStart) return covered();
+		if (ageMs >= fadeStart + half) return 0;
+		const uint64_t left = static_cast<uint64_t>(fadeStart) + half - ageMs; // 1..half
+		const size_t k = static_cast<size_t>((static_cast<uint64_t>(n) * left + half - 1) / half);
+		return std::clamp<size_t>(k, 1, n);
+	}
+
+	uint32_t lifeMs() const { return static_cast<uint32_t>(data.growMs) + data.holdMs + data.fadeMs; }
+	// While it is fully there and doing what it does; fading is only a look.
+	bool working() const { return ageMs < static_cast<uint32_t>(data.growMs) + data.holdMs; }
+	// How many of `cells` it covers now: all of them once grown.
+	size_t covered() const
+	{
+		if (data.growMs == 0 || ageMs >= data.growMs) return cells.size();
+		const size_t n = cells.size();
+		const size_t k = static_cast<size_t>((static_cast<uint64_t>(n) * ageMs + data.growMs - 1) / data.growMs);
+		return std::clamp<size_t>(k, 1, n);
+	}
+};
 
 Game::Game() = default;
 Game::~Game() = default;
@@ -1429,6 +1515,9 @@ void Game::removePlayer(Player* player)
 	// once a mass kick recycles the heap between the free and the read.
 	// Agent::die states the same rule for the same reason.
 	player->incrementReferenceCounter();
+
+	// Leaving with a grenade cooking: it stays behind, live.
+	player->dropCookedGrenade(true);
 
 	// A death was logged (with its killer) where it happened; this is the
 	// plain departure -- disconnect, idle kick, session gone.
@@ -3833,6 +3922,10 @@ void Game::broadcastSurgicalUpdate(const EntityUpdate& update, const Position& p
 	for (Player* p : surgicalSpectators) {
 		if (!(isStatic ? p->canSeeScenery(pos) : p->canSee(pos))) continue;
 		if (concealed && !perceivesConcealed(p, concealed)) continue;
+		// A creature or anything else that moves, hidden by smoke: not sent and
+		// not recorded as known, exactly as if it were out of view. Scenery is
+		// no secret, and a transient visual (a blast) is seen through smoke.
+		if (!isStatic && track && smokeHides(p->getPosition(), pos)) continue;
 		p->pushUpdate(update);
 		if (track) {
 			p->knownCreatures.insert(fullId);
@@ -3894,12 +3987,12 @@ void Game::updateConcealedVisibility(Player* p, const Map::TileBox& box, uint32_
 // the shared_ptr across every recipient. That saved the serialisation but not
 // the frame, which is the part that actually costs; copying three bytes into a
 // batch is cheaper than the shared_ptr copy it replaces.
-void Game::broadcastToWatchers(const NetworkMessage& msg, const Position& pos, Player* subject)
+void Game::broadcastToWatchers(const NetworkMessage& msg, const Position& pos, Player* subject, bool throughSmoke)
 {
 	// The radius bounds where an event is relevant and the per-victim throttle
 	// bounds how often one happens, but neither bounds the FAN-OUT: one flash
 	// in a dense crowd is still one frame per spectator. This does.
-	fanOutToWatchers(msg, pos, subject, getNumber(ConfigManager::EVENT_FRAMES_PER_TICK));
+	fanOutToWatchers(msg, pos, subject, getNumber(ConfigManager::EVENT_FRAMES_PER_TICK), throughSmoke);
 }
 
 // The same fan-out for a message that states what something IS rather than what
@@ -3917,12 +4010,13 @@ void Game::broadcastToWatchers(const NetworkMessage& msg, const Position& pos, P
 // STATUS_VISUAL_RESTATE_MS. The pathological case -- every player drugged, all
 // in one viewport -- is players x spectators / 10s, an order of magnitude under
 // the flash storm the budget was introduced for, and the realistic case is zero.
-void Game::broadcastStateToWatchers(const NetworkMessage& msg, const Position& pos, Player* subject)
+void Game::broadcastStateToWatchers(const NetworkMessage& msg, const Position& pos, Player* subject, bool throughSmoke)
 {
-	fanOutToWatchers(msg, pos, subject, 0);
+	fanOutToWatchers(msg, pos, subject, 0, throughSmoke);
 }
 
-void Game::fanOutToWatchers(const NetworkMessage& msg, const Position& pos, Player* subject, int32_t frameBudget)
+void Game::fanOutToWatchers(const NetworkMessage& msg, const Position& pos, Player* subject, int32_t frameBudget,
+                            bool throughSmoke)
 {
 	// Cosmetic events are bounded by what a client can actually DRAW, not by
 	// what it is told about. See ConfigManager::EVENT_BROADCAST_RADIUS: these
@@ -3944,6 +4038,11 @@ void Game::fanOutToWatchers(const NetworkMessage& msg, const Position& pos, Play
 
 	for (Player* p : watcherSpectators) {
 		if (p == subject || !p->client || !p->canSee(pos)) {
+			continue;
+		}
+		// A hit flash or a damage number inside smoke would say exactly where
+		// the hidden player is. The subject above always gets their own.
+		if (!throughSmoke && smokeHides(p->getPosition(), pos)) {
 			continue;
 		}
 		if (radius > 0) {
@@ -5181,6 +5280,7 @@ void Game::updateMovement()
 	g_scripts.update(elapsedMs);
 	updateWorldTime(elapsedMs);
 	updateProjectiles(elapsedMs);
+	updateClouds(elapsedMs);
 	g_perf.markPhase(TickProfiler::PHASE_PROJECTILES);
 
 	removeExpiredTakenLoot(now);
@@ -5661,7 +5761,13 @@ void Game::updateMovement()
 			}
 			Creature* creature = entry.thing->getCreature();
 			Player* specPlayer = creature ? creature->getPlayer() : nullptr;
-			return !(specPlayer && specPlayer != p && specPlayer->isGhostMode() && !specPlayer->isGhostVisible());
+			if (specPlayer && specPlayer != p && specPlayer->isGhostMode() && !specPlayer->isGhostVisible()) {
+				return false;
+			}
+			// Smoke: in it, behind it, or outside it while the observer is in
+			// it. Dropped like anything out of view, so a known entity gets the
+			// ordinary viewport-exit removal and nothing marks it as hidden.
+			return entry.thing == p || !smokeHides(ppos, Position(entry.x, entry.y));
 		};
 		const StrongView& strong = p->getView().strong;
 		if (strong.shape == ViewShape::None) {
@@ -5793,7 +5899,7 @@ void Game::addProjectile(std::unique_ptr<Projectile> proj)
 }
 
 void Game::executeExplosion(const Position& pos, uint16_t radius, uint16_t area, uint32_t playerDamage, uint32_t buildingDamage, float knockback, uint32_t attackerId,
-                            const ConditionApplication* onHit)
+                            const ConditionApplication* onHit, float throughWall)
 {
 	// 1. Broadcast the explosion entity visually. The id ROTATES: an explosion
 	// is addressed (pid 0, id) like any world entity, so two blasts sharing an
@@ -5843,6 +5949,33 @@ void Game::executeExplosion(const Position& pos, uint16_t radius, uint16_t area,
 	                       blastTileX + blastTileMargin, blastTileY + blastTileMargin,
 	                       nearThings);
 
+	// How much of the blast reaches a creature: all of it in the open, the
+	// <explosion throughWall> share with a wall, rock or tree in between. Only
+	// creatures are sheltered -- a grenade thrown against a wall still damages
+	// that wall in full, which is the point of throwing it there.
+	//
+	// The scenery is gathered ONCE per blast, the first time a creature needs
+	// it, as plain shapes. It used to be gathered again for every creature in
+	// range -- a fresh tile-box query per body, so a blast in a ghoul horde
+	// paid for the same walls dozens of times. The box is the blast's own reach
+	// plus the collision margin, which contains every box the per-creature
+	// query asked for: anything a creature in range could be sheltered by.
+	// Copies, and local rather than a member: a lethal blast runs death paths
+	// that can set off another blast, or free a wall, before this loop is done.
+	std::vector<BlastCover> cover;
+	bool coverGathered = false;
+	const auto blastReach = [&](const Position& at) -> float {
+		if (throughWall >= 1.0f) return 1.0f;
+		if (!coverGathered) {
+			coverGathered = true;
+			gatherBlastCover(blastTileX, blastTileY, blastTileMargin, cover);
+		}
+		return isBlastOccluded(cover, pos, at) ? throughWall : 1.0f;
+	};
+	const auto reachedDamage = [](uint32_t damage, float reach) -> uint32_t {
+		return reach >= 1.0f ? damage : static_cast<uint32_t>(std::lround(static_cast<float>(damage) * reach));
+	};
+
 	for (Thing* thing : nearThings) {
 		int32_t dist = pos.getDistance(thing->getPosition());
 		bool inRange = (area > 0)
@@ -5863,11 +5996,18 @@ void Game::executeExplosion(const Position& pos, uint16_t radius, uint16_t area,
 					continue;
 				}
 				p->sendShakeExplosionState(20);
+				// The shake above is felt through a wall; nothing below is.
+				const float reach = blastReach(p->getPosition());
+				if (reach <= 0.0f) {
+					continue;
+				}
+				const uint32_t damageHere = reachedDamage(playerDamage, reach);
+				const float knockbackHere = knockback * reach;
+				// Looked up per body, not once per blast: the attacker can die
+				// in this very loop (their own grenade) and be freed.
 				Player* pAttacker = getPlayerByID(attackerId);
-				int32_t finalDmg = -static_cast<int32_t>(playerDamage);
-				if (p->isGhostMode()) {
-					finalDmg = 0;
-				} else if (p->isInvincible() && (!pAttacker || !pAttacker->hasGroupFlag(GroupFlag::BypassInvincible))) {
+				int32_t finalDmg = -static_cast<int32_t>(damageHere);
+				if (p->isInvincible() && (!pAttacker || !pAttacker->hasGroupFlag(GroupFlag::BypassInvincible))) {
 					finalDmg = 0;
 				}
 				int32_t dealt = 0;
@@ -5889,12 +6029,12 @@ void Game::executeExplosion(const Position& pos, uint16_t radius, uint16_t area,
 					                onHit->durationMs, onHit->strength);
 				}
 
-				if (knockback > 0) {
+				if (knockbackHere > 0) {
 					float dx = static_cast<float>(p->getPosition().x - pos.x);
 					float dy = static_cast<float>(p->getPosition().y - pos.y);
 					float len = std::sqrt(dx * dx + dy * dy);
 					if (len > 0.0f) {
-						p->applyKnockback((dx / len) * static_cast<float>(knockback) * 1.5f, (dy / len) * static_cast<float>(knockback) * 1.5f);
+						p->applyKnockback((dx / len) * knockbackHere * 1.5f, (dy / len) * knockbackHere * 1.5f);
 					}
 				}
 			} else if (Agent* agent = thing->getAgent()) {
@@ -5902,15 +6042,22 @@ void Game::executeExplosion(const Position& pos, uint16_t radius, uint16_t area,
 				// not a building -- so it takes playerDamage, on the same terms
 				// a player does. Radiation and the other environment effects are
 				// a separate path and stay players-only, deliberately.
+				const float reach = blastReach(agent->getPosition());
+				if (reach <= 0.0f) {
+					continue;
+				}
+				const uint32_t damageHere = reachedDamage(playerDamage, reach);
+				const float knockbackHere = knockback * reach;
+
 				const float dx = static_cast<float>(agent->getPosition().x) - pos.x;
 				const float dy = static_cast<float>(agent->getPosition().y) - pos.y;
 				const float len = std::sqrt(dx * dx + dy * dy);
 
 				// Knockback INLINE: it only adds an impulse, so it cannot free
 				// anything, and it has to happen while we still hold the agent.
-				if (knockback > 0 && len > 0.0f) {
-					agent->applyKnockback((dx / len) * static_cast<float>(knockback) * 1.5f,
-					                      (dy / len) * static_cast<float>(knockback) * 1.5f);
+				if (knockbackHere > 0 && len > 0.0f) {
+					agent->applyKnockback((dx / len) * knockbackHere * 1.5f,
+					                      (dy / len) * knockbackHere * 1.5f);
 				}
 
 				// The blast's condition, inline for the same reason: applying one
@@ -5920,8 +6067,8 @@ void Game::executeExplosion(const Position& pos, uint16_t radius, uint16_t area,
 				// landed amount, because the landing has not happened yet -- a
 				// stun grenade should stun what it catches whether or not the
 				// agent survives the shrapnel.
-				if (onHit && !onHit->empty() && playerDamage > 0 &&
-				    onHit->roll(static_cast<int32_t>(playerDamage))) {
+				if (onHit && !onHit->empty() && damageHere > 0 &&
+				    onHit->roll(static_cast<int32_t>(damageHere))) {
 					agent->addCondition(onHit->key, attackerId != 0 && getPlayerByID(attackerId)
 						? getPlayerByID(attackerId)->getGUID() : 0,
 						onHit->durationMs, onHit->strength);
@@ -5937,7 +6084,7 @@ void Game::executeExplosion(const Position& pos, uint16_t radius, uint16_t area,
 				// moment it fires.
 				float angle = std::atan2(dy, dx);
 				if (angle < 0) angle += MATH_TWO_PI;
-				scheduleExplosionDamage(agent->getID(), playerDamage, attackerId,
+				scheduleExplosionDamage(agent->getID(), damageHere, attackerId,
 				                        std::max<uint32_t>(10, dist * 2),
 				                        static_cast<uint8_t>((angle * 31.0f) / MATH_TWO_PI));
 			} else if (thing->getObject() || thing->getResource()) {
@@ -5949,6 +6096,57 @@ void Game::executeExplosion(const Position& pos, uint16_t radius, uint16_t area,
 	}
 }
 
+// Every piece of scenery that could shelter a creature from a blast centred
+// on tile (tileX, tileY) reaching `reachTiles` tiles: walls, doors, rocks and
+// trees in that box plus the collision margin, as shapes with their bounds.
+void Game::gatherBlastCover(int32_t tileX, int32_t tileY, int32_t reachTiles, std::vector<BlastCover>& out)
+{
+	const int32_t margin = reachTiles + Map::collisionScanTileMargin();
+	std::vector<Thing*> solids;
+	map.getSolidThingsInTileBox(tileX - margin, tileY - margin, tileX + margin, tileY + margin, solids);
+	out.clear();
+	out.reserve(solids.size());
+	for (Thing* thing : solids) {
+		BlastCover cover;
+		if (!gameSceneryShape(thing, cover.shape)) continue;
+		if (cover.shape.isRect) {
+			const CollisionRect& r = cover.shape.rect;
+			cover.minX = r.x - r.halfWidth;
+			cover.maxX = r.x + r.halfWidth;
+			cover.minY = r.y - r.halfHeight;
+			cover.maxY = r.y + r.halfHeight;
+		} else {
+			const CollisionCircle& c = cover.shape.circle;
+			cover.minX = c.x - c.radius;
+			cover.maxX = c.x + c.radius;
+			cover.minY = c.y - c.radius;
+			cover.maxY = c.y + c.radius;
+		}
+		out.push_back(cover);
+	}
+}
+
+// Whether any of `cover` stands between a blast at `origin` and a creature at
+// `target`; see scenery_geometry::shelters for what counts. A shape whose
+// bounds miss the segment's own cannot be in the way and is skipped before
+// the exact test.
+bool Game::isBlastOccluded(const std::vector<BlastCover>& cover, const Position& origin, const Position& target)
+{
+	const float ox = static_cast<float>(origin.x);
+	const float oy = static_cast<float>(origin.y);
+	const float tx = static_cast<float>(target.x);
+	const float ty = static_cast<float>(target.y);
+	const float minX = std::min(ox, tx), maxX = std::max(ox, tx);
+	const float minY = std::min(oy, ty), maxY = std::max(oy, ty);
+	for (const BlastCover& c : cover) {
+		if (c.maxX < minX || c.minX > maxX || c.maxY < minY || c.minY > maxY) continue;
+		if (scenery_geometry::shelters(c.shape, ox, oy, tx, ty)) {
+			return true;
+		}
+	}
+	return false;
+}
+
 // Deferred explosion damage resolved by ID: applies to whichever of Object,
 // Resource or Agent the target turns out to be at execution time. Shared by
 // every splash-damage branch so they cannot drift.
@@ -5958,8 +6156,14 @@ void Game::executeExplosion(const Position& pos, uint16_t radius, uint16_t area,
 // same chain, and getThingByID simply does not find it.
 void Game::scheduleExplosionDamage(uint32_t targetId, uint32_t damage, uint32_t attackerId, uint32_t delayMs, uint8_t impactAngle)
 {
-	g_scheduler.addEvent(createSchedulerTask(delayMs, [targetId, damage, attackerId, impactAngle]() {
-		g_dispatcher.addTask([targetId, damage, attackerId, impactAngle]() {
+	scheduleSplashDamage(targetId, damage, attackerId, delayMs, impactAngle, AgentDamageKind::Explosion);
+}
+
+void Game::scheduleSplashDamage(uint32_t targetId, uint32_t damage, uint32_t attackerId, uint32_t delayMs,
+                                uint8_t impactAngle, AgentDamageKind kind)
+{
+	g_scheduler.addEvent(createSchedulerTask(delayMs, [targetId, damage, attackerId, impactAngle, kind]() {
+		g_dispatcher.addTask([targetId, damage, attackerId, impactAngle, kind]() {
 			Player* pAttacker = nullptr;
 			if (attackerId != 0) {
 				if (Thing* aThing = g_game.getThingByID(attackerId)) {
@@ -5977,7 +6181,7 @@ void Game::scheduleExplosionDamage(uint32_t targetId, uint32_t damage, uint32_t 
 				// kill credits XP, provokes the type and drops loot exactly as
 				// any other kill does. A lethal hit here deletes the agent --
 				// nothing may touch it afterwards.
-				a->changeHealth(delta, impactAngle, pAttacker, false, AgentDamageKind::Explosion);
+				a->changeHealth(delta, impactAngle, pAttacker, false, kind);
 			} else if (Resource* r = t->getResource()) {
 				r->changeHealth(delta, impactAngle, pAttacker);
 			}
@@ -6085,19 +6289,22 @@ void Game::applyHitEffects(Player* attacker, Creature* victim, int32_t damageDea
 
 void Game::applyProjectilePlayerHit(Projectile& projectile, Player& targetPlayer, Player* attacker, const EquipableData* edata, int32_t damage, float angleRad)
 {
-	const std::string damageType = edata ? edata->damageType : "";
+	// The ROUND's own effects, from projectiles.xml. Resolved by KEY through the
+	// weapon's projectileKey rather than from the live Projectile, which does
+	// not carry its own data pointer. A round no weapon fired -- a grenade's
+	// fragment -- is its own entry.
+	const ProjectileData* pdata = edata
+		? (edata->projectileKey.empty() ? nullptr : ProjectileManager::getInstance().getProjectileData(edata->projectileKey))
+		: ProjectileManager::getInstance().getProjectileData(projectile.getExtra());
+
+	// The weapon's damage type; with no weapon, the round's <damage type>, so
+	// armour still counts against a fragment.
+	const std::string damageType = edata ? edata->damageType : (pdata ? pdata->damageType : "");
 	if (targetPlayer.isGhostMode()) {
 		damage = 0;
 	} else if (targetPlayer.isInvincible() && (!attacker || !attacker->hasGroupFlag(GroupFlag::BypassInvincible))) {
 		damage = 0;
 	}
-
-	// The ROUND's own effects, from projectiles.xml. Resolved by KEY through the
-	// weapon's projectileKey rather than from the live Projectile, which does
-	// not carry its own data pointer.
-	const ProjectileData* pdata = (edata && !edata->projectileKey.empty())
-		? ProjectileManager::getInstance().getProjectileData(edata->projectileKey)
-		: nullptr;
 
 	// The round's crit, then the weapon's: a tipped dart and a scoped rifle can
 	// each carry one, and each is rolled and honoured on its own.
@@ -6220,6 +6427,29 @@ void Game::applyProjectileHit(Projectile& projectile, Thing* hitTarget, const Po
 		falloffMul = edata->falloff.multiplierAt(std::sqrt(dx * dx + dy * dy));
 		// damage is negative here; scaling the magnitude keeps the sign.
 		damage = damageDelta(static_cast<float>(-damage) * falloffMul);
+	} else if (projectile.isFragment()) {
+		// A fragment's falloff, measured from the blast it came out of.
+		const Position& from = projectile.getStartPos();
+		const float dx = hitX - static_cast<float>(from.x);
+		const float dy = hitY - static_cast<float>(from.y);
+		falloffMul = projectile.fragmentFalloffAt(std::sqrt(dx * dx + dy * dy));
+		damage = damageDelta(static_cast<float>(-damage) * falloffMul);
+	}
+
+	// A fragment hits a building or a resource with <fragments buildingDamage>
+	// (its body damage unless stated, as a gun's <buildingDamage> is), the way
+	// a gun's round hits one with the weapon's.
+	if (projectile.isFragment()) {
+		const int32_t buildingDamage = damageDelta(static_cast<float>(projectile.getFragmentBuildingDamage()) * falloffMul);
+		if (Object* targetObj = hitTarget->getObject()) {
+			targetObj->changeHealth(buildingDamage, impactAngle31, attacker);
+			return;
+		}
+		if (Resource* targetRes = hitTarget->getResource()) {
+			// No attacker: see the resource branch below.
+			targetRes->changeHealth(buildingDamage, impactAngle31, nullptr);
+			return;
+		}
 	}
 
 	if (Player* targetPlayer = hitTarget->getCreature() ? hitTarget->getCreature()->getPlayer() : nullptr) {
@@ -6233,20 +6463,29 @@ void Game::applyProjectileHit(Projectile& projectile, Thing* hitTarget, const Po
 				impactAngle31, attacker);
 		}
 	} else if (Resource* targetRes = hitTarget->getResource()) {
-		targetRes->changeHealth(damage, impactAngle31, attacker);
+		// No attacker: Resource::changeHealth pays a harvest by whatever its
+		// attacker is HOLDING at the moment, which for a projectile is not what
+		// fired it -- a player who threw a spear and is bare-handed, or swapped
+		// to a hatchet while a shot was in flight, gathered from the tree it
+		// hit. A shot chips a tree; it does not chop it.
+		targetRes->changeHealth(damage, impactAngle31, nullptr);
 	} else if (Agent* targetAgent = hitTarget->getAgent()) {
 		// Knockback before the hit: a lethal changeHealth deletes the agent.
 		// The projectile's own value, not the base weapon's: a fitted mod can
 		// change knockback, and the player branch above reads it from here too.
-		if (edata && projectile.getKnockback() > 0) {
+		if ((edata || projectile.isFragment()) && projectile.getKnockback() > 0) {
 			targetAgent->applyKnockback(std::cos(angleRad) * projectile.getKnockback() * 1.5f,
 			                            std::sin(angleRad) * projectile.getKnockback() * 1.5f);
 		}
 		// The firing weapon's damageType picks the resistance (piercing for
-		// bullets, energy for the tesla family).
-		targetAgent->changeHealth(damage, impactAngle31, attacker, false,
-		                          edata ? agentDamageKindFromString(edata->damageType)
-		                                : AgentDamageKind::None);
+		// bullets, energy for the tesla family); with no weapon, the round's.
+		AgentDamageKind kind = AgentDamageKind::None;
+		if (edata) {
+			kind = agentDamageKindFromString(edata->damageType);
+		} else if (const ProjectileData* pdata = ProjectileManager::getInstance().getProjectileData(projectile.getExtra())) {
+			kind = agentDamageKindFromString(pdata->damageType);
+		}
+		targetAgent->changeHealth(damage, impactAngle31, attacker, false, kind);
 	}
 }
 
@@ -6359,11 +6598,691 @@ void Game::removeProjectile(Projectile* projectile, const Position& removalPos)
 // itself as ground loot.
 void Game::applyProjectilePayload(Projectile* projectile, const ProjectileData* pdata, const Position& pos)
 {
-	if (pdata && pdata->explosion.enabled) {
+	if (pdata && pdata->detonates()) {
 		const uint32_t attackerId = projectile->getShooter() ? projectile->getShooter()->getID() : 0;
-		executeExplosion(pos, pdata->explosion.radius, pdata->explosion.area, pdata->explosion.playerDamage, pdata->explosion.buildingDamage, pdata->explosion.knockback, attackerId, &pdata->explosion.onHit);
+		detonateProjectile(*pdata, pos, attackerId);
 	} else {
 		dropProjectileItem(projectile, pos);
+	}
+}
+
+void Game::detonateProjectile(const ProjectileData& pdata, const Position& pos, uint32_t attackerId)
+{
+	if (pdata.explosion.enabled) {
+		const ProjectileExplosion& blast = pdata.explosion;
+		executeExplosion(pos, blast.radius, blast.area, blast.playerDamage, blast.buildingDamage, blast.knockback,
+		                 attackerId, &blast.onHit, blast.throughWall);
+	}
+	if (pdata.fragments.enabled) {
+		fireFragments(pos, pdata.fragments, attackerId);
+	}
+	if (pdata.cloud.enabled) {
+		spawnCloud(pos, pdata.cloud, attackerId);
+	}
+}
+
+bool Game::isCloudBlockedTile(int32_t tileX, int32_t tileY)
+{
+	if (tileX < 0 || tileY < 0 ||
+	    tileX >= static_cast<int32_t>(MapSize::tilesX()) || tileY >= static_cast<int32_t>(MapSize::tilesY())) {
+		return true;
+	}
+	// A wall or a closed door whose outline covers the middle of the tile: the
+	// same things that stop a bullet. Rocks and trees stand IN a cloud.
+	const float centerX = static_cast<float>(tileX * TILE_SIZE + TILE_SIZE / 2);
+	const float centerY = static_cast<float>(tileY * TILE_SIZE + TILE_SIZE / 2);
+	const int32_t margin = Map::collisionScanTileMargin();
+	std::vector<Thing*> things;
+	map.getSolidThingsInTileBox(tileX - margin, tileY - margin, tileX + margin, tileY + margin, things);
+	for (Thing* thing : things) {
+		if (!thing->getObject()) continue;
+		scenery_geometry::Shape shape;
+		if (gameSceneryShape(thing, shape) && scenery_geometry::containsDeep(shape, centerX, centerY, 0.0f)) {
+			return true;
+		}
+	}
+	return false;
+}
+
+// Whether clouds like this one join an overlapping cloud of the same type
+// instead of lying on top of it. Not smoke: what smoke hides is counted tile
+// by tile in smokeGrid as it grows and thins, and a cloud changing shape
+// under that count would leave tiles hidden forever. Smoke on smoke is only
+// thicker smoke anyway; fire on fire and gas on gas would double the damage
+// and the drawing for nothing.
+static bool canMergeClouds(const ProjectileCloud& cloud)
+{
+	return cloud.enabled && !cloud.blocksVision;
+}
+
+// Two clouds are the same type when everything they do matches; a different
+// fire (another damage, another tick) stays a cloud of its own.
+static bool sameCloudType(const ProjectileCloud& a, const ProjectileCloud& b)
+{
+	return a.kind == b.kind && a.damage == b.damage && a.damageType == b.damageType && a.tickMs == b.tickMs &&
+	       a.buildingDamage == b.buildingDamage && a.burns == b.burns && a.growMs == b.growMs &&
+	       a.holdMs == b.holdMs && a.fadeMs == b.fadeMs && a.onHit.key == b.onHit.key;
+}
+
+// Folds a new cloud -- `cells`, offsets from (tileX, tileY) -- into `existing`
+// when they are the same type and overlap on a tile `existing` covers now.
+// The fire is fed rather than stacked: it burns its full time again from now
+// (back to the end of its growth, so nothing already burning goes out and
+// regrows), takes in whatever new tiles the second bottle reached, up to the
+// wire's 255, and the latest thrower gets the kills. One cloud per spot means
+// one damage tick, one AREA_EFFECT and one fire for clients to draw, however
+// many bottles land there. Returns false, changing nothing, otherwise.
+static bool mergeCloud(ActiveCloud& existing, const ProjectileCloud& cloud, int32_t tileX, int32_t tileY,
+                       const std::vector<area_fill::Cell>& cells, uint32_t attackerId)
+{
+	if (!canMergeClouds(existing.data) || !sameCloudType(existing.data, cloud)) return false;
+	if (!existing.working()) return false; // fading out: let it go, the new one takes over
+
+	const int32_t shiftX = tileX - existing.tileX;
+	const int32_t shiftY = tileY - existing.tileY;
+	const size_t covered = existing.covered();
+	const auto coveredHas = [&](int32_t dx, int32_t dy) {
+		for (size_t i = 0; i < covered; ++i) {
+			if (existing.cells[i].dx == dx && existing.cells[i].dy == dy) return true;
+		}
+		return false;
+	};
+	bool overlaps = false;
+	for (const area_fill::Cell& cell : cells) {
+		if (coveredHas(cell.dx + shiftX, cell.dy + shiftY)) {
+			overlaps = true;
+			break;
+		}
+	}
+	if (!overlaps) return false;
+
+	const auto has = [&](int32_t dx, int32_t dy) {
+		for (const area_fill::Cell& c : existing.cells) {
+			if (c.dx == dx && c.dy == dy) return true;
+		}
+		return false;
+	};
+	for (const area_fill::Cell& cell : cells) {
+		if (existing.cells.size() >= static_cast<size_t>(area_fill::kMaxCells)) break;
+		const int32_t dx = cell.dx + shiftX;
+		const int32_t dy = cell.dy + shiftY;
+		if (dx < -128 || dx > 127 || dy < -128 || dy > 127 || has(dx, dy)) continue;
+		area_fill::Cell added;
+		added.dx = static_cast<int8_t>(dx);
+		added.dy = static_cast<int8_t>(dy);
+		existing.cells.push_back(added);
+	}
+	existing.ageMs = std::min<uint32_t>(existing.ageMs, existing.data.growMs);
+	existing.attackerId = attackerId;
+	existing.sinceSentMs = 0;
+	return true;
+}
+
+// A cloud where something went off. Its shape is decided here, once: spread
+// nearest-first over open tiles from the tile it landed on (area_fill), so a
+// room fills and a wall holds it. Doors opened later do not let it out.
+//
+// A grenade resting against a wall can sit on that wall's own tile. Spreading
+// from there would leak to both sides, so it starts from the open tile next to
+// it that is nearest the grenade -- the side it was thrown from.
+void Game::spawnCloud(const Position& pos, const ProjectileCloud& cloud, uint32_t attackerId)
+{
+	if (!cloud.enabled) return;
+
+	int32_t tileX = static_cast<int32_t>(pos.x) / TILE_SIZE;
+	int32_t tileY = static_cast<int32_t>(pos.y) / TILE_SIZE;
+	if (isCloudBlockedTile(tileX, tileY)) {
+		float best = 1e18f;
+		int32_t bestX = tileX, bestY = tileY;
+		for (int32_t dy = -1; dy <= 1; ++dy) {
+			for (int32_t dx = -1; dx <= 1; ++dx) {
+				if ((dx == 0 && dy == 0) || isCloudBlockedTile(tileX + dx, tileY + dy)) continue;
+				const float cx = static_cast<float>((tileX + dx) * TILE_SIZE + TILE_SIZE / 2) - static_cast<float>(pos.x);
+				const float cy = static_cast<float>((tileY + dy) * TILE_SIZE + TILE_SIZE / 2) - static_cast<float>(pos.y);
+				const float d = cx * cx + cy * cy;
+				if (d < best) {
+					best = d;
+					bestX = tileX + dx;
+					bestY = tileY + dy;
+				}
+			}
+		}
+		tileX = bestX;
+		tileY = bestY;
+	}
+
+	std::vector<area_fill::Cell> cells = area_fill::fill(cloud.tiles, cloud.radius, [&](int dx, int dy) {
+		return isCloudBlockedTile(tileX + dx, tileY + dy);
+	});
+
+	// A second molotov into a fire already burning there feeds that fire
+	// rather than lighting another on top of it: see mergeCloud.
+	if (canMergeClouds(cloud)) {
+		for (auto& existing : clouds) {
+			if (mergeCloud(*existing, cloud, tileX, tileY, cells, attackerId)) {
+				sendCloud(*existing);
+				return;
+			}
+		}
+	}
+
+	auto active = std::make_unique<ActiveCloud>();
+	active->id = nextCloudId++;
+	if (nextCloudId == 0) nextCloudId = 1;
+	active->data = cloud;
+	active->tileX = tileX;
+	active->tileY = tileY;
+	active->attackerId = attackerId;
+	active->cells = std::move(cells);
+
+	syncCloudSmoke(*active, false);
+	sendCloud(*active);
+	clouds.push_back(std::move(active));
+}
+
+bool Game::isSmokeTile(int32_t tileX, int32_t tileY) const
+{
+	if (smokeTiles == 0 || tileX < 0 || tileY < 0) return false;
+	const int32_t width = MapSize::tilesX();
+	if (tileX >= width || tileY >= MapSize::tilesY()) return false;
+	const size_t index = static_cast<size_t>(tileY) * static_cast<size_t>(width) + static_cast<size_t>(tileX);
+	return index < smokeGrid.size() && smokeGrid[index] != 0;
+}
+
+void Game::syncCloudSmoke(ActiveCloud& cloud, bool ending)
+{
+	const size_t want = ending ? 0 : cloud.hiding();
+	if (want == cloud.smoked) return;
+
+	const int32_t width = MapSize::tilesX();
+	const int32_t height = MapSize::tilesY();
+	if (smokeGrid.size() != static_cast<size_t>(width) * static_cast<size_t>(height)) {
+		// First smoke, or the map was resized: nothing can be counted in a grid
+		// of the wrong shape, so start it over.
+		smokeGrid.assign(static_cast<size_t>(width) * static_cast<size_t>(height), 0);
+		smokeTiles = 0;
+		smokeMinX = smokeMinY = 0;
+		smokeMaxX = smokeMaxY = -1;
+		for (auto& other : clouds) other->smoked = 0;
+		cloud.smoked = 0;
+		if (want == 0) return;
+	}
+
+	const auto at = [&](const area_fill::Cell& cell, int32_t& x, int32_t& y) {
+		x = cloud.tileX + cell.dx;
+		y = cloud.tileY + cell.dy;
+		return x >= 0 && y >= 0 && x < width && y < height;
+	};
+
+	// Growing: count the newly covered tiles.
+	while (cloud.smoked < want) {
+		int32_t x = 0, y = 0;
+		if (at(cloud.cells[cloud.smoked], x, y)) {
+			uint8_t& n = smokeGrid[static_cast<size_t>(y) * width + x];
+			if (n++ == 0) ++smokeTiles;
+			if (smokeMaxX < smokeMinX) {
+				smokeMinX = smokeMaxX = x;
+				smokeMinY = smokeMaxY = y;
+			} else {
+				smokeMinX = std::min(smokeMinX, x);
+				smokeMaxX = std::max(smokeMaxX, x);
+				smokeMinY = std::min(smokeMinY, y);
+				smokeMaxY = std::max(smokeMaxY, y);
+			}
+		}
+		++cloud.smoked;
+	}
+	// Thinning (or gone): uncount the tiles it gives back, last-grown first,
+	// and keep the rest.
+	if (want < cloud.smoked) {
+		while (cloud.smoked > want) {
+			--cloud.smoked;
+			int32_t x = 0, y = 0;
+			if (!at(cloud.cells[cloud.smoked], x, y)) continue;
+			uint8_t& n = smokeGrid[static_cast<size_t>(y) * width + x];
+			if (n > 0 && --n == 0) --smokeTiles;
+		}
+		recomputeSmokeBox();
+	}
+}
+
+// The box around every counted smoke tile, worked out again from the clouds
+// after one shrinks: grown-only, it would keep spanning the whole map after a
+// cloud at one end had gone, and smokeNear would stop rejecting anything.
+// A few hundred cells at most, a few times a second while smoke thins.
+void Game::recomputeSmokeBox()
+{
+	smokeMinX = smokeMinY = 0;
+	smokeMaxX = smokeMaxY = -1;
+	if (smokeTiles == 0) return;
+	const int32_t width = MapSize::tilesX();
+	const int32_t height = MapSize::tilesY();
+	bool any = false;
+	for (const auto& other : clouds) {
+		for (size_t i = 0; i < other->smoked; ++i) {
+			const int32_t x = other->tileX + other->cells[i].dx;
+			const int32_t y = other->tileY + other->cells[i].dy;
+			if (x < 0 || y < 0 || x >= width || y >= height) continue;
+			if (!any) {
+				smokeMinX = smokeMaxX = x;
+				smokeMinY = smokeMaxY = y;
+				any = true;
+			} else {
+				smokeMinX = std::min(smokeMinX, x);
+				smokeMaxX = std::max(smokeMaxX, x);
+				smokeMinY = std::min(smokeMinY, y);
+				smokeMaxY = std::max(smokeMaxY, y);
+			}
+		}
+	}
+}
+
+bool Game::smokeNear(const Position& a, const Position& b) const
+{
+	if (smokeTiles == 0) return false;
+	const int32_t minX = std::min(a.x, b.x) / TILE_SIZE;
+	const int32_t maxX = std::max(a.x, b.x) / TILE_SIZE;
+	const int32_t minY = std::min(a.y, b.y) / TILE_SIZE;
+	const int32_t maxY = std::max(a.y, b.y) / TILE_SIZE;
+	return !(maxX < smokeMinX || minX > smokeMaxX || maxY < smokeMinY || minY > smokeMaxY);
+}
+
+bool Game::smokeHides(const Position& viewer, const Position& target) const
+{
+	if (!smokeNear(viewer, target)) return false;
+	return smoke_sight::hides(static_cast<int32_t>(viewer.x), static_cast<int32_t>(viewer.y),
+		static_cast<int32_t>(target.x), static_cast<int32_t>(target.y), TILE_SIZE,
+		[this](int32_t x, int32_t y) { return isSmokeTile(x, y); });
+}
+
+bool Game::firstVisibleThroughSmoke(const Position& viewer, const Position& from, const Position& to, Position& out) const
+{
+	int32_t x = 0, y = 0;
+	if (!smoke_sight::firstVisible(static_cast<int32_t>(viewer.x), static_cast<int32_t>(viewer.y),
+			static_cast<int32_t>(from.x), static_cast<int32_t>(from.y),
+			static_cast<int32_t>(to.x), static_cast<int32_t>(to.y), TILE_SIZE,
+			[this](int32_t tx, int32_t ty) { return isSmokeTile(tx, ty); }, x, y)) {
+		return false;
+	}
+	out = Position(static_cast<uint16_t>(x), static_cast<uint16_t>(y));
+	return true;
+}
+
+void Game::sendCloud(const ActiveCloud& cloud)
+{
+	NetworkMessage msg;
+	msg.addByte(static_cast<uint8_t>(ServerOpcode::AREA_EFFECT));
+	msg.add<uint16_t>(cloud.id);
+	msg.addByte(cloud.data.kind);
+	msg.add<uint16_t>(static_cast<uint16_t>(cloud.tileX));
+	msg.add<uint16_t>(static_cast<uint16_t>(cloud.tileY));
+	msg.add<uint16_t>(cloud.data.growMs);
+	msg.add<uint16_t>(cloud.data.holdMs);
+	msg.add<uint16_t>(cloud.data.fadeMs);
+	msg.add<uint16_t>(static_cast<uint16_t>(std::min<uint32_t>(cloud.ageMs, 0xFFFF)));
+	msg.addByte(static_cast<uint8_t>(cloud.cells.size()));
+	for (const area_fill::Cell& cell : cloud.cells) {
+		msg.addByte(static_cast<uint8_t>(cell.dx));
+		msg.addByte(static_cast<uint8_t>(cell.dy));
+	}
+	// A state, not an event: it must not be dropped under load, or someone
+	// walks into gas they were never shown.
+	const Position center(static_cast<uint16_t>(cloud.tileX * TILE_SIZE + TILE_SIZE / 2),
+	                      static_cast<uint16_t>(cloud.tileY * TILE_SIZE + TILE_SIZE / 2));
+	// Through smoke: a cloud is no secret, and the middle of a smoke cloud is
+	// smoke -- gating it would hide every smoke cloud from everyone outside it.
+	broadcastStateToWatchers(msg, center, nullptr, true);
+}
+
+void Game::updateClouds(uint32_t elapsedMs)
+{
+	for (size_t i = 0; i < clouds.size(); ) {
+		ActiveCloud& cloud = *clouds[i];
+		cloud.ageMs += elapsedMs;
+		if (cloud.ageMs >= cloud.lifeMs()) {
+			// The client ends it on the same clock; nothing to send.
+			syncCloudSmoke(cloud, true);
+			std::swap(clouds[i], clouds.back());
+			clouds.pop_back();
+			continue;
+		}
+
+		if (cloud.data.blocksVision) {
+			syncCloudSmoke(cloud, false);
+		}
+
+		if (cloud.working() && (cloud.data.damage > 0 || cloud.data.buildingDamage > 0 || !cloud.data.onHit.empty())) {
+			cloud.tickAccumMs += elapsedMs;
+			while (cloud.tickAccumMs >= cloud.data.tickMs) {
+				cloud.tickAccumMs -= cloud.data.tickMs;
+				applyCloudTick(cloud);
+			}
+		}
+
+		cloud.sinceSentMs += elapsedMs;
+		if (cloud.sinceSentMs >= CLOUD_RESEND_MS) {
+			cloud.sinceSentMs = 0;
+			sendCloud(cloud);
+		}
+		++i;
+	}
+}
+
+// Everyone standing on a covered tile takes the cloud's damage and gets its
+// condition. The condition is short and refreshed every tick (conditions.xml
+// <stacking mode="refresh">), so it lasts as long as they stay and a moment
+// after; the damage is applied here rather than by the condition, see
+// ProjectileCloud.
+void Game::applyCloudTick(const ActiveCloud& cloud)
+{
+	const size_t covered = cloud.covered();
+	int32_t minX = 0, maxX = 0, minY = 0, maxY = 0;
+	for (size_t i = 0; i < covered; ++i) {
+		minX = std::min<int32_t>(minX, cloud.cells[i].dx);
+		maxX = std::max<int32_t>(maxX, cloud.cells[i].dx);
+		minY = std::min<int32_t>(minY, cloud.cells[i].dy);
+		maxY = std::max<int32_t>(maxY, cloud.cells[i].dy);
+	}
+
+	// Covered tiles as a grid over the cloud's box plus a ring, so "on or next
+	// to the fire" is a handful of lookups for a building.
+	const int32_t gridW = maxX - minX + 3;
+	const int32_t gridH = maxY - minY + 3;
+	std::vector<uint8_t> coveredGrid(static_cast<size_t>(gridW) * static_cast<size_t>(gridH), 0);
+	for (size_t i = 0; i < covered; ++i) {
+		coveredGrid[static_cast<size_t>(cloud.cells[i].dy - minY + 1) * gridW + (cloud.cells[i].dx - minX + 1)] = 1;
+	}
+	const auto coveredAt = [&](int32_t dx, int32_t dy) {
+		const int32_t gx = dx - minX + 1;
+		const int32_t gy = dy - minY + 1;
+		return gx >= 0 && gy >= 0 && gx < gridW && gy < gridH && coveredGrid[static_cast<size_t>(gy) * gridW + gx] != 0;
+	};
+
+	std::vector<Thing*> inside;
+	map.getThingsInTileBox(cloud.tileX + minX - 1, cloud.tileY + minY - 1, cloud.tileX + maxX + 1, cloud.tileY + maxY + 1, inside);
+	std::sort(inside.begin(), inside.end());
+	inside.erase(std::unique(inside.begin(), inside.end()), inside.end());
+
+	Player* attacker = getPlayerByID(cloud.attackerId);
+	const uint32_t inflictorGuid = attacker ? attacker->getGUID() : 0;
+	const ConditionApplication& onHit = cloud.data.onHit;
+
+	for (Thing* thing : inside) {
+		// Fire and buildings: what is on fire, or right up against it, burns
+		// if it is made of something that burns. Deferred and by id, like
+		// every splash on a building.
+		if (Object* obj = thing->getObject()) {
+			if (cloud.data.buildingDamage == 0) continue;
+			const ObjectData* od = obj->getData();
+			if (!od || od->material.empty() ||
+			    std::find(cloud.data.burns.begin(), cloud.data.burns.end(), od->material) == cloud.data.burns.end()) {
+				continue;
+			}
+			const int32_t ox = static_cast<int32_t>(obj->getPosition().x) / TILE_SIZE - cloud.tileX;
+			const int32_t oy = static_cast<int32_t>(obj->getPosition().y) / TILE_SIZE - cloud.tileY;
+			if (coveredAt(ox, oy) || coveredAt(ox + 1, oy) || coveredAt(ox - 1, oy) ||
+			    coveredAt(ox, oy + 1) || coveredAt(ox, oy - 1)) {
+				scheduleSplashDamage(obj->getID(), cloud.data.buildingDamage, cloud.attackerId, 10, 0, AgentDamageKind::None);
+			}
+			continue;
+		}
+
+		Creature* creature = thing->getCreature();
+		if (!creature || thing->getNpc()) continue;
+		Player* player = creature->getPlayer();
+		if (!player && !thing->getAgent()) continue;
+		if (player && player->isGhostMode()) continue;
+		if (player && player->isInvincible() && (!attacker || !attacker->hasGroupFlag(GroupFlag::BypassInvincible))) {
+			continue;
+		}
+
+		const Position& at = creature->getPosition();
+		const int32_t dx = static_cast<int32_t>(at.x) / TILE_SIZE - cloud.tileX;
+		const int32_t dy = static_cast<int32_t>(at.y) / TILE_SIZE - cloud.tileY;
+		if (!coveredAt(dx, dy)) continue;
+
+		if (cloud.data.damage > 0) {
+			if (player) {
+				player->changeHealth(-static_cast<int32_t>(cloud.data.damage), true, false, false,
+				                     cloud.data.damageType, attacker);
+			} else {
+				// Deferred and by id like every other splash on an agent: one
+				// that dies here may explode, and that must not land mid-loop.
+				scheduleSplashDamage(thing->getID(), cloud.data.damage, cloud.attackerId, 10, 0,
+				                     agentDamageKindFromString(cloud.data.damageType));
+			}
+		}
+		if (!onHit.empty() && onHit.roll()) {
+			creature->addCondition(onHit.key, inflictorGuid, onHit.durationMs, onHit.strength);
+		}
+	}
+}
+
+// A frag's fragments: `count` real projectiles -- the <fragments projectile=>
+// entry of projectiles.xml -- each fired somewhere in its own slice of the
+// circle (so the burst always covers every direction, but never as a neat
+// star), the pattern turned by a random offset, and each with its own range
+// and speed. From here on each one is an ordinary projectile:
+// updateProjectiles moves and collides it, applyProjectileHit lands it, and
+// clients get it as entity records like any bullet. So a fragment does to
+// whatever it meets exactly what a bullet would, armour and cover included.
+//
+// Scenery AT the blast is resolved first (scenery_geometry::fragmentStart): a
+// grenade resting against a wall loses the fragments heading into it and
+// sends the rest out from just off its face, instead of every one of them
+// starting inside the wall and stopping there on its first step.
+void Game::fireFragments(const Position& pos, const ProjectileFragments& fragments, uint32_t attackerId)
+{
+	if (!fragments.enabled) return;
+
+	const ProjectileData* fdata = ProjectileManager::getInstance().getProjectileData(fragments.projectileKey);
+	if (!fdata) {
+		return; // validateDataReferences reported the key at startup
+	}
+	if (fdata->fragments.enabled) {
+		// Fragments that burst into fragments multiply with every generation.
+		static bool warnedNested = false;
+		if (!warnedNested) {
+			warnedNested = true;
+			fmt::print(fg(fmt::color::yellow),
+				">> [Warning] <fragments projectile=\"{}\"> names a projectile that has <fragments> of its own; "
+				"not fired.\n", fragments.projectileKey);
+		}
+		return;
+	}
+
+	// Whoever threw it, if they are still here: the hits and the kill are
+	// theirs, and the projectile's reference keeps them alive meanwhile. Gone
+	// already (left, or freed), the fragments fly unowned.
+	Creature* thrower = nullptr;
+	if (attackerId != 0) {
+		if (Thing* thing = getThingByID(attackerId)) {
+			thrower = thing->getCreature();
+		}
+	}
+
+	const float topSpeed = PROJECTILE_REFERENCE_SPEED * fdata->baseSpeed * fragments.speedMultiplier;
+	const float ox = static_cast<float>(pos.x);
+	const float oy = static_cast<float>(pos.y);
+	const float maxX = static_cast<float>(MapSize::widthUnits()) - 1.0f;
+	const float maxY = static_cast<float>(MapSize::heightUnits()) - 1.0f;
+
+	// The scenery the blast is in or on, gathered once for the whole burst.
+	const int32_t margin = Map::collisionScanTileMargin();
+	const int32_t tileX = static_cast<int32_t>(pos.x) / TILE_SIZE;
+	const int32_t tileY = static_cast<int32_t>(pos.y) / TILE_SIZE;
+	std::vector<Thing*>& scenery = fragmentScenery;
+	scenery.clear();
+	map.getSolidThingsInTileBox(tileX - margin, tileY - margin, tileX + margin, tileY + margin, scenery);
+	std::vector<scenery_geometry::Shape> shapes;
+	shapes.reserve(scenery.size());
+	for (Thing* thing : scenery) {
+		scenery_geometry::Shape shape;
+		if (gameSceneryShape(thing, shape)) {
+			shapes.push_back(shape);
+		}
+	}
+
+	// Anyone who can see where a fragment starts or where the furthest one
+	// can land; announceProjectile narrows it per fragment.
+	std::vector<Player*>& spectators = fragmentSpectators;
+	spectators.clear();
+	map.getPotentialSpectatorPlayers(pos, spectators, projectileViewRange() + static_cast<int32_t>(fragments.range));
+
+	const auto unit = []() { return static_cast<float>(uniform_random(0, 1000)) / 1000.0f; };
+	const float firstAngle = unit() * MATH_TWO_PI;
+	const float slice = MATH_TWO_PI / static_cast<float>(fragments.count);
+
+	static bool warnedPoolFull = false;
+	for (uint8_t i = 0; i < fragments.count; ++i) {
+		const float angle = firstAngle + slice * (static_cast<float>(i) + (unit() - 0.5f) * fragments.spread);
+		const float dirX = std::cos(angle);
+		const float dirY = std::sin(angle);
+
+		// Out of whatever the blast is in, or stopped by what it lies on.
+		bool stopped = false;
+		float exitAt = 0.0f;
+		for (const scenery_geometry::Shape& shape : shapes) {
+			float at = 0.0f;
+			const scenery_geometry::FragmentStart start = scenery_geometry::fragmentStart(shape, ox, oy, dirX, dirY, at);
+			if (start == scenery_geometry::FragmentStart::Stopped) {
+				stopped = true;
+			} else if (start == scenery_geometry::FragmentStart::Exit) {
+				exitAt = std::max(exitAt, at);
+			}
+		}
+		// Stopped: it starts at the blast, and its first step meets the surface.
+		if (stopped) {
+			exitAt = 0.0f;
+		}
+
+		// How far and how fast it flies. Both vary per fragment: one range for
+		// all leaves them on a ring, and one speed for all makes the front of
+		// the burst a perfect expanding circle however far each one goes.
+		float length = static_cast<float>(fragments.range) * (1.0f - fragments.rangeVariation * unit());
+		const float speed = topSpeed * (1.0f - fragments.speedVariation * unit());
+		// Kept on the map: the edge stops it like a wall.
+		if (dirX > 0.0f) length = std::min(length, (maxX - ox) / dirX);
+		if (dirX < 0.0f) length = std::min(length, ox / -dirX);
+		if (dirY > 0.0f) length = std::min(length, (maxY - oy) / dirY);
+		if (dirY < 0.0f) length = std::min(length, oy / -dirY);
+		if (length <= exitAt + 1.0f) {
+			continue; // never gets out of what it went off in
+		}
+
+		const uint32_t projectileId = map.acquireEntityId(EntityClass::Projectile);
+		if (projectileId == 0) {
+			// Same exhaustion, and the same answer, as Player::spawnProjectiles.
+			if (!warnedPoolFull) {
+				warnedPoolFull = true;
+				fmt::print(fg(fmt::color::yellow),
+					">> [Warning] No entity id available for a grenade fragment ({} projectiles in flight); "
+					"fragments are being dropped. Raise entityIdReserveProjectiles in config.lua.\n",
+					map.getEntityIdPool().liveCount(EntityClass::Projectile));
+			}
+			break;
+		}
+		warnedPoolFull = false;
+		map.commitEntityId(projectileId);
+
+		const Position start(static_cast<uint16_t>(std::lround(std::clamp(ox + dirX * exitAt, 0.0f, maxX))),
+		                     static_cast<uint16_t>(std::lround(std::clamp(oy + dirY * exitAt, 0.0f, maxY))));
+		const Position end(static_cast<uint16_t>(std::lround(std::clamp(ox + dirX * length, 0.0f, maxX))),
+		                   static_cast<uint16_t>(std::lround(std::clamp(oy + dirY * length, 0.0f, maxY))));
+
+		auto fragment = std::make_unique<Projectile>(projectileId, start, end, start, dirX * speed, dirY * speed,
+			fragments.damage, fragments.knockback, thrower, fdata->id);
+		fragment->setFragment(fragments.buildingDamage, fragments.range, fragments.falloff);
+		announceProjectile(*fragment, spectators, nullptr);
+		addProjectile(std::move(fragment));
+	}
+}
+
+// A new projectile's creation record to everyone who can see its path; see the
+// declaration. Through smoke, each watcher is shown the shot from the first
+// point they can see, so a tracer comes OUT of a cloud rather than pointing at
+// whoever fired from inside it -- and one that never leaves the smoke is not
+// shown to them at all.
+void Game::announceProjectile(Projectile& projectile, const std::vector<Player*>& spectators, const Creature* owner)
+{
+	if (projectile.getSkipVisual()) {
+		return;
+	}
+
+	const int32_t projRange = projectileViewRange();
+	const Position& start = projectile.getStartPos();
+	const Position& end = projectile.getEndPos();
+	const Position& anim = projectile.getAnimStartPos();
+
+	EntityUpdate record;
+	projectile.buildUpdate(record);
+
+	// No knownCreatures.insert, deliberately: a projectile is never placed on
+	// the map, so it never appears in the visibility diff's `visible` set, and
+	// an id inserted there was dropped again by the very same tick's diff.
+	// Retraction goes to exactly the recorded set; see Projectile::markSentTo.
+	const bool smokeOnPath = smokeNear(anim, end);
+	for (Player* p : spectators) {
+		if (!p->canSeeWithin(start, projRange, projRange) &&
+		    !p->canSeeWithin(end, projRange, projRange) &&
+		    !p->canSeeWithin(anim, projRange, projRange)) {
+			continue;
+		}
+		if (smokeOnPath && p != owner && smokeHides(p->getPosition(), anim)) {
+			Position seenFrom;
+			if (!firstVisibleThroughSmoke(p->getPosition(), anim, end, seenFrom)) {
+				continue;
+			}
+			EntityUpdate fromSmoke = record;
+			fromSmoke.startX = static_cast<uint16_t>(seenFrom.x);
+			fromSmoke.startY = static_cast<uint16_t>(seenFrom.y);
+			p->pushUpdate(fromSmoke);
+		} else {
+			p->pushUpdate(record);
+		}
+		projectile.markSentTo(static_cast<uint8_t>(p->getGUID()));
+	}
+}
+
+// Anyone who comes into range of a live grenade after it was thrown is told
+// about it here: before, the creation record went only to who could see the
+// throw, so a player walking up to a grenade lying at their feet never saw it
+// at all. Told once, they are in the recorded set (Projectile::markSentTo), so
+// the park, the bounces and the removal reach them like everyone else -- the
+// set only ever grows, which is what keeps it leak-free.
+//
+// The record is the projectile as it is NOW: a grenade still flying starts its
+// leg from where it is, not from the hand it left, and one lying still is
+// stated where it lies. Smoke hides it as it hides a bullet; a watcher it
+// hides is simply asked again next tick.
+void Game::introduceProjectile(Projectile& projectile)
+{
+	if (projectile.getSkipVisual()) {
+		return;
+	}
+
+	const int32_t projRange = projectileViewRange();
+	const Position& at = projectile.getPosition();
+	std::vector<Player*>& candidates = introduceCandidates;
+	candidates.clear();
+	map.getPotentialSpectatorPlayers(at, candidates, projRange);
+
+	EntityUpdate record;
+	bool built = false;
+	for (Player* p : candidates) {
+		const uint8_t pid = static_cast<uint8_t>(p->getGUID());
+		if (projectile.wasSentTo(pid) || !p->canSeeWithin(at, projRange, projRange) ||
+		    smokeHides(p->getPosition(), at)) {
+			continue;
+		}
+		if (!built) {
+			projectile.buildUpdate(record);
+			record.startX = static_cast<uint16_t>(at.x);
+			record.startY = static_cast<uint16_t>(at.y);
+			built = true;
+		}
+		p->pushUpdate(record);
+		projectile.markSentTo(pid);
 	}
 }
 
@@ -6420,7 +7339,6 @@ void Game::updateProjectiles(uint32_t elapsedMs)
 		const auto stepStart = clockNow();
 		Projectile* p = projectiles[i].get();
 		Position oldPos = p->getPosition();
-		bool wasStopped = p->isStopped();
 
 		if (!p->update(elapsedMs)) {
 			moveNs += since(stepStart);
@@ -6429,7 +7347,7 @@ void Game::updateProjectiles(uint32_t elapsedMs)
 				// End of the impact park: the payload landed on the tick it hit.
 				removeProjectile(p, p->getPosition());
 			} else {
-				// Expired (reached max range, or lifetime expired): same
+				// The fuse ran out, or it shatters where it was dropped: same
 				// explosion-or-drop behavior as a hit, at the resting position.
 				const ProjectileData* pdata = ProjectileManager::getInstance().getProjectileData(p->getExtra());
 				destroyProjectileAfterHit(p, pdata, p->getPosition());
@@ -6441,10 +7359,10 @@ void Game::updateProjectiles(uint32_t elapsedMs)
 			continue;
 		}
 
-		if (!wasStopped && p->isStopped()) {
-			EntityUpdate update;
-			p->buildUpdate(update);
-			sendProjectileToRecipients(*p, update);
+		// A live grenade -- lying on the ground (stopped, not an impact park)
+		// or flying on a fuse of its own -- to whoever has come into range.
+		if (p->isStopped() ? !p->isImpactResolved() : p->fuseMs(nullptr) > 0) {
+			introduceProjectile(*p);
 		}
 
 		if (p->isStopped()) {
@@ -6499,9 +7417,11 @@ void Game::updateProjectiles(uint32_t elapsedMs)
 		float minHitDistSq = 1e18f;
 		float hitX = 0, hitY = 0;
 
+		// A bullet never hits its own shooter; a frag's fragment hits whoever
+		// threw it like anyone else standing in the blast.
+		const Thing* immune = p->isFragment() ? nullptr : p->getShooter();
 		for (Thing* target : candidates) {
-			if (target == p->getShooter()) continue;
-
+			if (target == immune) continue;
 
 			float tx = 0, ty = 0;
 			if (checkProjectileTargetHit(target, oldPos, newPos, tx, ty)) {
@@ -6519,11 +7439,41 @@ void Game::updateProjectiles(uint32_t elapsedMs)
 
 		if (hitTarget) {
 			const auto hitStart = clockNow();
+			const ProjectileData* pdata = ProjectileManager::getInstance().getProjectileData(p->getExtra());
+
+			// A grenade meeting a rock or tree touches it where its path
+			// enters it. The bullet test reports the point of closest approach,
+			// which head-on is the middle of the tree: a grenade parked there
+			// would sit inside the thing that should be cover from it.
+			if (p->fuseMs(pdata) > 0) {
+				scenery_geometry::Shape shape;
+				if (gameSceneryShape(hitTarget, shape) && !shape.isRect) {
+					float entryX = 0.0f, entryY = 0.0f;
+					if (scenery_geometry::segmentHit(shape, static_cast<float>(oldPos.x), static_cast<float>(oldPos.y),
+					                                 static_cast<float>(p->getPosition().x), static_cast<float>(p->getPosition().y),
+					                                 entryX, entryY)) {
+						hitX = entryX;
+						hitY = entryY;
+					}
+				}
+			}
+
+			// Breaks on impact (a molotov): it goes off right here, like a
+			// bullet's payload, never parked and never bounced.
+			const bool shatters = pdata && pdata->shatters;
+
+			// A grenade glancing off scenery: no hit, no payload, just a new
+			// leg. Bouncing off a wall does not damage it.
+			if (!shatters && p->fuseMs(pdata) > 0 && tryBounceProjectile(*p, pdata, hitTarget, oldPos, hitX, hitY)) {
+				++i;
+				hitNs += since(hitStart);
+				continue;
+			}
+
 			applyProjectileHit(*p, hitTarget, oldPos, hitX, hitY);
 
-			const ProjectileData* pdata = ProjectileManager::getInstance().getProjectileData(p->getExtra());
 			const Position hitPos(static_cast<uint16_t>(hitX), static_cast<uint16_t>(hitY));
-			if (pdata && pdata->lifetimeMs > 0) {
+			if (!shatters && p->fuseMs(pdata) > 0) {
 				// Has its own fuse (grenade): parking it IS the gameplay.
 				stopProjectileAtHit(*p, hitPos);
 				++i;
@@ -6535,6 +7485,29 @@ void Game::updateProjectiles(uint32_t elapsedMs)
 				projectiles.pop_back();
 			}
 			hitNs += since(hitStart);
+		} else if (p->hasReachedEnd()) {
+			// The end of the path, with the last step tested and clear.
+			const auto endStart = clockNow();
+			const ProjectileData* pdata = ProjectileManager::getInstance().getProjectileData(p->getExtra());
+			const bool shatters = pdata && pdata->shatters;
+			if (!shatters && p->fuseMs(pdata) > 0) {
+				// A grenade comes to rest where it was thrown, fuse running.
+				// stopAt, not just a halt: the record has to say the new leg
+				// starts HERE. Left on the throw's start, a client more than
+				// TELEPORT_DIST from it snapped the sprite back to the hand.
+				p->stopAt(p->getPosition());
+				EntityUpdate update;
+				p->buildUpdate(update);
+				sendProjectileToRecipients(*p, update);
+				++i;
+			} else {
+				// Out of range: same explosion-or-drop behavior as a hit.
+				destroyProjectileAfterHit(p, pdata, p->getPosition());
+				p->resetShooter();
+				std::swap(projectiles[i], projectiles.back());
+				projectiles.pop_back();
+			}
+			hitNs += since(endStart);
 		} else {
 			++i;
 		}
@@ -6542,6 +7515,47 @@ void Game::updateProjectiles(uint32_t elapsedMs)
 
 	g_perf.addProjectileWork(workSteps, workCandidates, workTiles);
 	g_perf.addProjectileTiming(moveNs, gatherNs, testNs, hitNs);
+}
+
+// A fused projectile meeting scenery glances off it when its data says it
+// bounces and it has bounces left (scenery_geometry::bounce has the physics).
+// Returns false to let the caller park it on the hit as before: a creature (a
+// grenade stops at someone's feet), no <bounce>, bounces used up, or too
+// little left to be worth a leg.
+//
+// The new leg goes to the recipients recorded at spawn like every other
+// record about this projectile (see sendProjectileToRecipients). A bounce only
+// ever shortens the flight, so its end stays near the path they were sent.
+bool Game::tryBounceProjectile(Projectile& projectile, const ProjectileData* pdata, Thing* hitTarget,
+                               const Position& oldPos, float hitX, float hitY)
+{
+	if (!pdata || !pdata->bounce.enabled || projectile.getBounceCount() >= pdata->bounce.maxBounces) {
+		return false;
+	}
+	scenery_geometry::Shape shape;
+	if (!gameSceneryShape(hitTarget, shape)) {
+		return false;
+	}
+
+	const Position& end = projectile.getEndPos();
+	scenery_geometry::BounceLeg leg;
+	if (!scenery_geometry::bounce(shape, static_cast<float>(oldPos.x), static_cast<float>(oldPos.y), hitX, hitY,
+	                              projectile.getVelocityX(), projectile.getVelocityY(),
+	                              static_cast<float>(end.x), static_cast<float>(end.y), pdata->bounce.restitution,
+	                              static_cast<float>(MapSize::widthUnits()), static_cast<float>(MapSize::heightUnits()), leg)) {
+		return false;
+	}
+
+	projectile.redirect(Position(static_cast<uint16_t>(std::round(leg.fromX)), static_cast<uint16_t>(std::round(leg.fromY))),
+	                    Position(static_cast<uint16_t>(std::round(leg.toX)), static_cast<uint16_t>(std::round(leg.toY))),
+	                    leg.vx, leg.vy);
+
+	if (!projectile.getSkipVisual()) {
+		EntityUpdate update;
+		projectile.buildUpdate(update);
+		sendProjectileToRecipients(projectile, update);
+	}
+	return true;
 }
 
 bool Game::findClosestObstacleHit(const Creature* shooter, const Position& startPos, const Position& endPos, Position& hitPos)

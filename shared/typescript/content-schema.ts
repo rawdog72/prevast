@@ -385,6 +385,15 @@ export const equipableEntry = z.looseObject({
     .optional(),
   aim: aimEntry.optional(),
   view: viewEntry.optional(),
+  /** A cooked throwable: hold to cook, release to throw at the cursor (server equipment.h ThrowData). */
+  throw: z
+    .looseObject({
+      cookable: z.boolean().optional(),
+      minRange: z.number().optional(),
+      pinMs: int.optional(),
+      releaseMs: int.optional(),
+    })
+    .optional(),
   consumable: z
     .looseObject({ effect: z.array(z.looseObject({ type: z.string(), amount: z.number() })) })
     .optional(),
@@ -451,6 +460,14 @@ export const projectileEntry = z.looseObject({
   clientProjectileId: int,
   physics: z.looseObject({ baseSpeed: z.number() }).optional(),
   damage: z.looseObject({ type: z.string() }).optional(),
+  /** The fuse of a grenade-shaped round. */
+  lifetime: z.looseObject({ durationMs: int }).optional(),
+  /** The blast: `area` tiles around the landing tile, or a `radius` circle when area is 0. */
+  onDestroy: z
+    .looseObject({
+      explosion: z.looseObject({ area: int.optional(), radius: z.number().optional() }).optional(),
+    })
+    .optional(),
   client: projectileClient.optional(),
 });
 export const agentEntry = z.looseObject({

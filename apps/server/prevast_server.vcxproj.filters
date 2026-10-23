@@ -59,6 +59,9 @@
     <ClInclude Include="src\gameplay\weapon_mod_types.h"><Filter>gameplay</Filter></ClInclude>
     <ClInclude Include="src\gameplay\weapon_mods.h"><Filter>gameplay</Filter></ClInclude>
     <ClInclude Include="src\gameplay\aim_view.h"><Filter>gameplay</Filter></ClInclude>
+    <ClCompile Include="src\gameplay\area_fill.cpp"><Filter>gameplay</Filter></ClCompile>
+    <ClCompile Include="src\gameplay\area_fill_selftest.cpp"><Filter>gameplay</Filter></ClCompile>
+    <ClInclude Include="src\gameplay\area_fill.h"><Filter>gameplay</Filter></ClInclude>
     <ClCompile Include="src\gameplay\game.cpp"><Filter>gameplay</Filter></ClCompile>
     <ClInclude Include="src\gameplay\game.h"><Filter>gameplay</Filter></ClInclude>
     <ClCompile Include="src\gameplay\game_admin.cpp"><Filter>gameplay</Filter></ClCompile>
@@ -93,6 +96,9 @@
     <ClCompile Include="src\gameplay\projectile.cpp"><Filter>gameplay</Filter></ClCompile>
     <ClInclude Include="src\gameplay\projectile.h"><Filter>gameplay</Filter></ClInclude>
     <ClCompile Include="src\gameplay\resource.cpp"><Filter>gameplay</Filter></ClCompile>
+    <ClCompile Include="src\gameplay\scenery_geometry.cpp"><Filter>gameplay</Filter></ClCompile>
+    <ClCompile Include="src\gameplay\scenery_geometry_selftest.cpp"><Filter>gameplay</Filter></ClCompile>
+    <ClCompile Include="src\gameplay\smoke_sight_selftest.cpp"><Filter>gameplay</Filter></ClCompile>
     <ClCompile Include="src\gameplay\progress\game_event.cpp"><Filter>gameplay</Filter></ClCompile>
     <ClCompile Include="src\gameplay\quests\quest_loader.cpp"><Filter>gameplay</Filter></ClCompile>
     <ClCompile Include="src\gameplay\quests\quest_selftest.cpp"><Filter>gameplay</Filter></ClCompile>
@@ -109,6 +115,8 @@
     <ClCompile Include="src\gameplay\scripts\lua_script.cpp"><Filter>gameplay</Filter></ClCompile>
     <ClCompile Include="src\gameplay\scripts\script_system.cpp"><Filter>gameplay</Filter></ClCompile>
     <ClInclude Include="src\gameplay\resource.h"><Filter>gameplay</Filter></ClInclude>
+    <ClInclude Include="src\gameplay\scenery_geometry.h"><Filter>gameplay</Filter></ClInclude>
+    <ClInclude Include="src\gameplay\smoke_sight.h"><Filter>gameplay</Filter></ClInclude>
     <ClInclude Include="src\gameplay\trade.h"><Filter>gameplay</Filter></ClInclude>
     <ClInclude Include="src\gameplay\progress\game_event.h"><Filter>gameplay</Filter></ClInclude>
     <ClInclude Include="src\gameplay\quests\quest_definition.h"><Filter>gameplay</Filter></ClInclude>

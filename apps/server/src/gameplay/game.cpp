@@ -3819,6 +3819,304 @@ void Game::completeCraft(uint32_t playerId, uint16_t iid)
 	player->addXP(idata->score * 2);
 }
 
+// --- Upgrading buildings in place ------------------------------------------
+//
+// objects.xml <upgrade to= durationMs=>: a wooden wall becomes a stone one
+// where it stands. The window works like a station's: open it from
+// interaction range (OPEN_UPGRADE), one player at a time, and it closes when
+// you walk off. Starting takes the target item's own recipe from the bag;
+// from then on the upgrade runs by itself, and anyone -- the owner or not --
+// can open the window and stop it, which drops the materials at their feet
+// the way a stopped craft does. Destroying the building first drops them in
+// the rubble (Object::changeHealth).
+
+// What the player carries of an item, across every stack.
+static uint32_t carriedCount(Player* player, uint16_t iid)
+{
+	uint32_t count = 0;
+	for (uint8_t s = 0; s < player->inventory.getSlotCount(); ++s) {
+		if (Item* it = player->inventory.getItem(s)) {
+			if (it->getIID() == iid) count += it->getCount();
+		}
+	}
+	return count;
+}
+
+// Whether this player could craft the item at all: the level, the
+// prerequisite and the unlock, the same three checks playerStartCraft makes.
+static bool hasUnlockedRecipe(const Player* player, const ItemData* idata)
+{
+	if (player->getLevel() < idata->crafting.requiredLevel) return false;
+	if (!idata->crafting.prerequisite.empty() && !player->hasSkill(idata->crafting.prerequisiteIid)) return false;
+	if (idata->requiresUnlock && !player->hasSkill(idata->id)) return false;
+	return true;
+}
+
+// Only a building somebody built: world ruins are owned by nobody and are
+// rebuilt by their structure, which would not know the upgraded piece.
+static bool isUpgradeable(const Object* obj)
+{
+	const ObjectData* od = obj->getData();
+	return od && !od->upgradeTo.empty() && !obj->isDestroyed && !obj->isIndestructible() &&
+		obj->getOwnerPid() != 0 && g_objects.getObjectData(od->upgradeTo) != nullptr;
+}
+
+void Game::sendUpgradeState(Player* player, const Object* obj, bool firstOpen)
+{
+	const ObjectData* od = obj->getData();
+	if (!od) return;
+	const ItemData* from = ItemManager::getInstance().getItemData(od->id);
+	const std::string& targetKey = obj->isUpgrading() ? obj->upgrade.targetKey : od->upgradeTo;
+	const ObjectData* td = g_objects.getObjectData(targetKey);
+	const uint64_t now = OTSYS_TIME();
+	const uint32_t durationMs = obj->isUpgrading()
+		? obj->upgrade.durationMs
+		: static_cast<uint32_t>(od->upgradeDurationMs * getCraftSpeed());
+
+	NetworkMessage msg;
+	msg.addByte(static_cast<uint8_t>(ServerOpcode::UPGRADE_STATE));
+	msg.addByte(firstOpen ? 1 : 0);
+	msg.add<uint32_t>(static_cast<uint32_t>(obj->getId16()));
+	msg.add<uint16_t>(from ? from->id : od->id);
+	msg.add<uint16_t>(td ? td->id : 0);
+	msg.addByte(obj->isUpgrading() ? 1 : 0);
+	msg.add<uint32_t>(durationMs);
+	msg.add<uint32_t>(obj->getUpgradeRemainingMs(now));
+	player->sendNetworkMessage(msg);
+}
+
+void Game::playerOpenUpgrade(uint32_t playerId, ClientEntityId entityId)
+{
+	Player* player = getPlayerByID(playerId);
+	if (!player) return;
+
+	uint32_t targetUid = 0;
+	Object* obj = resolveInteractionObject(player, entityId, targetUid);
+	if (!obj || obj->isDestroyed) return;
+	const ObjectData* od = obj->getData();
+	if (!od || od->upgradeTo.empty()) return;
+
+	if (!player->getPosition().isInRange(obj->getPosition(), INTERACTION_RANGE, INTERACTION_RANGE)) return;
+	if (!perceivesConcealed(player, obj)) return;
+
+	if (!isUpgradeable(obj)) {
+		sendStatus(player, "This can't be upgraded.", StatusKind::FAILURE);
+		return;
+	}
+
+	// Already open: just restate it.
+	if (player->getOpenedInteractionId() == targetUid) {
+		sendUpgradeState(player, obj, true);
+		return;
+	}
+
+	// One window at a time, like a chest or a station.
+	if (isObjectHeldByAnotherPlayer(player, obj)) {
+		sendStatus(player, "Someone else is using it.", StatusKind::FAILURE);
+		return;
+	}
+
+	if (player->getOpenedInteractionId() != 0) {
+		playerCloseContainer(playerId);
+	}
+
+	obj->setActiveUserPid(player->getGUID());
+	player->setOpenedInteractionId(targetUid);
+	sendUpgradeState(player, obj, true);
+
+	// Bit 12: someone has its upgrade window open (the busy marker).
+	EntityUpdate update;
+	obj->buildUpdate(update);
+	broadcastSurgicalUpdate(update, obj->getPosition());
+}
+
+void Game::playerStartUpgrade(uint32_t playerId)
+{
+	Player* player = getPlayerByID(playerId);
+	if (!player) return;
+
+	Object* obj = getActiveInteractionObject(player);
+	if (!obj || !isUpgradeable(obj) || obj->isUpgrading()) return;
+	const ObjectData* od = obj->getData();
+
+	// The same suppression that stops a player building stops them rebuilding.
+	if (player->cannot(CONTROL_NO_BUILD)) return;
+	if (scenario::g_scenarioRuntime.permission(scenario::PermissionKind::Build, obj->getPosition()) == false) return;
+
+	const ItemData* target = ItemManager::getInstance().getItemData(od->upgradeTo);
+	if (!target || target->crafting.recipe.empty()) return;
+
+	if (!hasUnlockedRecipe(player, target)) {
+		sendStatus(player, fmt::format("Unlock the {} first.", target->name), StatusKind::FAILURE);
+		return;
+	}
+
+	for (const auto& ing : target->crafting.recipe) {
+		if (carriedCount(player, ing.iid) < ing.amount) {
+			sendStatus(player, "Missing materials.", StatusKind::FAILURE);
+			return;
+		}
+	}
+
+	// Taken now, so the same materials cannot pay for two upgrades.
+	std::vector<std::pair<uint16_t, uint8_t>> used;
+	for (const auto& ing : target->crafting.recipe) {
+		uint8_t remaining = ing.amount;
+		for (uint8_t s = 0; s < player->inventory.getSlotCount() && remaining > 0; ++s) {
+			if (Item* it = player->inventory.getItem(s)) {
+				if (it->getIID() == ing.iid) {
+					const uint8_t take = std::min(remaining, it->getCount());
+					player->inventory.removeItem(s, take);
+					remaining -= take;
+				}
+			}
+		}
+		used.emplace_back(ing.iid, ing.amount);
+	}
+
+	const uint32_t durationMs = static_cast<uint32_t>(od->upgradeDurationMs * getCraftSpeed());
+	obj->upgrade.targetKey = od->upgradeTo;
+	obj->upgrade.durationMs = durationMs;
+	obj->upgrade.finishAt = OTSYS_TIME() + durationMs;
+	obj->upgrade.ingredients = std::move(used);
+	upgradingObjects.insert(obj->getID());
+
+	sendUpgradeState(player, obj, false);
+}
+
+void Game::playerCancelUpgrade(uint32_t playerId)
+{
+	Player* player = getPlayerByID(playerId);
+	if (!player) return;
+
+	Object* obj = getActiveInteractionObject(player);
+	if (!obj || !obj->isUpgrading()) return;
+
+	// At the feet of whoever stopped it, the way a stopped craft refunds: a
+	// raider who stops your upgrade walks off with your stone.
+	std::vector<LootDrop> drops;
+	for (const auto& ing : obj->upgrade.ingredients) {
+		if (const ItemData* data = ItemManager::getInstance().getItemData(ing.first)) {
+			drops.push_back({ data->lootId, ing.first, ing.second, ItemState::fresh(ing.first) });
+		}
+	}
+	dropLootBurst(player->getPosition(), drops);
+
+	obj->upgrade = Object::UpgradeJob{};
+	upgradingObjects.erase(obj->getID());
+	sendUpgradeState(player, obj, false);
+}
+
+void Game::updateUpgrades()
+{
+	if (upgradingObjects.empty()) return;
+
+	// Collected first: finishing replaces the object, which edits the set.
+	const uint64_t now = OTSYS_TIME();
+	std::vector<Object*> done;
+	for (auto it = upgradingObjects.begin(); it != upgradingObjects.end(); ) {
+		Thing* thing = map.getThingByID(*it);
+		Object* obj = thing ? thing->getObject() : nullptr;
+		if (!obj || obj->isDestroyed || !obj->isUpgrading()) {
+			it = upgradingObjects.erase(it);
+			continue;
+		}
+		if (now >= obj->upgrade.finishAt) done.push_back(obj);
+		++it;
+	}
+	for (Object* obj : done) completeUpgrade(obj);
+}
+
+void Game::completeUpgrade(Object* obj)
+{
+	upgradingObjects.erase(obj->getID());
+	const ObjectData* od = obj->getData();
+	const ObjectData* td = g_objects.getObjectData(obj->upgrade.targetKey);
+	if (!od || !td) {
+		obj->upgrade = Object::UpgradeJob{};
+		return;
+	}
+
+	// The damage it had carries over: a wooden wall 500 short of its 3000 is a
+	// stone wall 500 short of its 7000. Never below 1 -- it is finished, not
+	// destroyed.
+	const int32_t missing = std::max<int32_t>(0, static_cast<int32_t>(obj->getMaxHealth()) - obj->getHealth());
+	const uint16_t health = static_cast<uint16_t>(std::max<int32_t>(1, static_cast<int32_t>(td->healthMax) - missing));
+
+	const Position pos = obj->getPosition();
+	const uint8_t rotation = obj->getRotation();
+	const bool doorOpen = obj->isDoorOpen;
+	const uint64_t placedTime = obj->placedTime;
+	const std::string targetKey = obj->upgrade.targetKey;
+
+	// Whoever is looking at it keeps looking, now at the new building.
+	Player* viewer = nullptr;
+	if (const uint32_t activePid = obj->getActiveUserPid(); activePid != 0) {
+		viewer = getPlayerByGUID(activePid);
+		if (viewer && viewer->getOpenedInteractionId() != obj->getID()) viewer = nullptr;
+	}
+
+	Object* replacement = g_objects.createObject(targetKey, pos, rotation);
+	if (!replacement) {
+		// Out of entity ids: leave the old building standing, upgrade still
+		// running, and try again next tick rather than lose anything.
+		upgradingObjects.insert(obj->getID());
+		return;
+	}
+	replacement->copyOwnerFrom(*obj);
+	replacement->setHealth(health);
+	replacement->isDoorOpen = doorOpen;
+	replacement->placedTime = placedTime;
+
+	// The old one goes without its destruction animation or drops: the
+	// upgrade's materials are in the new one now.
+	obj->upgrade = Object::UpgradeJob{};
+	if (viewer) {
+		obj->setActiveUserPid(0);
+		viewer->setOpenedInteractionId(0);
+	}
+	obj->removeForReplacement();
+
+	if (viewer) {
+		replacement->setActiveUserPid(viewer->getGUID());
+		viewer->setOpenedInteractionId(replacement->getID());
+	}
+	placeThing(replacement, pos);
+	if (health < replacement->getMaxHealth()) {
+		noteObjectDamaged(replacement->getID());
+	}
+
+	// The puff of dust everyone nearby sees as it changes.
+	NetworkMessage msg;
+	msg.addByte(static_cast<uint8_t>(ServerOpcode::UPGRADE_FINISHED));
+	msg.add<uint16_t>(static_cast<uint16_t>(pos.x));
+	msg.add<uint16_t>(static_cast<uint16_t>(pos.y));
+	msg.add<uint16_t>(td->id);
+	broadcastToWatchers(msg, pos);
+
+	if (viewer) {
+		if (isUpgradeable(replacement)) {
+			sendUpgradeState(viewer, replacement, false);
+		} else {
+			// The last tier: nothing more to upgrade it into.
+			playerCloseContainer(viewer->getID());
+			viewer->sendLostStation();
+		}
+	}
+}
+
+void Game::releaseInteractionObject(Object* obj)
+{
+	const uint32_t activePid = obj->getActiveUserPid();
+	if (activePid == 0) return;
+	Player* user = getPlayerByGUID(activePid);
+	if (user && user->getOpenedInteractionId() == obj->getID()) {
+		playerCloseContainer(user->getID());
+		user->sendLostStation();
+	}
+	obj->setActiveUserPid(0);
+}
+
 void Game::broadcastSurgicalUpdate(const EntityUpdate& update, const Position& pos)
 {
 	// The wire carries only the low 16 bits, so the 32-bit id knownCreatures is
@@ -7682,6 +7980,7 @@ void Game::updateStations()
 	if (elapsedMs == 0) elapsedMs = 1; // Prevent zero-progress if called too fast
 
 	updateObjectStages(elapsedMs);
+	updateUpgrades();
 
 	// Cached type data, not a string-keyed lookup: this walks every thing on the
 	// map at 10 Hz, so the hash was paid ~6,500 times a second on a populated

@@ -4,6 +4,7 @@
 import { mountAccountRun } from '../ui/hud/hud-account-run';
 import { AudioManager } from '../audio/audio-manager';
 import { WorldSounds } from '../audio/world-sounds';
+import { isSoundKey } from '../audio/sound-registry';
 import { itemIconUrl, type AssetLoader } from '../assets/asset-loader';
 import type { ContentStore } from '../content/store';
 import { baseWorldScale, Camera, LOOK_MAX, scopeOffset } from '../core/camera';
@@ -28,6 +29,7 @@ import { PoisonEffect } from '../render/poison-effect';
 import { BuildingAnimator } from '../render/building-animator';
 import { ParticleSystem } from '../render/particles/particle-system';
 import { CloudLayer } from '../render/clouds';
+import { UpgradePuffs } from '../render/upgrade-puffs';
 import { GameRenderer } from '../render/renderer';
 import { drawScopeMask, ShapeMask } from '../render/scope-view';
 import { nightAt, SKY_FADE_MS } from '../render/sky';
@@ -142,6 +144,8 @@ export class GameLoop {
   readonly particles: ParticleSystem;
   /** Gas, smoke and fire clouds (AREA_EFFECT). */
   readonly clouds = new CloudLayer();
+  /** The puff of dust when a building finishes upgrading (UPGRADE_FINISHED). */
+  readonly upgradePuffs = new UpgradePuffs();
   readonly buildingAnimator: BuildingAnimator;
   readonly brZone: BRZone;
   readonly ghoulEffects: GhoulEffects;
@@ -699,6 +703,27 @@ export class GameLoop {
         this.audio.playUi('open');
       }),
     );
+    // The upgrade window: opening it, and starting an upgrade (the craft sound).
+    this.cleanups.push(
+      this.socket.bus.on('upgradeState', (ev) => {
+        if (ev.firstOpen) this.audio.playUi('open');
+        else if (ev.running) this.audio.playCraft();
+      }),
+    );
+    // A building finished upgrading: dust off its edges and the knock of the
+    // new material, by distance.
+    this.cleanups.push(
+      this.socket.bus.on('upgradeFinished', (ev) => {
+        this.upgradePuffs.burst(ev.x, ev.y);
+        const object = this.content.has('objects')
+          ? this.content.objectForItem(ev.iid)
+          : undefined;
+        const sound = (object?.client as { impactSound?: string } | undefined)?.impactSound;
+        const local = this.world.getLocalEntity();
+        if (sound && isSoundKey(sound) && local)
+          this.audio.playPositional(sound, ev.x, ev.y, local.x, local.y, 1600, 0.9);
+      }),
+    );
 
     // HUD/window hit-testing is native DOM now (real elements, real click
     // listeners); we just add the tactile click sound generically here.
@@ -881,6 +906,23 @@ export class GameLoop {
           };
         };
         entries.push({ ...state(), refresh: state, action: () => this.input.use(e) });
+      }
+      // Upgrade: greyed out like Open when too far, and while someone else
+      // has its upgrade window open.
+      if (this.input.upgradeAction(e)) {
+        const upgrade = () => {
+          const u = this.input.upgradeAction(e) ?? { inReach: false, busy: false };
+          const busy = u.busy && this.inventory.upgrade?.entityId !== e.id;
+          return {
+            label: !u.inReach ? 'Upgrade — move closer' : busy ? 'Upgrade — in use' : 'Upgrade',
+            disabled: !u.inReach || busy,
+          };
+        };
+        entries.push({
+          ...upgrade(),
+          refresh: upgrade,
+          action: () => this.socket.openUpgrade(e.id, e.pid),
+        });
       }
     } else if (target.kind === 'npc') {
       const state = () => {
@@ -1183,6 +1225,8 @@ export class GameLoop {
     this.particles.update(delta);
     this.clouds.fire.reduced = this.hudControlsState.particlesDisabled;
     this.clouds.update(delta, this.fireSurroundings());
+    this.upgradePuffs.reduced = this.hudControlsState.particlesDisabled;
+    this.upgradePuffs.update(delta);
     this.brZone.update(delta);
     this.ghoulEffects.update(delta);
     // Sounds first: the animators clear the one-tick pulses they play on.
@@ -1296,6 +1340,7 @@ export class GameLoop {
       particles: this.hudControlsState.particlesDisabled ? undefined : this.particles,
       // Not behind the particles switch: gas hurts, so it is always shown.
       clouds: this.clouds,
+      upgradePuffs: this.upgradePuffs,
       buildingAnimator: this.buildingAnimator,
       brZone: this.brZone,
       ghoulEffects: this.ghoulEffects,

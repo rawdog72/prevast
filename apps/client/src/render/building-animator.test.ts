@@ -51,6 +51,16 @@ describe('BuildingAnimator', () => {
     expect(animator.get(entity)!.power).toBe(0);
   });
 
+  it('ramps the upgrade busy marker from bit 12 alone, apart from the lid', () => {
+    const { world, animator, entity } = setup(1 | 4096);
+    animator.update(world, 600);
+    expect(animator.get(entity)!.upgradeUse).toBe(500);
+    expect(animator.get(entity)!.use).toBe(0);
+    world.entities.processUnits([building(1)]);
+    animator.update(world, 600);
+    expect(animator.get(entity)!.upgradeUse).toBe(0);
+  });
+
   it('starts a 250ms hurt knock from the latched pulse, toward the impact direction', () => {
     const { world, animator, entity } = setup();
     animator.update(world, 16);

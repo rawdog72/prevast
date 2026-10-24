@@ -446,6 +446,8 @@ export const objectEntry = z.looseObject({
   conceal: z.looseObject({ tiles: int }).optional(),
   interaction: z.looseObject({ type: z.string(), interactionDelayMs: int.optional() }).optional(),
   station: z.looseObject({ key: z.string(), areaId: int }).optional(),
+  /** What it can be upgraded into where it stands, and how long that takes (server-enforced). */
+  upgrade: z.looseObject({ to: z.string(), durationMs: int.optional() }).optional(),
   fuel: z
     .looseObject({ itemKey: z.string(), burnDurationPerUnitMs: int, addAmount: int.optional() })
     .optional(),

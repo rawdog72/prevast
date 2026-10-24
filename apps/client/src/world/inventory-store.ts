@@ -1,7 +1,7 @@
 // Copyright (c) 2026 rawdog72 and Prevast Open Server Contributors
 // SPDX-License-Identifier: GPL-2.0-only
 
-import type { NetEventBus } from '../net/events';
+import type { NetEventBus, UpgradeStateEvent } from '../net/events';
 import type { FittedMod } from './weapon-mods';
 
 export interface InventoryItem {
@@ -70,6 +70,13 @@ export class InventoryStore {
   fuel = 0;
   fuelMs = 0;
   fuelStatedAt = 0;
+
+  /**
+   * UPGRADE_STATE: the building whose upgrade window the server has open for
+   * us, or null. `statedAt` is when `remainingMs` was true, so the window can
+   * count down without another message.
+   */
+  upgrade: (Omit<UpgradeStateEvent, 'firstOpen'> & { statedAt: number }) | null = null;
 
   /** A manual craft in progress (CRAFT_STARTED): the item and when it began. */
   crafting: { iid: number; startedAt: number } | null = null;
@@ -260,6 +267,7 @@ export class InventoryStore {
   closeContainers(): void {
     this.isChestOpen = false;
     this.isStationOpen = false;
+    this.upgrade = null;
     this.stationQueue = [0, 0, 0, 0];
     this.chestItems = [];
     this.chestCapacity = 0;
@@ -334,7 +342,25 @@ export class InventoryStore {
         this.fuelMs = ev.fuelMs;
         this.fuelStatedAt = Date.now();
         // isLogin 1 is a contents update for a station already open.
-        if (ev.isLogin === 0) this.isStationOpen = true;
+        if (ev.isLogin === 0) {
+          this.isStationOpen = true;
+          this.upgrade = null;
+        }
+      }),
+    );
+
+    // The server holds one thing open for us at a time: an upgrade window
+    // opening means the chest or station before it is gone.
+    cleanups.push(
+      bus.on('upgradeState', (ev) => {
+        if (ev.firstOpen) {
+          this.isChestOpen = false;
+          this.isStationOpen = false;
+        } else if (!this.upgrade) {
+          return; // an update to a window we already closed
+        }
+        const { firstOpen: _firstOpen, ...state } = ev;
+        this.upgrade = { ...state, statedAt: Date.now() };
       }),
     );
 
@@ -346,7 +372,10 @@ export class InventoryStore {
 
     cleanups.push(
       bus.on('fullChest', (ev) => {
-        if (ev.firstOpen) this.isChestOpen = true;
+        if (ev.firstOpen) {
+          this.isChestOpen = true;
+          this.upgrade = null;
+        }
         this.chestCapacity = ev.slots;
         this.chestItems = ev.items.map((it) => ({
           iid: it.iid,

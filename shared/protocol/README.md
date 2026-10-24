@@ -20,7 +20,7 @@ a generated schema.
 
 - Change both sides in the same change, and bump `CLIENT_VERSION_MIN/MAX` in
   `apps/server/src/core/definitions.h` together with `PROTOCOL_VERSION` in
-  `opcodes.ts`. The current version is **1423**. A client of another version
+  `opcodes.ts`. The current version is **1424**. A client of another version
   is refused with `ALERT`, which every version can decode.
 - Preserve batching, integer widths, IDs and message ordering. Wire enums
   (`DisconnectReason`, `ChatChannel`, `QuestCause`, `ModSlot` and the rest)
@@ -69,6 +69,14 @@ a generated schema.
 - **Fuel.** `STATION_OPENED` and `STATION_FUEL` carry the remaining burn time
   in milliseconds; the client counts down from that snapshot. `ADD_FUEL` asks
   for 1–254 items and the server caps it by free capacity and inventory.
+- **Building upgrades.** `OPEN_UPGRADE` opens a building's upgrade window
+  (objects.xml `<upgrade>`), held like a station: one player at a time, from
+  interaction range, and lost with `STATION_CLOSED`. While it is open the
+  building's state carries bit 12, the busy marker. `START_UPGRADE` takes the
+  target item's recipe; `CANCEL_UPGRADE` from anyone drops it at their feet.
+  `UPGRADE_STATE` restates the window on every change and carries the
+  remaining time to count down from; `UPGRADE_FINISHED` goes to everyone
+  watching when the building is replaced by the next tier.
 - **Quests and progress.** `QUEST_STATE` holds only stages the player has
   reached, and `QUEST_MARKERS` is the whole set each time. Account progress
   arrives as `PROGRESS_STATE`, then `PROGRESS_UPDATE` deltas; a secret

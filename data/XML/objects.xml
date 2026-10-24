@@ -21,6 +21,13 @@
 		             really do something else. Declare the block ONLY to change
 		             it, and give it exactly three descending percentages.
 
+		<upgrade to="key" durationMs="ms">  what a built object can be upgraded
+		             into where it stands (Ctrl+right-click > Upgrade). It costs
+		             the target item's own recipe and needs it unlocked; the
+		             time is durationMs, scaled by the craft speed. Damage
+		             carries over: the new one is as many points short of its
+		             maximum as the old one was.
+
 		The boot log prints one line per file with the totals; check a change
 		against it with the server's validate flag rather than by eye.
 	-->
@@ -363,6 +370,7 @@
 	<object key="wood_wall" category="wall" healthMax="3000" layer="top">
 		<transform width="100" height="100" collision="true" blocksProjectiles="true"/>
 		<place delayMs="300" />
+		<upgrade to="stone_wall" durationMs="30000" />
 		<onDestroy>
 			<drops>
 				<item key="stone" amount="1" />
@@ -424,6 +432,7 @@
 	<object key="stone_wall" category="wall" healthMax="7000" layer="top">
 		<transform width="100" height="100" collision="true" blocksProjectiles="true"/>
 		<place delayMs="300" />
+		<upgrade to="steel_wall" durationMs="60000" />
 		<onDestroy>
 			<drops>
 				<item key="stone" amount="1" />
@@ -546,6 +555,7 @@
 	<object key="wood_low_door" category="wall" healthMax="2000" layer="mid" align="bottom">
 		<transform width="100" height="35" collision="true" blocksProjectiles="false"/>
 		<place delayMs="250" />
+		<upgrade to="stone_low_door" durationMs="30000" />
 		<interaction type="door" interactionDelayMs="500"/>
 		<onDestroy>
 			<drops>
@@ -570,6 +580,7 @@
 	<object key="stone_low_door" category="wall" healthMax="5000" layer="mid" align="bottom">
 		<transform width="100" height="35" collision="true" blocksProjectiles="false"/>
 		<place delayMs="250" />
+		<upgrade to="steel_low_door" durationMs="60000" />
 		<interaction type="door" interactionDelayMs="500"/>
 		<onDestroy>
 			<drops>
@@ -638,6 +649,7 @@
 	<object key="wood_door" category="wall" healthMax="2500" layer="top">
 		<transform width="100" height="100" collision="true" blocksProjectiles="true"/>
 		<place delayMs="300" />
+		<upgrade to="stone_door" durationMs="40000" />
 		<interaction type="door" interactionDelayMs="500"/>
 		<onDestroy>
 			<drops>
@@ -658,6 +670,7 @@
 	<object key="stone_door" category="wall" healthMax="6000" layer="top">
 		<transform width="100" height="100" collision="true" blocksProjectiles="true"/>
 		<place delayMs="300" />
+		<upgrade to="steel_door" durationMs="80000" />
 		<interaction type="door" interactionDelayMs="500"/>
 		<onDestroy>
 			<drops>
@@ -1008,6 +1021,7 @@
 	<object key="wood_low_wall" category="wall" healthMax="3000" layer="mid" align="bottom">
 		<transform width="100" height="35" collision="true" blocksProjectiles="false"/>
 		<place delayMs="250" />
+		<upgrade to="stone_low_wall" durationMs="30000" />
 		<onDestroy>
 			<drops>
 				<item key="stone" amount="10" />
@@ -1070,6 +1084,7 @@
 	<object key="stone_low_wall" category="wall" healthMax="7000" layer="mid" align="bottom">
 		<transform width="100" height="35" collision="true" blocksProjectiles="false"/>
 		<place delayMs="250" />
+		<upgrade to="steel_low_wall" durationMs="60000" />
 		<onDestroy>
 			<drops>
 				<item key="stone" amount="10" />

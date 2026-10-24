@@ -284,6 +284,29 @@ export interface OpenBuildingEvent {
   fuelMs: number;
 }
 
+/** UPGRADE_STATE: the upgrade window of the building the server has open for us. */
+export interface UpgradeStateEvent {
+  /** 1: it has just been opened; 0: an update to the open one. */
+  firstOpen: boolean;
+  /** The building's entity id. */
+  entityId: number;
+  /** What it is now and what it becomes (item ids). */
+  iid: number;
+  targetIid: number;
+  running: boolean;
+  /** The whole upgrade. */
+  durationMs: number;
+  /** What is left of a running one, as of this message. */
+  remainingMs: number;
+}
+
+/** UPGRADE_FINISHED: a building at (x, y) has just become `iid`. */
+export interface UpgradeFinishedEvent {
+  x: number;
+  y: number;
+  iid: number;
+}
+
 export interface NewFuelValueEvent {
   fuel: number;
   fuelMs: number;
@@ -490,6 +513,8 @@ export interface NetEventMap {
   blueprint: { iid: number };
   openBuilding: OpenBuildingEvent;
   lostBuilding: void;
+  upgradeState: UpgradeStateEvent;
+  upgradeFinished: UpgradeFinishedEvent;
   newFuelValue: NewFuelValueEvent;
   wrongTool: WrongToolEvent;
   fullChest: FullChestEvent;

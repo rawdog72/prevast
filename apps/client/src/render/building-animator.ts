@@ -31,6 +31,8 @@ export interface BuildingAnimState {
   open: number;
   /** In-use (lid) progress 0..500. */
   use: number;
+  /** Someone has its upgrade window open (state bit 12): 0..500. */
+  upgradeUse: number;
   /** Lit / powered progress 0..500 (campfire). */
   lit: number;
   /**
@@ -73,6 +75,7 @@ function freshState(): BuildingAnimState {
     death: 0,
     open: 0,
     use: 0,
+    upgradeUse: 0,
     lit: 0,
     power: 0,
     work: 0,
@@ -151,6 +154,7 @@ export class BuildingAnimator {
 
         s.open = ramp(s.open, inUse || powered, deltaMs, OPEN_MS);
         s.use = ramp(s.use, inUse, deltaMs, OPEN_MS);
+        s.upgradeUse = ramp(s.upgradeUse, (state & 4096) !== 0, deltaMs, OPEN_MS);
         s.lit = ramp(s.lit, working || powered, deltaMs, OPEN_MS);
         s.power = ramp(s.power, powered, deltaMs, OPEN_MS);
         s.work = ramp(s.work, working, deltaMs, WORK_MS);

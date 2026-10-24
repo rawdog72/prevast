@@ -77,6 +77,8 @@ export interface StationInReach {
 // The server accepts an interaction from this far; the badge is stricter.
 const LOOT_PICKUP_RANGE = 200;
 const INTERACTION_RANGE = 150;
+/** Building state bit 12: someone has its upgrade window open (Object::buildUpdate). */
+export const UPGRADE_BUSY_BIT = 4096;
 
 // Old client handleProximity / _Loots: a building or pickup is offered when
 // fastDist (squared) to its centre is under 12000, i.e. within ~110 units --
@@ -449,6 +451,21 @@ export class InputManager {
       kind === 'door' ? (ent.state & 16 ? 'Close' : 'Open') : kind === 'switch' ? 'Use' : 'Open';
     const local = this.world.getLocalEntity();
     return { label, inReach: !!local && withinReach(local, ent, INTERACTION_RANGE) };
+  }
+
+  /**
+   * The Upgrade entry of a building's Ctrl+right-click menu: null when its
+   * object has no <upgrade>, else whether it is in reach (the same reach as
+   * Open) and whether someone has its upgrade window open (state bit 12).
+   */
+  upgradeAction(ent: WorldEntity): { inReach: boolean; busy: boolean } | null {
+    if (!this.content?.has('objects') || ent.removed || ent.retracted) return null;
+    if (!this.objectOf(ent)?.upgrade) return null;
+    const local = this.world.getLocalEntity();
+    return {
+      inReach: !!local && withinReach(local, ent, INTERACTION_RANGE),
+      busy: (ent.state & UPGRADE_BUSY_BIT) !== 0,
+    };
   }
 
   /**

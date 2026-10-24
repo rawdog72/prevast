@@ -59,7 +59,8 @@ export type IconName =
   | 'minus'
   | 'caret_up'
   | 'caret_down'
-  | 'quest';
+  | 'quest'
+  | 'arrow_right';
 
 const STROKE =
   'fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"';
@@ -119,6 +120,7 @@ const PATHS: Record<IconName, string> = {
   minus: `<path ${STROKE} d="M5 12h14"/>`,
   caret_up: `<path fill="currentColor" d="M12 6l7 11H5l7-11Z"/>`,
   caret_down: `<path fill="currentColor" d="M12 18 5 7h14l-7 11Z"/>`,
+  arrow_right: `<path ${STROKE} d="M4 12h15M13 6l6 6-6 6"/>`,
   quest: `<path ${STROKE} d="M7 3h10a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"/><path ${STROKE} d="M9 8h6M9 12h6M9 16h3"/>`,
   settings: `<circle ${STROKE} cx="12" cy="12" r="6"/><circle ${STROKE} cx="12" cy="12" r="2"/><path ${STROKE} d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.5 1.5M16.9 16.9l1.5 1.5M18.4 5.6l-1.5 1.5M7.1 16.9l-1.5 1.5"/>`,
 };

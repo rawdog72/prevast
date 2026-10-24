@@ -306,8 +306,13 @@ void Object::executeExplosion(const ObjectExplosion& exp, Player* attacker)
 
 // Shared destruction tail: removal broadcast, map removal, subtype refresh,
 // and deferred deletion. Callers decide whether drops/explosions happen first.
-void Object::finishDestruction(const ObjectData* od)
+void Object::finishDestruction(const ObjectData* od, bool destroyed)
 {
+	// Whoever has this open (a chest, a station, an upgrade window) loses it
+	// now, while the object is still on the map: a window left pointing at a
+	// dead id is one the player can neither use nor close.
+	g_game.releaseInteractionObject(this);
+
 	// Unregister before the deferred delete: the trigger set must never hold
 	// a pointer to a destroyed (soon freed) object.
 	g_game.activeTriggerObjects.erase(this);
@@ -318,7 +323,7 @@ void Object::finishDestruction(const ObjectData* od)
 	}
 
 	EntityUpdate removal;
-	removal.isDestruction = true;
+	removal.isDestruction = destroyed;
 	buildRemoval(removal);
 	g_game.broadcastSurgicalUpdate(removal, position);
 
@@ -342,6 +347,15 @@ void Object::removeSilently()
 	health = 0;
 	isDestroyed = true;
 	finishDestruction(g_objects.getObjectData(key));
+}
+
+void Object::removeForReplacement()
+{
+	if (isDestroyed) return;
+
+	health = 0;
+	isDestroyed = true;
+	finishDestruction(g_objects.getObjectData(key), false);
 }
 
 uint16_t Object::getMaxHealth() const
@@ -433,6 +447,16 @@ int32_t Object::changeHealth(int32_t healthDelta, uint8_t angle, Player* attacke
 						}
 					}
 				}
+
+				// 4. Return a running upgrade's materials: what was paid for a
+				// stone wall still lies in the rubble of the wooden one.
+				for (const auto& ing : upgrade.ingredients) {
+					const ItemData* idata = ItemManager::getInstance().getItemData(ing.first);
+					if (idata) {
+						drops.push_back({ idata->lootId, ing.first, ing.second, ItemState::fresh(ing.first) });
+					}
+				}
+				upgrade = UpgradeJob{};
 
 				g_game.dropLootBurst(position, drops, dropRadius);
 			}
@@ -610,6 +634,13 @@ void Object::buildUpdate(EntityUpdate& out) const
 		if (isDoorOpen) stateVal |= 16;
 	} else if (activeUserPid != 0 || isTriggered) {
 		stateVal |= 16;
+	}
+
+	// Bit 12: someone has its upgrade window open. A bit of its own because a
+	// door already spends bit 4 on being open; the client draws the same busy
+	// marker a chest in use gets.
+	if (activeUserPid != 0 && !rd->upgradeTo.empty()) {
+		stateVal |= 4096;
 	}
 
 	// Bit 5: Working / Burning / Door Open Failed
@@ -1034,6 +1065,22 @@ bool ObjectManager::loadFromXml(const std::string& filename)
 			}
 		}
 
+		// <upgrade to= durationMs=>: what it can be upgraded into. The target
+		// may be declared further down, so validateUpgrades checks it once
+		// every object file has loaded.
+		if (pugi::xml_node upgradeNode = objNode.child("upgrade")) {
+			od.upgradeTo = upgradeNode.attribute("to").as_string();
+			od.upgradeDurationMs = upgradeNode.attribute("durationMs").as_uint(0);
+			if (od.upgradeTo.empty()) {
+				reportDataWarning(filename, fmt::format(
+					"object '{}' has an <upgrade> with no to=; it cannot be upgraded", od.key));
+			} else if (od.upgradeTo == od.key) {
+				reportDataWarning(filename, fmt::format(
+					"object '{}' upgrades into itself; it cannot be upgraded", od.key));
+				od.upgradeTo.clear();
+			}
+		}
+
 		pugi::xml_node fuelNode = objNode.child("fuel");
 		if (fuelNode) {
 			od.fuelItemKey = fuelNode.attribute("itemKey").as_string();
@@ -1398,6 +1445,28 @@ const ObjectData* ObjectManager::resolveMapItem(uint16_t iid, uint8_t subtype, b
 		}
 	}
 	return nullptr;
+}
+
+void ObjectManager::validateUpgrades() const
+{
+	for (const std::string& key : declarationOrder) {
+		const ObjectData& od = objects.at(key);
+		if (od.upgradeTo.empty()) continue;
+		const ObjectData* target = getObjectData(od.upgradeTo);
+		const ItemData* item = ItemManager::getInstance().getItemData(od.upgradeTo);
+		if (!target) {
+			reportDataWarning(contentFile("objects.xml"), fmt::format(
+				"object '{}' upgrades to '{}', which is not an object; it cannot be upgraded",
+				od.key, od.upgradeTo));
+		} else if (!item || item->crafting.recipe.empty()) {
+			reportDataWarning(contentFile("objects.xml"), fmt::format(
+				"object '{}' upgrades to '{}', whose item has no recipe to charge; it cannot be upgraded",
+				od.key, od.upgradeTo));
+		} else if (od.upgradeDurationMs == 0) {
+			reportDataWarning(contentFile("objects.xml"), fmt::format(
+				"object '{}' has an <upgrade> with no durationMs=; it finishes instantly", od.key));
+		}
+	}
 }
 
 void ObjectManager::validateStageCreatures() const

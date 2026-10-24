@@ -481,6 +481,7 @@ export class BuildingRenderer {
           0,
           scale,
         );
+        this.drawUpgradeInUse(p);
         break;
       case 'groundFloor':
         this.sprite(
@@ -514,9 +515,11 @@ export class BuildingRenderer {
           0,
           scale,
         );
+        this.drawUpgradeInUse(p);
         break;
       case 'door':
         this.drawDoor(p, x, y, scale);
+        this.drawUpgradeInUse(p);
         break;
       case 'breakable':
         this.sprite(frameSprite(c.frame, p.broke), x, y, rot, scale);
@@ -710,6 +713,20 @@ export class BuildingRenderer {
     if (anim.use <= 0) return;
     const pulse = 1 + 0.15 * triangleWave(anim.breath % 1000, 1000);
     this.withAlpha(easeOutQuad(anim.use / 500), () =>
+      this.sprite(UNUSABLE_SPRITE, p.j * TILE + HALF_TILE, p.i * TILE + HALF_TILE, 0, pulse),
+    );
+  }
+
+  /**
+   * The same busy marker while someone has this building's upgrade window
+   * open (state bit 12). Its own ramp, because a door spends bit 4 on being
+   * open and a wall's bit 4 is not a marker anywhere else either.
+   */
+  private drawUpgradeInUse(p: Placed): void {
+    const { anim } = p;
+    if (anim.upgradeUse <= 0) return;
+    const pulse = 1 + 0.15 * triangleWave(anim.breath % 1000, 1000);
+    this.withAlpha(easeOutQuad(anim.upgradeUse / 500), () =>
       this.sprite(UNUSABLE_SPRITE, p.j * TILE + HALF_TILE, p.i * TILE + HALF_TILE, 0, pulse),
     );
   }

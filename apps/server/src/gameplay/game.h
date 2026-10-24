@@ -769,6 +769,21 @@ public:
 	Object* getActiveInteractionObject(Player* player);
 	void giveOrDropCraftYield(Player* player, const ItemData* idata, uint16_t iid, uint16_t totalYield);
 
+	// Upgrading a building in place (objects.xml <upgrade>). Its window is held
+	// like a chest's -- one player at a time, from interaction range -- and
+	// anyone may start or stop an upgrade, whoever owns the building. Once
+	// started it runs on its own clock (updateUpgrades).
+	void playerOpenUpgrade(uint32_t playerId, ClientEntityId entityId);
+	void playerStartUpgrade(uint32_t playerId);
+	void playerCancelUpgrade(uint32_t playerId);
+	// UPGRADE_STATE for the object `player` has open.
+	void sendUpgradeState(Player* player, const Object* obj, bool firstOpen);
+	void updateUpgrades();
+	void completeUpgrade(Object* obj);
+	// Closes the window of whoever has `obj` open (chest, station, upgrade).
+	// Runs while it is still on the map, before it is removed.
+	void releaseInteractionObject(Object* obj);
+
 	// Clans
 	std::unordered_map<uint8_t, Clan> clans;
 
@@ -1021,6 +1036,10 @@ public:
 	int64_t lastStructureRespawnAt = 0;
 
 	std::set<Object*> activeTriggerObjects;
+
+	// Ids of objects with an upgrade running, for updateUpgrades. Ids rather
+	// than pointers: an object destroyed mid-upgrade simply stops resolving.
+	std::unordered_set<uint32_t> upgradingObjects;
 
 	// Every live object with a <logic> tag, maintained by internalPlaceThing and
 	// the two removal paths.

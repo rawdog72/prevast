@@ -29,6 +29,9 @@ import {
   buildChatMessage,
   buildChatChannelMessage,
   buildCloseContainerMessage,
+  buildOpenUpgradeMessage,
+  buildStartUpgradeMessage,
+  buildCancelUpgradeMessage,
   buildContentRequestMessage,
   buildCreateTeamMessage,
   buildDeleteTeamMessage,
@@ -341,6 +344,19 @@ export class GameSocket {
 
   closeContainer(): void {
     this.send(buildCloseContainerMessage());
+  }
+
+  /** OPEN_UPGRADE: the building's upgrade window (Ctrl+right-click > Upgrade). */
+  openUpgrade(entityId: number, pid = 0): void {
+    this.send(buildOpenUpgradeMessage(entityId, pid));
+  }
+
+  startUpgrade(): void {
+    this.send(buildStartUpgradeMessage());
+  }
+
+  cancelUpgrade(): void {
+    this.send(buildCancelUpgradeMessage());
   }
 
   craftManual(iid: number): void {

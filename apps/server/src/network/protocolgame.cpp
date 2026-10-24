@@ -1416,7 +1416,7 @@ void ProtocolGame::parsePacket(NetworkMessage& msg)
 		// Look is cheap, but a script clicking it thousands of times a second is not.
 		else if (opcode == ClientOpcode::LOOK_AT) allowed = lookBudget.consume(4, 8);
 		else if (opcode == ClientOpcode::DROP_ITEM || opcode == ClientOpcode::STORE_ITEM || opcode == ClientOpcode::TAKE_ITEM || opcode == ClientOpcode::MOVE_CONTAINER_ITEM || opcode == ClientOpcode::PICK_UP_LOOT || opcode == ClientOpcode::SPLIT_ITEM || opcode == ClientOpcode::STACK_ITEM) allowed = inventoryBudget.consume(20, 40);
-		else if (opcode == ClientOpcode::CRAFT_BY_HAND || opcode == ClientOpcode::CRAFT_AT_STATION || opcode == ClientOpcode::CANCEL_CRAFT || opcode == ClientOpcode::TAKE_FROM_STATION || opcode == ClientOpcode::UNLOCK_SKILL || opcode == ClientOpcode::ADD_FUEL) allowed = craftBudget.consume(10, 20);
+		else if (opcode == ClientOpcode::CRAFT_BY_HAND || opcode == ClientOpcode::CRAFT_AT_STATION || opcode == ClientOpcode::CANCEL_CRAFT || opcode == ClientOpcode::TAKE_FROM_STATION || opcode == ClientOpcode::UNLOCK_SKILL || opcode == ClientOpcode::ADD_FUEL || opcode == ClientOpcode::START_UPGRADE || opcode == ClientOpcode::CANCEL_UPGRADE) allowed = craftBudget.consume(10, 20);
 		if (!allowed) return;
 	}
 
@@ -1660,6 +1660,21 @@ void ProtocolGame::parsePacket(NetworkMessage& msg)
 
 	case ClientOpcode::CLOSE_CONTAINER:
 		g_game.playerCloseContainer(playerID, true);
+		break;
+
+	case ClientOpcode::OPEN_UPGRADE: {
+		const auto entityId = static_cast<ClientEntityId>(msg.get<uint32_t>());
+		msg.getByte(); // pid: buildings are addressed by id alone
+		g_game.playerOpenUpgrade(playerID, entityId);
+		break;
+	}
+
+	case ClientOpcode::START_UPGRADE:
+		g_game.playerStartUpgrade(playerID);
+		break;
+
+	case ClientOpcode::CANCEL_UPGRADE:
+		g_game.playerCancelUpgrade(playerID);
 		break;
 
 	case ClientOpcode::CRAFT_AT_STATION:

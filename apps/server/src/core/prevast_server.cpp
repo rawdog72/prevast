@@ -416,6 +416,9 @@ namespace {
 		// ambiguous (every furniture inherits id 71), so an index built
 		// before it would resolve those records to nothing.
 		g_objects.buildMapItemIndex();
+		// Every object is known now, so an <upgrade to=> naming one declared
+		// further down (or in furnitures.xml) can be checked.
+		g_objects.validateUpgrades();
 
 		// Objects carry the station areas, and items were parsed before them.
 		ItemManager::getInstance().resolveStationAreas(contentFile("items.xml"));

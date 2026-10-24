@@ -267,6 +267,14 @@ struct ObjectData {
 	uint32_t placeDelayMs = 0;
 	bool startLifetimeOnTrigger = false;
 
+	// <upgrade to="stone_wall" durationMs="30000"/>: the object this one turns
+	// into in place (Game::playerStartUpgrade), and how long that takes. It
+	// costs the target item's own crafting recipe and needs the same unlock,
+	// so upgrading is never cheaper than tearing down and building again.
+	// Empty = cannot be upgraded.
+	std::string upgradeTo;
+	uint32_t upgradeDurationMs = 0;
+
 	// <conceal tiles="3">: hidden from everyone outside the owner's side (owner
 	// and clan) until they are within this many tiles of it. 0 = an ordinary
 	// building everyone in the viewport is sent. Enforced in the visibility
@@ -346,6 +354,9 @@ public:
 	// 3 HP wall reports 3. Same contract as Player/Agent/Resource changeHealth.
 	int32_t changeHealth(int32_t healthDelta, uint8_t angle = 0, class Player* attacker = nullptr);
 	void removeSilently(); // destroy without explosion or destruction drops
+	// Like removeSilently, but clients drop it without the destruction
+	// animation: something takes its place in the same tick (an upgrade).
+	void removeForReplacement();
 
 	uint8_t getSubtype() const { return subtype; }
 	bool hasFixedSubtype() const { return fixedSubtype; }
@@ -364,6 +375,13 @@ public:
 	void setRotation(uint8_t rot) { rotation = rot; }
 
 	uint32_t getOwnerPid() const; // resolves the owning character, never a reused wire slot
+	// The same owner as `other`, even one who is offline right now. An upgraded
+	// object is the same building, so it keeps whoever built it.
+	void copyOwnerFrom(const Object& other)
+	{
+		ownerPid = other.ownerPid;
+		ownerCharacterId = other.ownerCharacterId;
+	}
 	// Out of line: claiming an object also enrols it in the owner's remote-signal
 	// registry when its type listens on a channel (see Game::remoteObjects).
 	void setOwnerPid(uint32_t pid);
@@ -436,6 +454,23 @@ public:
 	std::vector<QueueItem>& getQueue() { return queue; }
 	const std::vector<QueueItem>& getQueue() const { return queue; }
 
+	// A running in-place upgrade (Game::playerStartUpgrade). It runs on its own
+	// clock once started, whoever started it and wherever they went. The
+	// ingredients are what was taken for it: stopping it or destroying the
+	// object before it finishes drops them as loot.
+	struct UpgradeJob {
+		std::string targetKey; // empty = no upgrade running
+		uint32_t durationMs = 0;
+		uint64_t finishAt = 0;
+		std::vector<std::pair<uint16_t, uint8_t>> ingredients;
+	};
+	bool isUpgrading() const { return !upgrade.targetKey.empty(); }
+	uint32_t getUpgradeRemainingMs(uint64_t now) const
+	{
+		return isUpgrading() && upgrade.finishAt > now ? static_cast<uint32_t>(upgrade.finishAt - now) : 0;
+	}
+	UpgradeJob upgrade;
+
 	void onCreatureEnter(Creature* c);
 	void onCreatureLeave(Creature* c);
 	void updateTriggers(uint64_t currentTimeMs);
@@ -455,7 +490,8 @@ public:
 private:
 	void executeTrigger(const TriggerAction& trigger, Creature* target);
 	void executeExplosion(const ObjectExplosion& exp, Player* attacker);
-	void finishDestruction(const ObjectData* od);
+	// `destroyed` false: clients drop it without the destruction animation.
+	void finishDestruction(const ObjectData* od, bool destroyed = true);
 
 	std::string key;
 	// Resolved once from `key` in the constructor; see getData().
@@ -503,6 +539,10 @@ public:
 	// and a bad key would otherwise fail silently -- the stage fires, spawns
 	// nothing, and the spawner looks broken with no explanation.
 	void validateStageCreatures() const;
+	// Warns about <upgrade to=> targets that are not objects, or whose item has
+	// no recipe to charge. Run once every object file has loaded, since the
+	// target may be declared further down.
+	void validateUpgrades() const;
 	const ObjectData* getObjectData(const std::string& key) const;
 	const ObjectData* getObjectData(uint16_t id) const;
 

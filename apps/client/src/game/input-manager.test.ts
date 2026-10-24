@@ -15,7 +15,7 @@ import { GameSocket } from '../net/socket';
 import { EntityType } from '../world/entity-types';
 import { InventoryStore } from '../world/inventory-store';
 import { WorldState } from '../world/world-state';
-import { InputManager } from './input-manager';
+import { InputManager, UPGRADE_BUSY_BIT } from './input-manager';
 
 describe('InputManager', () => {
   function setup() {
@@ -406,6 +406,38 @@ describe('InputManager', () => {
     window.dispatchEvent(new KeyboardEvent('keydown', { code: 'KeyE' }));
     expect(ctx.socket.interact).toHaveBeenCalledWith(11, 0);
 
+    manager.destroy();
+    ctx.keyboard.destroy();
+    ctx.mouse.destroy();
+  });
+
+  it('offers Upgrade only on a building that has one, in reach, and says when its window is held', () => {
+    const ctx = setup();
+    const content = new ContentStore();
+    for (const name of ['items', 'objects', 'furnitures']) {
+      const table = JSON.parse(
+        readFileSync(`tests/fixtures/content/${name}.json`, 'utf8'),
+      ) as ContentTable;
+      // The fixture predates <upgrade>; give the wooden wall one here.
+      if (name === 'objects')
+        (table.entries.wood_wall as Record<string, unknown>).upgrade = {
+          to: 'stone_wall',
+          durationMs: 30000,
+        };
+      content.load(table);
+    }
+    const manager = new InputManager({ ...ctx, content });
+    ctx.world.entities.processUnits([
+      building(content, 'wood_wall', 10, 560, 500),
+      building(content, 'stone_wall', 11, 440, 500),
+      building(content, 'wood_wall', 12, 500, 700),
+      building(content, 'wood_wall', 13, 500, 420, 1 | UPGRADE_BUSY_BIT),
+    ]);
+    const at = (id: number) => manager.upgradeAction(ctx.world.entities.get(0, id)!);
+    expect(at(10)).toEqual({ inReach: true, busy: false });
+    expect(at(11)).toBeNull(); // nothing to upgrade it into
+    expect(at(12)).toEqual({ inReach: false, busy: false });
+    expect(at(13)).toEqual({ inReach: true, busy: true });
     manager.destroy();
     ctx.keyboard.destroy();
     ctx.mouse.destroy();

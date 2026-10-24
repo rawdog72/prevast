@@ -30,6 +30,7 @@ import { QuestStore } from '../../world/quest-store';
 import { ProgressStore } from '../../world/progress-store';
 import { TradeStore } from '../../world/trade-store';
 import { TradeWindow } from './trade-window';
+import { UpgradeWindow, type UpgradeWindowCallbacks } from './upgrade-window';
 import { DEFAULT_UI_SCALE } from '../ui-scale';
 
 export type WindowType =
@@ -45,7 +46,8 @@ export type WindowType =
   | 'map'
   | 'quests'
   | 'options'
-  | 'mods';
+  | 'mods'
+  | 'upgrade';
 
 interface WindowChrome {
   title: string;
@@ -86,6 +88,8 @@ const CHROME: Record<Exclude<WindowType, 'none'>, WindowChrome> = {
   options: { title: 'Options', size: 'dv-modal-options', closable: true },
   // A gun's right-click menu > Mods (mods-window.ts); the window titles itself after the gun.
   mods: { title: 'Mods', size: 'dv-modal-mods', closable: true },
+  // Ctrl+right-click a building > Upgrade (upgrade-window.ts): the server holds it open like a station.
+  upgrade: { title: 'Upgrade', size: 'dv-modal-upgrade', closable: true },
 };
 
 export interface WindowManagerOptions {
@@ -139,6 +143,7 @@ export class WindowManager {
   readonly mapWindow = new MapWindow();
   readonly optionsWindow = new OptionsWindow();
   readonly modsWindow = new ModsWindow();
+  readonly upgradeWindow = new UpgradeWindow();
 
   private root!: HTMLElement;
   private panel!: HTMLElement;
@@ -227,7 +232,7 @@ export class WindowManager {
     if (this.activeWindow === 'npc') this.npc.close(this.socket);
     if (this.trade.state) this.trade.cancel(this.socket);
     // Whatever the server has open for us goes with the window (old releaseBuilding).
-    if (this.inventory.isChestOpen || this.inventory.isStationOpen) {
+    if (this.inventory.isChestOpen || this.inventory.isStationOpen || this.inventory.upgrade) {
       this.socket.closeContainer();
       this.inventory.closeContainers();
     }
@@ -257,6 +262,11 @@ export class WindowManager {
       this.activeWindow = 'none';
     } else if (this.activeWindow === 'mods' && !this.modsWindow.weapon(this.inventory)) {
       // The gun left the inventory (dropped, stored, traded, died).
+      this.activeWindow = 'none';
+    } else if (this.inventory.upgrade && this.activeWindow !== 'upgrade') {
+      // UPGRADE_STATE opened it; STATION_CLOSED (out of reach, gone) drops it below.
+      this.activeWindow = 'upgrade';
+    } else if (!this.inventory.upgrade && this.activeWindow === 'upgrade') {
       this.activeWindow = 'none';
     } else if (this.inventory.isChestOpen && this.activeWindow !== 'chest') {
       this.activeWindow = 'chest';
@@ -383,6 +393,15 @@ export class WindowManager {
       case 'mods':
         this.modsWindow.mount(this.body, this.modsDeps(), { title: this.titleEl });
         break;
+      case 'upgrade':
+        this.upgradeWindow.mount(
+          this.body,
+          { title: this.titleEl, sub: this.subEl },
+          this.content,
+          this.inventory,
+          this.upgradeCallbacks(),
+        );
+        break;
       case 'chest':
         this.chestWindow.mount(this.body, this.inventory, this.content, {
           onTake: (slot, inventorySlot) => {
@@ -432,6 +451,13 @@ export class WindowManager {
     };
   }
 
+  private upgradeCallbacks(): UpgradeWindowCallbacks {
+    return {
+      onStart: () => this.socket.startUpgrade(),
+      onCancel: () => this.socket.cancelUpgrade(),
+    };
+  }
+
   /** Clan limits come from the config table the server exports; defaults match config.lua. */
   private clanRules(): ClanRules {
     const config = this.content.has('config') ? this.content.config : undefined;
@@ -469,6 +495,9 @@ export class WindowManager {
         break;
       case 'chest':
         this.chestWindow.refresh(this.inventory, this.content);
+        break;
+      case 'upgrade':
+        this.upgradeWindow.refresh(this.content, this.inventory, this.upgradeCallbacks());
         break;
       case 'team':
         this.clanWindow.refresh(this.clans, this.clanRules(), this.clanCallbacks());

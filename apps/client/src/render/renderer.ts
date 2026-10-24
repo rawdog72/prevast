@@ -34,6 +34,7 @@ import type { ParticleSystem } from './particles/particle-system';
 import type { CloudLayer } from './clouds';
 import { drawRagFlame } from './fire';
 import type { StatusVignette } from './status-vignette';
+import type { UpgradePuffs } from './upgrade-puffs';
 
 export interface RenderContext {
   ctx: CanvasRenderingContext2D;
@@ -48,6 +49,8 @@ export interface RenderContext {
    * under names.
    */
   clouds?: CloudLayer;
+  /** The dust of a building finishing an upgrade: over the scene, under names. */
+  upgradePuffs?: UpgradePuffs;
   brZone?: BRZone;
   ghoulEffects?: GhoulEffects;
   /** Screen-edge glow for the local player's life / radiation / cold and hits. */
@@ -194,6 +197,7 @@ export class GameRenderer {
       rc.clouds.render(ctx, camera, rc.timeMs ?? 0, world.getLocalEntity());
       rc.profiler?.end('render.clouds');
     }
+    rc.upgradePuffs?.render(ctx, camera);
 
     // _playerName: the old client drew every nickname after the tree tops,
     // walls and explosions, so a name is never hidden behind scenery.

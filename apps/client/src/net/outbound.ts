@@ -251,6 +251,25 @@ export function buildCloseContainerMessage(): Uint8Array {
   return new Uint8Array([ClientOpcode.CLOSE_CONTAINER]);
 }
 
+/** OPEN_UPGRADE [u32 entityId][u8 pid]: that building's upgrade window. */
+export function buildOpenUpgradeMessage(entityId: number, pid = 0): Uint8Array {
+  const w = new BinaryWriter();
+  w.u8(ClientOpcode.OPEN_UPGRADE);
+  w.u32(entityId);
+  w.u8(pid);
+  return w.build();
+}
+
+/** START_UPGRADE: upgrade the building whose upgrade window is open. */
+export function buildStartUpgradeMessage(): Uint8Array {
+  return new Uint8Array([ClientOpcode.START_UPGRADE]);
+}
+
+/** CANCEL_UPGRADE: stop its running upgrade; the materials drop at the sender's feet. */
+export function buildCancelUpgradeMessage(): Uint8Array {
+  return new Uint8Array([ClientOpcode.CANCEL_UPGRADE]);
+}
+
 export function buildStartCraftStationMessage(iid: number): Uint8Array {
   const w = new BinaryWriter();
   w.u8(ClientOpcode.CRAFT_AT_STATION);

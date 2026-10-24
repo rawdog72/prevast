@@ -1380,6 +1380,20 @@ select.dv-input option { background: #252c35; }
 .dv-craft-progress-text { position: relative; text-align: center; color: var(--dv-text); font-variant-numeric: tabular-nums; pointer-events: none; }
 .dv-craft-reason { font-size: 12px; color: var(--dv-warn-text); text-align: left; }
 
+/* Upgrade window (upgrade-window.ts): the crafting card's pieces in one column --
+   what it is, what it becomes, the materials, and the action that becomes the gauge. */
+.dv-modal-upgrade { width: 360px; }
+.dv-modal-upgrade .dv-window-head { padding: 12px 16px 10px; }
+.dv-modal-upgrade .dv-window-body { padding: 4px 16px 16px; }
+.dv-upgrade { display: flex; flex-direction: column; gap: 8px; padding: 10px; border-radius: var(--dv-r-md); background: var(--dv-inset); border: 1px solid var(--dv-edge); }
+.dv-upgrade .dv-label { margin: 4px 0 -4px; }
+.dv-upgrade-pieces { display: flex; align-items: center; gap: 8px; }
+.dv-upgrade-piece { flex: 1 1 0; min-width: 0; }
+.dv-upgrade-piece .name { font-size: 14px; }
+.dv-upgrade-arrow { flex: none; font-size: 18px; color: var(--dv-muted); }
+.dv-upgrade .dv-craft-actions { margin-top: 0; }
+.dv-upgrade-note { font-size: 12px; color: var(--dv-muted); text-align: left; }
+
 /* Queue and fuel use one compact row only while inside a station. */
 .dv-craft-station-reveal { display: grid; grid-template-rows: 0fr; opacity: 0; visibility: hidden; transition: grid-template-rows .24s ease, opacity .18s ease, visibility .24s; }
 .dv-craft-station-reveal.is-open { grid-template-rows: 1fr; opacity: 1; visibility: visible; }

@@ -10,6 +10,7 @@ import { handleTradeState, handleTradeClosed } from './handlers/trade';
 import { handleAreaEffect, handleDamageIndicator, handleExplosionShake } from './handlers/combat';
 import { handleContentManifest, handleContentPatch, handleContentTable } from './handlers/content';
 import { handleBlueprint, handleCraftStarted } from './handlers/craft';
+import { handleUpgradeFinished, handleUpgradeState } from './handlers/upgrade';
 import {
   handleContainerContents,
   handleInteractionCancelled,
@@ -179,6 +180,12 @@ export function dispatchServerMessage(bytes: Uint8Array, bus: NetEventBus): void
       break;
     case ServerOpcode.CONTAINER_CONTENTS:
       handleContainerContents(bytes, bus);
+      break;
+    case ServerOpcode.UPGRADE_STATE:
+      handleUpgradeState(bytes, bus);
+      break;
+    case ServerOpcode.UPGRADE_FINISHED:
+      handleUpgradeFinished(bytes, bus);
       break;
     case ServerOpcode.TEAM_MEMBER_JOINED:
       handleTeamMemberJoined(bytes, bus);

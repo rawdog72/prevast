@@ -22,9 +22,11 @@ static constexpr auto STATUS_SERVER_DEVELOPERS = "rawdog72";
 // 1421: gas grenades -- AREA_EFFECT out.
 // 1422: frag fragments are real projectiles -- SHRAPNEL_BURST retired.
 // 1423: THROW_TARGET is the marker's [i16 dx][i16 dy], not a u16 distance.
-static constexpr auto CLIENT_VERSION_MIN = 1423;
-static constexpr auto CLIENT_VERSION_MAX = 1423;
-static constexpr auto CLIENT_VERSION_STR = "14.23";
+// 1424: building upgrades -- OPEN_UPGRADE, START_UPGRADE and CANCEL_UPGRADE in,
+//       UPGRADE_STATE and UPGRADE_FINISHED out.
+static constexpr auto CLIENT_VERSION_MIN = 1424;
+static constexpr auto CLIENT_VERSION_MAX = 1424;
+static constexpr auto CLIENT_VERSION_STR = "14.24";
 static constexpr auto TILE_SIZE = 100;
 // <fragments> limits. Every fragment is a projectile entity sent to every
 // watcher -- created, stopped and removed -- so the count is what one blast

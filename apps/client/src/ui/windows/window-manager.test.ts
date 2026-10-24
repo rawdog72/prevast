@@ -200,6 +200,43 @@ describe('WindowManager', () => {
     expect(manager.activeWindow).toBe('death');
   });
 
+  it('shows the upgrade window while the server holds one open, and closing it releases it', () => {
+    const { manager, inventory, socket, root } = setup();
+    inventory.attachBus(socket.bus);
+    socket.bus.emit('upgradeState', {
+      firstOpen: true,
+      entityId: 5,
+      iid: 20,
+      targetIid: 22,
+      running: false,
+      durationMs: 30000,
+      remainingMs: 0,
+    });
+    manager.update();
+    expect(manager.activeWindow).toBe('upgrade');
+    expect(root.querySelector('.dv-modal-upgrade .dv-upgrade')).not.toBeNull();
+
+    manager.close();
+    expect(socket.closeContainer).toHaveBeenCalled();
+    expect(inventory.upgrade).toBeNull();
+
+    // Losing it from the server side (walked off, building gone) drops the window.
+    socket.bus.emit('upgradeState', {
+      firstOpen: true,
+      entityId: 5,
+      iid: 20,
+      targetIid: 22,
+      running: false,
+      durationMs: 30000,
+      remainingMs: 0,
+    });
+    manager.update();
+    expect(manager.activeWindow).toBe('upgrade');
+    socket.bus.emit('lostBuilding', undefined as unknown as void);
+    manager.update();
+    expect(manager.activeWindow).toBe('none');
+  });
+
   it('renders GameUI chrome: a floating .dv-window with title and close, and nothing covering the HUD', () => {
     const { manager, root } = setup();
     manager.open('craft');

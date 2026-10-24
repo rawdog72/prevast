@@ -62,6 +62,7 @@ class ClientOp:
     TAKE_ITEM = 33
     MOVE_CONTAINER_ITEM = 34
     LOOK_AT = 35
+    OPEN_UPGRADE = 36
 
     # Building and crafting
     PLACE_BUILDING = 40
@@ -71,6 +72,8 @@ class ClientOp:
     TAKE_FROM_STATION = 44
     ADD_FUEL = 45
     UNLOCK_SKILL = 46
+    START_UPGRADE = 47
+    CANCEL_UPGRADE = 48
 
     # Chat and social
     CHAT_LOCAL = 50
@@ -178,6 +181,8 @@ class ServerOp:
     STATION_CLOSED = 93
     STATION_FUEL = 94
     CONTAINER_CONTENTS = 95
+    UPGRADE_STATE = 96
+    UPGRADE_FINISHED = 97
 
     # Teams
     TEAM_CREATED = 100

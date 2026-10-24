@@ -61,6 +61,7 @@ enum class ClientOpcode : uint8_t {
     TAKE_ITEM = 33,            // [u8 containerSlot]
     MOVE_CONTAINER_ITEM = 34,  // [u8 from][u8 to]: swap two slots of the open container
     LOOK_AT = 35,              // [u32 entityId][u8 pid]; entityId 0 = the player with guid pid
+    OPEN_UPGRADE = 36,         // [u32 entityId][u8 pid]: open that building's upgrade window
 
     // Building and crafting
     PLACE_BUILDING = 40,       // [u8 rotation][u16 tileX][u16 tileY]
@@ -70,6 +71,8 @@ enum class ClientOpcode : uint8_t {
     TAKE_FROM_STATION = 44,    // [u8 slot]
     ADD_FUEL = 45,             // [u8 amount], 1..254 fuel items
     UNLOCK_SKILL = 46,         // [u16 iid]
+    START_UPGRADE = 47,        // upgrade the building whose upgrade window is open
+    CANCEL_UPGRADE = 48,       // stop its running upgrade; the materials drop at your feet
 
     // Chat and social
     CHAT_LOCAL = 50,           // [str text]: a LOCAL line (the stress bots still send it)
@@ -124,6 +127,8 @@ constexpr int clientPayloadBytes(ClientOpcode op)
     case ClientOpcode::LOCK_TEAM:
     case ClientOpcode::UNLOCK_TEAM:
     case ClientOpcode::LEAVE_TEAM:
+    case ClientOpcode::START_UPGRADE:
+    case ClientOpcode::CANCEL_UPGRADE:
         return 0;
 
     case ClientOpcode::MOVE:
@@ -160,6 +165,7 @@ constexpr int clientPayloadBytes(ClientOpcode op)
         return 4;
 
     case ClientOpcode::INTERACT:
+    case ClientOpcode::OPEN_UPGRADE:
     case ClientOpcode::LOOK_AT:
     case ClientOpcode::PLACE_BUILDING:
     case ClientOpcode::TRADE_REPLY:
@@ -316,6 +322,17 @@ enum class ServerOpcode : uint8_t {
     // [u8 firstOpen], then per storage slot
     // [u16 iid][u8 count][u8 ammo][u8 n]([u8 slot][u16 modIid])*n
     CONTAINER_CONTENTS = 95,
+    // The upgrade window of the building you have open (OPEN_UPGRADE):
+    //     [u8 firstOpen][u32 entityId][u16 iid][u16 targetIid][u8 running]
+    //     [u32 durationMs][u32 remainingMs]
+    // targetIid is what it becomes; durationMs is the whole upgrade, and
+    // remainingMs is what is left of a running one (the client counts down
+    // from it). Sent on opening and on every start, stop and finish. Losing
+    // the window is STATION_CLOSED, as for a station.
+    UPGRADE_STATE = 96,
+    // [u16 x][u16 y][u16 iid]: a building there has just finished upgrading
+    // into iid; to everyone watching, for the puff of dust.
+    UPGRADE_FINISHED = 97,
 
     // --- Teams ------------------------------------------------------------
     TEAM_CREATED = 100,        // [u8 clanId][u32 leaderGuid][str name]

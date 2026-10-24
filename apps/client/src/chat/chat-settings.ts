@@ -17,6 +17,8 @@ export interface ChatSettings {
   timestamps: boolean;
   stayTyping: boolean;
   bubbles: boolean;
+  /** Fade the console's frame and controls while it is not hovered or typed in. */
+  idleFade: boolean;
   notifications: Record<NoticeChannel, { mode: NoticeMode; sound: boolean }>;
 }
 
@@ -30,6 +32,7 @@ export function defaultChatSettings(): ChatSettings {
     timestamps: true,
     stayTyping: false,
     bubbles: true,
+    idleFade: true,
     notifications: {
       local: { mode: 'mentions', sound: true },
       global: { mode: 'mentions', sound: true },
@@ -54,7 +57,7 @@ export function parseChatSettings(json: string | null): ChatSettings {
       if (typeof raw[key] === 'number' && Number.isFinite(raw[key]))
         settings[key] = Math.max(min, Math.min(max, raw[key]));
     }
-    for (const key of ['timestamps', 'stayTyping', 'bubbles'] as const)
+    for (const key of ['timestamps', 'stayTyping', 'bubbles', 'idleFade'] as const)
       if (typeof raw[key] === 'boolean') settings[key] = raw[key];
     if (raw.font === 'readable' || raw.font === 'game') settings.font = raw.font;
     for (const channel of NOTICE_CHANNELS) {

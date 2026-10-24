@@ -6,7 +6,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { ContentStore } from '../../content/store';
 import { InventoryStore } from '../../world/inventory-store';
 import { MODS_IID, modsContent } from '../../world/weapon-mods.fixtures';
-import { HudHotbar, magazine, type HotbarCallbacks } from './hud-hotbar';
+import { HudHotbar, PICKUP_FLASH_MS, isWorldElement, magazine, type HotbarCallbacks } from './hud-hotbar';
 import { itemTooltip } from './hud-item-tooltip';
 
 function content(): ContentStore {
@@ -221,15 +221,82 @@ describe('HudHotbar (old client _Inventory + mouseUp)', () => {
     expect(big.slots().filter((s) => !s.hidden)).toHaveLength(15);
   });
 
-  it('draws the item button sprite as the slot face with its count, and marks the active slot', () => {
-    const { root, slots, inventory, hotbar, store } = setup();
+  it('draws the item button sprite as the slot face with its count', () => {
+    const { slots } = setup();
     expect(slots()[0].style.getPropertyValue('--icon')).toContain('/icons/inv-stone.png');
     expect(slots()[0].querySelector('.hud-slot-count')!.textContent).toBe('5');
     expect(slots()[3].style.getPropertyValue('--icon')).toBe('');
-    inventory.activeSlot = 2;
+  });
+
+  it('marks what the server says is on, by uid: held and worn, each with its badge, following the item', () => {
+    const { root, slots, inventory, hotbar, store } = setup();
+    const badge = (i: number) => slots()[i].querySelector<HTMLElement>('.hud-slot-badge')!;
+    expect(root.querySelector('.is-held, .is-worn')).toBeNull();
+
+    inventory.setSlot(4, { iid: 2, count: 1, uid: 50 }); // stands in for a coat
+    inventory.applyEquipmentState({ weaponUid: 42, wearableUid: 50, pending: null });
     hotbar.update(inventory, store);
-    expect(slots()[2].classList.contains('is-active')).toBe(true);
-    expect(root.querySelector('.hud-slot.is-active')).toBe(slots()[2]);
+    expect(root.querySelector('.hud-slot.is-held')).toBe(slots()[2]);
+    expect(root.querySelector('.hud-slot.is-worn')).toBe(slots()[4]);
+    expect(badge(2).hidden).toBe(false);
+    expect(badge(2).dataset.kind).toBe('held');
+    expect(badge(4).dataset.kind).toBe('worn');
+    expect(badge(0).hidden).toBe(true);
+
+    // Dragged elsewhere, the mark goes with the item.
+    inventory.swapSlots(2, 6);
+    hotbar.update(inventory, store);
+    expect(root.querySelector('.hud-slot.is-held')).toBe(slots()[6]);
+    expect(badge(2).hidden).toBe(true);
+    expect(badge(6).dataset.kind).toBe('held');
+
+    // Taken off (toggle, drop, death): no mark anywhere -- and an empty slot never has one.
+    inventory.applyEquipmentState({ weaponUid: null, wearableUid: null, pending: null });
+    hotbar.update(inventory, store);
+    expect(root.querySelector('.is-held, .is-worn')).toBeNull();
+    expect(root.querySelectorAll('.hud-slot-badge:not([hidden])')).toHaveLength(0);
+  });
+
+  it('fills the slot of an equip under way as it runs, and clears it when it ends', () => {
+    const { slots, inventory, hotbar, store } = setup();
+    const t0 = 1_000_000;
+    inventory.applyEquipmentState({ weaponUid: null, wearableUid: null, pending: { uid: 42, remainingMs: 1000 } }, t0);
+    hotbar.update(inventory, store, t0 + 250);
+    expect(slots()[2].classList.contains('is-equipping')).toBe(true);
+    expect(slots()[2].style.getPropertyValue('--equip')).toBe('25%');
+    hotbar.update(inventory, store, t0 + 750);
+    expect(slots()[2].style.getPropertyValue('--equip')).toBe('75%');
+    expect(slots()[0].classList.contains('is-equipping')).toBe(false);
+
+    inventory.applyEquipmentState({ weaponUid: 42, wearableUid: null, pending: null }, t0 + 1000);
+    hotbar.update(inventory, store, t0 + 1000);
+    expect(slots()[2].classList.contains('is-equipping')).toBe(false);
+    expect(slots()[2].style.getPropertyValue('--equip')).toBe('');
+    expect(slots()[2].classList.contains('is-held')).toBe(true);
+  });
+
+  it('flashes a slot whose stack grew or that a new item landed in, never at login or for a swap', () => {
+    const { slots, inventory, hotbar, store } = setup();
+    const flashing = () => slots().flatMap((s, i) => (s.classList.contains('is-flash') ? [i] : []));
+    const t0 = 2_000_000;
+    hotbar.update(inventory, store, t0);
+    expect(flashing()).toEqual([]); // the login inventory is not a pickup
+
+    inventory.applySlot(41, 2, 9, 0); // the second stone stack grows
+    hotbar.update(inventory, store, t0 + 16);
+    expect(flashing()).toEqual([1]);
+
+    inventory.swapSlots(1, 5); // the flash follows the item; a swap starts none
+    hotbar.update(inventory, store, t0 + 32);
+    expect(flashing()).toEqual([5]);
+
+    hotbar.update(inventory, store, t0 + 16 + PICKUP_FLASH_MS);
+    expect(flashing()).toEqual([]);
+
+    inventory.applySlot(77, 15, 1, 0); // a new item lands in the first empty slot
+    inventory.applySlot(40, 2, 2, 0); // a stack that shrank is not a pickup
+    hotbar.update(inventory, store, t0 + 1000);
+    expect(flashing()).toEqual([1]);
   });
 
   it('shows the freshness bar on food that rots: 20 stages from the slot ammo byte, none on other items', () => {
@@ -342,12 +409,15 @@ describe('HudHotbar (old client _Inventory + mouseUp)', () => {
     pointer('pointerup', s0, 40, 10);
     expect(callbacks.onStack).toHaveBeenCalledWith(0, 1);
 
-    // dropped on nothing -> throw
-    under = document.body;
+    // dropped on the world -> throw
+    const world = document.createElement('canvas');
+    document.body.append(world);
+    under = world;
     pointer('pointerdown', s0, 10, 10);
     pointer('pointermove', s0, 10, 80);
     pointer('pointerup', s0, 10, 80);
     expect(callbacks.onThrow).toHaveBeenCalledWith(0);
+    world.remove();
 
     // dropped on an open container -> store, not throw; on one of its slots -> into that slot
     const chest = document.createElement('div');
@@ -377,6 +447,130 @@ describe('HudHotbar (old client _Inventory + mouseUp)', () => {
     pointer('pointerup', s0, 12, 11);
     expect(callbacks.onSelect).toHaveBeenCalledWith(0);
     expect(callbacks.onSwap).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('HudHotbar drag safety and feedback', () => {
+  function world() {
+    const hud = document.createElement('div');
+    hud.className = 'hud-root';
+    const minimap = document.createElement('canvas');
+    hud.append(minimap);
+    const can = document.createElement('canvas');
+    document.body.append(can, hud);
+    return { can, minimap, hud };
+  }
+  const at = (el: Element | null) => {
+    (
+      document as unknown as { elementFromPoint: (x: number, y: number) => Element | null }
+    ).elementFromPoint = () => el;
+  };
+
+  it('only open ground counts as the world: a canvas inside the HUD or a window does not', () => {
+    const { can, minimap, hud } = world();
+    expect(isWorldElement(can)).toBe(true);
+    expect(isWorldElement(minimap)).toBe(false);
+    expect(isWorldElement(hud)).toBe(false);
+    expect(isWorldElement(document.body)).toBe(false);
+  });
+
+  it('letting go on UI, between slots or off the page cancels instead of throwing', () => {
+    const { slots, callbacks, root } = setup();
+    const { minimap, hud } = world();
+    const drag = (under: Element | null) => {
+      at(under);
+      pointer('pointerdown', slots()[0], 10, 10);
+      pointer('pointermove', slots()[0], 60, 10);
+      pointer('pointerup', slots()[0], 60, 10);
+    };
+    drag(root.querySelector('.hud-hotbar-row')); // the gap between two slots
+    drag(minimap);
+    drag(hud);
+    drag(document.body);
+    drag(null); // outside the window
+    expect(callbacks.onThrow).not.toHaveBeenCalled();
+    expect(callbacks.onSwap).not.toHaveBeenCalled();
+    expect(callbacks.onSelect).not.toHaveBeenCalled(); // and none of those was a click either
+    expect(document.querySelector('.hud-drag-ghost')).toBeNull();
+  });
+
+  it('Escape, a right-click or losing focus cancel a drag in flight', () => {
+    const { slots, callbacks } = setup();
+    const { can } = world();
+    at(can);
+    const start = () => {
+      pointer('pointerdown', slots()[0], 10, 10);
+      pointer('pointermove', slots()[0], 60, 60);
+      expect(slots()[0].classList.contains('is-drag-source')).toBe(true);
+    };
+
+    start();
+    const esc = new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true });
+    window.dispatchEvent(esc);
+    expect(esc.defaultPrevented).toBe(true);
+    pointer('pointerup', slots()[0], 60, 60);
+
+    start();
+    window.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true }));
+    pointer('pointerup', slots()[0], 60, 60);
+
+    start();
+    pointer('pointermove', slots()[0], 70, 60, { buttons: 3 });
+    pointer('pointerup', slots()[0], 70, 60);
+
+    start();
+    window.dispatchEvent(new Event('blur'));
+    pointer('pointerup', slots()[0], 60, 60);
+
+    expect(callbacks.onThrow).not.toHaveBeenCalled();
+    expect(callbacks.onSelect).not.toHaveBeenCalled();
+    expect(slots()[0].classList.contains('is-drag-source')).toBe(false);
+    expect(document.querySelector('.hud-drag-ghost')).toBeNull();
+
+    // Escape with no drag is left alone for the windows.
+    const free = new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true });
+    window.dispatchEvent(free);
+    expect(free.defaultPrevented).toBe(false);
+  });
+
+  it('ends the drag when the dragged item goes away mid-drag', () => {
+    const { slots, callbacks, inventory, hotbar, store } = setup();
+    const { can } = world();
+    at(can);
+    pointer('pointerdown', slots()[0], 10, 10);
+    pointer('pointermove', slots()[0], 60, 60);
+    inventory.applySlot(40, 0, 0, 0); // eaten, dropped, traded away
+    hotbar.update(inventory, store);
+    expect(hotbar.isDragging).toBe(false);
+    pointer('pointerup', slots()[0], 60, 60);
+    expect(callbacks.onThrow).not.toHaveBeenCalled();
+  });
+
+  it('shows where it would land: the target slot as stack or swap, and the ghost as drop, store or cancel', () => {
+    const { slots, root } = setup();
+    const { can } = world();
+    const ghost = () => document.querySelector<HTMLElement>('.hud-drag-ghost')!;
+    pointer('pointerdown', slots()[0], 10, 10);
+    at(slots()[1]);
+    pointer('pointermove', slots()[0], 60, 10);
+    expect(slots()[1].classList.contains('is-drop-target')).toBe(true);
+    expect(slots()[1].dataset.drop).toBe('stack');
+    expect(ghost().dataset.drop).toBe('slot');
+
+    at(slots()[2]);
+    pointer('pointermove', slots()[0], 70, 10);
+    expect(slots()[1].classList.contains('is-drop-target')).toBe(false);
+    expect(slots()[2].dataset.drop).toBe('swap');
+
+    at(can);
+    pointer('pointermove', slots()[0], 70, 90);
+    expect(root.querySelector('.is-drop-target')).toBeNull();
+    expect(ghost().dataset.drop).toBe('drop');
+
+    at(document.body);
+    pointer('pointermove', slots()[0], 70, 95);
+    expect(ghost().dataset.drop).toBe('cancel');
+    pointer('pointerup', slots()[0], 70, 95);
   });
 });
 
@@ -446,7 +640,7 @@ describe('hotbar tooltip (old client drawDarkBox over activeInventorySlot = the 
     const { root, slots, inventory, hotbar, store } = setup();
     const tooltip = root.querySelector<HTMLElement>('.hud-item-tooltip')!;
     // Slot 0 is equipped on login; the box must NOT show for it.
-    inventory.activeSlot = 0;
+    inventory.applyEquipmentState({ weaponUid: 40, wearableUid: null, pending: null });
     hotbar.update(inventory, store);
     expect(tooltip.hidden).toBe(true);
 

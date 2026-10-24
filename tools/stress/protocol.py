@@ -54,6 +54,7 @@ class ClientOp:
     SPLIT_ITEM = 23
     PICK_UP_LOOT = 24
     FIT_WEAPON_MOD = 25
+    SWAP_SLOTS = 26
 
     # Interaction and containers
     INTERACT = 30
@@ -173,6 +174,7 @@ class ServerOp:
     ITEM_MODS = 82
     SELECTED_ITEM = 83
     WRONG_TOOL = 84
+    EQUIPMENT_STATE = 85
 
     # Crafting and stations
     BLUEPRINT = 90

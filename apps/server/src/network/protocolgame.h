@@ -122,6 +122,8 @@ public:
 	// A grenade's pin is out (fuseMs > 0) or no longer (0). See Player::beginCook.
 	void sendCookState(uint32_t fuseMs, uint32_t remainingMs);
 	void sendSelectedItem(uint16_t iid);
+	// See ServerOpcode::EQUIPMENT_STATE. Reads everything from the player.
+	void sendEquipmentState();
 	
 	void sendPlayerXp(uint16_t xp);
 	void sendPlayerXpSkill();

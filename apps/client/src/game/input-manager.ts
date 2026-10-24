@@ -199,7 +199,8 @@ export class InputManager {
   /** Selects a hotbar slot and equips (or throws/stores, via modifiers) its item. */
   selectSlot(slotIndex: number, modifiers?: { alt?: boolean; ctrl?: boolean }): void {
     if (!modifiers?.alt && !modifiers?.ctrl && this.delegates.onSelectSlot?.(slotIndex)) return;
-    this.inventory.activeSlot = slotIndex;
+    // Nothing is marked here: the hotbar shows what the server says is on
+    // (EQUIPMENT_STATE), so an empty slot or a bite of food never takes the mark.
     const item = this.inventory.getSlot(slotIndex);
     if (!item || item.iid <= 0) return;
 

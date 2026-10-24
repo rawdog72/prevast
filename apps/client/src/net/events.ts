@@ -118,6 +118,16 @@ export interface SelectedItemEvent {
   iid: number;
 }
 
+/**
+ * EQUIPMENT_STATE: what is on, by inventory wire uid. null = nothing; a
+ * pending equip is the item it is about and the ms it has left.
+ */
+export interface EquipmentStateEvent {
+  weaponUid: number | null;
+  wearableUid: number | null;
+  pending: { uid: number; remainingMs: number } | null;
+}
+
 /** COOK_STATE: a grenade's pin is out (fuseMs > 0) with remainingMs left on it, or it is gone (0). */
 export interface CookStateEvent {
   fuseMs: number;
@@ -480,6 +490,7 @@ export interface NetEventMap {
   cookState: CookStateEvent;
   fullInventory: FullInventoryEvent;
   selectedItem: SelectedItemEvent;
+  equipmentState: EquipmentStateEvent;
   chat: ChatEvent;
   serverLog: ServerLogEvent;
   statusMessage: StatusMessageEvent;

@@ -114,6 +114,122 @@ describe('HudLeaderboard (old client _Leaderboard)', () => {
     expect(root.querySelector('.hud-leaderboard-title')!.textContent).toBe('Europe #2');
   });
 
+  it('chips the top three and sizes each bar against the leader, hiding slivers', () => {
+    const { world, bus } = worldWith({ 1: 'A', 2: 'B', 3: 'C', 4: 'D' }, 4);
+    bus.emit('leaderboard', {
+      entries: [
+        { guid: 1, karma: 0, score: 1000 },
+        { guid: 2, karma: 0, score: 500 },
+        { guid: 3, karma: 0, score: 250 },
+        { guid: 4, karma: 0, score: 10 },
+      ],
+    });
+    const root = document.createElement('div');
+    const lb = new HudLeaderboard();
+    lb.mount(root);
+    lb.update(world, true);
+    const rows = Array.from(root.querySelectorAll<HTMLElement>('.hud-leaderboard-row'));
+    expect(rows.map((r) => ['is-top1', 'is-top2', 'is-top3'].find((c) => r.classList.contains(c)))).toEqual([
+      'is-top1',
+      'is-top2',
+      'is-top3',
+      undefined,
+    ]);
+    expect(rows.map((r) => r.style.getPropertyValue('--lb-fill'))).toEqual(['1.000', '0.500', '0.250', '0.010']);
+    expect(rows[3].classList.contains('is-trailing')).toBe(true);
+  });
+
+  it('gives our appended row its rank when the server lists us past the top ten', () => {
+    const names: Record<number, string> = {};
+    for (let g = 1; g <= 12; g++) names[g] = 'P' + g;
+    const { world, bus } = worldWith(names, 12);
+    bus.emit('leaderboard', {
+      entries: Array.from({ length: 12 }, (_, i) => ({ guid: i + 1, karma: 0, score: 1000 - i })),
+    });
+    const root = document.createElement('div');
+    const lb = new HudLeaderboard();
+    lb.mount(root);
+    lb.update(world, true);
+    expect(root.querySelectorAll('.hud-leaderboard-list .hud-leaderboard-row')).toHaveLength(10);
+    expect(root.querySelector('.hud-leaderboard-own .rank')!.textContent).toBe('12');
+  });
+
+  it('flashes rows that moved, and keeps the flash running across a re-render', () => {
+    const { world, bus } = worldWith({ 1: 'A', 2: 'B', 3: 'C' }, 3);
+    const root = document.createElement('div');
+    const lb = new HudLeaderboard();
+    let t = 0;
+    lb.now = () => t;
+    lb.mount(root);
+    bus.emit('leaderboard', {
+      entries: [
+        { guid: 1, karma: 0, score: 30 },
+        { guid: 2, karma: 0, score: 20 },
+      ],
+    });
+    lb.update(world, true);
+    expect(root.querySelector('.is-up, .is-down')).toBeNull();
+
+    t = 1000;
+    bus.emit('leaderboard', {
+      entries: [
+        { guid: 2, karma: 0, score: 40 },
+        { guid: 1, karma: 0, score: 30 },
+        { guid: 3, karma: 0, score: 5 },
+      ],
+    });
+    lb.update(world, true);
+    const byName = (n: string) =>
+      Array.from(root.querySelectorAll<HTMLElement>('.hud-leaderboard-row')).find(
+        (r) => r.querySelector('.name')!.textContent === n,
+      )!;
+    expect(byName('B').classList.contains('is-up')).toBe(true);
+    expect(byName('A').classList.contains('is-down')).toBe(true);
+    expect(byName('C').classList.contains('is-up')).toBe(true);
+
+    t = 1500;
+    bus.emit('leaderboard', {
+      entries: [
+        { guid: 2, karma: 0, score: 41 },
+        { guid: 1, karma: 0, score: 30 },
+        { guid: 3, karma: 0, score: 5 },
+      ],
+    });
+    lb.update(world, true);
+    expect(byName('B').classList.contains('is-up')).toBe(true);
+    expect(byName('B').style.getPropertyValue('--lb-delay')).toBe('-500ms');
+
+    t = 5000;
+    bus.emit('leaderboard', {
+      entries: [
+        { guid: 2, karma: 0, score: 42 },
+        { guid: 1, karma: 0, score: 30 },
+        { guid: 3, karma: 0, score: 5 },
+      ],
+    });
+    lb.update(world, true);
+    expect(root.querySelector('.is-up, .is-down')).toBeNull();
+  });
+
+  it('always shows ten places, padding with empty numbered slots that cannot be messaged', () => {
+    const { world, bus } = worldWith({ 1: 'Alice', 2: 'Bob' }, 1);
+    bus.emit('leaderboard', {
+      entries: [
+        { guid: 2, karma: 0, score: 50 },
+        { guid: 1, karma: 0, score: 10 },
+      ],
+    });
+    const root = document.createElement('div');
+    const lb = new HudLeaderboard();
+    lb.mount(root);
+    lb.update(world, true);
+    const list = root.querySelector('.hud-leaderboard-list')!;
+    expect(list.children).toHaveLength(10);
+    const empty = Array.from(root.querySelectorAll<HTMLElement>('.hud-leaderboard-empty'));
+    expect(empty.map((e) => e.querySelector('.rank')!.textContent)).toEqual(['3', '4', '5', '6', '7', '8', '9', '10']);
+    expect(empty.some((e) => e.dataset['guid'] !== undefined)).toBe(false);
+  });
+
   it('simplifyNumber matches the old client', () => {
     expect(simplifyNumber(1250)).toBe('1250');
     expect(simplifyNumber(12345)).toBe('12.3k');

@@ -57,6 +57,7 @@ import {
   buildRotationMessage,
   buildShiftMessage,
   buildSplitItemMessage,
+  buildSwapSlotsMessage,
   buildStackItemMessage,
   buildStartCraftManualMessage,
   buildStartCraftStationMessage,
@@ -297,6 +298,10 @@ export class GameSocket {
 
   storeItem(iid: number, uid: number, count = 1, ammo = 0, containerSlot = 255): void {
     this.send(buildStoreItemMessage(iid, uid, count, ammo, containerSlot));
+  }
+
+  swapSlots(from: number, to: number, fromUid: number | null, toUid: number | null): void {
+    this.send(buildSwapSlotsMessage(from, to, fromUid, toUid));
   }
 
   splitItem(iid: number, count: number, uid: number): void {

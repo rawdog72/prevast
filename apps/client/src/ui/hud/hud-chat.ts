@@ -13,7 +13,6 @@ import { loadChatSettings, saveChatSettings } from '../../chat/chat-settings';
 import { ChatChannel } from '../../net/opcodes';
 import { badgeNodes } from '../badges';
 import { icon } from '../dom/icons';
-import { chatSettingsPanel } from './hud-chat-settings';
 
 export interface HudChatDelegates {
   /** False means rejected locally: keep the input and focus. */
@@ -23,12 +22,21 @@ export interface HudChatDelegates {
   onFocusChange?(focused: boolean): void;
   onNpcKeyword?(session: number, revision: number, text: string): void;
   onNpcClose?(session: number): void;
+  /** The gear: open Options on the Chat tab. Without it the gear is left out. */
+  onOpenSettings?(): void;
 }
 
 const HISTORY_MAX = 30;
 const SCROLL_SLACK_PX = 6;
 export const NOTICE_LIFE_MS = 6000;
 const NOTICE_MAX = 3;
+/** What each fixed channel reaches, said in the input's placeholder. */
+const SCOPE: Partial<Record<ChatTabId, string>> = {
+  local: 'nearby players',
+  global: 'everyone on the server',
+  clan: 'your clan',
+  admin: 'staff',
+};
 type ReadingPosition = { top: number; latest: boolean };
 
 export class HudChat {
@@ -44,7 +52,7 @@ export class HudChat {
   private hintEl!: HTMLElement;
   private jump!: HTMLButtonElement;
   private suggestions!: HTMLElement;
-  private settingsEl!: HTMLElement;
+  private sendBtn!: HTMLButtonElement;
   private model: ChatModel | null = null;
   private delegates: HudChatDelegates | null = null;
   private renderedVersion = -1;
@@ -96,9 +104,6 @@ export class HudChat {
       this.renderedVersion = -1;
       this.update();
     });
-    this.settingsEl = element('div', 'hud-chat-settings-host');
-    this.settingsEl.hidden = true;
-    this.settingsEl.append(chatSettingsPanel(this.settings, () => this.applySettings()));
     this.suggestions = element('div', 'hud-chat-suggestions');
     this.suggestions.hidden = true;
     this.suggestions.setAttribute('aria-label', 'Name suggestions');
@@ -111,8 +116,12 @@ export class HudChat {
     this.input.spellcheck = false;
     // Keep over-limit text editable; validate the UTF-8 body before sending.
     this.input.maxLength = 2000;
-    const send = button('Send', 'hud-chat-send');
+    const send = button('', 'hud-chat-send');
+    send.innerHTML = icon('arrow_right');
+    send.setAttribute('aria-label', 'Send');
+    send.title = 'Send [Enter]';
     send.addEventListener('click', () => this.submit());
+    this.sendBtn = send;
     this.inputRow.append(this.input, send);
     const footer = element('div', 'hud-chat-footer');
     this.hintEl = element('span', 'hud-chat-hint');
@@ -121,7 +130,6 @@ export class HudChat {
     root.append(
       this.tabsEl,
       this.contextEl,
-      this.settingsEl,
       this.logEl,
       this.jump,
       this.suggestions,
@@ -137,12 +145,7 @@ export class HudChat {
     if (typeof ResizeObserver !== 'undefined') {
       this.resizeObserver = new ResizeObserver(() => {
         this.fitToViewport();
-        if (
-          this.model &&
-          this.positions.get(this.model.active.id)?.latest &&
-          !this.model.collapsed &&
-          this.settingsEl.hidden
-        )
+        if (this.model && this.positions.get(this.model.active.id)?.latest && !this.model.collapsed)
           this.logEl.scrollTop = this.logEl.scrollHeight;
         this.renderedVersion = -1;
         clearTimeout(this.resizeTimer);
@@ -176,6 +179,8 @@ export class HudChat {
     this.model = model;
     this.delegates = delegates;
     this.renderedVersion = -1;
+    // The header depends on the delegates (the gear needs onOpenSettings).
+    this.renderedTabsKey = '';
   }
   isFocused(): boolean {
     return this.mounted && document.activeElement === this.input;
@@ -183,8 +188,6 @@ export class HudChat {
   focus(): void {
     if (!this.mounted) return;
     this.model?.setCollapsed(false);
-    this.settingsEl.hidden = true;
-    this.root.classList.remove('is-settings');
     this.update();
     this.input.focus();
   }
@@ -201,7 +204,6 @@ export class HudChat {
         this.logWasVisible &&
         !this.root.classList.contains('is-collapsed') &&
         this.atBottom() &&
-        this.settingsEl.hidden &&
         document.visibilityState !== 'hidden' &&
         document.hasFocus(),
     );
@@ -214,7 +216,7 @@ export class HudChat {
     this.syncReading();
     const active = model.active,
       switched = active.id !== this.renderedTabId;
-    const visible = !model.collapsed && this.settingsEl.hidden;
+    const visible = !model.collapsed;
     const restorePosition = switched || (visible && !this.logWasVisible);
     this.root.classList.toggle('is-collapsed', model.collapsed);
     if (switched) {
@@ -252,10 +254,12 @@ export class HudChat {
       ? `Talk to ${active.label}…`
       : active.channel === null
         ? 'Activity is read-only · /help for commands'
-        : `Message ${active.label}…`;
+        : active.channel === ChatChannel.PRIVATE
+          ? `Message ${active.label}…`
+          : `${active.label} · ${SCOPE[active.id] ?? active.label}…`;
     this.input.setAttribute('aria-label', this.input.placeholder);
     this.input.readOnly = !!active.pending;
-    this.inputRow.querySelector<HTMLButtonElement>('.hud-chat-send')!.disabled = !!active.pending;
+    this.sendBtn.disabled = !!active.pending;
     this.updateCapacity();
     this.jump.hidden = this.atBottom() || active.unread === 0;
     this.jump.textContent = `${active.unread} new message${active.unread === 1 ? '' : 's'} ↓`;
@@ -263,7 +267,8 @@ export class HudChat {
       pill.disabled = Number(pill.dataset['npcRevision']) !== active.npcRevision;
     this.renderedVersion = model.version;
   }
-  private applySettings(): void {
+  /** Persist and re-apply the settings (Options > Chat calls this after every change). */
+  applySettings(): void {
     saveChatSettings(this.settings);
     this.root.style.width = `${this.settings.width}px`;
     this.root.style.height = `${this.settings.height}px`;
@@ -274,15 +279,17 @@ export class HudChat {
     );
     this.root.style.setProperty('--chat-opacity', String(this.settings.opacity));
     this.root.classList.toggle('hide-timestamps', !this.settings.timestamps);
+    this.root.classList.toggle('is-fade', this.settings.idleFade);
+    this.root.classList.toggle('is-game-font', this.settings.font === 'game');
     this.fitToViewport();
     this.renderedVersion = -1;
     this.update();
   }
+  /** Cap the height to the room above the chat's bottom edge; its grid column bounds the width. */
   private fitToViewport(): void {
     const rect = this.root.getBoundingClientRect();
     const zoom = this.root.offsetWidth > 0 ? rect.width / this.root.offsetWidth : 1;
     const scale = zoom > 0 ? zoom : 1;
-    this.root.style.maxWidth = `${Math.max(180, (window.innerWidth - rect.left - 12) / scale)}px`;
     const bottom = rect.bottom || window.innerHeight - 140;
     const height = `${Math.max(100, (bottom - 12) / scale)}px`;
     this.root.style.maxHeight = height;
@@ -325,6 +332,8 @@ export class HudChat {
       select.append(option);
     }
     select.value = grouped.some((t) => t.id === activeId) ? activeId : '';
+    select.classList.toggle('is-active', select.value !== '');
+    select.classList.toggle('has-unread', privateUnread > 0);
     select.addEventListener('change', () => {
       if (select.value) {
         const id = select.value as ChatTabId;
@@ -333,30 +342,24 @@ export class HudChat {
       }
     });
     frag.append(select);
-    const settings = button('', 'hud-chat-tool');
-    settings.innerHTML = icon('settings');
-    settings.setAttribute('aria-label', 'Chat settings');
-    settings.title = 'Chat settings';
-    settings.addEventListener('click', () => {
-      this.settingsEl.hidden = !this.settingsEl.hidden;
-      if (!this.settingsEl.hidden) {
-        this.settingsEl.replaceChildren(
-          chatSettingsPanel(this.settings, () => this.applySettings()),
-        );
-        model.setCollapsed(false);
+    if (this.delegates?.onOpenSettings) {
+      const settings = button('', 'hud-chat-tool');
+      settings.innerHTML = icon('settings');
+      settings.setAttribute('aria-label', 'Chat settings');
+      settings.title = 'Chat settings (Options › Chat)';
+      settings.addEventListener('click', () => {
         this.blur();
-      }
-      this.root.classList.toggle('is-settings', !this.settingsEl.hidden);
-      this.syncReading();
-      this.renderedVersion = -1;
-      this.update();
-    });
+        this.delegates?.onOpenSettings?.();
+      });
+      frag.append(settings);
+    }
     const collapse = button('', 'hud-chat-collapse');
     collapse.dataset['collapse'] = '1';
     collapse.innerHTML = icon(model.collapsed ? 'caret_up' : 'caret_down');
     collapse.setAttribute('aria-label', model.collapsed ? 'Expand chat' : 'Collapse chat');
     collapse.setAttribute('aria-expanded', String(!model.collapsed));
-    frag.append(settings, collapse);
+    collapse.title = model.collapsed ? 'Expand chat' : 'Collapse chat';
+    frag.append(collapse);
     this.tabsEl.replaceChildren(frag);
   }
   private addUnread(btn: HTMLElement, tab: ChatTab): void {
@@ -369,21 +372,22 @@ export class HudChat {
     );
     btn.append(badge);
   }
+  /**
+   * The strip under the tabs, only for a conversation (a private chat or an
+   * NPC): who it is with and its Pin / Close. A fixed channel says its reach
+   * in the input's placeholder instead, so the log keeps that row.
+   */
   private renderContext(tab: ChatTab): void {
+    const conversation = tab.channel === ChatChannel.PRIVATE || !!tab.npcSession || tab.closable;
+    this.contextEl.hidden = !conversation;
+    if (!conversation) {
+      this.contextEl.replaceChildren();
+      return;
+    }
     const label = element('span', 'hud-chat-destination');
-    label.textContent = tab.npcSession
-      ? tab.label
-      : tab.channel === ChatChannel.PRIVATE
-        ? `Private · ${tab.label}`
-        : tab.id === 'local'
-          ? 'Local · nearby players'
-          : tab.id === 'global'
-            ? 'Global · everyone on this server'
-            : tab.id === 'clan'
-              ? 'Clan · members only'
-              : tab.id === 'server'
-                ? 'Activity · read-only'
-                : tab.label;
+    const kind = element('span', 'hud-chat-destination-kind');
+    kind.textContent = tab.npcSession ? 'Talking to' : 'Private';
+    label.append(kind, tab.label);
     this.contextEl.replaceChildren(label);
     if (tab.channel === ChatChannel.PRIVATE) {
       const pin = button(tab.pinned ? 'Unpin' : 'Pin', 'hud-chat-context-action');
@@ -427,7 +431,7 @@ export class HudChat {
     );
   }
   private savePosition(): void {
-    if (this.renderedTabId && !this.model?.collapsed && this.settingsEl.hidden)
+    if (this.renderedTabId && !this.model?.collapsed)
       this.positions.set(this.renderedTabId, {
         top: this.logEl.scrollTop,
         latest: this.atBottom(),
@@ -543,7 +547,9 @@ export class HudChat {
     this.countEl.title = 'UTF-8 bytes; accented letters and emoji use more space';
     this.hintEl.textContent = this.model?.active.pending
       ? 'Sending… draft kept until confirmed'
-      : 'Enter send · Esc leave typing · /help';
+      : 'Enter send · Esc close · Tab complete · /help';
+    // The footer shows while typing; a pending send or a long draft keeps it up.
+    this.root.classList.toggle('has-status', !!this.model?.active.pending || !this.countEl.hidden);
   }
   private submit(): void {
     const model = this.model;

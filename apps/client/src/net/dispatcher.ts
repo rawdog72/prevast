@@ -25,6 +25,7 @@ import {
   handleInventorySlot,
   handleItemMods,
   handleSelectedItem,
+  handleEquipmentState,
 } from './handlers/inventory';
 import {
   handleAlert,
@@ -138,6 +139,9 @@ export function dispatchServerMessage(bytes: Uint8Array, bus: NetEventBus): void
       break;
     case ServerOpcode.SELECTED_ITEM:
       handleSelectedItem(bytes, bus);
+      break;
+    case ServerOpcode.EQUIPMENT_STATE:
+      handleEquipmentState(bytes, bus);
       break;
     case ServerOpcode.PLAYER_HEALED:
       handlePlayerHealed(bytes, bus);

@@ -515,6 +515,15 @@ public:
 	uint32_t getEquippedWeaponUID() const { return equippedWeaponUID; }
 	uint16_t getEquippedWearableIID() const { return equippedWearableIID; }
 	uint32_t getEquippedWearableUID() const { return equippedWearableUID; }
+	// The equip under way, for the hotbar (EQUIPMENT_STATE): the item it is
+	// about -- the one going on, or the one coming off for a toggle-off -- and
+	// how long it has left.
+	bool isEquipPending() const { return equipEventId != 0; }
+	uint32_t getPendingEquipDisplayUID() const { return pendingEquipDisplayUID; }
+	uint32_t getPendingEquipRemainingMs() const;
+	void sendEquipmentState() {
+		if (client) client->sendEquipmentState();
+	}
 
 	void addInventoryItem(uint16_t iid, uint8_t count, const ItemState& state) {
 		inventory.addItem(iid, count, state);
@@ -835,7 +844,8 @@ public:
 	// down so every target the arc catches takes the same blow.
 	int32_t getMeleeObjectDamage(const Object& targetObj, const EquipableData& edata, uint16_t swingDamage) const;
 	void applyMeleeHit(Thing* target, const EquipableData& edata, const Position& startPos, float hitX, float hitY, float directionX, float directionY, uint16_t swingDamage);
-	void queueEquipCompletion(uint32_t delay, uint16_t targetIid, uint32_t targetUid, EquipmentType type);
+	// displayUid: the item the hotbar shows the equip on (EQUIPMENT_STATE).
+	void queueEquipCompletion(uint32_t delay, uint16_t targetIid, uint32_t targetUid, EquipmentType type, uint32_t displayUid);
 	
 	void applyKnockback(float forceX, float forceY) {
 		// Impulse is drawn from a per-window BUDGET, not simply accumulated. A
@@ -1009,6 +1019,9 @@ private:
 	uint32_t equipEventId = 0;
 	uint16_t pendingEquipIID = 0;
 	uint32_t pendingEquipUID = 0;
+	// What the pending equip is about and when it lands; see isEquipPending.
+	uint32_t pendingEquipDisplayUID = 0;
+	int64_t pendingEquipEndsAt = 0;
 	uint32_t actionEventId = 0;
 	uint32_t reloadEventId = 0;
 

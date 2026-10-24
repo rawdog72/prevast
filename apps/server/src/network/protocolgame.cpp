@@ -290,6 +290,7 @@ void ProtocolGame::sendLoginSetup()
 	sendKarma(player->getKarmaClientIcon());
 	sendFullInventory();
 	sendSelectedItem(player->getEquippedWeaponIID());
+	sendEquipmentState();
 	sendCitiesLocation();
 
 	// Explicit, because the periodic broadcast is suppressed when the standings
@@ -967,6 +968,27 @@ void ProtocolGame::sendSelectedItem(uint16_t iid)
 		static_cast<uint8_t>(iid >> 8), static_cast<uint8_t>(iid & 0xFF));
 }
 
+// See ServerOpcode::EQUIPMENT_STATE. Uids go out as their low byte, the item's
+// whole wire identity (see sendInventorySlot); the flags say which are real,
+// because 0 is a valid wire uid.
+void ProtocolGame::sendEquipmentState()
+{
+	if (!player) return;
+	const uint32_t weaponUid = player->getEquippedWeaponUID();
+	const uint32_t wearableUid = player->getEquippedWearableUID();
+	const uint32_t pendingUid = player->getPendingEquipDisplayUID();
+	const uint32_t pendingMs = player->getPendingEquipRemainingMs();
+	const bool weapon = player->getEquippedWeaponIID() != 0;
+	const bool wearable = player->getEquippedWearableIID() != 0;
+	const bool pending = player->isEquipPending();
+	const uint8_t flags = static_cast<uint8_t>((weapon ? 1 : 0) | (wearable ? 2 : 0) | (pending ? 4 : 0));
+	sendMessage(ServerOpcode::EQUIPMENT_STATE, flags,
+		static_cast<uint8_t>(weapon ? weaponUid & 0xFF : 0),
+		static_cast<uint8_t>(wearable ? wearableUid & 0xFF : 0),
+		static_cast<uint8_t>(pending ? pendingUid & 0xFF : 0),
+		static_cast<uint16_t>(pending ? std::min<uint32_t>(pendingMs, 0xFFFF) : 0));
+}
+
 void ProtocolGame::sendPlayerXp(uint16_t xp)
 {
 	sendMessage(ServerOpcode::XP,
@@ -1415,7 +1437,7 @@ void ProtocolGame::parsePacket(NetworkMessage& msg)
 		else if (opcode == ClientOpcode::PING) allowed = pingBudget.consume(2, 4);
 		// Look is cheap, but a script clicking it thousands of times a second is not.
 		else if (opcode == ClientOpcode::LOOK_AT) allowed = lookBudget.consume(4, 8);
-		else if (opcode == ClientOpcode::DROP_ITEM || opcode == ClientOpcode::STORE_ITEM || opcode == ClientOpcode::TAKE_ITEM || opcode == ClientOpcode::MOVE_CONTAINER_ITEM || opcode == ClientOpcode::PICK_UP_LOOT || opcode == ClientOpcode::SPLIT_ITEM || opcode == ClientOpcode::STACK_ITEM) allowed = inventoryBudget.consume(20, 40);
+		else if (opcode == ClientOpcode::DROP_ITEM || opcode == ClientOpcode::STORE_ITEM || opcode == ClientOpcode::TAKE_ITEM || opcode == ClientOpcode::MOVE_CONTAINER_ITEM || opcode == ClientOpcode::PICK_UP_LOOT || opcode == ClientOpcode::SPLIT_ITEM || opcode == ClientOpcode::STACK_ITEM || opcode == ClientOpcode::SWAP_SLOTS) allowed = inventoryBudget.consume(20, 40);
 		else if (opcode == ClientOpcode::CRAFT_BY_HAND || opcode == ClientOpcode::CRAFT_AT_STATION || opcode == ClientOpcode::CANCEL_CRAFT || opcode == ClientOpcode::TAKE_FROM_STATION || opcode == ClientOpcode::UNLOCK_SKILL || opcode == ClientOpcode::ADD_FUEL || opcode == ClientOpcode::START_UPGRADE || opcode == ClientOpcode::CANCEL_UPGRADE) allowed = craftBudget.consume(10, 20);
 		if (!allowed) return;
 	}
@@ -1605,6 +1627,16 @@ void ProtocolGame::parsePacket(NetworkMessage& msg)
 		if (slot != -1) {
 			player->inventory.splitItem(slot);
 		}
+		break;
+	}
+
+	case ClientOpcode::SWAP_SLOTS: {
+		const uint8_t from = msg.getByte();
+		const uint8_t to = msg.getByte();
+		const uint8_t occupied = msg.getByte();
+		const uint8_t fromUid = msg.getByte();
+		const uint8_t toUid = msg.getByte();
+		player->inventory.swapSlots(from, to, occupied, fromUid, toUid);
 		break;
 	}
 

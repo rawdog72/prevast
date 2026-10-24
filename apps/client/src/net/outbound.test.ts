@@ -37,6 +37,7 @@ import {
   buildStartCraftStationMessage,
   buildStoreItemMessage,
   buildMoveContainerItemMessage,
+  buildSwapSlotsMessage,
   buildTakeFromStationMessage,
   buildTakeItemMessage,
   buildTakeLootMessage,
@@ -180,6 +181,11 @@ describe('outbound encoders', () => {
     expect(store[9]).toBe(255);
     expect(buildStoreItemMessage(18, 1, 1, 0, 3)[9]).toBe(3);
     expect([...buildMoveContainerItemMessage(2, 5)]).toEqual([ClientOpcode.MOVE_CONTAINER_ITEM, 2, 5]);
+
+    // SWAP_SLOTS: [from][to][occupied bits][fromUid][toUid] -- 5 bytes payload, uid 0 is a real item.
+    expect([...buildSwapSlotsMessage(1, 7, 0, null)]).toEqual([ClientOpcode.SWAP_SLOTS, 1, 7, 1, 0, 0]);
+    expect([...buildSwapSlotsMessage(3, 4, 171, 12)]).toEqual([ClientOpcode.SWAP_SLOTS, 3, 4, 3, 171, 12]);
+    expect([...buildSwapSlotsMessage(0, 2, null, 9)]).toEqual([ClientOpcode.SWAP_SLOTS, 0, 2, 2, 0, 9]);
 
     // STACK_ITEM: 12 bytes payload -> total 13
     const stack = buildStackItemMessage(1, 10, 2, 5, 3);

@@ -1,7 +1,6 @@
 // Copyright (c) 2026 rawdog72 and Prevast Open Server Contributors
 // SPDX-License-Identifier: GPL-2.0-only
 
-import { mountAccountRun } from '../ui/hud/hud-account-run';
 import { AudioManager } from '../audio/audio-manager';
 import { WorldSounds } from '../audio/world-sounds';
 import { isSoundKey } from '../audio/sound-registry';
@@ -259,10 +258,12 @@ export class GameLoop {
       onNpcClose: (session) => {
         if (this.windows.npc.state?.session === session) this.windows.npc.close(this.socket);
       },
+      onOpenSettings: () => this.openChatSettings(),
     });
     this.hud.leaderboard.onPlayerDoubleClick = (guid) => this.openPrivateChat(guid);
     this.cleanups.push(() => this.hud.leaderboard.unmount());
     this.cleanups.push(() => this.hud.chat.destroy());
+    this.cleanups.push(() => this.hud.unmount());
 
     this.audio = options.audio ?? new AudioManager();
     this.audio.setMuted(this.hudControlsState.audioMuted);
@@ -277,7 +278,6 @@ export class GameLoop {
     this.hudRoot = options.hudRoot ?? document.createElement('div');
     this.modalRoot = options.modalRoot ?? document.createElement('div');
     this.invitationRoot = options.invitationRoot ?? document.createElement('div');
-    this.cleanups.push(mountAccountRun(this.hudRoot, this.socket.bus));
 
     this.windows = new WindowManager({
       inventory: this.inventory,
@@ -296,6 +296,11 @@ export class GameLoop {
       onChestMenu: (slot, x, y) => this.openChestMenu(slot, x, y),
     });
     this.windows.mount(this.modalRoot);
+    this.windows.optionsWindow.chat = {
+      settings: this.hud.chat.settings,
+      change: () => this.hud.chat.applySettings(),
+      resetSize: () => this.hud.chat.applySettings(),
+    };
     this.cleanups.push(() => this.contextMenu.destroy());
     this.cleanups.push(() => this.statusLine.destroy());
     this.cleanups.push(() => this.tradeCursor.destroy());
@@ -421,8 +426,6 @@ export class GameLoop {
         },
         onSwap: (from, to) => {
           this.inventory.swapSlots(from, to);
-          if (this.inventory.activeSlot === from) this.inventory.activeSlot = to;
-          else if (this.inventory.activeSlot === to) this.inventory.activeSlot = from;
           this.audio.playUi('drag');
         },
         onBag: (open) => this.audio.playUi(open ? 'zipper_on' : 'zipper_off', 0.08),
@@ -564,6 +567,11 @@ export class GameLoop {
     // Wire socket bus
     this.cleanups.push(this.world.attachBus(this.socket.bus));
     this.cleanups.push(this.inventory.attachBus(this.socket.bus));
+    // The server keeps our slot order: every swap, however it happened, goes out.
+    this.inventory.onSwap = (from, to, fromUid, toUid) => this.socket.swapSlots(from, to, fromUid, toUid);
+    this.cleanups.push(() => {
+      this.inventory.onSwap = null;
+    });
     // After the world: the clan store reads the roster WorldState just decoded.
     this.cleanups.push(this.clans.attachBus(this.socket.bus));
 
@@ -831,12 +839,16 @@ export class GameLoop {
     );
   }
 
-  /** The gun in hand: the equipped item (SELECTED_ITEM), preferring the active hotbar slot when two match. */
+  /**
+   * The gun in hand: the item EQUIPMENT_STATE names, so two of one gun are
+   * told apart. Falls back to the first item of the SELECTED_ITEM type for the
+   * moment between the two messages.
+   */
   heldGun(): InventoryItem | null {
     const iid = this.inventory.selectedIid;
     if (!iid) return null;
-    const active = this.inventory.getActiveItem();
-    if (active?.iid === iid) return active;
+    const held = this.inventory.getHeldItem();
+    if (held?.iid === iid) return held;
     return this.inventory.slots.find((s) => s.iid === iid) ?? null;
   }
 
@@ -1492,6 +1504,8 @@ export class GameLoop {
     // The minimap is a canvas: its backing store has to follow the zoom to stay sharp.
     this.hud.minimap.setScale(effective.minimap);
     this.hud.hotbar.setScale(effective.inventory);
+    // A bigger hotbar or chat may no longer fit side by side (the zoom does not resize the row).
+    this.hud.layoutBottom(effective.chat);
   }
 
   private handleUiScaleAction(action: UiScaleAction): void {
@@ -1511,6 +1525,15 @@ export class GameLoop {
       nobody: PrivateMessagePolicy.NOBODY,
     }[this.hudControlsState.privateMessages];
     this.socket.setPrivateMessages(policy);
+  }
+
+  /** The chat console's gear: Options on its Chat tab. */
+  private openChatSettings(): void {
+    this.windows.optionsWindow.select('chat');
+    if (this.windows.activeWindow !== 'options') {
+      this.windows.open('options');
+      this.audio.playUi('open');
+    }
   }
 
   /** Writes the persisted Options rows (options-settings.ts) after a change. */

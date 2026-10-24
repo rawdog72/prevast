@@ -9,7 +9,15 @@
 // the whole interaction set -- click to equip (or store while a chest is open),
 // ctrl+click to split, right-click for the item menu (look, trade with…,
 // drop), drag to reorder (same stackable item: a server STACK; different: a
-// local swap), drag out to throw (or onto an open container to store).
+// swap the server is told of), drag onto the world to throw (or onto an open
+// container to store). Esc or a right-click cancels a drag, and letting go
+// anywhere that is not a slot, a window that takes items, or the world itself
+// cancels it too, so an item is never thrown by a near miss.
+//
+// What is on comes from the server (EQUIPMENT_STATE), by item uid: the item in
+// hand wears the strong mark and a hand badge, the clothes worn a quieter one
+// and a clothing badge, and an equip under way fills its slot as it runs. A
+// slot whose stack grows (a pickup, a take, a stack) flashes once.
 
 import { itemIconUrl } from '../../assets/asset-loader';
 import type { ContentStore } from '../../content/store';
@@ -25,6 +33,8 @@ const TOOLTIP_GAP = 5;
 const TOOLTIP_EDGE = 8;
 const BAG_COLUMN = 3;
 const DRAG_THRESHOLD_PX = 4;
+/** How long a slot glows after its stack grows. */
+export const PICKUP_FLASH_MS = 450;
 /** rotten0..rotten19: the old client's 20-step freshness bar (Math.floor(ammo / 12.8)). */
 const ROT_STAGES = 20;
 
@@ -109,12 +119,33 @@ export function dropAction(
   return 'swap';
 }
 
+/** Where a dragged item would land if let go here. */
+export type DropTarget =
+  | { kind: 'slot'; index: number }
+  | { kind: 'mods'; slot: string | null }
+  | { kind: 'store'; slot?: number }
+  | { kind: 'world' }
+  | { kind: 'none' };
+
+/**
+ * The world canvas, as opposed to any piece of UI over it: the HUD and the
+ * window layers are pointer-events:none except their real controls, so a
+ * point over open ground hits the canvas itself.
+ */
+export function isWorldElement(el: Element): boolean {
+  return el.tagName === 'CANVAS' && !el.closest('.hud-root, .dv-modal-root');
+}
+
 interface DragState {
   index: number;
+  /** The pressed item's uid, null on an empty slot: if the slot stops holding it, the press is over. */
+  uid: number | null;
   startX: number;
   startY: number;
   dragging: boolean;
 }
+
+type Badge = '' | 'held' | 'worn';
 
 export class HudHotbar {
   bagOpen = false;
@@ -140,9 +171,35 @@ export class HudHotbar {
   private readonly slotRot: number[] = [];
   /** Magazine text last written per slot ('' = none). */
   private readonly slotAmmo: string[] = [];
+  /** Held / worn badge last written per slot. */
+  private readonly slotBadge: Badge[] = [];
+  /** Equip progress last written per slot, in whole percent (-1 = none). */
+  private readonly slotEquip: number[] = [];
+  /** The slot last drawn as the drop target, -1 for none. */
+  private dropSlot = -1;
+  /** Every item seen on the last update, by uid, to tell a stack that grew. */
+  private lastSeen = new Map<number, { iid: number; count: number }>();
+  /** When each item's pickup flash ends, by uid, so it follows the item if dragged. */
+  private readonly flashUntil = new Map<number, number>();
 
   /** The inventory region's CSS zoom: the fixed drag ghost converts pointer px through it. */
   private scale = 1;
+
+  private readonly onKeyDown = (ev: KeyboardEvent): void => {
+    if (ev.key !== 'Escape' || !this.drag?.dragging) return;
+    // The drag eats this Escape: it should not also close the window behind it.
+    ev.preventDefault();
+    ev.stopPropagation();
+    this.endDrag();
+  };
+  private readonly onContextMenu = (ev: MouseEvent): void => {
+    if (!this.drag?.dragging) return;
+    ev.preventDefault();
+    this.endDrag();
+  };
+  private readonly onBlur = (): void => {
+    if (this.drag) this.endDrag();
+  };
 
   /**
    * `bagRoot` is the bottom-right corner (its own grid cell, zoomed like the
@@ -193,6 +250,11 @@ export class HudHotbar {
     return index >= 0 && !this.slots[index]?.hidden && this.hasItem(index) ? index : null;
   }
 
+  /** True while an item is being dragged (past the click threshold). */
+  get isDragging(): boolean {
+    return !!this.drag?.dragging;
+  }
+
   toggleBag(): void {
     if (!this.mounted) return;
     const count = this.inventory?.slotCount ?? 0;
@@ -202,31 +264,85 @@ export class HudHotbar {
     this.callbacks.onBag(this.bagOpen);
   }
 
-  update(inventory: InventoryStore, content: ContentStore): void {
+  update(inventory: InventoryStore, content: ContentStore, now = Date.now()): void {
     this.inventory = inventory;
     this.content = content;
     const count = inventory.slotCount;
     while (this.slots.length < count) this.slots.push(this.createSlot(this.slots.length));
-    while (this.slots.length > count) this.slots.pop()!.remove();
+    while (this.slots.length > count) {
+      this.slots.pop()!.remove();
+      // A slot made again later starts from nothing written.
+      this.slotIcons.length = this.slotRot.length = this.slotAmmo.length = this.slots.length;
+      this.slotBadge.length = this.slotEquip.length = this.slots.length;
+    }
 
     const hasBag = count > HOTBAR_SLOTS;
     this.bagBtn.hidden = !hasBag;
     this.bagArea.hidden = !hasBag || !this.bagOpen;
 
+    // The item being dragged went away (eaten, dropped, traded, a resync moved
+    // it) or its slot was hidden: the drag has nothing left to carry.
+    const drag = this.drag;
+    if (drag && drag.uid !== null) {
+      const pressed = inventory.getSlot(drag.index);
+      const hidden = drag.index >= HOTBAR_SLOTS && !this.bagOpen;
+      if (!pressed || pressed.iid === 0 || pressed.uid !== drag.uid || hidden) this.endDrag();
+    }
+
+    const heldSlot = inventory.slotOfUid(inventory.equippedWeaponUid);
+    const wornSlot = inventory.slotOfUid(inventory.equippedWearableUid);
+    const seen = new Map<number, { iid: number; count: number }>();
+    // Nothing to compare against at login, or right after the bag was empty: no flashes.
+    const compare = this.lastSeen.size > 0;
+
     for (let i = 0; i < count; i++) {
       const slot = this.slots[i];
       const inBag = i >= HOTBAR_SLOTS;
       slot.hidden = inBag && !this.bagOpen;
-      slot.classList.toggle('is-active', inventory.activeSlot === i);
 
       const item = inventory.getSlot(i);
       const hasItem = !!item && item.iid > 0;
+      slot.classList.toggle('has-item', hasItem);
+      slot.classList.toggle('is-held', hasItem && i === heldSlot);
+      slot.classList.toggle('is-worn', hasItem && i === wornSlot);
+
+      const badge: Badge = !hasItem ? '' : i === heldSlot ? 'held' : i === wornSlot ? 'worn' : '';
+      if (this.slotBadge[i] !== badge) {
+        this.slotBadge[i] = badge;
+        const badgeEl = slot.querySelector<HTMLElement>('.hud-slot-badge')!;
+        badgeEl.hidden = !badge;
+        badgeEl.innerHTML =
+          badge === 'held' ? icon('hand') : badge === 'worn' ? icon('clothing') : '';
+        if (badge) badgeEl.dataset.kind = badge;
+        else delete badgeEl.dataset.kind;
+        badgeEl.title = badge === 'held' ? 'In hand' : badge === 'worn' ? 'Wearing' : '';
+      }
+
+      // An equip under way fills the slot from the bottom as it runs.
+      const progress = hasItem ? inventory.equipProgress(item.uid, now) : null;
+      const pct = progress === null ? -1 : Math.round(progress * 100);
+      if (this.slotEquip[i] !== pct) {
+        this.slotEquip[i] = pct;
+        slot.classList.toggle('is-equipping', pct >= 0);
+        if (pct >= 0) slot.style.setProperty('--equip', `${pct}%`);
+        else slot.style.removeProperty('--equip');
+      }
+
+      if (hasItem) {
+        seen.set(item.uid, { iid: item.iid, count: item.count });
+        const before = this.lastSeen.get(item.uid);
+        const grew = before ? before.iid === item.iid && item.count > before.count : compare;
+        if (grew) this.flash(slot, item.uid, now);
+      }
+      const flashing = hasItem && (this.flashUntil.get(item.uid) ?? 0) > now;
+      if (!flashing && slot.classList.contains('is-flash')) slot.classList.remove('is-flash');
+      else if (flashing && !slot.classList.contains('is-flash')) slot.classList.add('is-flash');
+
       const iconName = hasItem
         ? content.has('items')
           ? content.byId('items', item.iid)?.client?.icon
           : undefined
         : undefined;
-      slot.classList.toggle('has-item', hasItem);
       // Per-frame update: only write styles when the icon actually changed.
       if (this.slotIcons[i] !== (iconName ?? '')) {
         this.slotIcons[i] = iconName ?? '';
@@ -236,9 +352,9 @@ export class HudHotbar {
           slot.style.removeProperty('--icon');
         }
       }
-      const count = hasItem && item.count > 1 ? String(item.count) : '';
+      const countText = hasItem && item.count > 1 ? String(item.count) : '';
       const countEl = slot.querySelector('.hud-slot-count')!;
-      if (countEl.textContent !== count) countEl.textContent = count;
+      if (countEl.textContent !== countText) countEl.textContent = countText;
 
       // Old _buttonInv: food that perishes wears img/rotten<stage>.png, the
       // stage being the slot's ammo byte (255 fresh .. 0 rotten) in 20 steps.
@@ -263,8 +379,24 @@ export class HudHotbar {
         else delete ammoEl.dataset.level;
       }
     }
+    this.lastSeen = seen;
+    for (const [uid, until] of this.flashUntil) {
+      if (until <= now || !seen.has(uid)) this.flashUntil.delete(uid);
+    }
 
     this.updateTooltip(inventory, content);
+  }
+
+  /** Start (or restart) a slot's pickup flash. */
+  private flash(slot: HTMLElement, uid: number, now: number): void {
+    const running = (this.flashUntil.get(uid) ?? 0) > now;
+    this.flashUntil.set(uid, now + PICKUP_FLASH_MS);
+    if (running && slot.classList.contains('is-flash')) {
+      // Restart the animation: off, a layout read, on again.
+      slot.classList.remove('is-flash');
+      void slot.offsetWidth;
+      slot.classList.add('is-flash');
+    }
   }
 
   private createSlot(index: number): HTMLElement {
@@ -282,7 +414,10 @@ export class HudHotbar {
     const ammo = document.createElement('span');
     ammo.className = 'hud-slot-ammo';
     ammo.hidden = true;
-    slot.append(key, count, rot, ammo);
+    const badge = document.createElement('span');
+    badge.className = 'hud-slot-badge';
+    badge.hidden = true;
+    slot.append(key, count, rot, ammo, badge);
 
     slot.addEventListener('pointerdown', (ev) => this.onPointerDown(ev, index));
     slot.addEventListener('pointermove', (ev) => this.onPointerMove(ev));
@@ -296,6 +431,8 @@ export class HudHotbar {
     });
     slot.addEventListener('contextmenu', (ev) => {
       ev.preventDefault();
+      // A right-click during a drag only cancels it (see onContextMenu).
+      if (this.drag?.dragging) return;
       if (this.hasItem(index)) this.callbacks.onMenu(index, ev.clientX, ev.clientY);
     });
 
@@ -321,8 +458,14 @@ export class HudHotbar {
   }
 
   private onPointerDown(ev: PointerEvent, index: number): void {
-    if (ev.button !== 0) return;
-    this.drag = { index, startX: ev.clientX, startY: ev.clientY, dragging: false };
+    if (ev.button !== 0) {
+      // Any other button while dragging calls the drag off.
+      if (this.drag?.dragging) this.endDrag();
+      return;
+    }
+    const item = this.inventory?.getSlot(index);
+    const uid = item && item.iid > 0 ? item.uid : null;
+    this.drag = { index, uid, startX: ev.clientX, startY: ev.clientY, dragging: false };
     const target = ev.currentTarget as HTMLElement;
     if (typeof target.setPointerCapture === 'function') {
       try {
@@ -336,6 +479,11 @@ export class HudHotbar {
   private onPointerMove(ev: PointerEvent): void {
     const drag = this.drag;
     if (!drag) return;
+    if (drag.dragging && typeof ev.buttons === 'number' && ev.buttons & 2) {
+      // The right button went down mid-drag (a chord reaches us as a move).
+      this.endDrag();
+      return;
+    }
     if (!drag.dragging) {
       if (!this.hasItem(drag.index)) return;
       const dx = ev.clientX - drag.startX;
@@ -351,10 +499,15 @@ export class HudHotbar {
       this.ghost.style.zoom = String(this.scale);
       this.ghost.hidden = false;
       document.body.append(this.ghost);
+      this.slots[drag.index]?.classList.add('is-drag-source');
+      window.addEventListener('keydown', this.onKeyDown, true);
+      window.addEventListener('contextmenu', this.onContextMenu, true);
+      window.addEventListener('blur', this.onBlur);
     }
     // position:fixed with its own zoom: its px are zoomed, the pointer's are not.
     this.ghost.style.left = `${ev.clientX / this.scale}px`;
     this.ghost.style.top = `${ev.clientY / this.scale}px`;
+    this.showDropTarget(this.dropTargetAt(ev.clientX, ev.clientY));
   }
 
   private onPointerUp(ev: PointerEvent): void {
@@ -365,26 +518,29 @@ export class HudHotbar {
       this.click(drag.index, ev.ctrlKey);
       return;
     }
-    const target = this.slotAt(ev.clientX, ev.clientY);
+    const target = this.dropTargetAt(ev.clientX, ev.clientY);
     this.endDrag();
-    if (target === null) {
-      const modTarget = this.modsTargetAt(ev.clientX, ev.clientY);
-      if (modTarget !== undefined) {
-        this.callbacks.onDropOnMods?.(drag.index, modTarget);
+    switch (target.kind) {
+      case 'slot': {
+        if (!this.inventory || !this.content) return;
+        const action = dropAction(this.inventory, this.content, drag.index, target.index);
+        if (action === 'stack') this.callbacks.onStack(drag.index, target.index);
+        else if (action === 'swap') this.callbacks.onSwap(drag.index, target.index);
         return;
       }
-      const container = this.inventory?.isChestOpen
-        ? this.containerSlotAt(ev.clientX, ev.clientY)
-        : null;
-      if (container === null) this.callbacks.onThrow(drag.index);
-      else if (container < 0) this.callbacks.onStore(drag.index);
-      else this.callbacks.onStore(drag.index, container);
-      return;
+      case 'mods':
+        this.callbacks.onDropOnMods?.(drag.index, target.slot);
+        return;
+      case 'store':
+        if (target.slot === undefined) this.callbacks.onStore(drag.index);
+        else this.callbacks.onStore(drag.index, target.slot);
+        return;
+      case 'world':
+        this.callbacks.onThrow(drag.index);
+        return;
+      case 'none':
+        return;
     }
-    if (!this.inventory || !this.content) return;
-    const action = dropAction(this.inventory, this.content, drag.index, target);
-    if (action === 'stack') this.callbacks.onStack(drag.index, target);
-    else if (action === 'swap') this.callbacks.onSwap(drag.index, target);
   }
 
   private click(index: number, ctrl: boolean): void {
@@ -397,39 +553,95 @@ export class HudHotbar {
     else this.callbacks.onSelect(index);
   }
 
-  private slotAt(x: number, y: number): number | null {
-    const el =
-      typeof document.elementFromPoint === 'function' ? document.elementFromPoint(x, y) : null;
-    const slot = el instanceof Element ? el.closest<HTMLElement>('.hud-slot') : null;
-    if (!slot || (!this.root.contains(slot) && !this.bagArea.contains(slot))) return null;
-    const index = Number(slot.dataset.index);
-    return Number.isFinite(index) ? index : null;
-  }
-
   /**
-   * The open container's slot under the point (chest-window.ts), -1 for its
-   * box but no slot, null for not over the container at all.
+   * What letting go at this point would do. A slot (any of ours, the source
+   * included -- dropping back is a no-op), an attachment window, an open
+   * container, or open ground; anything else (the gap between slots, chat,
+   * the minimap, another window, off the page) is nothing.
    */
-  private containerSlotAt(x: number, y: number): number | null {
+  dropTargetAt(x: number, y: number): DropTarget {
     const el =
       typeof document.elementFromPoint === 'function' ? document.elementFromPoint(x, y) : null;
-    if (!(el instanceof Element) || !el.closest('.dv-modal-chest')) return null;
-    const slot = el.closest<HTMLElement>('.dv-chest-grid .dv-item-slot')?.dataset.index;
-    return slot === undefined ? -1 : Number(slot);
+    if (!(el instanceof Element)) return { kind: 'none' };
+    const slot = el.closest<HTMLElement>('.hud-slot');
+    if (slot && (this.root.contains(slot) || this.bagArea.contains(slot))) {
+      const index = Number(slot.dataset.index);
+      return Number.isFinite(index) ? { kind: 'slot', index } : { kind: 'none' };
+    }
+    if (el.closest('.dv-modal-mods')) {
+      return {
+        kind: 'mods',
+        slot: el.closest<HTMLElement>('.dv-mods-slot')?.dataset.modSlot ?? null,
+      };
+    }
+    if (this.inventory?.isChestOpen && el.closest('.dv-modal-chest')) {
+      // The open container's slot under the point (chest-window.ts), or its box but no slot.
+      const index = el.closest<HTMLElement>('.dv-chest-grid .dv-item-slot')?.dataset.index;
+      return index === undefined ? { kind: 'store' } : { kind: 'store', slot: Number(index) };
+    }
+    if (isWorldElement(el)) return { kind: 'world' };
+    return { kind: 'none' };
   }
 
-  private modsTargetAt(x: number, y: number): string | null | undefined {
-    const el =
-      typeof document.elementFromPoint === 'function' ? document.elementFromPoint(x, y) : null;
-    if (!(el instanceof Element) || !el.closest('.dv-modal-mods')) return undefined;
-    return el.closest<HTMLElement>('.dv-mods-slot')?.dataset.modSlot ?? null;
+  /** Mark where the drag would land: the target slot (stack or swap) and the ghost's state. */
+  private showDropTarget(target: DropTarget): void {
+    const drag = this.drag;
+    let slotIndex = -1;
+    let action: 'stack' | 'swap' | 'none' = 'none';
+    if (
+      drag &&
+      target.kind === 'slot' &&
+      target.index !== drag.index &&
+      this.inventory &&
+      this.content
+    ) {
+      action = dropAction(this.inventory, this.content, drag.index, target.index);
+      if (action !== 'none') slotIndex = target.index;
+    }
+    if (this.dropSlot !== slotIndex) {
+      const old = this.slots[this.dropSlot];
+      if (old) {
+        old.classList.remove('is-drop-target');
+        delete old.dataset.drop;
+      }
+      this.dropSlot = slotIndex;
+    }
+    const next = this.slots[slotIndex];
+    if (next) {
+      next.classList.add('is-drop-target');
+      next.dataset.drop = action;
+    }
+    const ghostState =
+      target.kind === 'world'
+        ? 'drop'
+        : target.kind === 'store' || target.kind === 'mods'
+          ? 'store'
+          : target.kind === 'slot'
+            ? 'slot'
+            : 'cancel';
+    if (this.ghost.dataset.drop !== ghostState) this.ghost.dataset.drop = ghostState;
   }
 
   private endDrag(): void {
-    if (this.drag?.dragging) this.hoverSlot = -1;
+    if (this.drag?.dragging) {
+      this.hoverSlot = -1;
+      this.slots[this.drag.index]?.classList.remove('is-drag-source');
+    }
+    const old = this.slots[this.dropSlot];
+    if (old) {
+      old.classList.remove('is-drop-target');
+      delete old.dataset.drop;
+    }
+    this.dropSlot = -1;
     this.drag = null;
-    this.ghost.hidden = true;
-    this.ghost.remove();
+    if (this.ghost) {
+      this.ghost.hidden = true;
+      delete this.ghost.dataset.drop;
+      this.ghost.remove();
+    }
+    window.removeEventListener('keydown', this.onKeyDown, true);
+    window.removeEventListener('contextmenu', this.onContextMenu, true);
+    window.removeEventListener('blur', this.onBlur);
   }
 
   private updateTooltip(inventory: InventoryStore, content: ContentStore): void {

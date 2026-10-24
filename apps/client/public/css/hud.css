@@ -16,6 +16,9 @@
 
 :root {
   --dv-surface-opaque: rgba(19, 23, 28, 0.9);
+  /* Always-on HUD panels (.dv-panel): see-through glass with a quieter edge, so the world reads through. */
+  --dv-surface-glass: rgba(14, 18, 22, 0.62);
+  --dv-edge-glass: rgba(230, 240, 250, 0.1);
   --dv-primary-text: #20262b;
   --dv-ghost: rgba(210, 225, 240, 0.09);
   --dv-ghost-hover: rgba(225, 235, 245, 0.22);
@@ -81,7 +84,7 @@
 .hud-slot.has-item:hover::after,
 .dv-item-slot.has-item:hover::after,
 .dv-craft-cell.has-item:hover::after { transform: translateY(-1px) scale(1.06); }
-.hud-slot.has-item.is-active::after,
+.hud-slot.has-item.is-held::after,
 .dv-craft-cell.is-selected.has-item::after { transform: scale(1.04); }
 
 @keyframes dv-rise { from { opacity: 0; transform: translateY(6px); } }
@@ -95,24 +98,16 @@
    blurred element makes the compositor copy and blur its backdrop again on
    every frame the canvas changes, i.e. every frame -- measured at ~30% of
    frame time on a 2-core box.
-   The glass is a little more opaque instead; the start screen (static
+   The always-on panels are plain translucent glass instead (no blur, no
+   reflection, a light shadow); popups, alerts and windows stay on the
+   opaque surface so they read over anything. The start screen (static
    background) keeps the real blur from ui.css. */
 .dv-panel {
   position: relative;
-  background: var(--dv-surface-opaque);
-  border: 1px solid var(--dv-edge);
+  background: var(--dv-surface-glass);
+  border: 1px solid var(--dv-edge-glass);
   border-radius: var(--dv-r-lg);
-  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.12);
-}
-/* A restrained top reflection gives depth without a heavy double frame. */
-.dv-panel::before {
-  content: '';
-  position: absolute;
-  inset: 1px 1px auto 1px;
-  height: min(100px, 40%);
-  border-radius: inherit;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0));
-  pointer-events: none;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22);
 }
 .dv-panel > * { position: relative; }
 
@@ -278,7 +273,8 @@ select.dv-input option { background: #252c35; }
 
 .hud-alerts {
   position: absolute;
-  top: 16px;
+  /* Under the vitals strip (one line is ~58px tall before zoom). */
+  top: calc((24px + 58px * var(--hud-z-vitals, 1)) / var(--hud-z-hud, 1));
   left: 50%;
   transform: translateX(-50%);
   zoom: var(--hud-z-hud, 1);
@@ -306,8 +302,12 @@ select.dv-input option { background: #252c35; }
 @keyframes hud-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
 
 /* ---------------------------------------------------------------------- *
- * Vitals: a compact instrument panel. Color belongs to the gauges; the
- * neutral frame stays quiet against both day and night game scenes.
+ * Vitals: one instrument strip across the top centre -- life | food,
+ * warmth, stamina | clock, radiation | level. Color belongs to the gauges;
+ * the neutral frame stays quiet against both day and night game scenes.
+ * It centres in the band between the leaderboard (top-left) and the minimap
+ * (top-right): the same reserve on both sides keeps it on the centre line,
+ * and on a window too narrow for one line its groups wrap onto a second.
  * ---------------------------------------------------------------------- */
 
 .hud-gauges {
@@ -315,12 +315,20 @@ select.dv-input option { background: #252c35; }
   --dv-food: #c9a16a;
   --dv-cold: #7aaebc;
   --dv-stamina: #c9be79;
+  /* Screen px kept clear on each side: the wider of leaderboard and minimap, plus margins. */
+  --vit-reserve: calc(28px + max(200px * var(--hud-z-leaderboard, 1), 190px * var(--hud-z-minimap, 1)));
+  position: absolute;
+  top: calc(14px / var(--hud-z-vitals, 1));
+  left: calc(var(--vit-reserve) / var(--hud-z-vitals, 1));
+  right: calc(var(--vit-reserve) / var(--hud-z-vitals, 1));
+  width: fit-content;
+  margin: 0 auto;
   display: flex;
-  flex-direction: column;
-  gap: 10px;
-  width: 250px;
-  padding: 12px;
-  margin-bottom: 4px;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px 0;
+  padding: 9px 2px 10px 12px;
   border: 1px solid #42454b;
   border-radius: 8px;
   background: linear-gradient(145deg, rgba(36, 38, 43, 0.97), rgba(23, 25, 29, 0.97));
@@ -332,7 +340,7 @@ select.dv-input option { background: #252c35; }
 .hud-gauges .hud-gauge-unit { margin-left: 2px; font-size: 9px; color: #a6a9af; }
 
 /* Life leads, with a slightly deeper track and the existing damage trail. */
-.hud-life { --c: var(--dv-life); display: flex; align-items: center; gap: 10px; padding-bottom: 2px; }
+.hud-life { --c: var(--dv-life); display: flex; align-items: center; gap: 9px; width: 160px; flex: none; }
 .hud-life-icon { flex: none; width: 23px; color: var(--c); font-size: 22px; line-height: 1; }
 .hud-life-body { display: flex; flex-direction: column; flex: 1; min-width: 0; gap: 6px; }
 .hud-life-heading { display: flex; align-items: baseline; justify-content: space-between; }
@@ -373,13 +381,14 @@ select.dv-input option { background: #252c35; }
 .hud-life.is-hit .hud-life-fill { filter: brightness(1.45); }
 
 /* Aligned rows are readable without nested cards or decorative badges. */
-.hud-tiles { display: flex; flex-direction: column; gap: 8px; }
-.hud-tile { display: grid; grid-template-columns: 18px 48px minmax(0, 1fr) 43px; align-items: center; gap: 6px; min-width: 0; min-height: 18px; }
+/* Icon, bar, value: the strip has no room for the words, so the label is kept for screen readers only. */
+.hud-tiles { display: flex; gap: 12px; }
+.hud-tile { display: grid; grid-template-columns: 16px 44px 30px; align-items: center; gap: 6px; min-width: 0; min-height: 18px; }
 .hud-tile-icon { grid-column: 1; grid-row: 1; color: var(--c); font-size: 16px; line-height: 1; }
-.hud-tile-label { grid-column: 2; grid-row: 1; color: #bfc2c8; font-size: 11px; }
-.hud-tile-value { grid-column: 4; grid-row: 1; display: flex; align-items: baseline; justify-content: flex-end; line-height: 1; }
+.hud-tile-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.hud-tile-value { grid-column: 3; grid-row: 1; display: flex; align-items: baseline; justify-content: flex-end; line-height: 1; }
 .hud-tile-val { font-size: 12px; font-variant-numeric: tabular-nums; }
-.hud-tile-track { grid-column: 3; grid-row: 1; position: relative; height: 6px; border-radius: 2px; background: #101216; box-shadow: 0 1px 0 rgba(255, 255, 255, 0.07); overflow: hidden; }
+.hud-tile-track { grid-column: 2; grid-row: 1; position: relative; height: 6px; border-radius: 2px; background: #101216; box-shadow: 0 1px 0 rgba(255, 255, 255, 0.07); overflow: hidden; }
 .hud-tile-fill { position: absolute; inset: 0; width: var(--val, 100%); border-radius: inherit; background: var(--c); transition: width 0.12s linear; }
 .hud-tile-dir { width: 5px; height: 4px; flex: none; margin-left: 4px; align-self: center; background: var(--c); opacity: 0; transition: opacity 0.3s; }
 .hud-tile[data-dir="rise"] .hud-tile-dir { clip-path: polygon(50% 0, 100% 100%, 0 100%); }
@@ -390,13 +399,17 @@ select.dv-input option { background: #252c35; }
 .hud-tile.is-critical .hud-tile-fill { background: #f08d7e; animation: hud-pulse 1s ease-in-out infinite; }
 
 /* Clock and exposure: compact instruments with explicit labels. */
-.hud-vit-environment { display: grid; grid-template-columns: 1.1fr 1fr; align-items: center; padding-top: 9px; border-top: 1px solid rgba(211, 216, 226, 0.1); }
+/* Each group after life opens with a hairline; the trailing right padding balances the strip's own. */
+.hud-life, .hud-tiles, .hud-vit-environment, .hud-xp { padding-right: 12px; }
+.hud-tiles, .hud-vit-environment, .hud-xp { padding-left: 12px; border-left: 1px solid rgba(211, 216, 226, 0.1); }
+.hud-vit-environment { display: flex; align-items: center; gap: 10px; }
 .hud-time, .hud-rad { display: flex; align-items: center; gap: 6px; min-width: 0; }
 .hud-time-body, .hud-rad-body { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
 .hud-time-phase, .hud-rad-label { color: #a6a9af; font-size: 10px; line-height: 1; }
 .hud-time-countdown { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 3px; }
 .hud-time-left, .hud-rad-val { font-size: 12px; line-height: 1.2; font-variant-numeric: tabular-nums; }
-.hud-time-until { font-size: 8px; color: #a6a9af; white-space: nowrap; }
+/* The clock ring already shows how far through the phase it is; "to dusk" stays for screen readers. */
+.hud-time-until { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .hud-clock { position: relative; width: 30px; height: 30px; flex: none; }
 .hud-clock-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
 .hud-clock-day { fill: none; stroke: #c9b887; stroke-width: 4; transition: opacity 0.6s; }
@@ -409,7 +422,7 @@ select.dv-input option { background: #252c35; }
 .hud-clock-marker { fill: #e4e5e8; stroke: #24262b; stroke-width: 2; }
 
 /* Radiation rises as cleanliness falls. */
-.hud-rad { padding-left: 9px; border-left: 1px solid rgba(211, 216, 226, 0.1); }
+.hud-rad { padding-left: 10px; border-left: 1px solid rgba(211, 216, 226, 0.1); }
 .hud-rad-dial { position: relative; width: 30px; height: 30px; flex: none; color: #a6a9af; }
 .hud-rad-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
 .hud-rad-ticks line { stroke: #777b84; stroke-width: 1.5; stroke-linecap: round; }
@@ -421,13 +434,13 @@ select.dv-input option { background: #252c35; }
 .hud-rad.is-critical .hud-rad-dial, .hud-rad.is-critical .hud-rad-val { color: #ffb7ab; }
 .hud-rad.is-draining .hud-rad-icon, .hud-rad.is-draining .hud-rad-arc { animation: hud-pulse 1s ease-in-out infinite; }
 
-/* Progress earns only a single compact row at the bottom. */
-.hud-xp { display: flex; align-items: center; gap: 9px; padding-top: 8px; border-top: 1px solid rgba(211, 216, 226, 0.1); }
-.hud-level-badge { display: flex; align-items: baseline; gap: 4px; flex: none; }
+/* Progress closes the strip: the level over a short bar; the XP numbers stay for screen readers. */
+.hud-xp { display: flex; flex-direction: column; align-items: stretch; justify-content: center; gap: 5px; width: 58px; box-sizing: content-box; }
+.hud-level-badge { display: flex; align-items: baseline; justify-content: center; gap: 4px; flex: none; }
 .hud-level-label { color: #a6a9af; font-size: 9px; letter-spacing: 0.3px; }
 .hud-level { font-size: 13px; line-height: 1; font-variant-numeric: tabular-nums; }
 .hud-xp-body { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0; }
-.hud-xp-text { color: #a6a9af; font-size: 9px; line-height: 1; text-align: right; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.hud-xp-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .hud-xp-track { position: relative; height: 3px; border-radius: 1px; background: #101216; overflow: hidden; }
 .hud-xp-fill { position: absolute; inset: 0; width: var(--val, 0%); border-radius: inherit; background: #969faa; transition: width 0.25s ease-out; }
 
@@ -437,14 +450,22 @@ select.dv-input option { background: #252c35; }
 
 
 /* ---------------------------------------------------------------------- *
- * Chat (bottom-left, above gauges)
+ * Chat (the bottom-left corner)
+ * One compact header (channel tabs, the Messages picker, gear, collapse),
+ * the log, then the input. A conversation (private / NPC) adds a slim strip
+ * under the header with its Pin / Close; a fixed channel says its reach in
+ * the placeholder instead. The key hints only show while typing.
+ * Idle fade (Options > Chat > When not in use): away from the pointer and
+ * not typing, the frame and controls fade so the world shows through; the
+ * text keeps a shadow so it stays readable on grass and snow alike.
  * ---------------------------------------------------------------------- */
 
 .hud-chat {
-  position: absolute;
-  left: 0;
-  bottom: calc(100% + 6px);
+  --chat-bg: 15, 19, 23;
+  position: relative;
   width: 440px;
+  /* Never wider than its grid column (the space left of the hotbar). */
+  max-width: 100%;
   height: 260px;
   min-width: min(300px, 100%);
   min-height: min(180px, var(--chat-available-height, 600px));
@@ -453,203 +474,359 @@ select.dv-input option { background: #252c35; }
   flex-direction: column;
   pointer-events: auto;
   overflow: hidden;
-  font: var(--chat-font-size, 14px)/1.45 var(--chat-font, Arial, sans-serif);
-  background: rgba(19, 23, 28, var(--chat-opacity, .94));
+  /* Set here too (not only by .dv-panel, added at mount) so the idle fade never starts from the default white border; the same quiet edge as the other panels. */
+  border: 1px solid var(--dv-edge-glass);
+  border-radius: var(--dv-r-md);
+  font: var(--chat-font-size, 14px)/1.4 var(--chat-font, Arial, sans-serif);
+  background: rgba(var(--chat-bg), var(--chat-opacity, .94));
   zoom: var(--hud-z-chat, 1);
+  transition: background-color .18s ease, border-color .18s ease, box-shadow .18s ease;
 }
-.hud-chat.is-collapsed {
-  height: auto !important;
-  min-height: 0;
-  resize: none;
-}
-.hud-chat.is-collapsed > :not(.hud-chat-tabs) {
-  display: none;
-}
+.hud-chat::before { transition: opacity .18s ease; }
+.hud-chat-console [hidden] { display: none !important; }
+.hud-chat-console :is(button, input, select):focus-visible { outline: 2px solid var(--dv-cold); outline-offset: -2px; }
+
+/* Header */
 .hud-chat-tabs {
   display: flex;
-  gap: 2px;
-  padding: 4px 6px 0;
-  border-bottom: 1px solid var(--dv-edge);
   flex: none;
   align-items: center;
-  flex-wrap: nowrap;
+  gap: 2px;
   min-width: 0;
+  padding: 5px 5px 5px 6px;
+  border-bottom: 1px solid var(--dv-highlight);
+  transition: opacity .18s ease;
 }
+.hud-chat-tabstrip {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 2px;
+  min-width: 60px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.hud-chat-tabstrip::-webkit-scrollbar { display: none; }
 .hud-chat-tab {
-  padding: 7px 8px;
-  border-radius: 8px 8px 0 0;
-  border: 1px solid transparent;
-  border-bottom: 2px solid transparent;
-  background: transparent;
-  color: var(--dv-muted);
-  font: 13px var(--dv-font);
-  cursor: pointer;
+  position: relative;
+  flex: none;
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  white-space: nowrap;
-}
-.hud-chat-tab:hover {
-  background: var(--dv-ghost);
-  color: var(--dv-text);
-}
-.hud-chat-tab.is-active {
-  background: var(--dv-slot-active);
-  border-bottom-color: var(--dv-cold);
-  color: var(--dv-text);
-}
-.hud-chat-tab.is-muted {
-  opacity: 0.45;
-}
-.hud-chat-tab.is-pm, .hud-chat-tab.is-npc {
-  color: var(--dv-cold);
-}
-.hud-chat-tab .badge {
-  min-width: 15px;
-  padding: 0 4px;
+  height: 26px;
+  padding: 0 10px;
+  border: 0;
   border-radius: var(--dv-r-sm);
+  background: transparent;
+  color: var(--dv-muted);
+  font: 13px/1 var(--dv-font);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color .12s, color .12s;
+}
+.hud-chat-tab:hover { background: var(--dv-ghost); color: var(--dv-text); }
+.hud-chat-tab.is-active { background: var(--dv-slot-active); color: var(--dv-text); }
+.hud-chat-tab.is-active::after {
+  content: '';
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 2px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--dv-cold);
+}
+.hud-chat-tab.is-muted { opacity: 0.45; }
+.hud-chat-tab.is-pm, .hud-chat-tab.is-npc { color: var(--dv-cold); }
+.hud-chat-tab .badge {
+  min-width: 16px;
+  padding: 0 4px;
+  border-radius: 8px;
   background: var(--dv-accent);
   color: var(--dv-primary-text);
   font-size: 10px;
-  line-height: 15px;
+  line-height: 16px;
   text-align: center;
 }
-.hud-chat-tab .close {
+.hud-chat-tab .unread-dot { color: var(--dv-cold); font-size: 15px; line-height: 0; margin-left: -2px; }
+
+/* Private conversations and Activity: a select dressed as a tab. */
+.hud-chat-conversations {
+  flex: 0 1 auto;
+  width: auto;
+  min-width: 0;
+  max-width: 38%;
+  height: 26px;
+  padding: 0 22px 0 10px;
+  border: 0;
+  border-radius: var(--dv-r-sm);
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23b7c0cb' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 8px center / 9px 6px;
+  color: var(--dv-muted);
+  font: 13px/1 var(--dv-font);
+  text-overflow: ellipsis;
+  cursor: pointer;
+  transition: background-color .12s, color .12s;
+}
+.hud-chat-conversations:hover { background-color: var(--dv-ghost); color: var(--dv-text); }
+.hud-chat-conversations.has-unread { color: var(--dv-cold); }
+.hud-chat-conversations.is-active { background-color: var(--dv-slot-active); color: var(--dv-text); }
+.hud-chat-conversations option { background: #1d242b; color: var(--dv-text); }
+
+.hud-chat-tool, .hud-chat-collapse {
+  flex: none;
   display: inline-flex;
-  margin-left: 2px;
-  opacity: 0.6;
-  font-size: 12px;
-  line-height: 1;
-}
-.hud-chat-tab .close:hover {
-  opacity: 1;
-  color: var(--dv-danger-text);
-}
-.hud-chat-collapse {
-  margin-left: auto;
-  font: 12px var(--dv-font);
-  border: none;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--dv-r-sm);
   background: transparent;
   color: var(--dv-muted);
-  padding: 0 6px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background-color .12s, color .12s;
 }
-.hud-chat-collapse:hover {
+.hud-chat-collapse { font-size: 11px; }
+.hud-chat-tool:hover, .hud-chat-collapse:hover { background: var(--dv-ghost); color: var(--dv-text); }
+
+/* Conversation strip: who the conversation is with, then Pin / Close. */
+.hud-chat-context {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 4px;
+  min-height: 26px;
+  padding: 2px 6px 2px 11px;
+  border-bottom: 1px solid var(--dv-highlight);
+  background: rgba(85, 183, 188, 0.07);
   color: var(--dv-text);
+  font: 12px/1.3 var(--dv-font);
 }
+.hud-chat-destination { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hud-chat-destination-kind {
+  margin-right: 6px;
+  color: var(--dv-cold);
+  font-size: 10px;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+.hud-chat-context-action {
+  padding: 3px 7px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--dv-muted);
+  font: inherit;
+  cursor: pointer;
+}
+.hud-chat-context-action:hover { background: var(--dv-ghost); color: var(--dv-text); }
+
+/* Log */
 .hud-chat-log {
   flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
-  padding: 6px 10px;
+  padding: 6px 8px 6px 6px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 1px;
   overflow-anchor: none;
   user-select: text;
   scrollbar-width: thin;
   scrollbar-color: var(--dv-ghost-hover) transparent;
   overscroll-behavior: contain;
 }
-.hud-chat-log::-webkit-scrollbar {
-  width: 6px;
-  background: transparent;
-}
-.hud-chat-log::-webkit-scrollbar-thumb {
-  background: var(--dv-ghost-hover);
-}
+.hud-chat-log::-webkit-scrollbar { width: 6px; background: transparent; }
+.hud-chat-log::-webkit-scrollbar-thumb { background: var(--dv-ghost-hover); border-radius: 3px; }
 .hud-chat-line {
   display: grid;
-  grid-template-columns: 36px minmax(0, 1fr);
-  gap: 8px;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 6px;
   flex: none;
-  line-height: 1.45;
+  padding: 2px 4px;
+  border-radius: 5px;
   color: var(--dv-text);
   overflow-wrap: anywhere;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
 }
+.hud-chat-line:hover { background: rgba(255, 255, 255, 0.035); }
 .hud-chat-line .time {
+  align-self: start;
+  padding-top: 0.28em;
   color: var(--dv-muted);
-  font-size: 11px;
-  padding-top: 3px;
+  opacity: 0.6;
+  font: 10px/1.2 Arial, sans-serif;
   font-variant-numeric: tabular-nums;
+  text-align: right;
+  text-shadow: none;
 }
+.hud-chat-line:hover .time { opacity: 1; }
 .hud-chat-line .who {
   display: inline;
+  margin-right: 5px;
   padding: 0;
   border: 0;
   background: transparent;
   font: inherit;
   color: var(--dv-chat-player);
-  margin-right: 5px;
+  text-shadow: inherit;
   cursor: pointer;
   user-select: none;
 }
-.hud-chat-line .who:hover {
-  text-decoration: underline;
-}
-.hud-chat-line.is-admin .who {
-  color: var(--dv-chat-admin);
-}
+.hud-chat-line .who:hover { text-decoration: underline; text-underline-offset: 2px; }
+.hud-chat-line.is-self .who { color: #f3e6a6; }
+.hud-chat-line.is-admin .who { color: var(--dv-chat-admin); }
 .dv-badge { display: inline-flex; margin-left: 4px; font-size: .9em; font-weight: normal; vertical-align: -0.1em; }
 .dv-badge .dv-icon { filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.6)); }
 .hud-chat-line.kind-system,
-.hud-chat-line.kind-system .text {
-  color: var(--dv-muted);
-  font-style: italic;
-}
-.hud-chat-line.kind-log {
-  color: var(--dv-muted);
-}
+.hud-chat-line.kind-log { color: var(--dv-muted); font-size: 0.93em; }
+.hud-chat-line.kind-system .text { color: var(--dv-muted); }
 .hud-chat-line.kind-broadcast,
-.hud-chat-line.kind-broadcast .who {
-  color: var(--dv-warn-text);
-}
+.hud-chat-line.kind-broadcast .who { color: var(--dv-warn-text); }
 .hud-chat-line.is-mention {
   background: var(--dv-mention);
-  border-left: 2px solid var(--dv-warn-text);
-  padding-left: 6px;
-  border-radius: 0 var(--dv-r-sm) var(--dv-r-sm) 0;
+  box-shadow: inset 2px 0 0 var(--dv-warn-text);
 }
-.hud-chat-console [hidden] { display: none !important; }
-.hud-chat-tabstrip { display: flex; align-items: stretch; flex: 1; min-width: 65px; overflow-x: auto; scrollbar-width: thin; }
-.hud-chat-tab { flex: none; }
-.hud-chat-conversations { width: 112px; min-width: 75px; max-width: 32%; border: 0; border-radius: 4px; padding: 6px 2px; color: var(--dv-cold); background: #171d23; font: 12px var(--dv-font); }
-.hud-chat-tool, .hud-chat-collapse { flex: none; min-width: 25px; height: 30px; margin: 0; border: 0; padding: 4px; color: var(--dv-muted); background: transparent; cursor: pointer; }
-.hud-chat-tool:hover { background: var(--dv-ghost); color: var(--dv-text); }
-.hud-chat-context { display: flex; flex: none; align-items: center; gap: 8px; padding: 5px 10px; min-height: 28px; color: var(--dv-cold); font: 11px/1.4 var(--dv-font); }
-.hud-chat-destination { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.hud-chat-context-action { padding: 2px 4px; border: 0; background: transparent; color: var(--dv-muted); font: inherit; cursor: pointer; }
-.hud-chat-context-action:hover { color: var(--dv-text); text-decoration: underline; }
-.hud-chat-tab .unread-dot { color: var(--dv-cold); }
-.hud-chat-footer { display: flex; flex: none; justify-content: space-between; gap: 6px; padding: 0 12px 8px; color: var(--dv-muted); font: 11px/1.3 Arial, sans-serif; }
+.hud-chat.hide-timestamps .hud-chat-line { grid-template-columns: minmax(0, 1fr); padding-left: 6px; }
+.hud-chat.hide-timestamps .time { display: none; }
+
+.hud-chat-jump {
+  flex: none;
+  align-self: center;
+  margin: 0 8px 5px;
+  padding: 3px 12px;
+  border: 1px solid rgba(85, 183, 188, 0.45);
+  border-radius: 13px;
+  background: #1c2a30;
+  color: var(--dv-cold);
+  font: 12px var(--dv-font);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+}
+.hud-chat-jump:hover { background: #22363c; color: var(--dv-text); }
+.hud-chat-suggestions {
+  flex: none;
+  max-height: 110px;
+  overflow-y: auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 6px 8px;
+  border-top: 1px solid var(--dv-highlight);
+  background: rgba(0, 0, 0, 0.18);
+}
+.hud-chat-suggestion { border: 1px solid var(--dv-edge); border-radius: 5px; padding: 3px 7px; color: var(--dv-text); background: transparent; font: 12px Arial, sans-serif; cursor: pointer; }
+.hud-chat-suggestion.is-active, .hud-chat-suggestion:hover { background: var(--dv-slot-active); border-color: var(--dv-cold); }
+
+/* Input */
+.hud-chat-inputrow {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px;
+  border-top: 1px solid var(--dv-highlight);
+  transition: opacity .18s ease;
+}
+.hud-chat-target { color: var(--dv-muted); font-size: 11px; white-space: nowrap; max-width: 90px; overflow: hidden; text-overflow: ellipsis; }
+.hud-chat-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 32px;
+  padding: 0 10px;
+  border-radius: var(--dv-r-sm);
+  border: 1px solid var(--dv-edge);
+  background: rgba(5, 9, 13, 0.45);
+  color: var(--dv-text);
+  font: inherit;
+  outline: none;
+  transition: border-color .12s, background-color .12s;
+}
+.hud-chat-input:hover { border-color: rgba(230, 240, 250, 0.26); }
+.hud-chat-input:focus { border-color: var(--dv-cold); background: rgba(5, 9, 13, 0.6); }
+.hud-chat-input::placeholder { color: var(--dv-muted); opacity: 0.7; }
+.hud-chat-input[readonly] { opacity: 0.5; cursor: default; }
+.hud-chat-send {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid var(--dv-edge);
+  border-radius: var(--dv-r-sm);
+  background: var(--dv-ghost);
+  color: var(--dv-muted);
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color .12s, color .12s, border-color .12s;
+}
+.hud-chat-send:hover:not(:disabled) { background: var(--dv-ghost-hover); color: var(--dv-text); }
+/* Lit once there is something to send. */
+.hud-chat-inputrow:has(.hud-chat-input:not(:placeholder-shown)) .hud-chat-send:not(:disabled) {
+  border-color: transparent;
+  background: var(--dv-cold);
+  color: #0d1a1c;
+}
+.hud-chat-send:disabled { opacity: .4; cursor: default; }
+
+/* Footer: key hints and the byte count, only while typing (or sending). */
+.hud-chat-footer {
+  display: none;
+  flex: none;
+  justify-content: space-between;
+  gap: 6px;
+  margin-top: -2px;
+  padding: 0 10px 6px;
+  color: var(--dv-muted);
+  font: 10.5px/1.3 Arial, sans-serif;
+}
+.hud-chat:focus-within .hud-chat-footer,
+.hud-chat.has-status .hud-chat-footer { display: flex; }
 .hud-chat-count { white-space: nowrap; font-variant-numeric: tabular-nums; }
 .hud-chat-count.is-over { color: var(--dv-danger-text); }
-.hud-chat-send { height: 32px; padding: 0 8px; border: 1px solid var(--dv-edge); border-radius: var(--dv-r-sm); background: var(--dv-ghost); color: var(--dv-text); font: 12px var(--dv-font); cursor: pointer; }
-.hud-chat-send:disabled { opacity: .5; cursor: default; }
-.hud-chat-jump { flex: none; align-self: center; margin: 2px 8px 5px; padding: 4px 12px; border: 1px solid var(--dv-edge); border-radius: var(--dv-r-sm); color: var(--dv-cold); background: #202a32; font: 12px var(--dv-font); cursor: pointer; }
-.hud-chat-suggestions { flex: none; max-height: 110px; overflow-y: auto; display: flex; flex-wrap: wrap; gap: 4px; padding: 6px 8px; background: #171d23; }
-.hud-chat-suggestion { border: 1px solid var(--dv-edge); border-radius: 4px; padding: 4px 6px; color: var(--dv-text); background: transparent; font: 12px Arial, sans-serif; cursor: pointer; }
-.hud-chat-suggestion.is-active, .hud-chat-suggestion:hover { background: var(--dv-slot-active); border-color: var(--dv-cold); }
-.hud-chat.hide-timestamps .hud-chat-line { grid-template-columns: minmax(0, 1fr); }
-.hud-chat.hide-timestamps .time { display: none; }
-.hud-chat.is-settings > :not(.hud-chat-tabs):not(.hud-chat-settings-host) { display: none; }
-.hud-chat-settings-host { flex: 1; min-height: 0; overflow-y: auto; background: #171d23; scrollbar-width: thin; }
-.hud-chat-settings { padding: 10px; display: grid; gap: 9px; font: 12px/1.4 Arial, sans-serif; }
-.hud-chat-settings strong { color: var(--dv-text); font-weight: 500; }
-.hud-chat-setting { display: flex; justify-content: space-between; align-items: center; gap: 8px; color: var(--dv-muted); }
-.hud-chat-setting-range { display: flex; align-items: center; gap: 5px; width: 54%; }
-.hud-chat-setting-range input { flex: 1; min-width: 0; width: 65px; }
-.hud-chat-setting-range output { width: 42px; text-align: right; }
-.hud-chat-setting-notice { display: flex; align-items: center; gap: 6px; }
-.hud-chat-settings select, .hud-chat-settings button { border: 1px solid var(--dv-edge); border-radius: 4px; padding: 4px; background: #202a32; color: var(--dv-text); font: inherit; }
-.hud-chat-settings input { accent-color: var(--dv-cold); }
-.hud-chat-sound { display: inline-flex; align-items: center; gap: 3px; }
-.hud-chat-console :is(button, input, select):focus-visible { outline: 2px solid var(--dv-cold); outline-offset: -2px; }
+
+/* Collapsed: just the header bar. */
+.hud-chat.is-collapsed { height: auto !important; min-height: 0; resize: none; }
+.hud-chat.is-collapsed > :not(.hud-chat-tabs) { display: none; }
+.hud-chat.is-collapsed .hud-chat-tabs { border-bottom: 0; }
+
+/* Idle fade. Fading out waits a moment after the pointer leaves; coming back is instant. */
+.hud-chat.is-fade:not(:hover):not(:focus-within):not(.is-collapsed):not(.has-status) {
+  background-color: rgba(var(--chat-bg), calc(var(--chat-opacity, .94) * 0.28));
+  border-color: transparent;
+  box-shadow: none;
+  scrollbar-color: transparent transparent;
+  transition-duration: .5s;
+  transition-delay: .9s;
+}
+.hud-chat.is-fade:not(:hover):not(:focus-within):not(.is-collapsed):not(.has-status)::before { opacity: 0; transition: opacity .5s ease .9s; }
+.hud-chat.is-fade:not(:hover):not(:focus-within):not(.is-collapsed):not(.has-status) :is(.hud-chat-tabs, .hud-chat-inputrow) {
+  opacity: 0.4;
+  transition: opacity .5s ease .9s;
+}
+.hud-chat.is-fade:not(:hover):not(:focus-within):not(.is-collapsed):not(.has-status) :is(.hud-chat-tabs, .hud-chat-inputrow, .hud-chat-context) {
+  border-color: transparent;
+}
+.hud-chat.is-fade:not(:hover):not(:focus-within):not(.is-collapsed):not(.has-status) .hud-chat-log { scrollbar-color: transparent transparent; }
+.hud-chat.is-fade:not(:hover):not(:focus-within):not(.is-collapsed):not(.has-status) .hud-chat-line .time { opacity: 0.35; }
+@media (prefers-reduced-motion: reduce) {
+  .hud-chat, .hud-chat *, .hud-chat::before { transition: none !important; }
+}
+
 /* Conversation notices stay outside the console; clicking opens the conversation. */
 .hud-chat-notices {
   position: absolute;
   left: 0;
   right: 0;
-  top: var(--hud-notice-y, 80px);
+  /* Options > Interface > Pop-out position, measured from under the vitals strip. */
+  top: calc(var(--hud-notice-y, 80px) + 58px * var(--hud-z-vitals, 1) / var(--hud-z-notices, 1));
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -693,64 +870,34 @@ select.dv-input option { background: #252c35; }
   from { opacity: 0; transform: translateY(-8px); }
   to { opacity: 1; transform: none; }
 }
-.hud-chat-inputrow {
-  flex: none;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 8px 6px;
-  border-top: 1px solid var(--dv-edge);
-}
-.hud-chat-target {
-  color: var(--dv-muted);
-  font-size: 11px;
-  white-space: nowrap;
-  max-width: 90px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.hud-chat-input {
-  flex: 1 1 auto;
-  min-width: 0;
-  height: 32px;
-  padding: 0 8px;
-  border-radius: var(--dv-r-sm);
-  border: 1px solid var(--dv-edge);
-  background: var(--dv-inset);
-  color: var(--dv-text);
-  font: inherit;
-}
-.hud-chat-input:focus {
-  border-color: var(--dv-slot-active-edge);
-}
-.hud-chat-input::placeholder {
-  color: var(--dv-muted);
-  opacity: 0.8;
-}
-.hud-chat-input[readonly] {
-  opacity: 0.5;
-  cursor: default;
-}
 
 /* ---------------------------------------------------------------------- *
  * Bottom row: vitals | hotbar | bag. Hotbar (bottom-center) and bag
  * ---------------------------------------------------------------------- */
 
-/* 1fr auto 1fr keeps the hotbar centred under the player while the side
-   columns fit; a side column never shrinks under its content (auto minimum),
-   so a scaled-up vitals panel pushes the hotbar right instead of under it. */
+/* chat | hotbar | bag. Equal side columns keep the hotbar centred under the
+   player. The chat's column may shrink (the chat narrows down to its 300px
+   minimum); the bag's never goes under the bag button. Once a scaled-up
+   hotbar leaves less than that, HudManager.layoutBottom() sets .is-tight
+   and the chat moves up a row, spanning the left two columns, while the
+   hotbar stays centred below it. The bag's extra columns climb from the
+   bottom-right corner, so nothing else lives there. */
 .hud-bottom {
   position: absolute;
   left: 16px;
   right: 16px;
   bottom: 12px;
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  grid-template-columns: minmax(0, 1fr) auto 1fr;
+  grid-template-areas: "chat hot bag";
   align-items: end;
   gap: 12px;
   pointer-events: none;
 }
-.hud-bottomleft { position: relative; justify-self: start; }
+.hud-bottom.is-tight { grid-template-areas: "chat chat ." ". hot bag"; }
+.hud-bottomleft { grid-area: chat; position: relative; min-width: 0; }
+.hud-hotbar { grid-area: hot; }
+.hud-bag-corner { grid-area: bag; }
 .hud-gauges { zoom: var(--hud-z-vitals, 1); }
 .hud-hotbar {
   position: relative;
@@ -782,14 +929,71 @@ select.dv-input option { background: #252c35; }
   border-radius: var(--dv-r);
   background: var(--dv-inset);
   border: 1px solid var(--dv-edge);
-  cursor: pointer;
-  transition: background 0.12s, border-color 0.12s, transform 0.08s;
+  overflow: hidden;
+  transition: background 0.12s, border-color 0.12s, box-shadow 0.12s, transform 0.08s;
   touch-action: none;
 }
 .hud-slot[hidden] { display: none; }
-.hud-slot:hover { background: rgba(225, 235, 240, 0.08); }
-.hud-slot:active { transform: scale(0.96); }
-.hud-slot.is-active { background: var(--dv-slot-active); border-color: var(--dv-slot-active-edge); }
+/* Only a slot with something in it reacts to the pointer: an empty one is just a place. */
+.hud-slot.has-item { cursor: pointer; }
+.hud-slot.has-item:hover { background: rgba(225, 235, 240, 0.08); }
+.hud-slot.has-item:active { transform: scale(0.96); }
+
+/* What is on (EQUIPMENT_STATE). In hand: the strong mark -- accent edge, a soft
+   glow and a hand badge. Worn: quieter -- a cold edge, a cold line along the
+   bottom and a clothing badge -- so both read at once without competing. */
+.hud-slot.is-held {
+  background: var(--dv-slot-active);
+  border-color: var(--dv-accent);
+  box-shadow: inset 0 0 0 1px rgba(227, 231, 223, 0.35), 0 0 10px rgba(227, 231, 223, 0.22);
+}
+.hud-slot.is-worn {
+  border-color: rgba(85, 183, 188, 0.6);
+  box-shadow: inset 0 -3px 0 rgba(85, 183, 188, 0.75);
+}
+.hud-slot-badge {
+  position: absolute;
+  left: 5px;
+  bottom: 4px;
+  width: 15px;
+  height: 15px;
+  z-index: 1;
+  pointer-events: none;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.9));
+}
+.hud-slot-badge[hidden] { display: none; }
+.hud-slot-badge .dv-icon { display: block; width: 100%; height: 100%; }
+.hud-slot-badge[data-kind='held'] { color: var(--dv-accent); }
+.hud-slot-badge[data-kind='worn'] { color: var(--dv-cold); }
+
+/* An equip under way fills the slot from the bottom as it runs (--equip, 0..100%). */
+.hud-slot.is-equipping::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: var(--equip, 0%);
+  background: linear-gradient(to top, rgba(227, 231, 223, 0.3), rgba(227, 231, 223, 0.12));
+  box-shadow: 0 -1px 0 rgba(227, 231, 223, 0.55);
+  transition: height 0.1s linear;
+  pointer-events: none;
+}
+
+/* A stack that grew (a pickup, a take, a stack) flashes once. */
+.hud-slot.is-flash { animation: hud-slot-flash 0.45s ease-out; }
+.hud-slot.is-flash::after { animation: hud-slot-pop 0.3s ease-out; }
+@keyframes hud-slot-flash {
+  0% { background: rgba(235, 242, 250, 0.3); border-color: rgba(245, 248, 250, 0.95); box-shadow: 0 0 14px rgba(235, 242, 250, 0.55); }
+  100% { }
+}
+@keyframes hud-slot-pop { 40% { transform: scale(1.16); } }
+
+/* Dragging: the source dims, the slot it would land on lights up -- green for
+   a stack, the accent for a swap. */
+.hud-slot.is-drag-source::after { opacity: 0.3; }
+.hud-slot.is-drop-target { background: rgba(225, 235, 240, 0.16); border-color: var(--dv-accent); }
+.hud-slot.is-drop-target[data-drop='stack'] { border-color: var(--dv-ok-edge); box-shadow: inset 0 0 12px rgba(111, 220, 124, 0.2); }
 .hud-slot-key { position: absolute; top: 4px; left: 6px; font-size: 11px; color: var(--dv-muted); z-index: 1; }
 .hud-slot-count { position: absolute; right: 5px; bottom: 3px; font: 13px var(--dv-font); color: #fff; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9); z-index: 1; }
 /* Freshness bar on food that rots (old _buttonInv rotten<stage>.png, a 66x14 strip drawn along the slot's top). */
@@ -820,6 +1024,22 @@ select.dv-input option { background: #252c35; }
   pointer-events: none;
 }
 .hud-drag-ghost[hidden] { display: none; }
+/* Letting go here would do nothing: the ghost fades so a near miss is visible. */
+.hud-drag-ghost[data-drop='cancel'] { opacity: 0.35; filter: grayscale(0.8) drop-shadow(0 6px 8px rgba(0, 0, 0, 0.5)); }
+.hud-drag-ghost[data-drop='drop']::after,
+.hud-drag-ghost[data-drop='store']::after {
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  transform: translate(-50%, -4px);
+  padding: 1px 7px;
+  border-radius: var(--dv-r-sm);
+  background: var(--dv-surface-opaque);
+  font: 12px var(--dv-font);
+  white-space: nowrap;
+}
+.hud-drag-ghost[data-drop='drop']::after { content: 'Drop'; color: var(--dv-warn-text); }
+.hud-drag-ghost[data-drop='store']::after { content: 'Store'; color: var(--dv-ok-text); }
 /* Status line over the hotbar ("You see a wooden wall."): text only, fades out. */
 .hud-status-line {
   position: absolute;
@@ -1012,16 +1232,68 @@ select.dv-input option { background: #252c35; }
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
 }
 .hud-sector:empty { display: none; }
-.hud-leaderboard { width: 233px; padding: 12px 16px 10px; pointer-events: auto; }
+/* Leaderboard: rank / karma / name / score over a faint bar sized against the leader's score.
+   Unheld places show as empty numbered slots, so the panel always lists ten.
+   The top three get rank chips (the leader's in the warm --dv-warn-text), our own row is lifted
+   out as a card, and a row that just moved flashes green (up) or red (down) for MOVE_FLASH_MS. */
+/* See-through further than the other panels (it is the biggest one over the world); the text shadow keeps names readable on light ground. */
+.hud-leaderboard { width: 200px; padding: 9px 7px 7px; pointer-events: auto; background: rgba(14, 18, 22, 0.5); text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55); }
 .hud-leaderboard[hidden] { display: none; }
-.hud-leaderboard-title { font-size: 16px; color: var(--dv-text); padding-bottom: 8px; margin-bottom: 6px; border-bottom: 1px solid var(--dv-highlight); }
-.hud-leaderboard-row { display: flex; align-items: center; gap: 8px; font-size: 12px; height: 20px; color: var(--dv-text); }
-.hud-leaderboard-row.is-me { color: var(--dv-accent); }
-.hud-leaderboard-row .rank { width: 16px; color: var(--dv-muted); flex: none; }
-.hud-leaderboard-row .name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.hud-leaderboard-row .score { flex: none; font-variant-numeric: tabular-nums; }
-.hud-leaderboard-row .karma { width: 14px; height: 14px; flex: none; background-size: contain; background-repeat: no-repeat; background-position: center; }
-.hud-leaderboard-own { margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--dv-highlight); }
+.hud-leaderboard-head { display: flex; align-items: center; gap: 6px; padding: 0 6px 6px; color: var(--dv-muted); }
+.hud-leaderboard-head .dv-icon { width: 12px; height: 12px; flex: none; }
+.hud-leaderboard-title { flex: 1; min-width: 0; font-size: 11px; letter-spacing: 0.6px; text-transform: uppercase; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hud-leaderboard-list { display: flex; flex-direction: column; gap: 2px; }
+.hud-leaderboard-row,
+.hud-leaderboard-empty {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: 18px 14px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 6px;
+  height: 22px;
+  padding: 0 6px 0 4px;
+  border-radius: var(--dv-r-sm);
+  font-size: 12.5px;
+  color: var(--dv-text);
+}
+.hud-leaderboard-row::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  z-index: -1;
+  width: calc(var(--lb-fill, 0) * 100%);
+  border-radius: inherit;
+  background: linear-gradient(90deg, rgba(235, 242, 250, 0.075), rgba(235, 242, 250, 0.03));
+}
+.hud-leaderboard-row.is-trailing::before { display: none; }
+.hud-leaderboard-row[data-guid] { cursor: pointer; }
+/* A place nobody holds yet: its number and a faint dotted line where the name would be. */
+.hud-leaderboard-empty .rank { height: 16px; font-size: 11px; line-height: 16px; text-align: center; color: var(--dv-muted); opacity: 0.4; font-variant-numeric: tabular-nums; }
+.hud-leaderboard-empty .slot-line { grid-column: 2 / -1; height: 2px; margin-right: 4px; background: radial-gradient(circle, rgba(235, 242, 250, 0.16) 1px, transparent 1.2px) left center / 5px 2px repeat-x; }
+.hud-leaderboard-row[data-guid]:hover { background: var(--dv-ghost); }
+.hud-leaderboard-row .rank { height: 16px; border-radius: 5px; font-size: 11px; line-height: 16px; text-align: center; color: var(--dv-muted); font-variant-numeric: tabular-nums; }
+.hud-leaderboard-row .rank:empty::before { content: '\2013'; }
+.hud-leaderboard-row.is-top1 .rank { background: rgba(255, 215, 153, 0.16); color: var(--dv-warn-text); }
+.hud-leaderboard-row.is-top2 .rank,
+.hud-leaderboard-row.is-top3 .rank { background: var(--dv-ghost); color: var(--dv-text); }
+.hud-leaderboard-row.is-top1::before { background: linear-gradient(90deg, rgba(255, 215, 153, 0.13), rgba(255, 215, 153, 0.04)); }
+.hud-leaderboard-row .karma { width: 14px; height: 14px; background-size: contain; background-repeat: no-repeat; background-position: center; }
+.hud-leaderboard-row .name { display: flex; align-items: center; min-width: 0; }
+.hud-leaderboard-row .name-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hud-leaderboard-row .name .dv-badge { flex: none; }
+.hud-leaderboard-row .score { font-variant-numeric: tabular-nums; color: var(--dv-muted); }
+.hud-leaderboard-row.is-top1 .score,
+.hud-leaderboard-row.is-me .score { color: var(--dv-text); }
+.hud-leaderboard-row.is-me { background: var(--dv-slot-active); box-shadow: inset 0 0 0 1px var(--dv-slot-active-edge); color: #fff; }
+.hud-leaderboard-row.is-me::before { background: linear-gradient(90deg, rgba(235, 242, 250, 0.14), rgba(235, 242, 250, 0.05)); }
+.hud-leaderboard-gap { width: 16px; height: 10px; margin: 1px auto; background: radial-gradient(circle, var(--dv-muted) 1px, transparent 1.5px) center / 5px 5px repeat-x; opacity: 0.6; }
+.hud-leaderboard-row.is-up::after,
+.hud-leaderboard-row.is-down::after { content: ''; position: absolute; inset: 0; z-index: -1; border-radius: inherit; animation: hud-lb-flash 2.4s ease-out var(--lb-delay, 0ms) both; }
+.hud-leaderboard-row.is-up::after { --lb-flash: rgba(111, 220, 124, 0.26); }
+.hud-leaderboard-row.is-down::after { --lb-flash: rgba(210, 75, 75, 0.26); }
+@keyframes hud-lb-flash { from { background: var(--lb-flash); } to { background: transparent; } }
+@media (prefers-reduced-motion: reduce) { .hud-leaderboard-row.is-up::after, .hud-leaderboard-row.is-down::after { animation: none; } }
 
 /* ---------------------------------------------------------------------- *
  * Floating windows (GameUI windowLayout)
@@ -1195,6 +1467,21 @@ select.dv-input option { background: #252c35; }
 .dv-settings-row.is-size .dv-settings-label { font-size: 14px; }
 .dv-settings-row.is-size .dv-settings-choices { width: 200px; }
 .dv-settings-row.is-size .dv-settings-choices .dv-btn { min-height: 30px; }
+/* Options > Chat (hud-chat-settings.ts): sliders with their value, a note under Size,
+   and per-channel pop-up rows -- Off / Mentions / All plus a sound toggle. */
+.dv-settings-row.is-chat { min-height: 42px; }
+.dv-settings-row.is-chat .dv-settings-label { font-size: 14px; }
+.dv-settings-row.is-chat .dv-settings-choices { width: 220px; }
+.dv-settings-row.is-chat .dv-settings-choices .dv-btn { min-height: 30px; font-size: 13px; }
+.dv-settings-row.is-chat .dv-settings-choices .dv-range { flex: 1; min-width: 0; align-self: center; }
+.dv-settings-row.is-chat .dv-settings-choices .hud-chat-settings-value { flex: 0 0 46px; text-align: right; font-size: 13px; }
+.dv-settings-note.is-tight { margin: 2px 0 0; padding-bottom: 4px; font-size: 11px; }
+.dv-settings-row.is-chat-notice .dv-settings-choices { width: 252px; gap: 4px; }
+.dv-settings-row.is-chat-notice .dv-btn { font-size: 13px; padding: 0 6px; }
+.dv-settings-row.is-chat-notice .dv-btn.is-icon { flex: none; width: 34px; }
+.dv-settings-row.is-chat-notice .dv-btn.is-icon .dv-icon { width: 16px; height: 16px; }
+.dv-settings-row.is-chat-notice .dv-btn.is-icon.is-off { color: var(--dv-muted); }
+.hud-chat-settings-footer { display: flex; justify-content: flex-end; margin-top: 14px; }
 .dv-range {
   -webkit-appearance: none;
   appearance: none;
@@ -1725,4 +2012,5 @@ select.dv-input option { background: #252c35; }
   .dv-modal, .hud-alert, .hud-bag-area, .hud-item-tooltip, .hud-chat-notice, .dv-context-menu,
   .hud-btn[data-hint]:hover::after { animation: none; }
   .hud-slot.has-item::after, .dv-item-slot.has-item::after, .dv-craft-cell.has-item::after { transition: none; }
+  .hud-slot.is-flash::after, .hud-slot.is-equipping::before { animation: none; transition: none; }
 }

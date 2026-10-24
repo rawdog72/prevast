@@ -414,6 +414,26 @@ int8_t Inventory::findSlotByWireUid(uint8_t wireUid) const
 	return -1;
 }
 
+bool Inventory::swapSlots(uint8_t from, uint8_t to, uint8_t occupied, uint8_t fromUid, uint8_t toUid)
+{
+	if (from == to || from >= slots.size() || to >= slots.size()) return false;
+	const auto believed = [this](uint8_t slot, bool full, uint8_t wireUid) {
+		const Item* item = slots[slot].get();
+		if (!full) return item == nullptr;
+		return item != nullptr && static_cast<uint8_t>(item->getUID() & 0xFF) == wireUid;
+	};
+	if (!believed(from, (occupied & 1) != 0, fromUid) || !believed(to, (occupied & 2) != 0, toUid)) {
+		// The client's layout is not ours: show it ours rather than guess.
+		if (player) {
+			player->sendFullInventory();
+			player->sendEquipmentState();
+		}
+		return false;
+	}
+	std::swap(slots[from], slots[to]);
+	return true;
+}
+
 int8_t Inventory::firstFreeSlot() const
 {
 	for (size_t i = 0; i < slots.size(); ++i) {

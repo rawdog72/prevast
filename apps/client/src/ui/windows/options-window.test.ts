@@ -3,6 +3,7 @@
 
 // @vitest-environment jsdom
 import { describe, expect, it, vi } from 'vitest';
+import { defaultChatSettings } from '../../chat/chat-settings';
 import type { HudControlsState } from '../hud/hud-controls';
 import { DEFAULT_UI_SCALE } from '../ui-scale';
 import { OptionsWindow } from './options-window';
@@ -132,6 +133,65 @@ describe('OptionsWindow (GameUI.settings rows: label + option buttons, the activ
       win.mount(again, state, vi.fn());
       expect(tabs(again)[1].classList.contains('is-active')).toBe(true);
       expect(pane(again, 'interface').hidden).toBe(false);
+    });
+  });
+
+  describe('Chat tab (the console settings, given by the game)', () => {
+    function chatSetup() {
+      const body = document.createElement('div');
+      const win = new OptionsWindow();
+      const settings = defaultChatSettings();
+      const chat = { settings, change: vi.fn(), resetSize: vi.fn() };
+      win.chat = chat;
+      win.select('chat');
+      win.mount(body, state, vi.fn());
+      const pane = body.querySelector<HTMLElement>('.dv-options-pane[data-tab="chat"]')!;
+      const button = (label: string) =>
+        pane.querySelector<HTMLButtonElement>(`button[aria-label="${label}"]`)!;
+      return { body, win, chat, settings, pane, button };
+    }
+
+    it('adds a Chat tab only when the game provides it, and select() opens on it', () => {
+      const { body, pane } = chatSetup();
+      const labels = Array.from(body.querySelectorAll('.dv-options-tabs .dv-tab')).map((t) => t.textContent);
+      expect(labels).toEqual(['General', 'Interface', 'Chat', 'Audio', 'Privacy']);
+      expect(pane.hidden).toBe(false);
+      expect(body.querySelector<HTMLElement>('.dv-options-pane[data-tab="general"]')!.hidden).toBe(true);
+    });
+
+    it('edits the live settings and reports each change', () => {
+      const { chat, settings, pane, button } = chatSetup();
+      const size = pane.querySelector<HTMLInputElement>('input[aria-label="Text size"]')!;
+      size.value = '16';
+      size.dispatchEvent(new Event('input'));
+      expect(settings.fontSize).toBe(16);
+      button('Timestamps: Hide').click();
+      expect(settings.timestamps).toBe(false);
+      expect(button('Timestamps: Hide').classList.contains('is-primary')).toBe(true);
+      button('When not in use: Stay').click();
+      expect(settings.idleFade).toBe(false);
+      button('Clan pop-ups: All').click();
+      expect(settings.notifications.clan.mode).toBe('all');
+      button('Clan pop-up sound').click();
+      expect(settings.notifications.clan.sound).toBe(false);
+      expect(chat.change).toHaveBeenCalledTimes(5);
+      // Picking the lit choice again changes nothing.
+      button('Timestamps: Hide').click();
+      expect(chat.change).toHaveBeenCalledTimes(5);
+    });
+
+    it('resets the size, or everything, back to the defaults', () => {
+      const { chat, settings, body } = chatSetup();
+      settings.width = 700;
+      settings.fontSize = 18;
+      const find = (text: string) =>
+        Array.from(body.querySelectorAll<HTMLButtonElement>('button')).find((b) => b.textContent === text)!;
+      find('Reset size').click();
+      expect(settings.width).toBe(defaultChatSettings().width);
+      expect(settings.fontSize).toBe(18);
+      expect(chat.resetSize).toHaveBeenCalledOnce();
+      find('Reset chat settings').click();
+      expect(settings).toEqual(defaultChatSettings());
     });
   });
 

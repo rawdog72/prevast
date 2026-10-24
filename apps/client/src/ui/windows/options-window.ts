@@ -11,10 +11,13 @@
 // line under the minimap cluster. The rows do not all fit one page, so the
 // window has two tabs: General (the rows above) and Interface ("Interface
 // size": one step row per HUD region and one for everything on top of the
-// window fit, with a Reset in the heading -- see ui-scale.ts), Audio, and
-// Privacy (who may send us a private message). The tab last looked at is
-// kept for the next open.
+// window fit, with a Reset in the heading -- see ui-scale.ts), Chat (the chat
+// console's look, behaviour and pop-ups -- hud-chat-settings.ts; the console's
+// gear opens Options here), Audio, and Privacy (who may send us a private
+// message). The tab last looked at is kept for the next open.
 
+import type { ChatSettings } from '../../chat/chat-settings';
+import { chatSettingsPanel } from '../hud/hud-chat-settings';
 import type { HudAction, HudControlAction, HudControlsState } from '../hud/hud-controls';
 import { PRIVATE_MESSAGES, type PrivateMessages } from '../options-settings';
 import { UI_SCALE_REGIONS, type UiScaleRegion } from '../ui-scale';
@@ -115,15 +118,27 @@ function el<K extends keyof HTMLElementTagNameMap>(
   return node;
 }
 
-type OptionsTab = 'general' | 'interface' | 'audio' | 'privacy';
+export type OptionsTab = 'general' | 'interface' | 'chat' | 'audio' | 'privacy';
 const TABS: { id: OptionsTab; label: string }[] = [
   { id: 'general', label: 'General' },
   { id: 'interface', label: 'Interface' },
+  { id: 'chat', label: 'Chat' },
   { id: 'audio', label: 'Audio' },
   { id: 'privacy', label: 'Privacy' },
 ];
 
+/** What Options > Chat edits: the console's live settings object and how to apply them. */
+export interface OptionsChatHooks {
+  settings: ChatSettings;
+  /** Persist and re-apply after a change. */
+  change(): void;
+  /** Put the console back to its default width and height. */
+  resetSize(): void;
+}
+
 export class OptionsWindow {
+  /** Set by the game; without it the Chat tab is left out. */
+  chat?: OptionsChatHooks;
   private state!: HudControlsState;
   private readonly toggles: { row: ToggleRow; buttons: HTMLButtonElement[] }[] = [];
   private readonly values: { row: StepRow; el: HTMLElement }[] = [];
@@ -154,7 +169,9 @@ export class OptionsWindow {
     body.innerHTML = '';
 
     const strip = el('div', 'dv-options-tabs');
-    for (const { id, label } of TABS) {
+    const tabs = TABS.filter((t) => t.id !== 'chat' || this.chat);
+    if (!tabs.some((t) => t.id === this.tab)) this.tab = 'general';
+    for (const { id, label } of tabs) {
       const btn = el('button', 'dv-tab', label);
       btn.type = 'button';
       btn.addEventListener('click', () => this.showTab(id));
@@ -179,13 +196,33 @@ export class OptionsWindow {
     privacyPane.dataset.tab = 'privacy';
     privacyPane.appendChild(this.buildPrivacy(onAction));
 
-    body.append(general, iface, audioPane, privacyPane);
+    body.append(general, iface);
     this.panes.set('general', general);
     this.panes.set('interface', iface);
+    if (this.chat) {
+      const chat = this.chat;
+      const chatPane = el('div', 'dv-options-pane');
+      chatPane.dataset.tab = 'chat';
+      chatPane.appendChild(
+        chatSettingsPanel(chat.settings, {
+          change: () => chat.change(),
+          resetSize: () => chat.resetSize(),
+        }),
+      );
+      body.append(chatPane);
+      this.panes.set('chat', chatPane);
+    }
+    body.append(audioPane, privacyPane);
     this.panes.set('audio', audioPane);
     this.panes.set('privacy', privacyPane);
     this.showTab(this.tab);
     this.refresh(state);
+  }
+
+  /** Opens on this tab next time (or switches now when mounted). */
+  select(tab: OptionsTab): void {
+    if (this.panes.has(tab)) this.showTab(tab);
+    else this.tab = tab;
   }
 
   private showTab(tab: OptionsTab): void {

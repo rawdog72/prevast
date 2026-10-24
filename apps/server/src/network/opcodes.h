@@ -53,6 +53,12 @@ enum class ClientOpcode : uint8_t {
     SPLIT_ITEM = 23,           // [u16 iid][u8 count][u32 uid]
     PICK_UP_LOOT = 24,         // [u32 entityId]
     FIT_WEAPON_MOD = 25,       // [u8 weaponUid][u8 slot][u8 fit][u8 modUid]; fit 0 removes (modUid ignored)
+    // [u8 from][u8 to][u8 occupied][u8 fromUid][u8 toUid]: swap two of your own
+    // inventory slots (a hotbar drag). occupied bit 0 = the client believes
+    // `from` holds fromUid, bit 1 = `to` holds toUid; a clear bit means it
+    // believes the slot empty. A belief that does not match is answered with
+    // INVENTORY, so a client whose layout drifted is put right, not obeyed.
+    SWAP_SLOTS = 26,
 
     // Interaction and containers
     INTERACT = 30,             // [u32 entityId][u8 pid]: use a door, station, container, lamp, switch or timer
@@ -169,6 +175,7 @@ constexpr int clientPayloadBytes(ClientOpcode op)
     case ClientOpcode::LOOK_AT:
     case ClientOpcode::PLACE_BUILDING:
     case ClientOpcode::TRADE_REPLY:
+    case ClientOpcode::SWAP_SLOTS:
         return 5;
 
     case ClientOpcode::SPLIT_ITEM:
@@ -312,6 +319,15 @@ enum class ServerOpcode : uint8_t {
     ITEM_MODS = 82,
     SELECTED_ITEM = 83,        // [u8 iid high byte][u8 iid low byte]
     WRONG_TOOL = 84,           // [u8 toolIid]
+    // What you have on, by inventory wire uid, so the hotbar can mark the slot
+    // itself and not merely an item type (two of one gun are two items):
+    //     [u8 flags][u8 weaponUid][u8 wearableUid][u8 pendingUid][u16 pendingMs]
+    // flags bit 0 = a weapon/tool is in hand, bit 1 = a wearable is worn, bit 2
+    // = an equip is under way on pendingUid, finishing pendingMs from now. A uid
+    // whose bit is clear is 0 and means nothing (0 is a valid wire uid). Sent at
+    // login and whenever any of it changes: an equip starting, finishing,
+    // being cancelled, or the equipped item going away.
+    EQUIPMENT_STATE = 85,
 
     // --- Crafting and stations --------------------------------------------
     BLUEPRINT = 90,            // [u8 iid]

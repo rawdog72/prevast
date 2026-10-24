@@ -26,6 +26,11 @@ public:
 	void dropAllOnDeath();
 	bool splitItem(uint8_t slot);
 	bool stackItem(uint32_t dragUid, uint16_t dragIid, uint32_t targetUid);
+	// SWAP_SLOTS: the client rearranged its hotbar. Only the order changes --
+	// nothing is created, moved out or restated -- so the client's slot n and
+	// ours stay the same slot and survive a reconnect. A belief about either
+	// slot that is not true resends INVENTORY instead. See ClientOpcode::SWAP_SLOTS.
+	bool swapSlots(uint8_t from, uint8_t to, uint8_t occupied, uint8_t fromUid, uint8_t toUid);
 
 	int8_t findItemByUidSlot(uint32_t uid, uint16_t iid) const;
 	// Slot lookups for the mod change, which names items by uid alone.

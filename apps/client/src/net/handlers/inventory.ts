@@ -47,6 +47,23 @@ export function handleInventory(bytes: Uint8Array, bus: NetEventBus): void {
   bus.emit('fullInventory', { slots });
 }
 
+export function handleEquipmentState(bytes: Uint8Array, bus: NetEventBus): void {
+  // Layout: [EQUIPMENT_STATE][flags u8][weaponUid u8][wearableUid u8][pendingUid u8][pendingMs u16 LE]
+  // flags bit 0 weapon, bit 1 wearable, bit 2 pending; a uid without its bit means nothing.
+  const r = new BinaryReader(bytes, 1);
+  const flags = r.u8();
+  const weaponUid = r.u8();
+  const wearableUid = r.u8();
+  const pendingUid = r.u8();
+  const pendingMs = r.u16();
+  if (r.hasError) return;
+  bus.emit('equipmentState', {
+    weaponUid: flags & 1 ? weaponUid : null,
+    wearableUid: flags & 2 ? wearableUid : null,
+    pending: flags & 4 ? { uid: pendingUid, remainingMs: pendingMs } : null,
+  });
+}
+
 export function handleSelectedItem(bytes: Uint8Array, bus: NetEventBus): void {
   // Layout (ProtocolGame::sendSelectedItem): [SELECTED_ITEM][iid high u8][iid low u8] --
   // big-endian, as the old client read it ((data[1] << 8) + data[2]).

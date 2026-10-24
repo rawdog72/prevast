@@ -453,3 +453,27 @@ describe('SELECTED_ITEM', () => {
     expect(listener).toHaveBeenLastCalledWith({ iid: 258 });
   });
 });
+
+describe('EQUIPMENT_STATE', () => {
+  it('decodes held, worn and pending by their flag bits; a uid without its bit is nothing', () => {
+    const bus = new NetEventBus();
+    const listener = vi.fn();
+    bus.on('equipmentState', listener);
+    const frame = (flags: number, weapon: number, wearable: number, pending: number, ms: number) =>
+      new BinaryWriter().u8(ServerOpcode.EQUIPMENT_STATE).u8(flags).u8(weapon).u8(wearable).u8(pending).u16(ms).build();
+
+    dispatchServerMessage(frame(0b011, 0, 9, 0, 0), bus);
+    expect(listener).toHaveBeenLastCalledWith({ weaponUid: 0, wearableUid: 9, pending: null });
+
+    dispatchServerMessage(frame(0b100, 0, 0, 42, 1500), bus);
+    expect(listener).toHaveBeenLastCalledWith({
+      weaponUid: null,
+      wearableUid: null,
+      pending: { uid: 42, remainingMs: 1500 },
+    });
+
+    // A short frame is dropped, not half-read.
+    dispatchServerMessage(new BinaryWriter().u8(ServerOpcode.EQUIPMENT_STATE).u8(1).u8(4).build(), bus);
+    expect(listener).toHaveBeenCalledTimes(2);
+  });
+});

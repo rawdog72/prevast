@@ -591,7 +591,7 @@ describe('GameLoop', () => {
     const menu = vi.spyOn(loop, 'openWorldMenu').mockImplementation(() => {});
     loop.start();
     loop.inventory.setSlot(0, { uid: 11, iid: MODS_IID.gun, count: 1 });
-    loop.inventory.activeSlot = 0;
+    loop.inventory.equippedWeaponUid = 11;
     loop.inventory.selectedIid = MODS_IID.gun;
     const down = (init: MouseEventInit = {}) =>
       canvasManager.canvas.dispatchEvent(new MouseEvent('mousedown', { button: 2, ...init }));
@@ -628,7 +628,7 @@ describe('GameLoop', () => {
     canvasManager.canvas.dispatchEvent(new MouseEvent('mouseup', { button: 2 }));
 
     loop.inventory.setSlot(1, { uid: 11, iid: MODS_IID.gun, count: 1 });
-    loop.inventory.activeSlot = 1;
+    loop.inventory.equippedWeaponUid = 11;
     loop.inventory.selectedIid = MODS_IID.gun;
     loop.tradeTargeting.begin(loop.inventory.getSlot(1)!);
     canvasManager.canvas.dispatchEvent(new MouseEvent('mousedown', { button: 2 }));
@@ -642,7 +642,7 @@ describe('GameLoop', () => {
     vi.spyOn(socket, 'aim').mockImplementation(() => {});
     loop.start();
     loop.inventory.setSlot(0, { uid: 11, iid: MODS_IID.gun, count: 1 });
-    loop.inventory.activeSlot = 0;
+    loop.inventory.equippedWeaponUid = 11;
     loop.inventory.selectedIid = MODS_IID.gun;
     loop.socket.bus.emit('itemMods', { uid: 11, mods: [{ slot: 1, iid: MODS_IID.scope }] });
     loop.tick(16);
@@ -669,7 +669,7 @@ describe('GameLoop', () => {
     vi.spyOn(socket, 'aim').mockImplementation(() => {});
     loop.start();
     loop.inventory.setSlot(0, { uid: 12, iid: MODS_IID.sniper, count: 1 });
-    loop.inventory.activeSlot = 0;
+    loop.inventory.equippedWeaponUid = 12;
     loop.inventory.selectedIid = MODS_IID.sniper;
     loop.tick(16);
     const base = loop.camera.zoom; // zoom level 1

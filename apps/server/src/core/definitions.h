@@ -24,9 +24,10 @@ static constexpr auto STATUS_SERVER_DEVELOPERS = "rawdog72";
 // 1423: THROW_TARGET is the marker's [i16 dx][i16 dy], not a u16 distance.
 // 1424: building upgrades -- OPEN_UPGRADE, START_UPGRADE and CANCEL_UPGRADE in,
 //       UPGRADE_STATE and UPGRADE_FINISHED out.
-static constexpr auto CLIENT_VERSION_MIN = 1424;
-static constexpr auto CLIENT_VERSION_MAX = 1424;
-static constexpr auto CLIENT_VERSION_STR = "14.24";
+// 1425: equipped slots -- SWAP_SLOTS in, EQUIPMENT_STATE out.
+static constexpr auto CLIENT_VERSION_MIN = 1425;
+static constexpr auto CLIENT_VERSION_MAX = 1425;
+static constexpr auto CLIENT_VERSION_STR = "14.25";
 static constexpr auto TILE_SIZE = 100;
 // <fragments> limits. Every fragment is a projectile entity sent to every
 // watcher -- created, stopped and removed -- so the count is what one blast

@@ -3,7 +3,7 @@
 
 export const GAME_PROTOCOL_IDENTIFIER = 30;
 /** Must equal CLIENT_VERSION_MIN..MAX in apps/server/src/core/definitions.h. */
-export const PROTOCOL_VERSION = 1424;
+export const PROTOCOL_VERSION = 1425;
 
 /**
  * Client -> server opcodes, grouped by area. Payload layouts are documented in
@@ -32,6 +32,7 @@ export const ClientOpcode = {
   SPLIT_ITEM: 23,
   PICK_UP_LOOT: 24,
   FIT_WEAPON_MOD: 25,
+  SWAP_SLOTS: 26,
 
   // Interaction and containers
   INTERACT: 30,
@@ -159,6 +160,7 @@ export const ServerOpcode = {
   ITEM_MODS: 82,
   SELECTED_ITEM: 83,
   WRONG_TOOL: 84,
+  EQUIPMENT_STATE: 85,
 
   // Crafting and stations
   BLUEPRINT: 90,

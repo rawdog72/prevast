@@ -6,26 +6,50 @@ import { NetEventBus } from '../net/events';
 import { InventoryStore } from './inventory-store';
 
 describe('InventoryStore', () => {
-  it('manages inventory slots and active item', () => {
+  it('manages inventory slots; the held item is the one EQUIPMENT_STATE names, wherever it sits', () => {
     const store = new InventoryStore();
     expect(store.slots).toHaveLength(10);
-    expect(store.getActiveItem()).toBeNull();
+    expect(store.getHeldItem()).toBeNull();
 
-    store.setSlot(0, { iid: 1, count: 50, ammo: 0 });
-    expect(store.getActiveItem()).toEqual({
-      uid: 0,
-      iid: 1,
-      count: 50,
-      ammo: 0,
-    });
+    store.setSlot(0, { uid: 5, iid: 1, count: 50, ammo: 0 });
+    expect(store.getHeldItem()).toBeNull(); // holding an item is not the same as having it on
+
+    store.applyEquipmentState({ weaponUid: 5, wearableUid: null, pending: null });
+    expect(store.getHeldItem()).toEqual({ uid: 5, iid: 1, count: 50, ammo: 0 });
+    store.swapSlots(0, 4);
+    expect(store.slotOfUid(store.equippedWeaponUid)).toBe(4);
+    expect(store.getHeldItem()?.uid).toBe(5);
 
     expect(store.getItemCount(1)).toBe(50);
     expect(store.hasIngredients([{ iid: 1, amount: 20 }])).toBe(true);
     expect(store.hasIngredients([{ iid: 1, amount: 100 }])).toBe(false);
+  });
 
-    // Switch active slot to empty slot 1
-    store.activeSlot = 1;
-    expect(store.getActiveItem()).toBeNull();
+  it('equipmentState: held, worn and a pending equip with its progress; uid 0 is a real item', () => {
+    const store = new InventoryStore();
+    const bus = new NetEventBus();
+    store.attachBus(bus);
+    const empty = { iid: 0, count: 0, uid: 0, ammo: 0 };
+    bus.emit('fullInventory', {
+      slots: [{ iid: 15, count: 1, uid: 0, ammo: 0 }, { iid: 60, count: 1, uid: 9, ammo: 0 }, empty],
+    });
+
+    bus.emit('equipmentState', { weaponUid: 0, wearableUid: null, pending: { uid: 9, remainingMs: 1000 } });
+    expect(store.slotOfUid(store.equippedWeaponUid)).toBe(0);
+    expect(store.slotOfUid(store.equippedWearableUid)).toBe(-1);
+    const started = store.pendingEquip!.startedAt;
+    expect(store.equipProgress(9, started)).toBe(0);
+    expect(store.equipProgress(9, started + 500)).toBeCloseTo(0.5);
+    expect(store.equipProgress(9, started + 5000)).toBe(1);
+    expect(store.equipProgress(0, started)).toBeNull();
+
+    bus.emit('equipmentState', { weaponUid: 0, wearableUid: 9, pending: null });
+    expect(store.pendingEquip).toBeNull();
+    expect(store.slotOfUid(store.equippedWearableUid)).toBe(1);
+
+    bus.emit('playerDie', { kills: 0 });
+    expect(store.equippedWeaponUid).toBeNull();
+    expect(store.equippedWearableUid).toBeNull();
   });
 
   it('puts an item taken from a container into the slot it was dragged onto', () => {
@@ -258,36 +282,42 @@ describe('InventoryStore slots (old client rules)', () => {
     expect(store.slots).toHaveLength(12);
   });
 
-  it('a later fullInventory keeps the slots the player arranged; new items take the first empty', () => {
+  it('every swap is reported with what each slot held, and fullInventory is taken in the server order', () => {
     const store = new InventoryStore();
     const bus = new NetEventBus();
     store.attachBus(bus);
+    const swaps: unknown[][] = [];
+    store.onSwap = (...args) => swaps.push(args);
     const empty = { iid: 0, count: 0, uid: 0, ammo: 0 };
     const stone = { iid: 2, count: 2, uid: 171, ammo: 0 };
-    const hatchet = { iid: 15, count: 1, uid: 9, ammo: 0 };
+    const hatchet = { iid: 15, count: 1, uid: 0, ammo: 0 };
     const wood = { iid: 3, count: 4, uid: 12, ammo: 0 };
     bus.emit('fullInventory', { slots: [stone, hatchet, wood, empty, empty] });
 
-    // The player rearranges -- the server never hears of it.
-    store.swapSlots(0, 3); // stone -> 3
-    store.swapSlots(1, 4); // hatchet -> 4
+    store.swapSlots(0, 3); // stone -> an empty slot
+    store.swapSlots(1, 2); // hatchet (uid 0, a real uid) <-> wood
+    store.swapSlots(2, 2); // nothing to do, nothing sent
+    expect(swaps).toEqual([
+      [0, 3, 171, null],
+      [1, 2, 0, 12],
+    ]);
+    expect(store.slots.map((s) => s.iid)).toEqual([0, 3, 15, 2, 0]);
 
-    // A failed pickup, trade or quest reward restates the whole inventory in
-    // the server's order: wood's count changed, the hatchet is gone, a reward arrived.
-    const reward = { iid: 40, count: 1, uid: 77, ammo: 0 };
-    bus.emit('fullInventory', { slots: [stone, reward, { ...wood, count: 9 }, empty, empty] });
+    // The server swapped too, so whatever it restates (a trade, a refused swap)
+    // is the layout, as it is.
+    bus.emit('fullInventory', { slots: [stone, empty, wood, empty] });
+    expect(store.slots.map((s) => s.uid)).toEqual([171, 0, 12, 0]);
+  });
 
-    expect(store.slots.map((s) => s.uid)).toEqual([77, 0, 12, 171, 0]);
-    expect(store.slots[2]!.count).toBe(9);
-
-    // A uid now naming another item is a new item, not the old one in place.
-    bus.emit('fullInventory', { slots: [{ iid: 5, count: 1, uid: 171, ammo: 0 }, reward, wood, empty, empty] });
-    expect(store.slots.map((s) => s.iid)).toEqual([40, 5, 3, 0, 0]);
-
-    // The inventory shrinking moves whatever sat past its end into a free slot.
-    store.swapSlots(0, 4); // reward -> 4
-    bus.emit('fullInventory', { slots: [reward, empty, wood, empty] });
-    expect(store.slots.map((s) => s.uid)).toEqual([77, 0, 12, 0]);
+  it('an item taken into a chosen slot reports the swap that puts it there', () => {
+    const inv = new InventoryStore();
+    const swaps: unknown[][] = [];
+    inv.onSwap = (...args) => swaps.push(args);
+    inv.applySlot(40, 2, 5, 0); // stone lands in slot 0
+    inv.preferArrival(15, 3);
+    inv.applySlot(41, 15, 1, 0); // hatchet lands in slot 1, as the server put it...
+    expect(swaps).toEqual([[1, 3, 41, null]]); // ...and the move to 3 goes to the server
+    expect(inv.getSlot(3)).toMatchObject({ uid: 41 });
   });
 
   it('inventorySlot is keyed by uid: updates that slot, clears it on iid 0, places unknown uids first-empty', () => {
@@ -334,10 +364,9 @@ describe('InventoryStore slots (old client rules)', () => {
     store.attachBus(bus);
     const empty = { iid: 0, count: 0, uid: 0, ammo: 0 };
     bus.emit('fullInventory', { slots: [empty, { iid: 15, count: 1, uid: 9, ammo: 0 }] });
-    store.activeSlot = 0;
 
     bus.emit('selectedItem', { iid: 15 });
-    expect(store.activeSlot).toBe(0);
+    expect(store.equippedWeaponUid).toBeNull(); // the slot mark is EQUIPMENT_STATE's
     expect(store.selectedIid).toBe(15);
   });
 });

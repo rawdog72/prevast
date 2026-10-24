@@ -25,6 +25,8 @@
         <div class="hud-topleft">
             <div class="hud-leaderboard dv-panel" id="hud-leaderboard" hidden></div>
         </div>
+        <!-- Vitals: one strip across the top centre, between the leaderboard and the minimap (hud-gauges.ts). -->
+        <div class="hud-gauges dv-panel" id="hud-gauges"></div>
         <div class="hud-alerts" id="hud-alerts"></div>
         <div class="hud-profiler" id="hud-profiler" hidden></div>
         <div class="hud-topright">
@@ -41,14 +43,13 @@
             <!-- The tracked quests (hud-quest-tracker.ts). -->
             <div class="hud-quests dv-panel" id="hud-quests" hidden></div>
         </div>
-        <!-- Bottom row: vitals | hotbar | bag as one grid, so the hotbar stays centred while there is
-             room and slides right (never under the gauges) when a region is scaled up or the window is narrow. -->
         <!-- Private-message notices (hud-chat.ts): top centre, outside the console. -->
         <div class="hud-chat-notices" id="hud-chat-notices"></div>
+        <!-- Bottom row: chat | hotbar | bag as one grid, so the hotbar stays centred. When a scaled-up
+             hotbar leaves the chat too little room beside it, the chat moves up a row (hud-manager.ts). -->
         <div class="hud-bottom">
             <div class="hud-bottomleft">
                 <div class="hud-chat" id="hud-chat"></div>
-                <div class="hud-gauges dv-panel" id="hud-gauges"></div>
             </div>
             <div class="hud-hotbar" id="hud-hotbar"></div>
             <div class="hud-bag-corner" id="hud-bag-corner"></div>

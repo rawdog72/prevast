@@ -4,7 +4,8 @@
 // apps/client/src/ui/hud/hud-manager.ts
 // Mounts and updates the DOM in-game HUD: tactical gauges, hotbar, chat,
 // minimap, controls toolbar and alerts. The interaction badge is drawn on the
-// canvas (render/interact-prompt.ts), like the old client.
+// canvas (render/interact-prompt.ts), like the old client. It also decides
+// whether the chat fits beside the hotbar (layoutBottom).
 
 import type { AssetLoader } from '../../assets/asset-loader';
 import type { ContentStore } from '../../content/store';
@@ -45,6 +46,9 @@ export interface HudUpdateOptions {
   questBag?: (itemKey: string) => number;
 }
 
+/** The chat's narrowest width beside the hotbar (CSS px before its zoom; hud.css .hud-chat min-width). */
+const CHAT_MIN_WIDTH = 300;
+
 export class HudManager {
   readonly gauges = new HudGauges();
   readonly hotbar = new HudHotbar();
@@ -58,6 +62,10 @@ export class HudManager {
   readonly questTracker = new HudQuestTracker();
   /** A tracked quest's name was clicked: open the journal on it. */
   onQuestOpen?: (questKey: string) => void;
+  private bottomEl: HTMLElement | null = null;
+  private bottomObserver?: ResizeObserver;
+  /** The chat's effective zoom (window fit x Options sizes), as last passed to layoutBottom. */
+  private chatZoom = 1;
 
   private defaultControlsState: HudControlsState = {
     audioMuted: false,
@@ -122,6 +130,37 @@ export class HudManager {
     this.questTracker.mount(root.querySelector<HTMLElement>('.hud-quests') ?? document.createElement('div'), {
       onOpen: (key) => this.onQuestOpen?.(key),
     });
+    this.bottomEl = root.querySelector<HTMLElement>('.hud-bottom');
+    if (this.bottomEl && typeof ResizeObserver !== 'undefined') {
+      this.bottomObserver = new ResizeObserver(() => this.layoutBottom());
+      this.bottomObserver.observe(this.bottomEl);
+    }
+    this.layoutBottom();
+  }
+
+  /**
+   * The bottom row is chat | hotbar | bag with the hotbar centred. While the
+   * room left of the hotbar holds the chat at its narrowest (300px at the
+   * chat's zoom) the chat sits there; below that it moves up a row
+   * (.is-tight in hud.css). Runs when the row resizes and after any
+   * Options > Interface size change (the zoom does not resize the row),
+   * which passes the chat's new effective zoom.
+   */
+  layoutBottom(chatZoom = this.chatZoom): void {
+    this.chatZoom = chatZoom;
+    const bottom = this.bottomEl;
+    const row = bottom?.querySelector<HTMLElement>('.hud-hotbar-row');
+    if (!bottom || !row) return;
+    const hotbar = row.getBoundingClientRect().width;
+    if (hotbar <= 0) return; // not laid out yet (hidden HUD)
+    const gap = parseFloat(getComputedStyle(bottom).columnGap) || 0;
+    const side = (bottom.clientWidth - hotbar) / 2 - gap;
+    bottom.classList.toggle('is-tight', side < CHAT_MIN_WIDTH * chatZoom);
+  }
+
+  unmount(): void {
+    this.bottomObserver?.disconnect();
+    this.bottomObserver = undefined;
   }
 
   update(options: HudUpdateOptions): void {

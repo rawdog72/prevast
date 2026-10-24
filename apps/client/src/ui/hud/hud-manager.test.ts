@@ -130,4 +130,49 @@ describe('HudManager', () => {
     expect(chat.querySelector('.hud-chat-log')).not.toBeNull();
     expect(chat.querySelector('input.hud-chat-input')).not.toBeNull();
   });
+
+  it('keeps the chat beside the hotbar while it fits there, and moves it up a row once it does not', () => {
+    const root = document.createElement('div');
+    root.innerHTML = `
+      <div class="hud-controls"></div>
+      <div class="hud-alerts"></div>
+      <canvas class="hud-minimap" width="120" height="120"></canvas>
+      <div class="hud-leaderboard"></div>
+      <div class="hud-gauges"></div>
+      <div class="hud-bottom">
+        <div class="hud-bottomleft"><div class="hud-chat"></div></div>
+        <div class="hud-hotbar"></div>
+        <div class="hud-bag-corner"></div>
+      </div>
+    `;
+    const hud = new HudManager();
+    hud.mount(
+      root,
+      () => {},
+      () => {},
+    );
+    const bottom = root.querySelector<HTMLElement>('.hud-bottom')!;
+    const row = root.querySelector<HTMLElement>('.hud-hotbar-row')!;
+    bottom.style.columnGap = '12px';
+    let hotbarWidth = 685;
+    Object.defineProperty(bottom, 'clientWidth', { configurable: true, get: () => 1568 });
+    vi.spyOn(row, 'getBoundingClientRect').mockImplementation(
+      () => ({ width: hotbarWidth }) as DOMRect,
+    );
+
+    // (1568 - 685) / 2 - 12 = 429px beside the hotbar: room for the chat.
+    hud.layoutBottom();
+    expect(bottom.classList.contains('is-tight')).toBe(false);
+
+    // A 140% hotbar leaves (1568 - 959) / 2 - 12 = 292px: under the chat's 300px minimum.
+    hotbarWidth = 959;
+    hud.layoutBottom();
+    expect(bottom.classList.contains('is-tight')).toBe(true);
+
+    // The chat's own zoom raises the bar: 429px is not enough for 300px at 150%.
+    hotbarWidth = 685;
+    hud.layoutBottom(1.5);
+    expect(bottom.classList.contains('is-tight')).toBe(true);
+    hud.unmount();
+  });
 });

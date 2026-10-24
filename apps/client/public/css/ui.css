@@ -369,10 +369,6 @@ body.dv-home-active .dg { display:none; }
 .dv-account-clan-card, .dv-run-recap { border-top: 1px solid #ffffff24; margin-top: 18px; padding-top: 14px; }
 .dv-account-clan-card .dv-badge { margin-left: 8px; }
 .dv-record { color: #e5bf55; }
-.hud-account-run { position: absolute; top: 14px; left: 50%; transform: translateX(-50%); padding: 8px 14px; color: #e5bf55; font-size: 12px; max-width: 340px; pointer-events: none; }
-.hud-account-run[hidden] { display: none; }
-.hud-account-run progress { display: block; width: 100%; height: 5px; margin-top: 6px; accent-color: #e5bf55; }
-@media (max-width: 700px) { .hud-account-run { top: auto; bottom: 114px; left: auto; right: 10px; transform: none; max-width: 210px; } }
 
 /* Start-screen standings and the expanded account workspace. */
 .dv-home-layout { width:min(1140px,calc(100% - 48px)); display:grid; grid-template-columns:minmax(0,1fr) 420px minmax(0,1fr); grid-template-rows:auto minmax(0,1fr); column-gap:28px; row-gap:20px; }

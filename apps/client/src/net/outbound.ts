@@ -180,6 +180,28 @@ export function buildMoveContainerItemMessage(from: number, to: number): Uint8Ar
   return new Uint8Array([ClientOpcode.MOVE_CONTAINER_ITEM, from & 0xff, to & 0xff]);
 }
 
+/**
+ * SWAP_SLOTS: two of our own inventory slots trade places. Each side carries
+ * what we believe is in it (wire uid, or empty), so a server whose layout
+ * differs answers with INVENTORY instead of swapping the wrong things.
+ */
+export function buildSwapSlotsMessage(
+  from: number,
+  to: number,
+  fromUid: number | null,
+  toUid: number | null,
+): Uint8Array {
+  const occupied = (fromUid !== null ? 1 : 0) | (toUid !== null ? 2 : 0);
+  return new Uint8Array([
+    ClientOpcode.SWAP_SLOTS,
+    from & 0xff,
+    to & 0xff,
+    occupied,
+    (fromUid ?? 0) & 0xff,
+    (toUid ?? 0) & 0xff,
+  ]);
+}
+
 export function buildSplitItemMessage(iid: number, count: number, uid: number): Uint8Array {
   const w = new BinaryWriter();
   w.u8(ClientOpcode.SPLIT_ITEM);

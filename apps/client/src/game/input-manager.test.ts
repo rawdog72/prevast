@@ -325,8 +325,15 @@ describe('InputManager', () => {
     // Press '1'
     window.dispatchEvent(new KeyboardEvent('keydown', { code: 'Digit1' }));
 
-    expect(ctx.inventory.activeSlot).toBe(0);
     expect(ctx.socket.equipItem).toHaveBeenCalledWith(7, 0, 1, 0);
+    // The key only asks: what is on is the server's to say (EQUIPMENT_STATE).
+    expect(ctx.inventory.equippedWeaponUid).toBeNull();
+
+    // An empty slot asks for nothing at all.
+    vi.mocked(ctx.socket.equipItem).mockClear();
+    window.dispatchEvent(new KeyboardEvent('keydown', { code: 'Digit2' }));
+    window.dispatchEvent(new KeyboardEvent('keyup', { code: 'Digit2' }));
+    expect(ctx.socket.equipItem).not.toHaveBeenCalled();
 
     manager.destroy();
     ctx.keyboard.destroy();

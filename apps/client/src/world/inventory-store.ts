@@ -1,7 +1,7 @@
 // Copyright (c) 2026 rawdog72 and Prevast Open Server Contributors
 // SPDX-License-Identifier: GPL-2.0-only
 
-import type { NetEventBus, UpgradeStateEvent } from '../net/events';
+import type { EquipmentStateEvent, NetEventBus, UpgradeStateEvent } from '../net/events';
 import type { FittedMod } from './weapon-mods';
 
 export interface InventoryItem {
@@ -20,6 +20,22 @@ export interface ChestItem {
 
 /** How long a take-into-this-slot wish waits for the item to arrive. */
 const ARRIVAL_WISH_MS = 3000;
+
+/** An equip the server has under way (EQUIPMENT_STATE), on the item with this wire uid. */
+export interface PendingEquip {
+  uid: number;
+  /** Date.now() it began and ends, for the slot's progress sweep. */
+  startedAt: number;
+  endsAt: number;
+}
+
+/** SWAP_SLOTS: what we believed each slot held (wire uid, or null for empty). */
+export type SwapListener = (
+  from: number,
+  to: number,
+  fromUid: number | null,
+  toUid: number | null,
+) => void;
 
 const EMPTY_SLOT = (): InventoryItem => ({ uid: 0, iid: 0, count: 0, ammo: 0 });
 const DEFAULT_SLOT_COUNT = 10;
@@ -40,7 +56,17 @@ export class InventoryStore {
   /** ITEM_MODS: what is fitted to each weapon in the inventory, by wire uid. */
   private readonly mods = new Map<number, FittedMod[]>();
 
-  activeSlot = 0; // 0..9
+  /**
+   * EQUIPMENT_STATE: the wire uid of the weapon or tool in hand and of the
+   * wearable worn, null for none, and the equip under way. Keyed by uid rather
+   * than slot, so an item keeps its mark wherever it is dragged.
+   */
+  equippedWeaponUid: number | null = null;
+  equippedWearableUid: number | null = null;
+  pendingEquip: PendingEquip | null = null;
+
+  /** Told of every swap, so the server keeps the same slot order (SWAP_SLOTS). */
+  onSwap: SwapListener | null = null;
   /**
    * BLUEPRINT: the building piece the server has us holding (0 = none). Sent
    * when an equip countdown completes and cleared when the piece is put away,
@@ -119,10 +145,48 @@ export class InventoryStore {
     return this.mods.get(uid) ?? [];
   }
 
-  getActiveItem(): InventoryItem | null {
-    if (this.activeSlot < 0 || this.activeSlot >= 10) return null;
-    const item = this.slots[this.activeSlot];
-    return item && item.iid > 0 ? item : null;
+  /** The slot holding the item with this wire uid, or -1. */
+  slotOfUid(uid: number | null): number {
+    if (uid === null) return -1;
+    return this.slots.findIndex((s) => s.iid !== 0 && s.uid === uid);
+  }
+
+  /** The weapon or tool in hand, by EQUIPMENT_STATE's uid. */
+  getHeldItem(): InventoryItem | null {
+    return this.slots[this.slotOfUid(this.equippedWeaponUid)] ?? null;
+  }
+
+  applyEquipmentState(ev: EquipmentStateEvent, now = Date.now()): void {
+    this.equippedWeaponUid = ev.weaponUid;
+    this.equippedWearableUid = ev.wearableUid;
+    if (!ev.pending) {
+      this.pendingEquip = null;
+      return;
+    }
+    const endsAt = now + ev.pending.remainingMs;
+    // A restatement of the same equip keeps its start, so the sweep does not jump back.
+    const same =
+      this.pendingEquip?.uid === ev.pending.uid &&
+      Math.abs(this.pendingEquip.endsAt - endsAt) < 250;
+    this.pendingEquip = {
+      uid: ev.pending.uid,
+      startedAt: same ? this.pendingEquip!.startedAt : now,
+      endsAt,
+    };
+  }
+
+  /** How far the pending equip on `uid` has got, 0..1, or null when there is none on it. */
+  equipProgress(uid: number, now = Date.now()): number | null {
+    const p = this.pendingEquip;
+    if (!p || p.uid !== uid) return null;
+    const span = p.endsAt - p.startedAt;
+    return span <= 0 ? 1 : Math.min(1, Math.max(0, (now - p.startedAt) / span));
+  }
+
+  private clearEquipment(): void {
+    this.equippedWeaponUid = null;
+    this.equippedWearableUid = null;
+    this.pendingEquip = null;
   }
 
   get slotCount(): number {
@@ -144,12 +208,10 @@ export class InventoryStore {
   }
 
   /**
-   * INVENTORY: every slot, occupied or not, in the server's slot order.
-   * The server never hears of our swaps, so a restatement mid-game (a failed
-   * pickup, a trade, a quest reward, a bag skill) must not undo them: an item
-   * we already hold (same uid and iid) stays in our slot, and anything new
-   * takes the first empty one, as INVENTORY_SLOT places it. With nothing held
-   * yet (login, respawn) there is no arrangement to keep and the server's is used.
+   * INVENTORY: every slot, occupied or not, in the server's slot order --
+   * which is ours too, since every swap we make is sent as SWAP_SLOTS. So a
+   * restatement (login, a trade, a bag skill, a resync after a refused swap)
+   * is simply taken as it is.
    */
   setAllSlots(records: InventoryItem[]): void {
     this.arrival = null;
@@ -159,24 +221,9 @@ export class InventoryStore {
       this.slots = Array.from({ length: DEFAULT_SLOT_COUNT }, EMPTY_SLOT);
       return;
     }
-    const old = this.slots;
-    const keepLayout = old.some((s) => s.iid !== 0);
-    const slots = Array.from({ length: records.length }, EMPTY_SLOT);
-    const placeLater: InventoryItem[] = [];
-    records.forEach((r, serverIndex) => {
-      if (r.iid === 0) return;
-      const item = { uid: r.uid, iid: r.iid, count: r.count, ammo: r.ammo };
-      const at = keepLayout
-        ? old.findIndex((s, i) => i < slots.length && s.iid === r.iid && s.uid === r.uid)
-        : serverIndex;
-      if (at !== -1 && slots[at]!.iid === 0) slots[at] = item;
-      else placeLater.push(item);
-    });
-    for (const item of placeLater) {
-      const free = slots.findIndex((s) => s.iid === 0);
-      if (free !== -1) slots[free] = item;
-    }
-    this.slots = slots;
+    this.slots = records.map((r) =>
+      r.iid === 0 ? EMPTY_SLOT() : { uid: r.uid, iid: r.iid, count: r.count, ammo: r.ammo },
+    );
   }
 
   /**
@@ -230,11 +277,17 @@ export class InventoryStore {
     };
   }
 
-  /** Swap two slots locally -- presentation only, the server keys items by uid. */
+  /**
+   * Swap two slots, and tell the server (onSwap -> SWAP_SLOTS) so its order
+   * stays ours. It does not reply; a server that sees a different layout
+   * resends INVENTORY.
+   */
   swapSlots(a: number, b: number): void {
     if (a === b || a < 0 || b < 0 || a >= this.slots.length || b >= this.slots.length) return;
-    const tmp = this.slots[a];
-    this.slots[a] = this.slots[b];
+    const tmp = this.slots[a]!;
+    const other = this.slots[b]!;
+    this.onSwap?.(a, b, tmp.iid !== 0 ? tmp.uid : null, other.iid !== 0 ? other.uid : null);
+    this.slots[a] = other;
     this.slots[b] = tmp;
   }
 
@@ -277,7 +330,7 @@ export class InventoryStore {
     this.arrival = null;
     this.slots = Array.from({ length: DEFAULT_SLOT_COUNT }, EMPTY_SLOT);
     this.mods.clear();
-    this.activeSlot = 0;
+    this.clearEquipment();
     this.selectedIid = 0;
     this.blueprintIid = 0;
     this.closeContainers();
@@ -310,6 +363,12 @@ export class InventoryStore {
       bus.on('itemMods', (ev) => {
         if (ev.mods.length) this.mods.set(ev.uid, ev.mods);
         else this.mods.delete(ev.uid);
+      }),
+    );
+
+    cleanups.push(
+      bus.on('equipmentState', (ev) => {
+        this.applyEquipmentState(ev);
       }),
     );
 
@@ -437,6 +496,7 @@ export class InventoryStore {
         // The server refunds a running hand craft as loot at the body.
         this.crafting = null;
         this.deathItems = this.slots.filter((s) => s.iid > 0).map((s) => ({ ...s }));
+        this.clearEquipment();
       }),
     );
 

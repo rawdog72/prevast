@@ -284,18 +284,47 @@ describe('HudChat console', () => {
     expect(hud.noticesEl.querySelector('.kicker')!.textContent).toBe('Mention · Global');
   });
 
-  it('pins a private conversation and persists appearance settings', () => {
+  it('pins a private conversation; the gear asks for Options > Chat', () => {
     const { root, hud, model } = setup();
     model.openPrivate(2);
     hud.update();
+    expect(root.querySelector('.hud-chat-context')!.textContent).toContain('Bob');
     root.querySelector<HTMLButtonElement>('.hud-chat-context-action')!.click();
     expect(tabIds(root)).toContain('pm:2');
+    // No settings delegate: no gear (the console has nowhere to send it).
+    expect(root.querySelector('[aria-label="Chat settings"]')).toBeNull();
+    const onOpenSettings = vi.fn();
+    hud.attach(model, { onSubmit: vi.fn(), onOpenPrivate: vi.fn(), onOpenSettings });
+    hud.update();
     root.querySelector<HTMLButtonElement>('[aria-label="Chat settings"]')!.click();
-    const size = root.querySelector<HTMLInputElement>('input[aria-label="Text size"]')!;
-    size.value = '16';
-    size.dispatchEvent(new Event('input'));
+    expect(onOpenSettings).toHaveBeenCalledOnce();
+  });
+
+  it('applies and persists settings changed from Options > Chat', () => {
+    const { root, hud } = setup();
+    hud.settings.fontSize = 16;
+    hud.settings.timestamps = false;
+    hud.settings.idleFade = false;
+    hud.applySettings();
     expect(root.style.getPropertyValue('--chat-font-size')).toBe('16px');
-    expect(JSON.parse(localStorage.getItem('prevast.chat.settings')!).fontSize).toBe(16);
+    expect(root.classList.contains('hide-timestamps')).toBe(true);
+    expect(root.classList.contains('is-fade')).toBe(false);
+    const saved = JSON.parse(localStorage.getItem('prevast.chat.settings')!);
+    expect(saved).toMatchObject({ fontSize: 16, timestamps: false, idleFade: false });
+  });
+
+  it('shows the conversation strip only for a conversation; a channel names its reach in the placeholder', () => {
+    const { root, model, hud } = setup();
+    const input = root.querySelector<HTMLInputElement>('.hud-chat-input')!;
+    expect(root.querySelector<HTMLElement>('.hud-chat-context')!.hidden).toBe(true);
+    expect(input.placeholder).toBe('Local · nearby players…');
+    model.setActive('global');
+    hud.update();
+    expect(input.placeholder).toBe('Global · everyone on the server…');
+    model.openPrivate(2);
+    hud.update();
+    expect(root.querySelector<HTMLElement>('.hud-chat-context')!.hidden).toBe(false);
+    expect(input.placeholder).toBe('Message Bob…');
   });
 
   it('keeps a focused conversation picker mounted during arrivals and refreshes on blur', () => {

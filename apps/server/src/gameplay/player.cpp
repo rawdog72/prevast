@@ -3756,7 +3756,7 @@ void Player::startEquipping(uint16_t iid, uint32_t itemUid)
 	// Default to clearing weapon if clicking empty or invalid
 	if (!idata) {
 		if (equippedWeaponIID != 0) {
-			queueEquipCompletion(300, 0, 0, EquipmentType::WEAPON);
+			queueEquipCompletion(300, 0, 0, EquipmentType::WEAPON, equippedWeaponUID);
 		}
 		return;
 	}
@@ -3786,23 +3786,39 @@ void Player::startEquipping(uint16_t iid, uint32_t itemUid)
 	uint16_t targetIid = isToggleOff ? 0 : iid;
 	uint32_t targetUid = isToggleOff ? 0 : itemUid;
 
-	queueEquipCompletion(delay, targetIid, targetUid, type);
+	queueEquipCompletion(delay, targetIid, targetUid, type, itemUid);
 }
 
 void Player::cancelEquipping()
 {
-	cancelInteractionEvent(equipEventId);
+	if (cancelInteractionEvent(equipEventId)) {
+		pendingEquipIID = 0;
+		pendingEquipUID = 0;
+		pendingEquipDisplayUID = 0;
+		pendingEquipEndsAt = 0;
+		sendEquipmentState();
+	}
 }
 
-void Player::queueEquipCompletion(uint32_t delay, uint16_t targetIid, uint32_t targetUid, EquipmentType type)
+uint32_t Player::getPendingEquipRemainingMs() const
+{
+	if (equipEventId == 0) return 0;
+	const int64_t left = pendingEquipEndsAt - OTSYS_TIME();
+	return left > 0 ? static_cast<uint32_t>(left) : 0;
+}
+
+void Player::queueEquipCompletion(uint32_t delay, uint16_t targetIid, uint32_t targetUid, EquipmentType type, uint32_t displayUid)
 {
 	if (delay > 0) {
 		pendingEquipIID = targetIid;
 		pendingEquipUID = targetUid;
+		pendingEquipDisplayUID = displayUid;
+		pendingEquipEndsAt = OTSYS_TIME() + delay;
 		sendStartInteraction(static_cast<uint16_t>(delay / 100));
 
 		equipEventId = scheduleLifeAction(delay,
 			[targetIid, targetUid, type](Player& p) { p.completeEquip(targetIid, targetUid, type); });
+		sendEquipmentState();
 		return;
 	}
 
@@ -3819,6 +3835,14 @@ void Player::completeEquip(uint16_t iid, uint32_t itemUid, EquipmentType type)
 	equipEventId = 0;
 	pendingEquipIID = 0;
 	pendingEquipUID = 0;
+	pendingEquipDisplayUID = 0;
+	pendingEquipEndsAt = 0;
+	// Every way out -- equipped, taken off, or refused because the item is
+	// gone -- ends the pending equip, so the hotbar is told on each of them.
+	struct StateOnExit {
+		Player& player;
+		~StateOnExit() { player.sendEquipmentState(); }
+	} stateOnExit{*this};
 
 	if (iid == 0) {
 		if (type == EquipmentType::WEAPON) {

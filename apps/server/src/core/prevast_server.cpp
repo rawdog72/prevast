@@ -37,6 +37,9 @@
 #include <fstream>
 #include <unordered_set>
 #include <luajit/lua.h>
+// For LUAJIT_VERSION: without it the banner below fell back to LUA_RELEASE and
+// reported "Lua 5.1.4", which hides which Lua the server actually linked.
+#include <luajit/luajit.h>
 
 #ifdef _WIN32
 // timeBeginPeriod/timeGetDevCaps live in winmm; see TimerResolutionGuard below.
@@ -591,6 +594,26 @@ namespace {
 		srand(static_cast<unsigned int>(OTSYS_TIME()));
 
 		printServerVersion();
+
+#ifdef _WIN32
+		// LuaJIT (lua51.dll) and PUC Lua (lua.dll, lua54.dll, ...) export the
+		// same lua_* / luaL_* names. With vcpkg auto-linking every .lib in the
+		// triplet, a machine that also has the `lua` port installed could
+		// resolve some calls into one library and the rest into the other, and
+		// the first Lua state (config.lua) then dies with an access violation
+		// inside lj_mem_newgco / the GC. prevast_server.vcxproj now links
+		// lua51.lib first so LuaJIT wins every name; this catches a build where
+		// that did not happen, with a message instead of a crash.
+		for (const char* foreign : {"lua.dll", "lua54.dll", "lua53.dll", "lua52.dll", "lua5.1.dll"}) {
+			if (GetModuleHandleA(foreign)) {
+				startupErrorMessage(fmt::format(
+					"{} is loaded next to LuaJIT (lua51.dll). The server must link LuaJIT only: "
+					"rebuild after `vcpkg remove lua:x64-windows` or make sure lua51.lib is linked first.",
+					foreign));
+				return;
+			}
+		}
+#endif
 
 		// check if config.lua or config.lua.dist exist
 		const std::string& configFile = getString(ConfigManager::CONFIG_FILE);

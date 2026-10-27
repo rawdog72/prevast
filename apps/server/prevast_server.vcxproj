@@ -79,6 +79,17 @@
     <IntDir>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..\..\build\server\$(Platform)\$(Configuration)\'))</IntDir>
     <LocalDebuggerWorkingDirectory>$(MSBuildProjectDirectory)\..\..\runtime\development</LocalDebuggerWorkingDirectory>
   </PropertyGroup>
+  <!-- LuaJIT first. vcpkg auto-link appends every .lib in the triplet, so with
+       the PUC `lua` port also installed lua.lib and lua51.lib both define
+       lua_newstate, lua_getfield, ... and the linker took each name from
+       whichever came first: a state created by one library and driven by the
+       other crashes in lj_mem_newgco on the first config.lua load (issue #2).
+       Listed here, lua51.lib precedes vcpkg's list and wins every shared name. -->
+  <ItemDefinitionGroup>
+    <Link>
+      <AdditionalDependencies>lua51.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>

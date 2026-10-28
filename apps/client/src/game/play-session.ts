@@ -41,6 +41,8 @@ export interface PlayConnection extends JoinConnection {
 export interface PlayScreen {
   show(): void;
   hide(): void;
+  /** Joined: the start screen's way out (fade); the game starts once it resolves. */
+  leave?(): Promise<void>;
   setProgress(text: string): void;
   showFailure(notice: FailureNotice): void;
   endJoin(): void;
@@ -106,6 +108,8 @@ export class PlaySession<C extends PlayConnection> {
     if (this.ended) return this.discard(result);
     const { screen } = this.options;
     if (result.connection) {
+      await screen.leave?.();
+      if (this.ended) return this.discard(result);
       screen.hide();
       this.enter(result.connection);
     } else if (result.outcome.kind === 'cancelled') {

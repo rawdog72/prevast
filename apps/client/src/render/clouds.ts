@@ -21,7 +21,7 @@
 // Cost. A cloud is tens of overlapping puffs, and standing in one puts all of
 // them on screen at once, so every per-puff cost here is paid ~40 times per
 // cloud per frame. Hence: each puff is one drawImage of a bitmap made once per
-// kind, not a gradient built and filled every frame; the smoke cover (which
+// colour, not a gradient built and filled every frame; the smoke cover (which
 // tiles hide, and the clear-air gaps between them) is worked out only when it
 // changes; and the darkening is plain pixel-aligned rectangles, not one
 // screen-sized even-odd path with a hole per tile, which the browser had to
@@ -29,10 +29,45 @@
 
 import type { Camera } from '../core/camera';
 import type { AreaEffectEvent } from '../net/events';
-import { FireEffects, type FireActor, type FireProjectile } from './fire';
+import type { EffectClient } from '../../../../shared/typescript/content-schema';
+import {
+  FireEffects,
+  fireLookFrom,
+  type FireActor,
+  type FireLook,
+  type FireProjectile,
+} from './fire';
 
 /** AREA_EFFECT `kind` (CloudKind in opcodes.h). */
 export const CloudKind = { GAS: 1, SMOKE: 2, FIRE: 3 } as const;
+
+/**
+ * How one zone is drawn: its effects.xml entry's <client> look, or the
+ * default for its kind when it has none (a zone written inline, or content
+ * that has not arrived). Looks only: what a zone hides is the server's, and
+ * comes on the wire (AreaEffectEvent.hides).
+ */
+export interface CloudLook {
+  render: 'puff' | 'fire' | 'none';
+  /** Puff colour. */
+  rgb: readonly [number, number, number];
+  /** Peak puff opacity. */
+  alpha: number;
+  /** Peak puff opacity seen from inside a zone that hides. */
+  insideAlpha: number;
+  /** Puff radius, in tiles. */
+  size: number;
+  /** How far each puff wanders, in world units. */
+  drift: number;
+  /** The darkness outside a hiding zone while you stand in it. */
+  maskRgb: readonly [number, number, number];
+  maskAlpha: number;
+  /** For render "fire". */
+  fire: FireLook;
+}
+
+/** Finds an effect's <client> look by its clientEffectId; undefined when there is none. */
+export type CloudLookSource = (effectId: number) => EffectClient | undefined;
 
 const TILE = 100;
 /** How long one tile takes to swell in once the growth reaches it. */
@@ -45,6 +80,9 @@ const SPRITE_SIZE = 128;
 interface Cloud {
   id: number;
   kind: number;
+  /** Blocks vision: the server is not sending what it hides. */
+  hides: boolean;
+  look: CloudLook;
   tileX: number;
   tileY: number;
   growMs: number;
@@ -67,9 +105,16 @@ function halfFade(cloud: Pick<Cloud, 'fadeMs'>): number {
   return Math.floor(cloud.fadeMs / 2);
 }
 
+/** Whether a zone blocks vision: as the server said, or, without word, smoke does. */
+function hiding(cloud: { kind: number; hides?: boolean }): boolean {
+  return cloud.hides ?? cloud.kind === CloudKind.SMOKE;
+}
+
 /** Smoke hides until it is half faded (ActiveCloud::hiding on the server). */
-export function obscures(cloud: Pick<Cloud, 'kind' | 'growMs' | 'holdMs' | 'fadeMs' | 'ageMs'>): boolean {
-  return cloud.kind === CloudKind.SMOKE && cloud.ageMs < cloud.growMs + cloud.holdMs + halfFade(cloud);
+export function obscures(
+  cloud: Pick<Cloud, 'kind' | 'growMs' | 'holdMs' | 'fadeMs' | 'ageMs'> & { hides?: boolean },
+): boolean {
+  return hiding(cloud) && cloud.ageMs < cloud.growMs + cloud.holdMs + halfFade(cloud);
 }
 
 /**
@@ -79,9 +124,13 @@ export function obscures(cloud: Pick<Cloud, 'kind' | 'growMs' | 'holdMs' | 'fade
  * last-grown first, so the cloud shrinks to its middle rather than letting
  * everyone in it be seen at once. Nothing once half faded.
  */
-export function smokeHeld(cloud: Pick<Cloud, 'kind' | 'growMs' | 'holdMs' | 'fadeMs' | 'ageMs' | 'cells'>): number {
+export function smokeHeld(
+  cloud: Pick<Cloud, 'kind' | 'growMs' | 'holdMs' | 'fadeMs' | 'ageMs' | 'cells'> & {
+    hides?: boolean;
+  },
+): number {
   const n = cloud.cells.length;
-  if (cloud.kind !== CloudKind.SMOKE || n === 0) return 0;
+  if (!hiding(cloud) || n === 0) return 0;
   const fadeStart = cloud.growMs + cloud.holdMs;
   const half = halfFade(cloud);
   if (cloud.ageMs < fadeStart) return cloudFrame(cloud).covered;
@@ -121,7 +170,9 @@ const SMOKE_INSIDE_ALPHA = 0.3;
 /** Everything outside the smoke while you stand in it: this colour, this opaque. */
 const MASK_RGB = [48, 48, 48] as const;
 const MASK_ALPHA = 0.94;
-const SMOKE_MASK = `rgba(${MASK_RGB.join(',')},${MASK_ALPHA})`;
+/** A puff's radius in tiles, and how far it wanders in world units. */
+const PUFF_SIZE = 0.85;
+const PUFF_DRIFT = 12;
 /** Half-size of the mask rectangle around the player, past any screen. */
 const MASK_REACH = 8000;
 /** How long the mask takes to come down as you step in, or lift as you step out. */
@@ -189,7 +240,11 @@ function boxBlur(src: Float32Array, tmp: Float32Array, w: number, h: number, r: 
  * not smoke; inside, clear on a core inset from the edge, blurred into a
  * ramp that is spent by the time it reaches the edge.
  */
-export function softMask(cover: { tiles: ReadonlySet<number>; minX: number; minY: number; maxX: number; maxY: number }): MaskImage {
+export function softMask(
+  cover: { tiles: ReadonlySet<number>; minX: number; minY: number; maxX: number; maxY: number },
+  rgb: readonly [number, number, number] = MASK_RGB,
+  alpha: number = MASK_ALPHA,
+): MaskImage {
   const tileX = cover.minX - MASK_PAD;
   const tileY = cover.minY - MASK_PAD;
   const tilesW = cover.maxX - cover.minX + 1 + 2 * MASK_PAD;
@@ -244,15 +299,15 @@ export function softMask(cover: { tiles: ReadonlySet<number>; minX: number; minY
   }
 
   const data = new Uint8ClampedArray(width * height * 4);
-  const fullDark = Math.round(255 * MASK_ALPHA);
+  const fullDark = Math.round(255 * Math.min(1, Math.max(0, alpha)));
   for (let py = 0; py < height; py++) {
     for (let px = 0; px < width; px++) {
       const i = py * width + px;
       // Not smoke is dark, whatever the blur says: belt and braces for the rule above.
       const clear = isSmoke(px, py) ? Math.min(1, Math.max(0, core[i])) : 0;
-      data[i * 4] = MASK_RGB[0];
-      data[i * 4 + 1] = MASK_RGB[1];
-      data[i * 4 + 2] = MASK_RGB[2];
+      data[i * 4] = rgb[0];
+      data[i * 4 + 1] = rgb[1];
+      data[i * 4 + 2] = rgb[2];
       data[i * 4 + 3] = Math.round(fullDark * (1 - clear));
     }
   }
@@ -281,6 +336,48 @@ const COLORS: Record<number, [number, number, number, number]> = {
   [CloudKind.SMOKE]: [170, 170, 170, 0.85],
 };
 
+/** "r,g,b" (0..255 each), or `fallback` when it is not that. */
+function parseRgb(
+  text: string | undefined,
+  fallback: readonly [number, number, number],
+): readonly [number, number, number] {
+  if (!text) return fallback;
+  const parts = text.split(',').map((p) => Number(p.trim()));
+  if (parts.length !== 3 || parts.some((v) => !Number.isFinite(v))) return fallback;
+  const channel = (v: number) => Math.min(255, Math.max(0, Math.round(v)));
+  return [channel(parts[0]!), channel(parts[1]!), channel(parts[2]!)];
+}
+
+function finite(value: number | undefined, fallback: number, min: number, max: number): number {
+  return typeof value === 'number' && Number.isFinite(value)
+    ? Math.min(max, Math.max(min, value))
+    : fallback;
+}
+
+/**
+ * How a zone of `kind` is drawn, from its effect's <client> look when it has
+ * one. Anything the look leaves out (or gets wrong) is the kind's default.
+ */
+export function cloudLook(kind: number, client?: EffectClient): CloudLook {
+  const base = COLORS[kind] ?? COLORS[CloudKind.GAS];
+  const defaultRender = kind === CloudKind.FIRE ? 'fire' : 'puff';
+  const render =
+    client?.render === 'puff' || client?.render === 'fire' || client?.render === 'none'
+      ? client.render
+      : defaultRender;
+  return {
+    render,
+    rgb: parseRgb(client?.color, [base[0], base[1], base[2]]),
+    alpha: finite(client?.alpha, base[3], 0, 1),
+    insideAlpha: finite(client?.insideAlpha, SMOKE_INSIDE_ALPHA, 0, 1),
+    size: finite(client?.size, PUFF_SIZE, 0.1, 4),
+    drift: finite(client?.drift, PUFF_DRIFT, 0, 200),
+    maskRgb: parseRgb(client?.maskColor, MASK_RGB),
+    maskAlpha: finite(client?.maskAlpha, MASK_ALPHA, 0, 1),
+    fire: fireLookFrom(client),
+  };
+}
+
 /** One colour stop of a puff at full strength: offset, "r,g,b", alpha. */
 type Stop = [number, string, number];
 
@@ -288,8 +385,8 @@ type Stop = [number, string, number];
  * A puff's gradient at strength 1. Drawn at strength `s`, each stop's alpha is
  * min(1, alpha * s). (Fire is not a puff: render/fire.ts.)
  */
-function puffStops(kind: number): Stop[] {
-  const [r, g, b] = COLORS[kind] ?? COLORS[CloudKind.GAS];
+function puffStops(look: Pick<CloudLook, 'rgb'>): Stop[] {
+  const [r, g, b] = look.rgb;
   const rgb = `${r},${g},${b}`;
   return [
     [0, rgb, 1],
@@ -327,8 +424,13 @@ const NO_SMOKE: SmokeCover = { key: '', tiles: new Set(), minX: 0, minY: 0, maxX
 
 export class CloudLayer {
   private readonly clouds = new Map<number, Cloud>();
-  /** Per kind: the puff bitmap, or null when no canvas could be had. */
-  private readonly sprites = new Map<number, HTMLCanvasElement | null>();
+  /** Per puff colour: the puff bitmap, or null when no canvas could be had. */
+  private readonly sprites = new Map<string, HTMLCanvasElement | null>();
+  /**
+   * Where an effect's <client> look comes from (the content store's effects
+   * table); unset, every zone is drawn by its kind.
+   */
+  lookSource: CloudLookSource | undefined;
   private cover: SmokeCover = NO_SMOKE;
   /** The soft mask bitmap, for the cover named by maskKey; null without a canvas. */
   private maskCanvas: HTMLCanvasElement | null | undefined;
@@ -352,13 +454,14 @@ export class CloudLayer {
   /** A cloud appeared, or the server restated one we may already have. */
   apply(ev: AreaEffectEvent): void {
     const known = this.clouds.get(ev.id);
+    const look = cloudLook(ev.kind, ev.effectId ? this.lookSource?.(ev.effectId) : undefined);
     // The server folds a molotov landing on a fire into that fire (Game::
     // mergeCloud): same id, its clock wound back, maybe more tiles. That is a
     // bottle breaking here, not the clock drifting.
     const fed =
       known !== undefined &&
-      known.kind === CloudKind.FIRE &&
-      ev.kind === CloudKind.FIRE &&
+      known.look.render === 'fire' &&
+      look.render === 'fire' &&
       ev.ageMs + RESYNC_SLACK_MS < known.ageMs;
     if (known && known.tileX === ev.tileX && known.tileY === ev.tileY && known.cells.length === ev.cells.length) {
       if (Math.abs(known.ageMs - ev.ageMs) > RESYNC_SLACK_MS) known.ageMs = ev.ageMs;
@@ -369,6 +472,8 @@ export class CloudLayer {
     const cloud: Cloud = {
       id: ev.id,
       kind: ev.kind,
+      hides: ev.hides ?? ev.kind === CloudKind.SMOKE,
+      look,
       tileX: ev.tileX,
       tileY: ev.tileY,
       growMs: ev.growMs,
@@ -380,7 +485,7 @@ export class CloudLayer {
     this.clouds.set(ev.id, cloud);
     // A fresh fire is a bottle that has just broken there.
     if (fed) this.fire.rekindle(cloud);
-    else if (cloud.kind === CloudKind.FIRE) this.fire.ignite(cloud);
+    else if (cloud.look.render === 'fire') this.fire.ignite(cloud);
   }
 
   /**
@@ -400,7 +505,7 @@ export class CloudLayer {
   }
 
   private *fires(): Iterable<Cloud> {
-    for (const cloud of this.clouds.values()) if (cloud.kind === CloudKind.FIRE) yield cloud;
+    for (const cloud of this.clouds.values()) if (cloud.look.render === 'fire') yield cloud;
   }
 
   /** What lies on the ground under creatures: a fire's scorch, fuel and flames. */
@@ -468,9 +573,10 @@ export class CloudLayer {
     return this.smokeCover().tiles.has(tileKey(Math.floor(x / TILE), Math.floor(y / TILE)));
   }
 
-  /** The puff bitmap for `kind`, made on first use; null without a canvas. */
-  private sprite(kind: number): HTMLCanvasElement | null {
-    const cached = this.sprites.get(kind);
+  /** The puff bitmap for `look`'s colour, made on first use; null without a canvas. */
+  private sprite(look: CloudLook): HTMLCanvasElement | null {
+    const key = look.rgb.join(',');
+    const cached = this.sprites.get(key);
     if (cached !== undefined) return cached;
     let made: HTMLCanvasElement | null = null;
     const canvas = this.createCanvas();
@@ -481,19 +587,19 @@ export class CloudLayer {
       if (g) {
         const h = SPRITE_SIZE / 2;
         const gradient = g.createRadialGradient(h, h, 0, h, h, h);
-        for (const [at, rgb, a] of puffStops(kind)) gradient.addColorStop(at, `rgba(${rgb},${a})`);
+        for (const [at, rgb, a] of puffStops(look)) gradient.addColorStop(at, `rgba(${rgb},${a})`);
         g.fillStyle = gradient;
         g.fillRect(0, 0, SPRITE_SIZE, SPRITE_SIZE);
         made = canvas;
       }
     }
-    this.sprites.set(kind, made);
+    this.sprites.set(key, made);
     return made;
   }
 
-  /** One puff of `kind`, radius `r`, at `strength` (see puffStops). */
-  private drawPuff(ctx: CanvasRenderingContext2D, kind: number, x: number, y: number, r: number, strength: number): void {
-    const sprite = this.sprite(kind);
+  /** One puff of `look`, radius `r`, at `strength` (see puffStops). */
+  private drawPuff(ctx: CanvasRenderingContext2D, look: CloudLook, x: number, y: number, r: number, strength: number): void {
+    const sprite = this.sprite(look);
     if (sprite) {
       ctx.globalAlpha = Math.min(1, strength);
       ctx.drawImage(sprite, x - r, y - r, r * 2, r * 2);
@@ -501,7 +607,7 @@ export class CloudLayer {
     }
     // No canvas to cache a bitmap on: the same gradient, built in place.
     const gradient = ctx.createRadialGradient(x, y, 0, x, y, r);
-    for (const [at, rgb, a] of puffStops(kind)) gradient.addColorStop(at, `rgba(${rgb},${Math.min(1, a * strength)})`);
+    for (const [at, rgb, a] of puffStops(look)) gradient.addColorStop(at, `rgba(${rgb},${Math.min(1, a * strength)})`);
     ctx.fillStyle = gradient;
     ctx.beginPath();
     ctx.arc(x, y, r, 0, Math.PI * 2);
@@ -540,52 +646,70 @@ export class CloudLayer {
 
     ctx.save();
     for (const cloud of this.clouds.values()) {
-      // Fire is drawn by this.fire, in its two layers.
-      if (cloud.kind === CloudKind.FIRE) continue;
+      // Fire is drawn by this.fire, in its two layers; "none" not at all.
+      const look = cloud.look;
+      if (look.render !== 'puff') continue;
       const { covered, opacity } = cloudFrame(cloud);
       if (opacity <= 0) continue;
-      const kind = COLORS[cloud.kind] ? cloud.kind : CloudKind.GAS;
-      const fullPeak = COLORS[kind][3];
-      const peak = kind === CloudKind.SMOKE ? fullPeak + (SMOKE_INSIDE_ALPHA - fullPeak) * blend : fullPeak;
+      const fullPeak = look.alpha;
+      const peak = cloud.hides ? fullPeak + (look.insideAlpha - fullPeak) * blend : fullPeak;
       const n = cloud.cells.length;
 
       for (let i = 0; i < covered; i++) {
         const [dx, dy] = cloud.cells[i];
         // A slow drift per tile so the cloud churns rather than sitting still.
         const phase = timeMs / 1400 + i * 1.7;
-        const x = (cloud.tileX + dx) * TILE + TILE / 2 + Math.sin(phase) * 12;
-        const y = (cloud.tileY + dy) * TILE + TILE / 2 + Math.cos(phase * 0.8) * 12;
-        const radius = TILE * 0.85;
+        const x = (cloud.tileX + dx) * TILE + TILE / 2 + Math.sin(phase) * look.drift;
+        const y = (cloud.tileY + dy) * TILE + TILE / 2 + Math.cos(phase * 0.8) * look.drift;
+        const radius = TILE * look.size;
         if (!camera.isVisible(x, y, radius)) continue;
 
         // Each tile swells in from the moment the growth reaches it.
         const reachedAt = cloud.growMs > 0 ? (cloud.growMs * i) / n : 0;
         const swell = Math.min(1, Math.max(0, (cloud.ageMs - reachedAt) / TILE_APPEAR_MS));
         // Smoke thins tile by tile from the edge in, as it stops hiding;
-        // gas and fire fade as a whole.
-        const fade = kind === CloudKind.SMOKE ? smokeTileFade(cloud, i, n) : opacity;
+        // anything else fades as a whole.
+        const fade = cloud.hides ? smokeTileFade(cloud, i, n) : opacity;
         const alpha = peak * fade * swell;
         if (alpha <= 0) continue;
 
-        this.drawPuff(ctx, kind, x, y, radius * (0.6 + 0.4 * swell), alpha);
+        this.drawPuff(ctx, look, x, y, radius * (0.6 + 0.4 * swell), alpha);
       }
     }
     ctx.globalAlpha = 1;
 
     if (blend > 0 && viewer) {
       ctx.globalAlpha = blend;
-      this.drawMask(ctx, cover, viewer);
+      this.drawMask(ctx, cover, viewer, this.maskLook());
     }
     ctx.restore();
   }
 
-  /** The mask bitmap for `cover`, redrawn only when the cover changes. */
-  private maskFor(cover: SmokeCover): HTMLCanvasElement | null {
+  /**
+   * The darkness while you stand in hiding zones: the look of the one you are
+   * most likely in -- the youngest that still hides -- so a modded smoke can
+   * darken the world its own colour.
+   */
+  private maskLook(): Pick<CloudLook, 'maskRgb' | 'maskAlpha'> {
+    let best: Cloud | undefined;
+    for (const cloud of this.clouds.values()) {
+      if (smokeHeld(cloud) <= 0) continue;
+      if (!best || cloud.ageMs < best.ageMs) best = cloud;
+    }
+    return best ? best.look : { maskRgb: MASK_RGB, maskAlpha: MASK_ALPHA };
+  }
+
+  /** The mask bitmap for `cover`, redrawn only when the cover or its colour changes. */
+  private maskFor(
+    cover: SmokeCover,
+    look: Pick<CloudLook, 'maskRgb' | 'maskAlpha'>,
+  ): HTMLCanvasElement | null {
     if (this.maskCanvas === undefined) this.maskCanvas = this.createCanvas();
     const canvas = this.maskCanvas;
     if (!canvas) return null;
-    if (this.maskKey !== cover.key) {
-      const image = softMask(cover);
+    const key = `${cover.key}|${look.maskRgb.join(',')},${look.maskAlpha}`;
+    if (this.maskKey !== key) {
+      const image = softMask(cover, look.maskRgb, look.maskAlpha);
       canvas.width = image.width;
       canvas.height = image.height;
       const g = canvas.getContext('2d');
@@ -593,7 +717,7 @@ export class CloudLayer {
       const pixels = g.createImageData(image.width, image.height);
       pixels.data.set(image.data);
       g.putImageData(pixels, 0, 0);
-      this.maskKey = cover.key;
+      this.maskKey = key;
       this.maskImage = image;
     }
     return canvas;
@@ -606,7 +730,12 @@ export class CloudLayer {
    * -- no seam, no overlap, and nothing the browser has to rasterise as a path.
    * Without a canvas for the bitmap the box is filled hard-edged instead.
    */
-  private drawMask(ctx: CanvasRenderingContext2D, cover: SmokeCover, viewer: { x: number; y: number }): void {
+  private drawMask(
+    ctx: CanvasRenderingContext2D,
+    cover: SmokeCover,
+    viewer: { x: number; y: number },
+    look: Pick<CloudLook, 'maskRgb' | 'maskAlpha'>,
+  ): void {
     // World to device pixels. The camera only translates and scales; anything
     // else (or a context that cannot say) is drawn unsnapped in world space.
     const m = typeof ctx.getTransform === 'function' ? ctx.getTransform() : null;
@@ -614,7 +743,7 @@ export class CloudLayer {
     const sx = snap ? (wx: number) => Math.round(m.a * wx + m.e) : (wx: number) => wx;
     const sy = snap ? (wy: number) => Math.round(m.d * wy + m.f) : (wy: number) => wy;
     if (snap) ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.fillStyle = SMOKE_MASK;
+    ctx.fillStyle = `rgba(${look.maskRgb.join(',')},${look.maskAlpha})`;
     const fill = (x0: number, y0: number, x1: number, y1: number) => {
       if (x1 > x0 && y1 > y0) ctx.fillRect(x0, y0, x1 - x0, y1 - y0);
     };
@@ -624,7 +753,7 @@ export class CloudLayer {
     const top = sy(viewer.y - MASK_REACH);
     const bottom = sy(viewer.y + MASK_REACH);
 
-    const mask = snap ? this.maskFor(cover) : null;
+    const mask = snap ? this.maskFor(cover, look) : null;
     const image = this.maskImage;
     if (mask && image) {
       const mx0 = sx(image.tileX * TILE);

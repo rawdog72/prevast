@@ -201,6 +201,7 @@
     <ClCompile Include="src\gameplay\aim_view.cpp" />
     <ClCompile Include="src\gameplay\area_fill.cpp" />
     <ClCompile Include="src\gameplay\area_fill_selftest.cpp" />
+    <ClCompile Include="src\gameplay\effect.cpp" />
     <ClCompile Include="src\gameplay\aim_view_selftest.cpp" />
     <ClCompile Include="src\gameplay\game.cpp" />
     <ClCompile Include="src\gameplay\game_admin.cpp" />
@@ -295,6 +296,7 @@
     <ClInclude Include="src\gameplay\weapon_mods.h" />
     <ClInclude Include="src\gameplay\aim_view.h" />
     <ClInclude Include="src\gameplay\area_fill.h" />
+    <ClInclude Include="src\gameplay\effect.h" />
     <ClInclude Include="src\gameplay\game.h" />
     <ClInclude Include="src\gameplay\groups.h" />
     <ClInclude Include="src\gameplay\inventory.h" />

@@ -456,6 +456,37 @@ export const objectEntry = z.looseObject({
   onDestroy: z.looseObject({ drops: drops.optional() }).optional(),
   client: objectClient.optional(),
 });
+/** A reference to an effects.xml entry, with optional overrides in its children. */
+const effectRef = z.looseObject({ key: z.string().min(1) });
+const blast = z.looseObject({ area: int.optional(), radius: z.number().optional() });
+/** How an effect's zone is drawn (effects.xml <client>). Looks only. */
+export const effectClient = z.looseObject({
+  render: z.enum(['puff', 'fire', 'none']).optional(),
+  /** "r,g,b" */
+  color: z.string().optional(),
+  alpha: z.number().optional(),
+  insideAlpha: z.number().optional(),
+  size: z.number().optional(),
+  drift: z.number().optional(),
+  maskColor: z.string().optional(),
+  maskAlpha: z.number().optional(),
+  /** Three CSS colours, outermost flame layer first. */
+  flameColors: z.string().optional(),
+  smokeColor: z.string().optional(),
+  smokeLitColor: z.string().optional(),
+  emberColor: z.string().optional(),
+  shatter: z.boolean().optional(),
+});
+export const effectEntry = z.looseObject({
+  ...keyed,
+  id: int,
+  clientEffectId: int.positive(),
+  explosion: blast.optional(),
+  zone: z.looseObject({ kind: z.enum(['gas', 'smoke', 'fire']).optional() }).optional(),
+  /** Effects it chains, run after its own parts. */
+  effect: z.array(effectRef).optional(),
+  client: effectClient.optional(),
+});
 export const projectileEntry = z.looseObject({
   ...keyed,
   id: int,
@@ -464,10 +495,15 @@ export const projectileEntry = z.looseObject({
   damage: z.looseObject({ type: z.string() }).optional(),
   /** The fuse of a grenade-shaped round. */
   lifetime: z.looseObject({ durationMs: int }).optional(),
-  /** The blast: `area` tiles around the landing tile, or a `radius` circle when area is 0. */
+  /**
+   * What happens where it goes off: an inline blast (`area` tiles around the
+   * landing tile, or a `radius` circle when area is 0), and/or effects.xml
+   * entries by key.
+   */
   onDestroy: z
     .looseObject({
-      explosion: z.looseObject({ area: int.optional(), radius: z.number().optional() }).optional(),
+      explosion: blast.optional(),
+      effect: z.array(effectRef).optional(),
     })
     .optional(),
   client: projectileClient.optional(),
@@ -558,6 +594,8 @@ export type WearableEntry = z.infer<typeof wearableEntry>;
 export type KitEntry = z.infer<typeof kitEntry>;
 export type ObjectEntry = z.infer<typeof objectEntry>;
 export type ProjectileEntry = z.infer<typeof projectileEntry>;
+export type EffectEntry = z.infer<typeof effectEntry>;
+export type EffectClient = z.infer<typeof effectClient>;
 export type AgentEntry = z.infer<typeof agentEntry>;
 export type StructureEntry = z.infer<typeof structureEntry>;
 export type ConditionEntry = z.infer<typeof conditionEntry>;
@@ -594,6 +632,7 @@ export interface EntryTypes {
   kits: KitEntry;
   objects: ObjectEntry;
   furnitures: ObjectEntry;
+  effects: EffectEntry;
   projectiles: ProjectileEntry;
   agents: AgentEntry;
   structures: StructureEntry;
@@ -615,6 +654,7 @@ export const ENTRY_SCHEMAS: Record<Exclude<ContentTableName, 'config'>, z.ZodTyp
   kits: kitEntry,
   objects: objectEntry,
   furnitures: objectEntry,
+  effects: effectEntry,
   projectiles: projectileEntry,
   agents: agentEntry,
   structures: structureEntry,

@@ -15,7 +15,7 @@
     </ability>
   </abilities>
   <onDeath>
-    <explosion radius="40" playerDamage="120" buildingDamage="500"/>
+    <effect key="ghoul_burst"/>
     <drops>
       <item key="sulfur" amount="1"/>
       <item key="animal_fat" amount="1"/>

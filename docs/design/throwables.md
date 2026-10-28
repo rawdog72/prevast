@@ -247,6 +247,8 @@ One bump covering:
 5. Flash, reusing smoke's view clamp.
 6. Materials, then thermite. **Materials built** with the molotov: `ObjectData::material` (wood, cloth, metal, stone), stated with `material=` in objects.xml or read off `<client particles=>`, so every existing object has one.
 
+Effects (after the molotov): **built.** Every grenade's payload is now a named entry in `data/XML/effects.xml` (`<onDestroy><effect key="toxic_gas"/></onDestroy>`), shared with placed explosives, exploding agents and Lua scripts; `<cloud>` is now `<zone>` (the old name still loads), zones take a shape (`shape="line"`, `stretch`, `forward`, `irregular`, `blockedBy`) and an `<onEnd>` effect, and each effect's `<client>` sets how its zone is drawn. See [effects.md](effects.md), which replaces the cloud details above.
+
 Molotov (added after the plan, before flash): **built.** `<shatter/>` on a projectile breaks it on the first thing it hits or where it lands (never parks or bounces; `<lifetime>` is only how long it can be held lit). Its `<cloud kind="fire">` damages whoever stands in it (`damageType="fire"`), applies `burning` (an afterburn: the re-application restarts its `<healthTick>`, so it only ticks once you step out), and burns buildings on or next to it whose material is in `burns` (default wood, cloth) for `buildingDamage` a tick. Item `molotov`: gasoline, junk, 2 string at a workbench, level 8.
 
 ## Tunables

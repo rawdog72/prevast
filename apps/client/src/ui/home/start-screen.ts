@@ -59,7 +59,24 @@ export interface StartScreenOptions {
   onCancel?: () => void;
   /** "Refresh page" on a notice; defaults to location.reload(). */
   reload?: () => void;
+  /** Drawn (and heard) behind the screen while it is up (home-backdrop.ts); omitted in tests. */
+  backdrop?: StartBackdrop;
 }
+
+/** What runs behind the start screen: the camp scene and the title music. */
+export interface StartBackdrop {
+  start(): void;
+  stop(): void;
+  /** Play pressed: lean in while the join runs. */
+  closeIn?(): void;
+  /** The join ended on the start screen: settle back. */
+  pullBack?(): void;
+  /** Joined: the way out to the game; resolves when the game may take the screen. */
+  leave?(): Promise<void>;
+}
+
+/** How long the game takes to come up out of the dark after the start screen goes. */
+const ENTER_FADE_MS = 700;
 
 const REFRESH_INTERVAL_MS = 20_000;
 const TOUCH_GRACE_MS = 5_000;
@@ -95,6 +112,8 @@ export class StartScreen {
   private readonly accountApi?: AccountApi;
   private readonly onCancel?: () => void;
   private readonly reload: () => void;
+  private readonly backdrop?: StartBackdrop;
+  private leaving = false;
 
   private root!: HTMLElement;
   private form!: HTMLFormElement;
@@ -145,6 +164,7 @@ export class StartScreen {
     this.accountApi = options.accountApi;
     this.onCancel = options.onCancel;
     this.reload = options.reload ?? (() => this.doc.defaultView?.location.reload());
+    this.backdrop = options.backdrop;
     this.feed = new ServerListFeed({
       fetchList: options.fetchList ?? ((signal) => fetchServerList(fetch, signal)),
       createEventSource:
@@ -188,7 +208,10 @@ export class StartScreen {
         this.listingState === 'loading'
           ? { title: 'Finding servers…', detail: 'Looking for an available world.' }
           : this.listingState === 'unavailable'
-            ? { title: 'Server list unavailable', detail: 'Reconnecting automatically…' }
+            ? {
+                title: "Can't reach the server list",
+                detail: 'Retrying on its own. A custom address still works.',
+              }
             : { title: 'No open servers', detail: 'Try another game mode or a custom address.' },
       onInteraction: () => {
         this.touchedAt = this.now();
@@ -232,7 +255,7 @@ export class StartScreen {
     });
     this.root.querySelectorAll<HTMLButtonElement>('[data-info]').forEach((button) => {
       button.addEventListener('click', () => {
-        this.showInfo(button.dataset.info === 'controls' ? 'controls' : 'updates');
+        this.showInfo();
       });
     });
     this.root.querySelectorAll<HTMLButtonElement>('[data-editor]').forEach((button) => {
@@ -289,6 +312,9 @@ export class StartScreen {
 
   show(): void {
     this.mount();
+    this.leaving = false;
+    this.root.classList.remove('is-leaving');
+    this.backdrop?.start();
     this.feedback = '';
     this.clearNotice();
     this.root.hidden = false;
@@ -299,7 +325,10 @@ export class StartScreen {
   }
 
   hide(): void {
+    this.backdrop?.stop();
     if (!this.mounted) return;
+    if (this.leaving) this.fadeIntoGame();
+    this.leaving = false;
     if (this.preloadTimer !== null) {
       clearTimeout(this.preloadTimer);
       this.preloadTimer = null;
@@ -313,6 +342,31 @@ export class StartScreen {
     this.root.hidden = true;
     this.doc.body.classList.remove('dv-home-active');
     this.syncListingActivity();
+  }
+
+  /**
+   * Joined: the start window fades and the backdrop pushes in to dark; resolves
+   * when the game may take the screen (PlaySession hides us right after).
+   */
+  async leave(): Promise<void> {
+    if (!this.mounted || this.root.hidden) return;
+    this.leaving = true;
+    this.root.classList.add('is-leaving');
+    await (this.backdrop?.leave?.() ?? Promise.resolve());
+  }
+
+  /** The game comes up out of the same dark the backdrop faded into. */
+  private fadeIntoGame(): void {
+    const veil = this.doc.createElement('div');
+    veil.className = 'dv-enter-fade';
+    veil.setAttribute('aria-hidden', 'true');
+    this.doc.body.append(veil);
+    const win = this.doc.defaultView;
+    const lift = () => veil.classList.add('is-gone');
+    if (win?.requestAnimationFrame)
+      win.requestAnimationFrame(() => win.requestAnimationFrame(lift));
+    else lift();
+    setTimeout(() => veil.remove(), ENTER_FADE_MS + 200);
   }
 
   error(message: string): void {
@@ -336,6 +390,7 @@ export class StartScreen {
   }
 
   setBusy(value: boolean): void {
+    if (!value && this.busy) this.backdrop?.pullBack?.();
     this.busy = value;
     if (value) this.feedback = '';
     this.progress = '';
@@ -402,7 +457,9 @@ export class StartScreen {
             : 'You can choose a server while this loads.';
       }
     }
-    this.status.textContent = title || !this.notice.hidden ? '' : this.feedback || listingFeedback;
+    // An unreachable list is said once, in the server picker, not again under Play.
+    const listingLine = this.listingState === 'unavailable' && !custom ? '' : listingFeedback;
+    this.status.textContent = title || !this.notice.hidden ? '' : this.feedback || listingLine;
     this.loading.setAttribute('aria-hidden', String(!title));
     if (!title) return; // Keep the last contents in place for the fade-out.
     const kind = percent === 100 ? 'complete' : percent === null ? 'indeterminate' : 'progress';
@@ -514,11 +571,8 @@ export class StartScreen {
     this.queuePings();
   }
 
-  showInfo(kind: 'controls' | 'updates'): void {
-    const controls = kind === 'controls';
-    must(this.dialog.querySelector('h2')).textContent = controls ? 'How to play' : 'Changelog';
-    must(this.dialog.querySelector<HTMLElement>('[data-help-pane]')).hidden = !controls;
-    must(this.dialog.querySelector<HTMLElement>('[data-updates-pane]')).hidden = controls;
+  /** How to play. (The changelog is the What's new card beside the start window.) */
+  showInfo(): void {
     this.dialog.showModal();
   }
 
@@ -744,6 +798,7 @@ export class StartScreen {
       writeSetting(LAST_SERVER_KEY, serverKey(server));
     }
     this.setBusy(true);
+    this.backdrop?.closeIn?.();
     this.onJoin({ nickname, password: this.password.value, address, server, playAsAccount });
   }
 }

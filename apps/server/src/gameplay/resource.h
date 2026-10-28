@@ -36,6 +36,10 @@ struct ResourceData {
 	float experience;
 	std::vector<ItemDrop> drops;
 	std::unordered_map<std::string, float> toolMultipliers;
+	// The tool shown in the WRONG_TOOL popup when a hit yields nothing: the
+	// weakest real tool that works (lowest multiplier, first in XML order on a
+	// tie), or "hand" when only bare hands work. Empty when <tools> is empty.
+	std::string requiredTool;
 	std::vector<ResourceType> types;
 
 	std::vector<AreaEffect> areaEffects;

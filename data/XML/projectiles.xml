@@ -14,9 +14,19 @@
         Which resistance applies to it when no weapon fired it (a frag's
         fragments). A round a weapon fires takes the weapon's own type.
 
-    <lifetime durationMs="..."/>  <onDestroy><explosion .../></onDestroy>
-        Grenade-shaped rounds: how long before it goes off, and the blast. For a
-        cooked throwable (equipables.xml <throw>) the fuse starts at the pin.
+    <lifetime durationMs="..."/>
+        Grenade-shaped rounds: how long before it goes off. For a cooked
+        throwable (equipables.xml <throw>) the fuse starts at the pin.
+
+    <onDestroy><effect key="frag_blast"/></onDestroy>
+        What happens where it goes off: an effect from effects.xml (a blast,
+        fragments, gas, smoke, fire), as many as it lists, in order. A
+        reference can change the effect for this round alone:
+            <effect key="toxic_gas"><zone holdMs="20000"/></effect>
+        The parts can also be written straight in here (<explosion>,
+        <fragments>, <zone>); effects.xml documents them all. A zone left by
+        something thrown knows the way it was flying, which is what its
+        shape="line", stretch and forward follow.
 
     <bounce restitution="0.45" maxBounces="3"/>
         Fused rounds only. Glances off walls, doors, rocks and trees instead of
@@ -25,77 +35,11 @@
         left. After maxBounces, or when too little is left, it stops where it
         hits, as it does without this. Players and ghouls always stop it.
 
-    <fragments projectile="frag_fragment" count="22" range="400" damage="40"
-               buildingDamage="40" knockback="0" speedMultiplier="1.0"
-               spread="1" rangeVariation="0.6" speedVariation="0.4" falloff="0.4"/>
-        Inside <onDestroy>: a frag's fragments. `count` (at most 48) REAL
-        projectiles of the `projectile` entry below fly out of the blast, one
-        somewhere in each slice of the circle (`spread`, 0..1, is how much of
-        its slice it may wander over). Each falls up to `rangeVariation`
-        (0..0.9) short of `range` (at most 2000) and flies up to
-        `speedVariation` (0..0.9) slower than the fastest, so the burst is
-        ragged rather than a ring. Each one flies, collides and is drawn
-        exactly like a bullet: it stops at the first wall, rock, tree, player
-        or ghoul in its way, which takes `damage` (the fragment's <damage
-        type>, so armour counts) or, for buildings and resources,
-        `buildingDamage` (the same as `damage` unless stated, like a gun's),
-        with the same hit shake a gunshot gives them. `falloff` (0..1, default
-        1 = none) is the share of both still done by a fragment landing at
-        `range`, falling in a straight line from all of it at the blast, like
-        a gun's <falloff minMultiplier>. Nothing protects the thrower from
-        their own. Fewer fragments reach a far target too, and cover in front
-        absorbs them.
-        The fastest fly at the fragment entry's <physics baseSpeed> times
-        speedMultiplier. A grenade lying against a wall loses the fragments
-        heading into it; the rest fly out from its face. Every fragment is an
-        entity sent to every watcher, which is why the count is capped.
-        With or without an <explosion>.
-
-    <cloud kind="gas" tiles="30" growMs="3000" holdMs="10000" fadeMs="3000"
-           tickMs="500" damage="6" damageType="gas">
-        <onHit condition="choking"/>
-    </cloud>
-        Inside <onDestroy>: something left lying on the ground. It spreads over
-        at most `tiles` tiles (up to 255), nearest first, within `radius` tiles
-        (default: what `tiles` covers as a disc plus one; at most 12). Walls
-        and closed doors stop it; a room fills and a doorway lets it out. It
-        grows over growMs, stays holdMs, thins out over fadeMs (each at most
-        60000). Every tickMs while grown or holding, each player and ghoul
-        standing in it takes `damage` of `damageType` (a wearable's
-        <modifier key="gasResistance"> reduces "gas") and gets the <onHit>
-        condition. kind is what clients draw: gas, smoke or fire.
-        A gas or fire cloud landing on one of the same type that is still
-        burning (same kind, damage, timings and condition) does not lie on top
-        of it: it feeds it. The first cloud takes in the new one's tiles and
-        starts its hold again, and the latest thrower gets the kills, so five
-        molotovs on one spot are one fire: one damage tick, one cloud on the
-        wire, one fire to draw. Smoke clouds always stay separate.
-        buildingDamage, burns="wood,cloth": every tick, each building on or
-        right next to a covered tile whose material is listed takes
-        buildingDamage (fire burns a wooden wall, not a stone one). An object's
-        material is its material= in objects.xml, or read off its
-        <client particles=>: wood/woodlight wood, fur cloth, metal/steel/gold
-        metal, stone stone.
-        blocksVision (default true for kind="smoke", false otherwise): while
-        it is there, until half faded, nobody is sent a player, ghoul or
-        anything else that moves if the line to it crosses from clear air
-        into smoke or back - so from outside you see neither into nor past
-        it, and from inside you see only the inside. Ghouls cannot target
-        through it either. Over the first half of the fade it gives its tiles
-        back last-grown first, so it shrinks to where it went off rather than
-        lifting everywhere at once.
-
     <shatter/>
         Breaks where it lands or on the first thing it hits (a molotov's
         bottle) and goes off there and then: never parks, never bounces. With a
         cookable <throw>, <lifetime> is only how long it can be held lit; one
         dropped or held too long breaks at the thrower's feet.
-
-    <explosion ... throughWall="0"/>
-        The share of damage, knockback and condition chance that reaches a
-        creature with a wall, rock or tree between it and the blast. 0 (the
-        default, on every explosion in every file) means cover protects
-        completely; 1 means walls do not matter. Buildings are never sheltered.
 
     <onHit condition="toxic_poison" chance="0.5" durationMs="0" chancePerDamage="0"/>
         A CONDITION the round inflicts on a player it lands on (conditions.xml).
@@ -104,7 +48,8 @@
         from a grenade. chancePerDamage adds to the chance per point of damage
         that ACTUALLY landed, so a solid hit is likelier to land it than a graze
         - and armour, which cut the damage, cuts the chance with it.
-        An <explosion> accepts the same element, for what the BLAST inflicts.
+        An <explosion> accepts the same element, for what the BLAST
+        inflicts (effects.xml).
         chance is 0..1 and defaults to 1. It only fires on a hit that actually
         did damage, so a target protected by ghost mode or invincibility is not
         poisoned either.
@@ -207,9 +152,7 @@
         <lifetime durationMs="3000" />
         <bounce restitution="0.45" maxBounces="3"/>
         <onDestroy>
-            <explosion area="1" playerDamage="200" buildingDamage="400" knockback="20">
-                <onHit condition="slowed" chance="1" durationMs="600" strength="0.2"/>
-            </explosion>
+            <effect key="offensive_blast"/>
         </onDestroy>
         <client render="tumble">
             <frame index="0" sprite="day-hand-offensive-grenade"/>
@@ -227,9 +170,7 @@
         <lifetime durationMs="3500" />
         <bounce restitution="0.45" maxBounces="3"/>
         <onDestroy>
-            <explosion radius="90" playerDamage="40" buildingDamage="30" knockback="4"/>
-            <fragments projectile="frag_fragment" count="22" range="400" damage="40" buildingDamage="40"
-                       spread="1" rangeVariation="0.6" speedVariation="0.4" falloff="0.4"/>
+            <effect key="frag_blast"/>
         </onDestroy>
         <client render="tumble">
             <frame index="0" sprite="day-hand-frag-grenade"/>
@@ -246,10 +187,7 @@
         <lifetime durationMs="2500" />
         <bounce restitution="0.45" maxBounces="3"/>
         <onDestroy>
-            <cloud kind="gas" tiles="30" growMs="3000" holdMs="10000" fadeMs="3000"
-                   tickMs="500" damage="6" damageType="gas">
-                <onHit condition="choking"/>
-            </cloud>
+            <effect key="toxic_gas"/>
         </onDestroy>
         <client render="tumble" trail="206,222,140">
             <frame index="0" sprite="day-hand-gas-grenade"/>
@@ -266,7 +204,7 @@
         <lifetime durationMs="2000" />
         <bounce restitution="0.45" maxBounces="3"/>
         <onDestroy>
-            <cloud kind="smoke" tiles="40" growMs="2000" holdMs="15000" fadeMs="4000"/>
+            <effect key="smoke_screen"/>
         </onDestroy>
         <client render="tumble" trail="226,228,226">
             <frame index="0" sprite="day-hand-smoke-grenade"/>
@@ -285,10 +223,7 @@
         <lifetime durationMs="8000" />
         <shatter/>
         <onDestroy>
-            <cloud kind="fire" tiles="9" radius="2" growMs="500" holdMs="8000" fadeMs="1500"
-                   tickMs="500" damage="8" damageType="fire" buildingDamage="90" burns="wood,cloth">
-                <onHit condition="burning"/>
-            </cloud>
+            <effect key="molotov_fire"/>
         </onDestroy>
         <!-- render="molotov": the client draws the bottle (frame 0) tumbling
              `spin` radians per ms with its rag alight at (flameX, flameY) from

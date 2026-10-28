@@ -14,6 +14,7 @@
 #include "network/opcodes.h"
 #include "gameplay/npc.h"
 #include "gameplay/scenery_geometry.h"
+#include "gameplay/effect.h"
 #include "world/scenario_world.h"
 
 #include <span>
@@ -27,8 +28,6 @@ struct AgentAbility;
 struct AgentData;
 struct AgentTarget;
 struct ProjectileData;
-struct ProjectileFragments;
-struct ProjectileCloud;
 struct ActiveCloud;
 enum class AgentDamageKind : uint8_t;
 struct EquipableData;
@@ -892,16 +891,29 @@ public:
 	void scheduleSplashDamage(uint32_t targetId, uint32_t damage, uint32_t attackerId, uint32_t delayMs,
 	                          uint8_t impactAngle, AgentDamageKind kind);
 
-	// Everything a projectile does where it goes off: its <explosion>, its
-	// <fragments>, its <cloud>. The ONE detonation path, for a grenade that
-	// lands and for one held until it goes off in the hand, so the two cannot
-	// drift apart.
-	void detonateProjectile(const ProjectileData& pdata, const Position& pos, uint32_t attackerId);
+	// Everything a projectile does where it goes off: its <onDestroy> effects.
+	// The ONE detonation path, for a grenade that lands and for one held until
+	// it goes off in the hand, so the two cannot drift apart. (dirX, dirY) is
+	// the way it was travelling, for a zone that is stretched along it; (0, 0)
+	// when it was not moving.
+	void detonateProjectile(const ProjectileData& pdata, const Position& pos, uint32_t attackerId,
+	                        float dirX = 0.0f, float dirY = 0.0f);
+	// Runs effects (gameplay/effect.h) at `pos`, in order: each one's
+	// <explosion>, then its <fragments>, then its <zone>, then the effects it
+	// chains. Whatever goes off -- a projectile, a destroyed object, a dead
+	// agent, a script -- comes through here. (dirX, dirY) is the way the source
+	// was moving, or (0, 0).
+	void runEffects(const EffectList& effects, const Position& pos, uint32_t attackerId,
+	                float dirX = 0.0f, float dirY = 0.0f);
+	void runEffect(const EffectData& effect, const Position& pos, uint32_t attackerId,
+	               float dirX = 0.0f, float dirY = 0.0f, int depth = 0);
 	// A frag's fragments: real projectiles fired out of the blast; see
-	// ProjectileFragments.
-	void fireFragments(const Position& pos, const ProjectileFragments& fragments, uint32_t attackerId);
-	// A gas (later smoke, fire) cloud where something went off; see ProjectileCloud.
-	void spawnCloud(const Position& pos, const ProjectileCloud& cloud, uint32_t attackerId);
+	// EffectFragments.
+	void fireFragments(const Position& pos, const EffectFragments& fragments, uint32_t attackerId);
+	// Gas, smoke or fire left on the ground where something went off; see
+	// EffectZone. (dirX, dirY) as for runEffects.
+	void spawnCloud(const Position& pos, const EffectZone& cloud, uint32_t attackerId,
+	                float dirX = 0.0f, float dirY = 0.0f);
 
 	// --- On-hit effects ------------------------------------------------------
 	//
@@ -986,9 +998,10 @@ public:
 	void updateClouds(uint32_t elapsedMs);
 	void applyCloudTick(const ActiveCloud& cloud);
 	void sendCloud(const ActiveCloud& cloud);
-	// Whether a cloud cannot spread onto this tile: off the map, or a wall or
-	// closed door covers its middle.
-	bool isCloudBlockedTile(int32_t tileX, int32_t tileY);
+	// Whether a cloud cannot spread onto this tile: off the map, or -- per
+	// `blockedBy` (ZoneBlock bits) -- a wall or closed door, or a rock or tree,
+	// covers its middle.
+	bool isCloudBlockedTile(int32_t tileX, int32_t tileY, uint8_t blockedBy = ZoneBlock::Walls);
 	// Keeps the smoke grid in step with what a vision-blocking cloud covers now.
 	void syncCloudSmoke(ActiveCloud& cloud, bool ending);
 	// The smoke box (smokeMin*/smokeMax*) from the tiles still counted.

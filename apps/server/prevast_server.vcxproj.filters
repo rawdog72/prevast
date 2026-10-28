@@ -62,6 +62,8 @@
     <ClCompile Include="src\gameplay\area_fill.cpp"><Filter>gameplay</Filter></ClCompile>
     <ClCompile Include="src\gameplay\area_fill_selftest.cpp"><Filter>gameplay</Filter></ClCompile>
     <ClInclude Include="src\gameplay\area_fill.h"><Filter>gameplay</Filter></ClInclude>
+    <ClCompile Include="src\gameplay\effect.cpp"><Filter>gameplay</Filter></ClCompile>
+    <ClInclude Include="src\gameplay\effect.h"><Filter>gameplay</Filter></ClInclude>
     <ClCompile Include="src\gameplay\game.cpp"><Filter>gameplay</Filter></ClCompile>
     <ClInclude Include="src\gameplay\game.h"><Filter>gameplay</Filter></ClInclude>
     <ClCompile Include="src\gameplay\game_admin.cpp"><Filter>gameplay</Filter></ClCompile>

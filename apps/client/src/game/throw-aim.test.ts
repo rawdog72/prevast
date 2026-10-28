@@ -100,6 +100,53 @@ describe('throwProfileFor', () => {
     expect(throwProfileFor(content, 0)).toBeNull();
   });
 
+  it("reads the blast from a named effect, with a reference's overrides and through a chain", () => {
+    const content = grenadeContent();
+    content.load(
+      table('effects', {
+        offensive_blast: {
+          key: 'offensive_blast',
+          id: 1,
+          clientEffectId: 1,
+          explosion: { area: 1 },
+        },
+        frag_blast: { key: 'frag_blast', id: 2, clientEffectId: 2, explosion: { radius: 90 } },
+        smoke_then_blast: {
+          key: 'smoke_then_blast',
+          id: 3,
+          clientEffectId: 3,
+          zone: { kind: 'smoke' },
+          effect: [{ key: 'frag_blast' }],
+        },
+      }),
+    );
+    const withDestroy = (onDestroy: unknown) =>
+      content.load(
+        table('projectiles', {
+          granade: {
+            key: 'granade',
+            id: 8,
+            clientProjectileId: 8,
+            lifetime: { durationMs: 3000 },
+            onDestroy,
+          },
+        }),
+      );
+
+    withDestroy({ effect: [{ key: 'offensive_blast' }] });
+    expect(throwProfileFor(content, 113)).toEqual(PROFILE);
+
+    // <effect key="offensive_blast"><explosion area="2"/></effect>
+    withDestroy({ effect: [{ key: 'offensive_blast', explosion: { area: 2 } }] });
+    expect(throwProfileFor(content, 113)?.blastArea).toBe(2);
+
+    withDestroy({ effect: [{ key: 'smoke_then_blast' }] });
+    expect(throwProfileFor(content, 113)).toMatchObject({ blastArea: 0, blastRadius: 90 });
+
+    withDestroy({ effect: [{ key: 'no_such_effect' }] });
+    expect(throwProfileFor(content, 113)).toMatchObject({ blastArea: 0, blastRadius: 0 });
+  });
+
   it('is null before the tables have arrived', () => {
     expect(throwProfileFor(new ContentStore(), 113)).toBeNull();
   });

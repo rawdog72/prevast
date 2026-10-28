@@ -5,6 +5,7 @@
 #include "gameplay/area_fill.h"
 #include <algorithm>
 #include <array>
+#include <cmath>
 
 namespace {
 // Offsets span [-kMaxRadius, kMaxRadius] on each axis, so a flat table of that
@@ -17,12 +18,65 @@ int areaFillIndex(int dx, int dy)
 }
 } // namespace
 
+namespace {
+// 0..1 per tile and seed, stable: the same cloud asks the same tile the same.
+float areaFillNoise(int dx, int dy, uint32_t seed)
+{
+	uint32_t h = static_cast<uint32_t>(dx + 0x8000) * 0x9E3779B1u ^ static_cast<uint32_t>(dy + 0x8000) * 0x85EBCA77u ^ seed;
+	h ^= h >> 15;
+	h *= 0x2C1B3C6Du;
+	h ^= h >> 12;
+	h *= 0x297A2D39u;
+	h ^= h >> 15;
+	return static_cast<float>(h & 0xFFFFFF) / static_cast<float>(0x1000000);
+}
+} // namespace
+
 std::vector<area_fill::Cell> area_fill::fill(int maxCells, float maxRadius,
                                               const std::function<bool(int dx, int dy)>& blocked)
 {
-	maxCells = std::clamp(maxCells, 1, kMaxCells);
-	maxRadius = std::clamp(maxRadius, 0.0f, static_cast<float>(kMaxRadius));
-	const float radius2 = maxRadius * maxRadius;
+	Shape shape;
+	shape.maxCells = maxCells;
+	shape.maxRadius = maxRadius;
+	return fill(shape, blocked);
+}
+
+std::vector<area_fill::Cell> area_fill::fill(const Shape& shape, const std::function<bool(int dx, int dy)>& blocked)
+{
+	const int maxCells = std::clamp(shape.maxCells, 1, kMaxCells);
+	const float maxRadius = std::clamp(shape.maxRadius, 0.0f, static_cast<float>(kMaxRadius));
+
+	// The measured distance of every tile in the window, worked out once.
+	float dirX = shape.dirX;
+	float dirY = shape.dirY;
+	const float dirLength = std::sqrt(dirX * dirX + dirY * dirY);
+	const bool directed = dirLength > 1e-4f;
+	if (directed) {
+		dirX /= dirLength;
+		dirY /= dirLength;
+	}
+	const float stretch = std::max(1.0f, shape.stretch);
+	const float irregular = std::clamp(shape.irregular, 0.0f, 1.0f);
+	std::array<float, areaFillSide * areaFillSide> distance{};
+	for (int y = -kMaxRadius; y <= kMaxRadius; ++y) {
+		for (int x = -kMaxRadius; x <= kMaxRadius; ++x) {
+			float d2 = 0.0f;
+			if (!directed) {
+				d2 = static_cast<float>(x * x + y * y);
+			} else {
+				const float along = static_cast<float>(x) * dirX + static_cast<float>(y) * dirY - shape.forward;
+				const float across = -static_cast<float>(x) * dirY + static_cast<float>(y) * dirX;
+				d2 = shape.line ? along * along + (across / stretch) * (across / stretch)
+				                : (along / stretch) * (along / stretch) + across * across;
+			}
+			float d = std::sqrt(d2);
+			if (irregular > 0.0f && (x != 0 || y != 0)) {
+				d *= 1.0f + irregular * (areaFillNoise(x, y, shape.seed) - 0.5f);
+			}
+			distance[areaFillIndex(x, y)] = d;
+		}
+	}
+	const auto distanceOf = [&](int x, int y) { return distance[areaFillIndex(x, y)]; };
 
 	// 0 unknown, 1 open, 2 blocked: each tile is asked about once.
 	std::array<uint8_t, areaFillSide * areaFillSide> state{};
@@ -50,8 +104,8 @@ std::vector<area_fill::Cell> area_fill::fill(int maxCells, float maxRadius,
 				if (dx == 0 && dy == 0) continue;
 				const int x = fromX + dx;
 				const int y = fromY + dy;
-				if (static_cast<float>(x * x + y * y) > radius2) continue;
 				if (x < -kMaxRadius || x > kMaxRadius || y < -kMaxRadius || y > kMaxRadius) continue;
+				if (distanceOf(x, y) > maxRadius) continue;
 				const int index = areaFillIndex(x, y);
 				if (covered[index] || queued[index]) continue;
 				if (isBlocked(x, y)) continue;
@@ -68,9 +122,9 @@ std::vector<area_fill::Cell> area_fill::fill(int maxCells, float maxRadius,
 	while (static_cast<int>(cells.size()) < maxCells && !frontier.empty()) {
 		// Nearest to the origin first; ties broken by position so the result
 		// never depends on discovery order.
-		auto nearest = std::min_element(frontier.begin(), frontier.end(), [](const Cell& a, const Cell& b) {
-			const int da = a.dx * a.dx + a.dy * a.dy;
-			const int db = b.dx * b.dx + b.dy * b.dy;
+		auto nearest = std::min_element(frontier.begin(), frontier.end(), [&](const Cell& a, const Cell& b) {
+			const float da = distanceOf(a.dx, a.dy);
+			const float db = distanceOf(b.dx, b.dy);
 			if (da != db) return da < db;
 			if (a.dy != b.dy) return a.dy < b.dy;
 			return a.dx < b.dx;

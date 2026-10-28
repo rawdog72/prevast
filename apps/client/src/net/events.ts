@@ -394,7 +394,7 @@ export interface BadKarmaEvent {
 }
 
 /**
- * AREA_EFFECT: a gas, smoke or fire cloud (CloudKind in render/clouds.ts). The
+ * AREA_EFFECT: a gas, smoke or fire zone (CloudKind in render/clouds.ts). The
  * cells are tile offsets from (tileX, tileY) in growth order; at age a the
  * first ceil(n * a / growMs) are covered. A repeat of a known id restates the
  * age for whoever was already shown it.
@@ -402,6 +402,10 @@ export interface BadKarmaEvent {
 export interface AreaEffectEvent {
   id: number;
   kind: number;
+  /** clientEffectId of its effects.xml entry, whose <client> look it is drawn with; 0 = drawn by kind. */
+  effectId: number;
+  /** It blocks vision: the server is not sending what it hides. */
+  hides: boolean;
   tileX: number;
   tileY: number;
   growMs: number;

@@ -3,7 +3,7 @@
 
 export const GAME_PROTOCOL_IDENTIFIER = 30;
 /** Must equal CLIENT_VERSION_MIN..MAX in apps/server/src/core/definitions.h. */
-export const PROTOCOL_VERSION = 1425;
+export const PROTOCOL_VERSION = 1426;
 
 /**
  * Client -> server opcodes, grouped by area. Payload layouts are documented in
@@ -202,6 +202,9 @@ export const ServerOpcode = {
   ACCOUNT_RUN: 136,
   ACCOUNT_CLANS: 137,
 } as const;
+
+/** AREA_EFFECT flags (opcodes.h). */
+export const AREA_EFFECT_HIDES = 1;
 
 export type ServerOpcode = (typeof ServerOpcode)[keyof typeof ServerOpcode];
 

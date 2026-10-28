@@ -108,6 +108,77 @@ void areaFillTestAsksOnce()
 	});
 	areaFillTestCheck(!repeated && asked > 0, "each tile is asked about once");
 }
+// How far the cells reach along x and along y.
+void areaFillTestExtent(const std::vector<area_fill::Cell>& cells, int& spanX, int& spanY, float& meanX)
+{
+	int minX = 0, maxX = 0, minY = 0, maxY = 0;
+	float sumX = 0.0f;
+	for (const auto& c : cells) {
+		minX = std::min<int>(minX, c.dx);
+		maxX = std::max<int>(maxX, c.dx);
+		minY = std::min<int>(minY, c.dy);
+		maxY = std::max<int>(maxY, c.dy);
+		sumX += c.dx;
+	}
+	spanX = maxX - minX;
+	spanY = maxY - minY;
+	meanX = cells.empty() ? 0.0f : sumX / static_cast<float>(cells.size());
+}
+
+void areaFillTestShapes()
+{
+	const auto open = [](int, int) { return false; };
+
+	// The round fill written the old way and the new way is the same fill.
+	area_fill::Shape round;
+	round.maxCells = 40;
+	round.maxRadius = 5.0f;
+	areaFillTestCheck(area_fill::fill(round, open) == area_fill::fill(40, 5.0f, open),
+		"a shape with nothing set is the plain round fill");
+	// A direction alone changes nothing.
+	area_fill::Shape aimed = round;
+	aimed.dirX = 1.0f;
+	areaFillTestCheck(area_fill::fill(aimed, open) == area_fill::fill(40, 5.0f, open),
+		"a direction without stretch or forward stays round");
+
+	// Stretched along +x: longer in x than in y.
+	area_fill::Shape splash = round;
+	splash.maxRadius = 6.0f;
+	splash.dirX = 1.0f;
+	splash.stretch = 2.5f;
+	int spanX = 0, spanY = 0;
+	float meanX = 0.0f;
+	areaFillTestExtent(area_fill::fill(splash, open), spanX, spanY, meanX);
+	areaFillTestCheck(spanX > spanY + 2, "stretch lengthens the shape along the direction");
+
+	// A line across +x: longer in y than in x.
+	area_fill::Shape wall = splash;
+	wall.line = true;
+	areaFillTestExtent(area_fill::fill(wall, open), spanX, spanY, meanX);
+	areaFillTestCheck(spanY > spanX + 2, "a line lies across the direction");
+
+	// Moved forward along +x: its middle is ahead of the origin, which it
+	// still covers.
+	area_fill::Shape ahead = round;
+	ahead.dirX = 1.0f;
+	ahead.forward = 2.0f;
+	const auto forwardCells = area_fill::fill(ahead, open);
+	areaFillTestExtent(forwardCells, spanX, spanY, meanX);
+	areaFillTestCheck(meanX > 1.0f && forwardCells.front() == area_fill::Cell{ 0, 0 },
+		"forward moves the shape on, from the origin");
+
+	// A ragged edge is ragged the same way for the same seed, and walls still
+	// hold it.
+	area_fill::Shape ragged = round;
+	ragged.irregular = 0.8f;
+	ragged.seed = 1234;
+	areaFillTestCheck(area_fill::fill(ragged, open) == area_fill::fill(ragged, open), "the same seed, the same edge");
+	ragged.seed = 99;
+	const auto wallAt2 = [](int dx, int) { return dx == 2; };
+	bool through = false;
+	for (const auto& c : area_fill::fill(ragged, wallAt2)) if (c.dx >= 2) through = true;
+	areaFillTestCheck(!through, "a ragged cloud is still stopped by a wall");
+}
 } // namespace
 
 int area_fill::runSelfTest()
@@ -116,6 +187,7 @@ int area_fill::runSelfTest()
 	areaFillTestOpen();
 	areaFillTestWalls();
 	areaFillTestAsksOnce();
+	areaFillTestShapes();
 	fmt::print(">> area fill self-test: {}\n",
 		areaFillTestFailures == 0 ? "ok" : fmt::format("{} failure(s)", areaFillTestFailures));
 	return areaFillTestFailures;

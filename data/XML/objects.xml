@@ -1258,9 +1258,7 @@
 		<place delayMs="250" />
 		<onStepOut detonate="true"/>
 		<onDestroy>
-			<explosion area="1" playerDamage="200" buildingDamage="400" knockback="20">
-				<onHit condition="slowed" chance="1" durationMs="1000" strength="1.0"/>
-			</explosion>
+			<effect key="landmine_blast"/>
 		</onDestroy>
 		<client render="landmine" blueprint="clear-blue-landmine" redprint="redprint-landmine" z="0" zGroup="-1" particles="kaki" particlesDistance="80" impactSound="steel_impact" destroySound="steel_destroy">
 			<frame index="0" sprite="day-landmine-0"/>
@@ -1277,9 +1275,7 @@
 		<place delayMs="250" />
 		<lifetime durationMs="5000" />
 		<onDestroy>
-			<explosion area="1" playerDamage="180" buildingDamage="1400" knockback="20">
-				<onHit condition="slowed" chance="1" durationMs="1000" strength="1.0"/>
-			</explosion>
+			<effect key="dynamite_blast"/>
 		</onDestroy>
 		<client render="dynamite" blueprint="clear-blue-dynamite" redprint="redprint-dynamite" z="0" zGroup="-1" particles="red_steel" particlesDistance="80" impactSound="pillow_impact">
 			<frame index="0" sprite="day-dynamite"/>
@@ -1291,9 +1287,7 @@
 		<place delayMs="250" />
 		<remote channel="c4" action="detonate"/>
 		<onDestroy>
-			<explosion area="1" playerDamage="255" buildingDamage="6000" knockback="20">
-				<onHit condition="slowed" chance="1" durationMs="2000" strength="1.5"/>
-			</explosion>
+			<effect key="c4_blast"/>
 		</onDestroy>
 		<client render="dynamite" blueprint="clear-blue-C4" redprint="redprint-C4" z="0" zGroup="-1" particles="kaki" particlesDistance="80" impactSound="pillow_impact">
 			<frame index="0" sprite="day-C4"/>

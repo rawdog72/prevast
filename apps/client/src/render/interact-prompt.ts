@@ -23,6 +23,12 @@ import type { InteractTarget } from '../game/input-manager';
 import type { WorldEntity } from '../world/entity-types';
 
 const WRONG_TOOL_MS = 2000;
+/** The wrong-tool popup is drawn at this share of its art size (it was 1.0, too big). */
+const WRONG_TOOL_SCALE = 0.65;
+/** Gap between the bottom of the vitals strip and the top of the popup, HUD px. */
+const WRONG_TOOL_GAP_PX = 10;
+/** Where the vitals strip ends when the HUD has not reported it (14px top + ~58px tall). */
+const DEFAULT_TOP_INSET_PX = 72;
 const HAND_TOOL_SPRITE = 'hand-tool';
 const ROTATE_HINT_SPRITE = 'hint-rotate';
 /** Old client: badge bottom = player y - 65 world units - 60 px (base scale). */
@@ -46,6 +52,18 @@ interface WrongTool {
 export class InteractPrompt {
   private timer: UseTimer | null = null;
   private wrong: WrongTool | null = null;
+  /** Screen y (CSS px) of the bottom of the vitals strip; 0 = unknown, use the default. */
+  private topInset = 0;
+
+  /** The HUD's vitals strip ends here: the wrong-tool popup goes just below it. */
+  setTopInset(px: number): void {
+    this.topInset = Number.isFinite(px) && px > 0 ? px : 0;
+  }
+
+  /** True while the wrong-tool popup is on screen (so callers only measure the HUD then). */
+  get showingWrongTool(): boolean {
+    return this.wrong !== null;
+  }
 
   /** INTERACTION_STARTED: the server counts `delayMultiplier * 100` ms before the action lands. */
   startTimer(delayMultiplier: number): void {
@@ -213,17 +231,20 @@ export class InteractPrompt {
     const t = wt.remainingMs;
     const alpha = t < 500 ? easeInQuad(t / 500) : t > 1500 ? easeInQuad(1 - (t - 1500) / 500) : 1;
     const ui = baseWorldScale(camera.viewportWidth, camera.viewportHeight);
+    const s = ui * WRONG_TOOL_SCALE;
+    const w = (badge.naturalWidth / 2) * s;
+    const h = (badge.naturalHeight / 2) * s;
+    // Centred, just under the vitals strip (which sits at the top of the screen).
+    const inset = this.topInset > 0 ? this.topInset : DEFAULT_TOP_INSET_PX * ui;
     const cx = camera.viewportWidth / 2;
-    const cy = 50 * ui;
+    const cy = inset + WRONG_TOOL_GAP_PX * ui + h / 2;
     const prev = ctx.globalAlpha;
     ctx.globalAlpha = prev * alpha;
-    const w = (badge.naturalWidth / 2) * ui;
-    const h = (badge.naturalHeight / 2) * ui;
     ctx.drawImage(badge.image, cx - w / 2, cy - h / 2, w, h);
     const tool = assets.get(wt.sprite);
     if (tool) {
-      const tw = (tool.naturalWidth / 2) * ui;
-      const th = (tool.naturalHeight / 2) * ui;
+      const tw = (tool.naturalWidth / 2) * s;
+      const th = (tool.naturalHeight / 2) * s;
       ctx.drawImage(tool.image, cx - tw / 2, cy - th / 2, tw, th);
     }
     ctx.globalAlpha = prev;

@@ -17,14 +17,21 @@ import { NetEventBus } from './net/events';
 import { GameSocket } from './net/socket';
 import { createAccountApi } from './ui/home/account-api';
 import { StartScreen, type JoinRequest, type PreloadProgress } from './ui/home/start-screen';
+import { AudioManager } from './audio/audio-manager';
+import { HomeBackdrop, LEAVE_MS } from './ui/home/home-backdrop';
+import { HomeMusic } from './ui/home/home-music';
 import { DisconnectWindow } from './ui/windows/disconnect-window';
 
 const contentStore = new ContentStore();
 const contentCache = new IndexedDbCache();
 const assetLoader = new AssetLoader();
+/** One audio context for the whole page: the title music, then every game session. */
+const audio = new AudioManager();
 
 /** Start-screen visual preparation progress; set once the screen exists. */
 let reportPreload: (progress: PreloadProgress | null) => void = () => {};
+/** Content tables all loaded (the start screen's backdrop waits for them); set once it exists. */
+let reportContentLoaded: () => void = () => {};
 
 async function fetchSpriteManifest(): Promise<void> {
   try {
@@ -49,6 +56,7 @@ async function fetchContentTables(): Promise<void> {
     reportPreload(null);
     throw error;
   }
+  reportContentLoaded();
   void preloadSprites();
 }
 
@@ -200,6 +208,7 @@ function openGameConnection(request: JoinRequest, ticket: string): GameConnectio
 
   const game = new GameLoop({
     canvasManager,
+    audio,
     content: contentStore,
     assets: assetLoader,
     socket,
@@ -253,10 +262,36 @@ function startJoin(request: JoinRequest): void {
   void session.start();
 }
 
-// Start screen lifecycle
+// Start screen lifecycle. The camp scene behind it waits for the content tables.
+const homeBackdrop = new HomeBackdrop({
+  canvas: canvasManager,
+  content: contentStore,
+  assets: assetLoader,
+});
+reportContentLoaded = () => homeBackdrop.setContentReady();
+const homeMusic = new HomeMusic({ audio });
+const homeRoot = document.getElementById('prevast-home');
+if (homeRoot) homeMusic.mountToggle(homeRoot);
 const accountApi = createAccountApi();
 const screen = new StartScreen({
   document,
+  backdrop: {
+    start: () => {
+      homeBackdrop.start();
+      homeMusic.start();
+    },
+    stop: () => {
+      homeBackdrop.stop();
+      homeMusic.stop();
+    },
+    closeIn: () => homeBackdrop.closeIn(),
+    pullBack: () => homeBackdrop.pullBack(),
+    leave: () => {
+      // Done just before the game starts its own ambiance on the same music channel.
+      homeMusic.fadeOut(LEAVE_MS - 50);
+      return homeBackdrop.leave();
+    },
+  },
   onJoin: (request) => startJoin(request),
   onCancel: () => session?.cancel(),
   onEditor: () => {

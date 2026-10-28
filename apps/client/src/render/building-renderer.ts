@@ -200,6 +200,8 @@ const FIRE_LIGHTS = ['day-campfire-light-1', 'day-campfire-light-2', 'day-campfi
 const FIRE_LIGHT_X = [-26, 25, -7];
 const FIRE_LIGHT_Y = [-28, -15, 25];
 const FIRE_GLOW = 'day-campfire-light-down';
+/** Every sprite a burning campfire's light draws (for preloading). */
+export const CAMPFIRE_LIGHT_SPRITES: readonly string[] = [...FIRE_LIGHTS, FIRE_GLOW];
 
 function easeOutQuart(t: number): number {
   return 1 - Math.pow(1 - t, 4);

@@ -9,6 +9,7 @@ data/
     content.xml         Load-order dependencies
     npcs.xml            NPC includes and stable spawn locations
     agents.xml          Agent includes, in declaration order
+    effects.xml         Named effects: blasts, fragments, gas, smoke, fire
     stats.xml           Account stats: what is counted, from which events
     achievements.xml    Account achievements: requirements, points, rewards
   npc/
@@ -81,6 +82,19 @@ connection drops; what could not be sent waits in
 lose up to 30 s of stats. `!achievement=grant|revoke:<guid>:<key>` is for
 testing and support; `!reload=progress` reloads both files (and the quests,
 which name them).
+
+## Effects
+
+`XML/effects.xml` names what can happen at a point: an `<explosion>`,
+`<fragments>`, a `<zone>` left on the ground (gas, smoke or fire), and the
+`<client>` look of that zone. Anything that goes off runs one by name:
+`<onDestroy><effect key="frag_blast"/></onDestroy>` on a projectile or an
+object, `<onDeath><effect key="ghoul_burst"/></onDeath>` on an agent, or a
+quest or trigger script's `{ effect = "toxic_gas" }`. A reference can change
+the effect for that one use: `<effect key="toxic_gas"><zone tiles="60"/></effect>`.
+A zone's shape (`shape`, `stretch`, `forward`, `irregular`, `blockedBy`), its
+timing, damage, smoke rules and look are all set there. The file's opening
+comment documents every attribute.
 
 ## Station fuel
 

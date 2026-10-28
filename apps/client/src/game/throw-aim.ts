@@ -26,6 +26,48 @@ const TILE = 100;
 /** Server fallback when a weapon names no <fire range> (Player::releaseCook). */
 const DEFAULT_RANGE = 800;
 
+interface Blast {
+  area?: number;
+  radius?: number;
+}
+interface EffectRef {
+  key: string;
+  explosion?: Blast;
+}
+
+/**
+ * The first blast an effects.xml reference makes, overrides and all: the
+ * named effect's own <explosion> with the reference's attributes over it, else
+ * the first blast down the effects it chains. Mirrors EffectManager on the
+ * server, which builds the effect the same way.
+ */
+function effectBlast(content: ContentStore, ref: EffectRef, depth = 0): Blast | undefined {
+  if (depth > 8) return undefined;
+  const entry = content.has('effects') ? content.byKey('effects', ref.key) : undefined;
+  const own = entry?.explosion as Blast | undefined;
+  const merged = own || ref.explosion ? { ...own, ...ref.explosion } : undefined;
+  if (merged && ((merged.area ?? 0) > 0 || (merged.radius ?? 0) > 0)) return merged;
+  for (const next of (entry?.effect ?? []) as EffectRef[]) {
+    const blast = effectBlast(content, next, depth + 1);
+    if (blast) return blast;
+  }
+  return undefined;
+}
+
+/** The blast a projectile makes where it goes off: its own <explosion>, else its effects'. */
+function projectileBlast(
+  content: ContentStore,
+  onDestroy: { explosion?: Blast; effect?: EffectRef[] } | undefined,
+): Blast | undefined {
+  if (!onDestroy) return undefined;
+  if (onDestroy.explosion) return onDestroy.explosion;
+  for (const ref of onDestroy.effect ?? []) {
+    const blast = effectBlast(content, ref);
+    if (blast) return blast;
+  }
+  return undefined;
+}
+
 /** The cookable throwable item `iid` resolves to, or null for anything else in hand. */
 export function throwProfileFor(content: ContentStore, iid: number): ThrowProfile | null {
   if (!iid || !content.has('items') || !content.has('equipables')) return null;
@@ -41,7 +83,7 @@ export function throwProfileFor(content: ContentStore, iid: number): ThrowProfil
   const fuseMs = projectile?.lifetime?.durationMs ?? 0;
   if (fuseMs <= 0) return null; // the server throws it like a spear then
   const maxRange = equipable.fire?.range && equipable.fire.range > 0 ? equipable.fire.range : DEFAULT_RANGE;
-  const blast = projectile?.onDestroy?.explosion;
+  const blast = projectileBlast(content, projectile?.onDestroy);
   return {
     minRange: Math.min(equipable.throw.minRange ?? 0, maxRange),
     maxRange,

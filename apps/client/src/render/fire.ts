@@ -38,6 +38,7 @@
 // stay.
 
 import type { Camera } from '../core/camera';
+import type { EffectClient } from '../../../../shared/typescript/content-schema';
 
 const TILE = 100;
 /** How long one tile takes to catch once the spread reaches it (matches the cloud's TILE_APPEAR_MS). */
@@ -53,6 +54,8 @@ export interface FireSource {
   fadeMs: number;
   ageMs: number;
   cells: ReadonlyArray<readonly [number, number]>;
+  /** Its effect's look (effects.xml <client render="fire">); the molotov's without one. */
+  look?: { readonly fire: FireLook };
 }
 
 /** Anything that can stand in the fire: a player or a ghoul, by identity. */
@@ -114,6 +117,57 @@ const EMBER_COLOUR = 'rgb(240,216,104)';
 const SCORCH_COLOUR = 'rgb(46,40,32)';
 const GLASS = ['#a9d3a4', '#5f8f4e', '#e2d4aa'] as const;
 
+/**
+ * The colours of one kind of fire, and whether it starts with a bottle
+ * breaking. effects.xml <client render="fire" flameColors= smokeColor=
+ * smokeLitColor= emberColor= shatter=>; anything left out is the molotov's.
+ */
+export interface FireLook {
+  /** The three flame layers, outermost first. */
+  flames: readonly [string, string, string];
+  smokeDark: string;
+  smokeLight: string;
+  ember: string;
+  /** A bottle breaking where it starts: glass and a fireball. */
+  shatter: boolean;
+}
+
+export const MOLOTOV_FIRE: FireLook = {
+  flames: [FLAME_LAYERS[0]![0], FLAME_LAYERS[1]![0], FLAME_LAYERS[2]![0]],
+  smokeDark: SMOKE_DARK,
+  smokeLight: SMOKE_LIGHT,
+  ember: EMBER_COLOUR,
+  shatter: true,
+};
+
+/** "r,g,b" or any CSS colour; "r,g,b" becomes rgb(r,g,b). */
+function cssColour(text: string | undefined, fallback: string): string {
+  const t = text?.trim();
+  if (!t) return fallback;
+  return /^\d+\s*,\s*\d+\s*,\s*\d+$/.test(t) ? `rgb(${t})` : t;
+}
+
+/** A fire look from an effect's <client>, the molotov's for whatever it leaves out. */
+export function fireLookFrom(client?: EffectClient): FireLook {
+  if (!client) return MOLOTOV_FIRE;
+  const layers = (client.flameColors ?? '')
+    .split(/[;,](?![^(]*\))/)
+    .map((c) => c.trim())
+    .filter((c) => c.length > 0);
+  const flames: [string, string, string] =
+    layers.length === 3 ? [layers[0]!, layers[1]!, layers[2]!] : [...MOLOTOV_FIRE.flames];
+  return {
+    flames,
+    smokeDark: cssColour(client.smokeColor, MOLOTOV_FIRE.smokeDark),
+    smokeLight: cssColour(client.smokeLitColor, MOLOTOV_FIRE.smokeLight),
+    ember: cssColour(client.emberColor, MOLOTOV_FIRE.ember),
+    shatter: client.shatter ?? true,
+  };
+}
+
+/** How many fire looks can be on screen at once with their own colours; past it, the molotov's. */
+const MAX_FIRE_LOOKS = 16;
+
 /** Long-lived low flames per second per tile: the burning carpet the tongues rise from. */
 const BASE_RATE = 1.2;
 
@@ -156,6 +210,8 @@ interface Flame {
   over: boolean;
   /** Slows as it flies: a fireball's lick slows, a rising flame does not. */
   drag: number;
+  /** Which fire look it is drawn in (FireEffects.looks). */
+  look: number;
 }
 
 interface Smoke {
@@ -169,6 +225,7 @@ interface Smoke {
   age: number;
   life: number;
   peak: number;
+  look: number;
 }
 
 interface Ember {
@@ -181,6 +238,7 @@ interface Ember {
   age: number;
   life: number;
   seed: number;
+  look: number;
 }
 
 interface Shard {
@@ -225,6 +283,8 @@ interface FireTile {
   endsAt: number;
   /** Flames owed: the spawn accumulator, so rates hold at any frame rate. */
   owed: number;
+  /** The look of the fire burning it (the last one to reach it). */
+  look: number;
 }
 
 /** A burning tile this update: where, and how hot (0..1). */
@@ -397,6 +457,7 @@ export class FireEffects {
     seed: 0,
     over: false,
     drag: 0,
+    look: 0,
   }));
   private readonly smoke = pool<Smoke>(POOL_SMOKE, () => ({
     active: false,
@@ -409,6 +470,7 @@ export class FireEffects {
     age: 0,
     life: 1,
     peak: 0,
+    look: 0,
   }));
   private readonly embers = pool<Ember>(POOL_EMBERS, () => ({
     active: false,
@@ -420,6 +482,7 @@ export class FireEffects {
     age: 0,
     life: 1,
     seed: 0,
+    look: 0,
   }));
   private readonly shards = pool<Shard>(POOL_SHARDS, () => ({
     active: false,
@@ -455,6 +518,11 @@ export class FireEffects {
   private readonly tiles = new Map<number, FireTile>();
   /** Creatures on fire, and until when (clock). */
   private readonly burning = new Map<FireActor, number>();
+  /** The look each burning creature caught. */
+  private readonly burningLook = new Map<FireActor, number>();
+  /** Fire looks in use, by index; 0 is the molotov's. */
+  private readonly looks: FireLook[] = [MOLOTOV_FIRE];
+  private readonly lookIndex = new Map<string, number>([[JSON.stringify(MOLOTOV_FIRE), 0]]);
   /** Where each live molotov was last seen, and when (clock). */
   private readonly bottles = new Map<number, { x: number; y: number; at: number }>();
   /** Fires already shattered, so a restatement does not break the bottle twice. */
@@ -467,6 +535,21 @@ export class FireEffects {
   lastShatter: { x: number; y: number } | null = null;
 
   constructor(private readonly random: () => number = Math.random) {}
+
+  /** The index of `look` in this.looks, adding it the first time it is seen. */
+  private lookOf(fire: FireSource): number {
+    const look = fire.look?.fire;
+    if (!look || look === MOLOTOV_FIRE) return 0;
+    const key = JSON.stringify(look);
+    let index = this.lookIndex.get(key);
+    if (index === undefined) {
+      if (this.looks.length >= MAX_FIRE_LOOKS) return 0;
+      index = this.looks.length;
+      this.looks.push(look);
+      this.lookIndex.set(key, index);
+    }
+    return index;
+  }
 
   /** Live flames, for tests and the profiler. */
   get flameCount(): number {
@@ -509,6 +592,7 @@ export class FireEffects {
     this.lights = [];
     this.tiles.clear();
     this.burning.clear();
+    this.burningLook.clear();
     this.bottles.clear();
     this.seen.clear();
     this.owed.clear();
@@ -524,6 +608,7 @@ export class FireEffects {
     if (this.seen.has(fire.id)) return;
     this.seen.add(fire.id);
     if (fire.ageMs > SHATTER_FRESH_MS || fire.cells.length === 0) return;
+    if (!(fire.look?.fire ?? MOLOTOV_FIRE).shatter) return;
     this.breakBottleOn(fire);
   }
 
@@ -534,7 +619,8 @@ export class FireEffects {
    */
   rekindle(fire: FireSource): void {
     this.seen.add(fire.id);
-    if (fire.cells.length > 0) this.breakBottleOn(fire);
+    if (fire.cells.length > 0 && (fire.look?.fire ?? MOLOTOV_FIRE).shatter)
+      this.breakBottleOn(fire);
   }
 
   /**
@@ -566,11 +652,11 @@ export class FireEffects {
       y = b.y;
       this.bottles.delete(bestId);
     }
-    this.shatter(x, y);
+    this.shatter(x, y, this.lookOf(fire));
   }
 
-  /** The bottle breaking at (x, y). */
-  shatter(x: number, y: number): void {
+  /** The bottle breaking at (x, y); its fireball in fire look `look`. */
+  shatter(x: number, y: number, look = 0): void {
     const rnd = this.random;
     this.lastShatter = { x, y };
     const flash = this.flashes.find((f) => !f.active) ?? this.flashes[0];
@@ -610,6 +696,7 @@ export class FireEffects {
         480 + rnd() * 320,
         false,
         3,
+        look,
       );
     }
     // The splash: burning fuel thrown further out in small licks.
@@ -625,6 +712,7 @@ export class FireEffects {
         380 + rnd() * 220,
         false,
         4,
+        look,
       );
     }
     // A gout of black smoke and a shower of sparks.
@@ -639,13 +727,14 @@ export class FireEffects {
         12,
         36,
         1,
+        look,
       );
     }
     const sparks = this.reduced ? 8 : 22;
     for (let i = 0; i < sparks; i++) {
       const a = rnd() * Math.PI * 2;
       const speed = 120 + rnd() * 260;
-      this.spawnEmber(x, y, Math.cos(a) * speed, Math.sin(a) * speed - 40, 500 + rnd() * 700);
+      this.spawnEmber(x, y, Math.cos(a) * speed, Math.sin(a) * speed - 40, 500 + rnd() * 700, look);
     }
   }
 
@@ -665,6 +754,7 @@ export class FireEffects {
     const live = new Set<number>();
     for (const fire of input.fires) {
       live.add(fire.id);
+      const look = this.lookOf(fire);
       const left = Math.max(0, fire.growMs + fire.holdMs + fire.fadeMs - fire.ageMs);
       for (let i = 0; i < fire.cells.length; i++) {
         const heat = tileHeat(fire, i);
@@ -684,9 +774,11 @@ export class FireEffects {
             heat: 0,
             endsAt: 0,
             owed: rnd(),
+            look,
           };
           this.tiles.set(key, tile);
         }
+        tile.look = look;
         tile.heat = Math.max(tile.heat, heat);
         tile.endsAt = Math.max(tile.endsAt, this.clock + left);
       }
@@ -733,7 +825,12 @@ export class FireEffects {
         spanX = Math.max(spanX, Math.abs(t.x - midX));
       }
       const patchHeat = heatSum / patch.length;
-      lights.push({ x: midX, y: midY, r: 70 + Math.sqrt(patch.length) * 42, heat: patchHeat });
+      lights.push({
+        x: midX,
+        y: midY,
+        r: 70 + Math.sqrt(patch.length) * 42,
+        heat: patchHeat,
+      });
       if (rnd() < SMOKE_RATE * decor * (0.3 + 0.7 * patchHeat) * Math.sqrt(patch.length) * sec) {
         this.spawnSmoke(
           midX + (rnd() - 0.5) * 2 * (spanX + 30),
@@ -743,6 +840,7 @@ export class FireEffects {
           10 + rnd() * 4,
           28 + rnd() * 14,
           0.7 + 0.3 * patchHeat,
+          start.look,
         );
       }
 
@@ -776,6 +874,7 @@ export class FireEffects {
             520 + rnd() * 360,
             false,
             0,
+            tile.look,
           );
         }
 
@@ -793,6 +892,7 @@ export class FireEffects {
             900 + rnd() * 600,
             false,
             0,
+            tile.look,
           );
         }
 
@@ -803,6 +903,7 @@ export class FireEffects {
             wind.x * 0.6 + (rnd() - 0.5) * 50,
             -(60 + rnd() * 100),
             700 + rnd() * 900,
+            tile.look,
           );
         }
       }
@@ -829,6 +930,7 @@ export class FireEffects {
             6,
             22,
             0.5 + 0.5 * fading,
+            tile.look,
           );
         }
         if (rnd() < 1.2 * decor * fading * sec) {
@@ -838,6 +940,7 @@ export class FireEffects {
             wind.x * 0.3,
             -(20 + rnd() * 40),
             500 + rnd() * 600,
+            tile.look,
           );
         }
       }
@@ -845,23 +948,27 @@ export class FireEffects {
 
     // 3. Creatures in the fire catch; out of it, they burn on a moment.
     if (input.creatures) {
-      const burningTiles = new Set<number>();
+      const burningTiles = new Map<number, number>();
       for (const t of hot)
-        if (t.heat > 0.25)
-          burningTiles.add(tileKey(Math.floor(t.x / TILE), Math.floor(t.y / TILE)));
+        if (t.heat > 0.25) {
+          const key = tileKey(Math.floor(t.x / TILE), Math.floor(t.y / TILE));
+          burningTiles.set(key, this.tiles.get(key)?.look ?? 0);
+        }
       for (const c of input.creatures) {
-        if (
-          burningTiles.size > 0 &&
-          burningTiles.has(tileKey(Math.floor(c.x / TILE), Math.floor(c.y / TILE)))
-        ) {
+        if (burningTiles.size === 0) break;
+        const look = burningTiles.get(tileKey(Math.floor(c.x / TILE), Math.floor(c.y / TILE)));
+        if (look !== undefined) {
           this.burning.set(c, this.clock + AFTERBURN_MS);
+          this.burningLook.set(c, look);
         }
       }
     }
     for (const [c, until] of this.burning) {
       const left = until - this.clock;
+      const look = this.burningLook.get(c) ?? 0;
       if (left <= 0) {
         this.burning.delete(c);
+        this.burningLook.delete(c);
         this.owed.delete(-1 - this.burningIndex(c));
         continue;
       }
@@ -880,11 +987,12 @@ export class FireEffects {
           320 + rnd() * 200,
           true,
           0,
+          look,
         );
       }
       this.owed.set(-1 - this.burningIndex(c), owed);
       if (rnd() < 2.5 * decor * strength * sec) {
-        this.spawnSmoke(c.x, c.y - 30, wind.x, wind.y, 6, 18, strength);
+        this.spawnSmoke(c.x, c.y - 30, wind.x, wind.y, 6, 18, strength, look);
       }
     }
 
@@ -1018,6 +1126,7 @@ export class FireEffects {
     life: number,
     over: boolean,
     drag: number,
+    look = 0,
   ): void {
     if (this.nFlames >= this.flames.length) return;
     {
@@ -1033,6 +1142,7 @@ export class FireEffects {
       f.seed = this.random();
       f.over = over;
       f.drag = drag;
+      f.look = look;
       return;
     }
   }
@@ -1046,6 +1156,7 @@ export class FireEffects {
     r1: number,
     /** Scales the whole puff: how big it gets. */
     peak: number,
+    look = 0,
   ): void {
     if (this.nSmoke >= this.smoke.length) return;
     const s = this.smoke[this.nSmoke++];
@@ -1059,9 +1170,10 @@ export class FireEffects {
     s.age = 0;
     s.life = 2000 + this.random() * 1400;
     s.peak = peak;
+    s.look = look;
   }
 
-  private spawnEmber(x: number, y: number, vx: number, vy: number, life: number): void {
+  private spawnEmber(x: number, y: number, vx: number, vy: number, life: number, look = 0): void {
     if (this.nEmbers >= this.embers.length) return;
     const e = this.embers[this.nEmbers++];
     e.active = true;
@@ -1073,6 +1185,7 @@ export class FireEffects {
     e.age = 0;
     e.life = life;
     e.seed = this.random();
+    e.look = look;
   }
 
   private nextShard(): Shard {
@@ -1193,47 +1306,58 @@ export class FireEffects {
     this.drawFlames(ctx, view, timeMs, true);
 
     // Smoke: grey puffs that swell as they drift off and shrink away. The
-    // body and its lit top are each one flat shape.
-    for (const lit of [false, true]) {
-      ctx.beginPath();
-      let any = false;
-      for (let i = 0; i < this.nSmoke; i++) {
-        const s = this.smoke[i];
-        const u = s.age / s.life;
-        const r =
-          (s.r0 + (s.r1 - s.r0) * Math.min(1, u * 2)) *
-          (u < 0.55 ? 1 : 1 - (u - 0.55) / 0.45) *
-          s.peak;
-        if (r <= 0.5 || !inView(view, s.x, s.y, r * 1.6)) continue;
-        any = true;
-        // A puff is three lobes, like the explosion's smoke, its lit top on the upper one.
-        if (lit) addCircle(ctx, s.x - r * 0.3, s.y - r * 0.42, r * 0.5);
-        else {
-          addCircle(ctx, s.x, s.y, r);
-          addCircle(ctx, s.x - r * 0.62, s.y + r * 0.18, r * 0.66);
-          addCircle(ctx, s.x + r * 0.55, s.y + r * 0.28, r * 0.58);
+    // body and its lit top are each one flat shape per fire look.
+    let smokeLooks = 0;
+    for (let i = 0; i < this.nSmoke; i++) smokeLooks |= 1 << this.smoke[i].look;
+    for (let look = 0; look < this.looks.length; look++) {
+      if (!(smokeLooks & (1 << look))) continue;
+      for (const lit of [false, true]) {
+        ctx.beginPath();
+        let any = false;
+        for (let i = 0; i < this.nSmoke; i++) {
+          const s = this.smoke[i];
+          if (s.look !== look) continue;
+          const u = s.age / s.life;
+          const r =
+            (s.r0 + (s.r1 - s.r0) * Math.min(1, u * 2)) *
+            (u < 0.55 ? 1 : 1 - (u - 0.55) / 0.45) *
+            s.peak;
+          if (r <= 0.5 || !inView(view, s.x, s.y, r * 1.6)) continue;
+          any = true;
+          // A puff is three lobes, like the explosion's smoke, its lit top on the upper one.
+          if (lit) addCircle(ctx, s.x - r * 0.3, s.y - r * 0.42, r * 0.5);
+          else {
+            addCircle(ctx, s.x, s.y, r);
+            addCircle(ctx, s.x - r * 0.62, s.y + r * 0.18, r * 0.66);
+            addCircle(ctx, s.x + r * 0.55, s.y + r * 0.28, r * 0.58);
+          }
         }
+        if (!any) continue;
+        ctx.globalAlpha = SMOKE_ALPHA;
+        ctx.fillStyle = lit ? this.looks[look]!.smokeLight : this.looks[look]!.smokeDark;
+        ctx.fill();
       }
-      if (!any) continue;
-      ctx.globalAlpha = SMOKE_ALPHA;
-      ctx.fillStyle = lit ? SMOKE_LIGHT : SMOKE_DARK;
-      ctx.fill();
     }
 
     // Embers: the campfire's little yellow sparks, shrinking out.
     ctx.globalAlpha = 0.9;
-    ctx.fillStyle = EMBER_COLOUR;
-    ctx.beginPath();
-    let sparks = false;
-    for (let i = 0; i < this.nEmbers; i++) {
-      const e = this.embers[i];
-      if (!inView(view, e.x, e.y, 6)) continue;
-      const z = e.size * (1 - e.age / e.life);
-      if (z <= 0.3) continue;
-      sparks = true;
-      addCircle(ctx, e.x, e.y, z);
+    let emberLooks = 0;
+    for (let i = 0; i < this.nEmbers; i++) emberLooks |= 1 << this.embers[i].look;
+    for (let look = 0; look < this.looks.length; look++) {
+      if (!(emberLooks & (1 << look))) continue;
+      ctx.fillStyle = this.looks[look]!.ember;
+      ctx.beginPath();
+      let sparks = false;
+      for (let i = 0; i < this.nEmbers; i++) {
+        const e = this.embers[i];
+        if (e.look !== look || !inView(view, e.x, e.y, 6)) continue;
+        const z = e.size * (1 - e.age / e.life);
+        if (z <= 0.3) continue;
+        sparks = true;
+        addCircle(ctx, e.x, e.y, z);
+      }
+      if (sparks) ctx.fill();
     }
-    if (sparks) ctx.fill();
     ctx.restore();
   }
 
@@ -1245,24 +1369,33 @@ export class FireEffects {
     over: boolean,
   ): void {
     const t = timeMs / 1000;
-    for (const [colour, scale] of FLAME_LAYERS) {
-      ctx.beginPath();
-      let any = false;
-      for (let i = 0; i < this.nFlames; i++) {
-        const f = this.flames[i];
-        if (f.over !== over) continue;
-        const r = f.r * flameScale(f.age / f.life) * scale;
-        // A speck reads as a stray little fire, not as part of the blaze: skip it.
-        if (r <= MIN_DRAWN_R || !inView(view, f.x, f.y, f.r * 3)) continue;
-        any = true;
-        // The inner colours sit a little lower, hugging the base, and every
-        // flame's tip wags on its own beat.
-        const lean = Math.sin(t * 6 + f.seed * 30) * 0.6;
-        addFlame(ctx, f.x, f.y + f.r * (1 - scale) * 0.45, r, lean);
+    let used = 0;
+    for (let i = 0; i < this.nFlames; i++)
+      if (this.flames[i].over === over) used |= 1 << this.flames[i].look;
+    for (let look = 0; look < this.looks.length; look++) {
+      if (!(used & (1 << look))) continue;
+      const colours = this.looks[look]!.flames;
+      for (let layer = 0; layer < FLAME_LAYERS.length; layer++) {
+        const scale = FLAME_LAYERS[layer]![1];
+        const colour = colours[layer]!;
+        ctx.beginPath();
+        let any = false;
+        for (let i = 0; i < this.nFlames; i++) {
+          const f = this.flames[i];
+          if (f.over !== over || f.look !== look) continue;
+          const r = f.r * flameScale(f.age / f.life) * scale;
+          // A speck reads as a stray little fire, not as part of the blaze: skip it.
+          if (r <= MIN_DRAWN_R || !inView(view, f.x, f.y, f.r * 3)) continue;
+          any = true;
+          // The inner colours sit a little lower, hugging the base, and every
+          // flame's tip wags on its own beat.
+          const lean = Math.sin(t * 6 + f.seed * 30) * 0.6;
+          addFlame(ctx, f.x, f.y + f.r * (1 - scale) * 0.45, r, lean);
+        }
+        if (!any) continue;
+        ctx.fillStyle = colour;
+        ctx.fill();
       }
-      if (!any) continue;
-      ctx.fillStyle = colour;
-      ctx.fill();
     }
   }
 }

@@ -10,6 +10,7 @@
 #include "core/definitions.h"
 #include "gameplay/progress/game_event.h"
 #include "gameplay/condition.h" // ConditionApplication, for <explosion><onHit>
+#include "gameplay/effect.h"
 #include <pugixml.hpp>
 #include <unordered_map>
 #include <vector>
@@ -25,18 +26,8 @@ struct StorageContent {
 	float chance = 1.0f;
 };
 
-struct ObjectExplosion {
-	bool enabled = false;
-	uint16_t playerDamage = 0;
-	uint16_t buildingDamage = 0;
-	float knockback = 0.0f;
-	uint16_t radius = 0;   // circular pixel range (used when area == 0)
-	uint16_t area = 0;     // tiles around the explosion's tile; overrides radius when > 0
-	float throughWall = 0.0f; // share reaching a creature behind a wall; see ProjectileExplosion
-	// What the BLAST inflicts on every creature caught in it. See
-	// ProjectileExplosion::onHit -- one shape, one shared parser.
-	ConditionApplication onHit;
-};
+// An object's blast is the shared one (gameplay/effect.h).
+using ObjectExplosion = EffectExplosion;
 
 struct RespawnerItem {
 	uint16_t iid = 0;
@@ -255,7 +246,9 @@ struct ObjectData {
 	}
 
 	std::vector<ItemDrop> drops;
-	ObjectExplosion explosion;
+	// <onDestroy>: what happens where it is destroyed -- its own <explosion>,
+	// <fragments> and <zone>, and any <effect key=> from effects.xml.
+	EffectList effects;
 
 	uint32_t lifetimeMs = 0;
 
@@ -489,7 +482,7 @@ public:
 
 private:
 	void executeTrigger(const TriggerAction& trigger, Creature* target);
-	void executeExplosion(const ObjectExplosion& exp, Player* attacker);
+	void runDestroyEffects(const EffectList& effects, Player* attacker);
 	// `destroyed` false: clients drop it without the destruction animation.
 	void finishDestruction(const ObjectData* od, bool destroyed = true);
 

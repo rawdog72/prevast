@@ -1,0 +1,203 @@
+{
+  "name": "effects",
+  "version": 1,
+  "hash": "6c103ca9d0ed38d5",
+  "attributes": {},
+  "entries": {
+    "offensive_blast": {
+      "key": "offensive_blast",
+      "id": 1,
+      "clientEffectId": 1,
+      "explosion": {
+        "area": 1,
+        "playerDamage": 200,
+        "buildingDamage": 400,
+        "knockback": 20,
+        "onHit": {
+          "condition": "slowed",
+          "chance": 1,
+          "durationMs": 600,
+          "strength": 0.2
+        }
+      }
+    },
+    "frag_blast": {
+      "key": "frag_blast",
+      "id": 2,
+      "clientEffectId": 2,
+      "explosion": {
+        "radius": 90,
+        "playerDamage": 40,
+        "buildingDamage": 30,
+        "knockback": 4
+      },
+      "fragments": {
+        "projectile": "frag_fragment",
+        "count": 22,
+        "range": 400,
+        "damage": 40,
+        "buildingDamage": 40,
+        "spread": 1,
+        "rangeVariation": 0.6,
+        "speedVariation": 0.4,
+        "falloff": 0.4
+      }
+    },
+    "toxic_gas": {
+      "key": "toxic_gas",
+      "id": 3,
+      "clientEffectId": 3,
+      "zone": {
+        "kind": "gas",
+        "tiles": 30,
+        "growMs": 3000,
+        "holdMs": 10000,
+        "fadeMs": 3000,
+        "tickMs": 500,
+        "damage": 6,
+        "damageType": "gas",
+        "onHit": {
+          "condition": "choking"
+        }
+      },
+      "client": {
+        "render": "puff",
+        "color": "150,178,52",
+        "alpha": 0.42
+      }
+    },
+    "smoke_screen": {
+      "key": "smoke_screen",
+      "id": 4,
+      "clientEffectId": 4,
+      "zone": {
+        "kind": "smoke",
+        "tiles": 40,
+        "growMs": 2000,
+        "holdMs": 15000,
+        "fadeMs": 4000
+      },
+      "client": {
+        "render": "puff",
+        "color": "170,170,170",
+        "alpha": 0.85,
+        "insideAlpha": 0.3,
+        "maskColor": "48,48,48",
+        "maskAlpha": 0.94
+      }
+    },
+    "molotov_fire": {
+      "key": "molotov_fire",
+      "id": 5,
+      "clientEffectId": 5,
+      "zone": {
+        "kind": "fire",
+        "tiles": 9,
+        "radius": 2,
+        "growMs": 500,
+        "holdMs": 8000,
+        "fadeMs": 1500,
+        "tickMs": 500,
+        "damage": 8,
+        "damageType": "fire",
+        "buildingDamage": 90,
+        "burns": "wood,cloth",
+        "onHit": {
+          "condition": "burning"
+        }
+      },
+      "client": {
+        "render": "fire",
+        "shatter": true
+      }
+    },
+    "landmine_blast": {
+      "key": "landmine_blast",
+      "id": 6,
+      "clientEffectId": 6,
+      "explosion": {
+        "area": 1,
+        "playerDamage": 200,
+        "buildingDamage": 400,
+        "knockback": 20,
+        "onHit": {
+          "condition": "slowed",
+          "chance": 1,
+          "durationMs": 1000,
+          "strength": 1
+        }
+      }
+    },
+    "dynamite_blast": {
+      "key": "dynamite_blast",
+      "id": 7,
+      "clientEffectId": 7,
+      "explosion": {
+        "area": 1,
+        "playerDamage": 180,
+        "buildingDamage": 1400,
+        "knockback": 20,
+        "onHit": {
+          "condition": "slowed",
+          "chance": 1,
+          "durationMs": 1000,
+          "strength": 1
+        }
+      }
+    },
+    "c4_blast": {
+      "key": "c4_blast",
+      "id": 8,
+      "clientEffectId": 8,
+      "explosion": {
+        "area": 1,
+        "playerDamage": 255,
+        "buildingDamage": 6000,
+        "knockback": 20,
+        "onHit": {
+          "condition": "slowed",
+          "chance": 1,
+          "durationMs": 2000,
+          "strength": 1.5
+        }
+      }
+    },
+    "barrel_blast": {
+      "key": "barrel_blast",
+      "id": 9,
+      "clientEffectId": 9,
+      "explosion": {
+        "area": 1,
+        "playerDamage": 250,
+        "buildingDamage": 10000,
+        "knockback": 20,
+        "onHit": {
+          "condition": "slowed",
+          "chance": 1,
+          "durationMs": 1000,
+          "strength": 1
+        }
+      }
+    },
+    "ghoul_burst": {
+      "key": "ghoul_burst",
+      "id": 10,
+      "clientEffectId": 10,
+      "explosion": {
+        "radius": 40,
+        "playerDamage": 120,
+        "buildingDamage": 500
+      }
+    },
+    "teslabot_burst": {
+      "key": "teslabot_burst",
+      "id": 11,
+      "clientEffectId": 11,
+      "explosion": {
+        "radius": 40,
+        "playerDamage": 100,
+        "buildingDamage": 100
+      }
+    }
+  }
+}

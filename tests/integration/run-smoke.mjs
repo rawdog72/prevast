@@ -191,6 +191,7 @@ try {
   if (!accountsDbUrl) await runTest('weapon-mods', 'tests/integration/live-weapon-mods-test.ts');
   if (!accountsDbUrl) await runTest('aim', 'tests/integration/live-aim-test.ts');
   if (!accountsDbUrl) await runTest('upgrade', 'tests/integration/live-upgrade-test.ts');
+  if (!accountsDbUrl) await runTest('effects', 'tests/integration/live-effects-test.ts');
   if (accountsDbUrl) await runTest('account', 'tests/integration/live-account-test.ts');
   console.log(`Isolated integration passed. Logs: ${run}`);
 } finally {

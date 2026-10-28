@@ -293,15 +293,15 @@ void Object::removeFromQueue(uint8_t slot)
 	}
 }
 
-void Object::executeExplosion(const ObjectExplosion& exp, Player* attacker)
+void Object::runDestroyEffects(const EffectList& effects, Player* attacker)
 {
-	if (!exp.enabled) return;
+	if (effects.empty()) return;
 
-	// Shared explosion logic. The exploding object itself is safe as a splash
+	// Shared effect logic. The exploding object itself is safe as a splash
 	// target: its damage is applied deferred by ID, and by then this object is
-	// destroyed and off the map. Unlike the old inline copy this also respects
-	// player invincibility, matching projectile explosions.
-	g_game.executeExplosion(position, exp.radius, exp.area, exp.playerDamage, exp.buildingDamage, exp.knockback, attacker ? attacker->getID() : 0, &exp.onHit, exp.throughWall);
+	// destroyed and off the map. Like projectile explosions, it respects player
+	// invincibility.
+	g_game.runEffects(effects, position, attacker ? attacker->getID() : 0);
 }
 
 // Shared destruction tail: removal broadcast, map removal, subtype refresh,
@@ -397,9 +397,7 @@ int32_t Object::changeHealth(int32_t healthDelta, uint8_t angle, Player* attacke
 			// Destruction
 			if (od) {
 
-				if (od->explosion.enabled) {
-					executeExplosion(od->explosion, attacker);
-				}
+				runDestroyEffects(od->effects, attacker);
 
 				// Everything the object held spreads round it in one burst,
 				// starting just outside its footprint.
@@ -1294,9 +1292,12 @@ bool ObjectManager::loadFromXml(const std::string& filename)
 			}
 		}
 
+		// <onDestroy>: its own <explosion>, <fragments> and <zone>, and any
+		// <effect key=> from effects.xml. Saying none of them keeps a base's.
 		pugi::xml_node onDestroyNode = objNode.child("onDestroy");
 		if (onDestroyNode) {
-			xml_utils::parseExplosionChild(onDestroyNode, od.explosion, true);
+			EffectManager::getInstance().parseEffects(onDestroyNode, od.effects, filename,
+				fmt::format("object '{}'", od.key));
 		}
 
 		pugi::xml_node onStepInNode = objNode.child("onStepIn");

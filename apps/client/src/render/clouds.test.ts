@@ -4,12 +4,16 @@
 import { describe, expect, it } from 'vitest';
 import { Camera } from '../core/camera';
 import type { AreaEffectEvent } from '../net/events';
-import { CloudKind, CloudLayer, cloudFrame, obscures, smokeHeld, softMask } from './clouds';
+import { CloudKind, CloudLayer, cloudFrame, cloudLook, obscures, smokeHeld, softMask } from './clouds';
 
 function gas(over: Partial<AreaEffectEvent> = {}): AreaEffectEvent {
+  const kind = over.kind ?? CloudKind.GAS;
   return {
     id: 1,
-    kind: CloudKind.GAS,
+    kind,
+    effectId: 0,
+    // The server says; by default smoke hides and nothing else does.
+    hides: kind === CloudKind.SMOKE,
     tileX: 10,
     tileY: 10,
     growMs: 2000,
@@ -581,5 +585,86 @@ describe('the soft edge of the mask', () => {
     expect(leaving).toBeGreaterThan(0.8);
     expect(leaving).toBeLessThan(1);
     expect(at(1600, outside)).toBe(0);
+  });
+});
+
+describe('effect looks (effects.xml <client>)', () => {
+  it('falls back to the kind for anything a look leaves out or gets wrong', () => {
+    expect(cloudLook(CloudKind.GAS)).toMatchObject({ render: 'puff', rgb: [150, 178, 52], alpha: 0.42 });
+    expect(cloudLook(CloudKind.FIRE).render).toBe('fire');
+    const look = cloudLook(CloudKind.SMOKE, { color: 'not a colour', alpha: 7, size: 1.2 });
+    expect(look).toMatchObject({ render: 'puff', rgb: [170, 170, 170], alpha: 1, size: 1.2 });
+  });
+
+  it('draws a zone in its effect\'s colour and thickness', () => {
+    const layer = new CloudLayer();
+    layer.lookSource = (id) => (id === 3 ? { render: 'puff', color: '200,0,0', alpha: 0.5 } : undefined);
+    layer.apply(gas({ effectId: 3, ageMs: 3000 }));
+    const { ctx, stops } = smokeContext();
+    layer.render(ctx, wideCamera(), 0, { x: 300, y: 300 });
+    expect(stops.length).toBeGreaterThan(0);
+    expect(stops.every((c) => c.startsWith('rgba(200,0,0,'))).toBe(true);
+    expect(peakAlpha(stops)).toBeCloseTo(0.5);
+  });
+
+  it('draws nothing for render="none", and a fire-kind zone as puffs when told to', () => {
+    const hidden = new CloudLayer(() => null);
+    hidden.lookSource = () => ({ render: 'none' });
+    hidden.apply(gas({ effectId: 9, ageMs: 3000 }));
+    const none = recordingContext();
+    hidden.render(none.ctx, wideCamera(), 0);
+    expect(none.centres).toHaveLength(0);
+
+    const puffs = new CloudLayer(() => null);
+    puffs.lookSource = () => ({ render: 'puff', color: '90,160,255' });
+    puffs.apply(gas({ kind: CloudKind.FIRE, effectId: 9, ageMs: 3000 }));
+    for (let i = 0; i < 30; i++) puffs.update(16);
+    expect(puffs.fire.flameCount).toBe(0);
+    const drawn = recordingContext();
+    puffs.render(drawn.ctx, wideCamera(), 0);
+    expect(drawn.centres.length).toBeGreaterThan(0);
+  });
+
+  it('masks for any zone the server says hides, in that zone\'s mask colour', () => {
+    const layer = new CloudLayer();
+    layer.lookSource = () => ({ render: 'puff', maskColor: '10,20,30', maskAlpha: 0.5 });
+    layer.apply(gas({ effectId: 4, hides: true, ageMs: 3000 }));
+    expect(layer.inSmoke(1050, 1050)).toBe(true);
+    const inside = smokeContext();
+    const fills: string[] = [];
+    Object.defineProperty(inside.ctx, 'fillStyle', { set: (v: string) => fills.push(v), get: () => '' });
+    layer.render(inside.ctx, wideCamera(), 0, { x: 1050, y: 1050 });
+    expect(inside.rects.length).toBeGreaterThan(0);
+    expect(fills).toContain('rgba(10,20,30,0.5)');
+  });
+
+  it('breaks no bottle for a fire that says shatter="false"', () => {
+    const layer = new CloudLayer(() => null);
+    layer.lookSource = () => ({ render: 'fire', shatter: false, flameColors: '#3050d0,#5080f0,#c0e0ff' });
+    layer.apply(gas({ kind: CloudKind.FIRE, effectId: 12, growMs: 600, holdMs: 8000, fadeMs: 1500, ageMs: 0 }));
+    expect(layer.fire.lastShatter).toBeNull();
+    for (let i = 0; i < 30; i++) layer.update(16);
+    expect(layer.fire.flameCount).toBeGreaterThan(0);
+
+    // Its flames are drawn in its own colours, not the molotov's.
+    const fills: string[] = [];
+    const ctx = {
+      save: () => {},
+      restore: () => {},
+      beginPath: () => {},
+      moveTo: () => {},
+      lineTo: () => {},
+      bezierCurveTo: () => {},
+      arc: () => {},
+      closePath: () => {},
+      fill: () => {},
+      globalAlpha: 1,
+      set fillStyle(v: string) {
+        fills.push(v);
+      },
+    } as unknown as CanvasRenderingContext2D;
+    layer.renderGround(ctx, wideCamera(), 0);
+    expect(fills).toContain('#3050d0');
+    expect(fills).not.toContain('#d9573b');
   });
 });

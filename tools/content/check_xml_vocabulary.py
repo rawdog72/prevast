@@ -42,6 +42,8 @@ INDIRECT = {
     "move", "run", "attack", "use", "build", "turn", "all",
     # content_validation.h: item(node) defaults its attribute name to "item".
     "item",
+    # effect.cpp: a zone's phases, read through phase(name, fallback).
+    "growMs", "holdMs", "fadeMs",
     # skills.xml: presentation metadata exported generically by contentexport.cpp
     # and consumed by the TypeScript skill-tab UI/schema.
     "icon",

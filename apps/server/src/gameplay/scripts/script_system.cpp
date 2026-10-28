@@ -8,12 +8,14 @@
 #include "gameplay/progress/account_runs.h"
 #include "gameplay/agent.h"
 #include "gameplay/condition.h"
+#include "gameplay/effect.h"
 #include "gameplay/game.h"
 #include "gameplay/npc.h"
 #include "gameplay/player.h"
 #include "core/tools.h"
 #include "network/opcodes.h"
 #include "network/protocolgame.h"
+#include <cmath>
 #include <filesystem>
 #include <fstream>
 
@@ -30,6 +32,8 @@ constexpr size_t SS_MAX_TRIGGERS = 64;
 constexpr uint32_t SS_MAX_SPAWN_PER_INTENT = 5, SS_MAX_SPAWNED_PER_PLAYER = 10, SS_MAX_SPAWNED = 200;
 constexpr uint32_t SS_MAX_RADIUS = 1000, SS_MAX_TIMERS_PER_PLAYER = 4, SS_MAX_TIMER_S = 3600;
 constexpr uint32_t SS_FAILURES_TO_DISABLE = 3;
+// effect=: how many one call may set off, and how far from the player.
+constexpr uint32_t SS_MAX_EFFECTS_PER_CALL = 4;
 
 uint64_t ssNow() { return static_cast<uint64_t>(OTSYS_TIME()); }
 
@@ -130,6 +134,21 @@ std::vector<ScriptIntent> script_intents::parse(const ssjson::value& result)
                     in.strength = static_cast<float>(s->to_number<double>());
                 }
             }
+            else if (o.contains("effect")) {
+                in.kind = K::Effect;
+                in.key = ssString(o, "effect", 48, true);
+                if (o.contains("x") || o.contains("y")) {
+                    if (!o.contains("x") || !o.contains("y")) throw std::runtime_error("effect needs both x= and y=, or neither");
+                    in.hasPosition = true;
+                    in.x = ssNumber(o, "x", 0, 0, 65535);
+                    in.y = ssNumber(o, "y", 0, 0, 65535);
+                }
+                if (const auto* a = o.if_contains("angle")) {
+                    if (!a->is_number() || !std::isfinite(a->to_number<double>())) throw std::runtime_error("angle= must be a number (radians)");
+                    in.hasAngle = true;
+                    in.angle = static_cast<float>(a->to_number<double>());
+                }
+            }
             else if (o.contains("after")) {
                 in.kind = K::After;
                 const auto& after = o.at("after");
@@ -137,7 +156,7 @@ std::vector<ScriptIntent> script_intents::parse(const ssjson::value& result)
                 in.seconds = ssNumber(after.get_object(), "seconds", 0, 1, SS_MAX_TIMER_S);
                 in.key = ssString(after.get_object(), "hook", 32, true);
             }
-            else throw std::runtime_error("has no known action (start, advance, complete, fail, setVar, grantAchievement, accountEvent, say, status, spawnAgent, giveItem, takeItem, applyCondition, after)");
+            else throw std::runtime_error("has no known action (start, advance, complete, fail, setVar, grantAchievement, accountEvent, say, status, spawnAgent, giveItem, takeItem, applyCondition, effect, after)");
             out.push_back(std::move(in));
         } catch (const std::exception& e) {
             throw std::runtime_error("action " + std::to_string(i + 1) + ": " + e.what());
@@ -300,7 +319,7 @@ void ScriptSystem::questHook(Player* p, const std::string& quest, const char* ho
 bool ScriptSystem::check(const Pending& pd, Player* p, std::string& problem) const
 {
     using K = ScriptIntent::Kind;
-    uint32_t spawning = 0, timersAdded = 0;
+    uint32_t spawning = 0, timersAdded = 0, effects = 0;
     for (const auto& in : pd.intents) {
         const std::string quest = in.quest.empty() ? pd.quest : in.quest;
         const QuestDefinition* d = quest.empty() ? nullptr : g_quests.definition(quest);
@@ -342,6 +361,18 @@ bool ScriptSystem::check(const Pending& pd, Player* p, std::string& problem) con
                 problem = "after= from an unknown script"; return false;
             }
             break;
+        case K::Effect: {
+            if (!EffectManager::getInstance().get(in.key)) { problem = "unknown effect '" + in.key + "'"; return false; }
+            if (++effects > SS_MAX_EFFECTS_PER_CALL) { problem = "effect: at most 4 per call"; return false; }
+            if (in.hasPosition) {
+                const Position& at = p->getPosition();
+                const double dx = static_cast<double>(in.x) - at.x, dy = static_cast<double>(in.y) - at.y;
+                if (dx * dx + dy * dy > double(SS_MAX_RADIUS) * SS_MAX_RADIUS) {
+                    problem = "effect: x=, y= must be within 1000 of the player"; return false;
+                }
+            }
+            break;
+        }
         case K::Say: case K::Status: break;
         }
     }
@@ -403,6 +434,18 @@ void ScriptSystem::apply(Pending& pd)
             break;
         }
         case K::ApplyCondition: p->addCondition(in.key, 0, in.durationMs, in.strength); break;
+        case K::Effect: {
+            // The world's, not the player's: a quest's trap gas credits no
+            // kill to whoever walked into it.
+            const EffectData* effect = EffectManager::getInstance().get(in.key);
+            const Position at = in.hasPosition
+                ? g_game.clampPositionToMap(static_cast<int32_t>(in.x), static_cast<int32_t>(in.y))
+                : p->getPosition();
+            const float dirX = in.hasAngle ? std::cos(in.angle) : 0.0f;
+            const float dirY = in.hasAngle ? std::sin(in.angle) : 0.0f;
+            if (effect) g_game.runEffect(*effect, at, 0, dirX, dirY);
+            break;
+        }
         case K::After: {
             Timer t;
             t.playerId = pd.playerId;
@@ -571,6 +614,13 @@ int runScriptIntentSelfTest()
         bad(ssjson::parse(R"([{"accountEvent":"winter"}])"), "occurrence", "event rewards require an occurrence");
         bad(ssjson::parse(R"([{"accountEvent":"winter","occurrence":"bad key"}])"), "stable", "event receipt keys reject spaces");
         check(script_intents::parse(nullptr).empty(), "nothing returned is no actions");
+        const auto effects = script_intents::parse(ssjson::parse(R"([
+            {"effect": "toxic_gas"}, {"effect": "smoke_screen", "x": 1200, "y": 800, "angle": 1.5}
+        ])"));
+        check(effects.size() == 2 && effects[0].kind == ScriptIntent::Kind::Effect && effects[0].key == "toxic_gas" &&
+              !effects[0].hasPosition && !effects[0].hasAngle, "effect at the player");
+        check(effects.size() == 2 && effects[1].hasPosition && effects[1].x == 1200 && effects[1].y == 800 &&
+              effects[1].hasAngle && effects[1].angle == 1.5f, "effect fields");
     } catch (const std::exception& e) {
         check(false, fmt::format("valid intents parse: {}", e.what()));
     }
@@ -579,6 +629,8 @@ int runScriptIntentSelfTest()
     bad(ssjson::parse(R"([{"spawnAgent": "ghoul", "count": 6}])"), "count=", "at most 5 agents per action");
     bad(ssjson::parse(R"([{"after": {"seconds": 0, "hook": "x"}}])"), "seconds=", "timers need 1..3600 s");
     bad(ssjson::parse(R"([{"setVar": "x"}])"), "value= or add=", "setVar needs a value");
+    bad(ssjson::parse(R"([{"effect": "toxic_gas", "x": 10}])"), "both x= and y=", "an effect needs both coordinates");
+    bad(ssjson::parse(R"([{"effect": "toxic_gas", "angle": "north"}])"), "angle=", "an effect's angle is a number");
     ssjson::array many;
     for (int i = 0; i < 17; ++i) many.push_back(ssjson::object{{"say", "x"}});
     bad(many, "at most 16", "16 actions per call at most");

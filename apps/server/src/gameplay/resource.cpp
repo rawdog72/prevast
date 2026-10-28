@@ -253,6 +253,18 @@ int32_t Resource::changeHealth(int32_t healthDelta, uint8_t angle, Player* attac
 
 			if (multiplier > 0.0f) {
 				harvestDrops(attacker, rd, multiplier);
+			} else if (!rd->requiredTool.empty()) {
+				// Wrong tool: tell the attacker which one to use. IID 0 is the
+				// client's "use your hand" sprite. The client ignores repeats
+				// while the popup is still up, so one per hit is fine.
+				uint16_t neededIid = 0;
+				if (rd->requiredTool != "hand") {
+					const ItemData* needed = ItemManager::getInstance().getItemData(rd->requiredTool);
+					neededIid = needed ? needed->id : 0;
+				}
+				if (neededIid <= 0xFF) {
+					attacker->sendWrongTool(static_cast<uint8_t>(neededIid));
+				}
 			}
 		}
 
@@ -297,6 +309,22 @@ bool ResourceManager::loadFromXml(const std::string& filename)
 		pugi::xml_node toolsNode = resNode.child("tools");
 		for (pugi::xml_node toolNode = toolsNode.child("tool"); toolNode; toolNode = toolNode.next_sibling("tool")) {
 			rd.toolMultipliers[toolNode.attribute("key").as_string()] = toolNode.attribute("multiplier").as_float();
+		}
+		{
+			float best = 0.0f;
+			for (pugi::xml_node toolNode = toolsNode.child("tool"); toolNode; toolNode = toolNode.next_sibling("tool")) {
+				const std::string toolKey = toolNode.attribute("key").as_string();
+				const float m = toolNode.attribute("multiplier").as_float();
+				if (toolKey == "hand" || m <= 0.0f) continue;
+				if (rd.requiredTool.empty() || m < best) {
+					rd.requiredTool = toolKey;
+					best = m;
+				}
+			}
+			if (rd.requiredTool.empty()) {
+				auto hand = rd.toolMultipliers.find("hand");
+				if (hand != rd.toolMultipliers.end() && hand->second > 0.0f) rd.requiredTool = "hand";
+			}
 		}
 
 		pugi::xml_node typesNode = resNode.child("types");

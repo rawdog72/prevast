@@ -25,9 +25,10 @@ static constexpr auto STATUS_SERVER_DEVELOPERS = "rawdog72";
 // 1424: building upgrades -- OPEN_UPGRADE, START_UPGRADE and CANCEL_UPGRADE in,
 //       UPGRADE_STATE and UPGRADE_FINISHED out.
 // 1425: equipped slots -- SWAP_SLOTS in, EQUIPMENT_STATE out.
-static constexpr auto CLIENT_VERSION_MIN = 1425;
-static constexpr auto CLIENT_VERSION_MAX = 1425;
-static constexpr auto CLIENT_VERSION_STR = "14.25";
+// 1426: effects.xml -- AREA_EFFECT carries the zone's effect id and flags.
+static constexpr auto CLIENT_VERSION_MIN = 1426;
+static constexpr auto CLIENT_VERSION_MAX = 1426;
+static constexpr auto CLIENT_VERSION_STR = "14.26";
 static constexpr auto TILE_SIZE = 100;
 // <fragments> limits. Every fragment is a projectile entity sent to every
 // watcher -- created, stopped and removed -- so the count is what one blast

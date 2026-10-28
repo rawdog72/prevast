@@ -16,6 +16,7 @@ export const XML_TABLES = [
   'kits',
   'objects',
   'furnitures',
+  'effects',
   'projectiles',
   'agents',
   'structures',
@@ -43,6 +44,8 @@ export const TABLE_FILES: Record<XmlTableName, { file: string; root: string; ent
   kits: { file: 'kits.xml', root: 'kits', entry: 'kit' },
   objects: { file: 'objects.xml', root: 'objects', entry: 'object' },
   furnitures: { file: 'furnitures.xml', root: 'objects', entry: 'object' },
+  // Named effects: blasts, fragments, gas, smoke and fire, and how each looks.
+  effects: { file: 'effects.xml', root: 'effects', entry: 'effect' },
   projectiles: { file: 'projectiles.xml', root: 'projectiles', entry: 'projectile' },
   agents: { file: 'agents.xml', root: 'agents', entry: 'agent' },
   structures: { file: 'structures.xml', root: 'structures', entry: 'template' },
@@ -61,6 +64,7 @@ export const ID_ATTRIBUTE: Partial<Record<XmlTableName, string>> = {
   resources: 'id',
   equipables: 'idWeapon',
   wearables: 'skinId',
+  effects: 'clientEffectId',
   projectiles: 'clientProjectileId',
   agents: 'sprite',
   modes: 'clientModeId',
@@ -107,6 +111,10 @@ export const ARRAY_PAIRS: ReadonlySet<string> = new Set([
   'ghoulRules>ghoul',
   'achievement>requires',
   'achievement>reward',
+  // <effect key=> references: always lists, however many there are
+  'onDestroy>effect',
+  'onDeath>effect',
+  'effect>effect',
   // <client> (D2)
   'client>loot',
   'client>sound',

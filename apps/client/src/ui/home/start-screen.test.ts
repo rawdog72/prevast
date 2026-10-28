@@ -70,6 +70,16 @@ describe('StartScreen', () => {
     vi.useRealTimers();
   });
 
+  it('runs the backdrop only while the screen is up', () => {
+    const backdrop = { start: vi.fn(), stop: vi.fn() };
+    const { screen } = build([], undefined, { backdrop });
+    screen.show();
+    expect(backdrop.start).toHaveBeenCalledTimes(1);
+    expect(backdrop.stop).not.toHaveBeenCalled();
+    screen.hide();
+    expect(backdrop.stop).toHaveBeenCalledTimes(1);
+  });
+
   it('shows the list, selects the first open server and enables Play', async () => {
     const { screen } = build([
       server({ id: 'a', state: 'closed', name: 'Closed' }),
@@ -482,7 +492,9 @@ describe('StartScreen', () => {
     screen.show();
     expect($('.dv-loading-detail').textContent).toBe('Loading servers…');
     await vi.advanceTimersByTimeAsync(0);
-    expect($('.dv-status').textContent).toBe('Server list unavailable. Retrying…');
+    // Said once, in the server picker, not again under Play.
+    expect($('.dv-status').textContent).toBe('');
+    expect($('[data-listed]').textContent).toContain("Can't reach the server list");
     stream.snapshot([]);
     expect($('.dv-status').textContent).toBe('No servers available.');
     stream.snapshot([server({})]);

@@ -361,13 +361,8 @@ void Agent::die(Player* killer)
 		}
 		g_game.dropLootBurst(pos, drops);
 
-		// onDeath explosion (explosive_ghoul): hurts players/buildings around it.
-		if (data->explosion.enabled) {
-			g_game.executeExplosion(pos, data->explosion.radius, data->explosion.area,
-				data->explosion.playerDamage, data->explosion.buildingDamage,
-				data->explosion.knockback, killer ? killer->getID() : 0,
-				&data->explosion.onHit, data->explosion.throughWall);
-		}
+		// onDeath effects (explosive_ghoul): hurt players/buildings around it.
+		g_game.runEffects(data->effects, pos, killer ? killer->getID() : 0);
 	}
 
 	// Tell clients it died (isDestruction -> extra=1 triggers the death animation,
@@ -726,9 +721,10 @@ bool AgentManager::loadFromXml(const std::string& filename)
 			parseAbilities(abilities, ad, filename);
 		}
 
-		// onDeath: explosion + drops
+		// onDeath: effects (an <explosion>, a <zone>, <effect key=>) + drops
 		if (pugi::xml_node onDeath = agentNode.child("onDeath")) {
-			xml_utils::parseExplosionChild(onDeath, ad.explosion);
+			EffectManager::getInstance().parseEffects(onDeath, ad.effects, filename,
+				fmt::format("agent '{}'", ad.key));
 			if (pugi::xml_node drops = onDeath.child("drops")) {
 				xml_utils::parseItemDrops(drops, ad.drops, filename,
 					fmt::format("agent '{}'", ad.key));
@@ -808,9 +804,14 @@ void AgentManager::debugDump(const std::string& key) const
 		fmt::print("        {} cd={}ms impact={}ms range={} dmg={}-{} kb={} amount={} proj='{}'\n",
 			abilityTypeName(a.type), a.cooldownMs, a.impactMs, a.range, a.damage.amount, a.damage.amountMax, a.knockback, a.amount, a.projectile);
 	}
-	if (ad->explosion.enabled) {
-		fmt::print("     onDeath explosion: radius={} area={} playerDmg={} buildingDmg={}\n",
-			ad->explosion.radius, ad->explosion.area, ad->explosion.playerDamage, ad->explosion.buildingDamage);
+	for (const EffectData& effect : ad->effects) {
+		if (effect.explosion.enabled) {
+			fmt::print("     onDeath explosion: radius={} area={} playerDmg={} buildingDmg={}\n",
+				effect.explosion.radius, effect.explosion.area, effect.explosion.playerDamage, effect.explosion.buildingDamage);
+		}
+		if (!effect.key.empty()) {
+			fmt::print("     onDeath effect: {}\n", effect.key);
+		}
 	}
 	for (const auto& d : ad->drops) {
 		fmt::print("     onDeath drop: {} x{} (iid={})\n", d.itemKey, d.amount, d.iid);

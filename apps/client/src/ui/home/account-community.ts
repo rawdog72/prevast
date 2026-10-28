@@ -686,6 +686,7 @@ export function mountPublicRankings(
     const retry = sidebar.querySelector<HTMLButtonElement>('[data-home-rankings-retry]')!;
     status.textContent = '';
     retry.hidden = true;
+    delete sidebar.dataset.state;
     try {
       const ranks = await api.rankings();
       loadedAt = Date.now();
@@ -731,13 +732,14 @@ export function mountPublicRankings(
         );
       }
     } catch {
-      status.textContent = 'Leaderboards are unavailable. Try again in a moment.';
       retry.hidden = false;
       if (loadedAt === -Infinity) {
-        for (const kind of ['players', 'clans'])
-          sidebar
-            .querySelector(`[data-home-${kind}]`)!
-            .replaceChildren(node(doc, 'p', 'Scores could not be loaded.', 'dv-ranking-empty'));
+        // Nothing to show at all: one notice instead of two empty boards.
+        sidebar.dataset.state = 'unavailable';
+        status.textContent = "Leaderboards can't be reached right now.";
+      } else {
+        // Keep the boards we have; just say they may be behind.
+        status.textContent = 'Scores may be out of date.';
       }
     } finally {
       pending = false;

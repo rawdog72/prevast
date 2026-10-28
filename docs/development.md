@@ -36,8 +36,10 @@ Accounts live on the web host; a game server accepts them only with `useDatabase
 1. Start MariaDB (any local install, such as the one in XAMPP) and create the game database: `CREATE DATABASE prevast;`
 2. `npm run setup` creates `runtime/development/.account-signing-key`, `.account-admin-token` and `.account-progress-tokens`, and fills `accountPublicKey`, `accountAdminToken` and `accountProgressToken` in new runtime configs. Existing configs gain only missing keys; existing values, including an explicit empty string, are preserved. Keep these files private (POSIX owner-only modes do not restrict Windows ACLs).
 3. Put the accounts database URL in `runtime/development/.accounts-db`, e.g. `mysql://root@127.0.0.1:3306/prevast_accounts` (created on first start).
-4. Set `useDatabase = true` in `runtime/development/config.lua`.
+4. Set `useDatabase = true` in `runtime/development/config.lua`. Point the game server at the game database with `mysqlHost`, `mysqlPort`, `mysqlUser`, `mysqlPass` and `mysqlDatabase` (or the `MYSQL_HOST`, `MYSQL_PORT`, `MYSQL_USER`, `MYSQL_PASSWORD`, `MYSQL_DATABASE` environment variables). If it cannot connect, it stops at boot.
 5. Make yourself admin: register on the start page, then `npm run account:set-group -- <name> 4`.
+
+No SQL schema needs importing: create the game database as in step 1. The web host creates and migrates its account tables on start, and the game server creates its `ip_bans` table. The MySQL user needs permission to create tables.
 
 See [account operations](accounts.md) for SMTP, recovery, session controls and upgrade instructions. Production notes for the web host:
 

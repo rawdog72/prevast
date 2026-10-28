@@ -103,6 +103,43 @@ describe('PlaySession', () => {
   beforeEach(() => vi.useFakeTimers());
   afterEach(() => vi.useRealTimers());
 
+  it('lets the start screen finish its way out before the game starts', async () => {
+    const t = setup();
+    let finish: () => void = () => {};
+    const leave = vi.fn(() => new Promise<void>((resolve) => (finish = resolve)));
+    Object.assign(t.screen, { leave });
+    void t.session.start();
+    await settle();
+    const c = t.last();
+    c.open();
+    c.handshake();
+    await settle();
+    expect(leave).toHaveBeenCalledTimes(1);
+    expect(t.screen.hide).not.toHaveBeenCalled();
+    expect(c.game.start).not.toHaveBeenCalled();
+    finish();
+    await settle();
+    expect(t.screen.hide).toHaveBeenCalledTimes(1);
+    expect(c.game.start).toHaveBeenCalledTimes(1);
+  });
+
+  it('drops the joined game if Main menu wins during the way out', async () => {
+    const t = setup();
+    let finish: () => void = () => {};
+    Object.assign(t.screen, { leave: () => new Promise<void>((resolve) => (finish = resolve)) });
+    void t.session.start();
+    await settle();
+    const c = t.last();
+    c.open();
+    c.handshake();
+    await settle();
+    t.session.mainMenu();
+    finish();
+    await settle();
+    expect(c.game.start).not.toHaveBeenCalled();
+    expect(c.close).toHaveBeenCalled();
+  });
+
   it('shows the game only on HANDSHAKE, with progress on the start screen until then', async () => {
     const t = setup();
     void t.session.start();

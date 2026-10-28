@@ -248,10 +248,13 @@ enum class ServerOpcode : uint8_t {
     PLAYER_DIED = 31,          // [u8 pid]: another player died
     // 32 is free: it was SHRAPNEL_BURST until 1421. A frag's fragments are
     // ordinary projectiles now, sent as entity records like any bullet.
-    // A cloud on the ground: gas, smoke or fire (Game::spawnCloud).
-    //     [u16 id][u8 kind][u16 tileX][u16 tileY][u16 growMs][u16 holdMs][u16 fadeMs]
-    //     [u16 ageMs][u8 n]([i8 dx][i8 dy])*n
-    // kind is CloudKind. The n tiles are offsets from (tileX, tileY) in growth
+    // A zone on the ground: gas, smoke or fire (Game::spawnCloud).
+    //     [u16 id][u8 kind][u16 effectId][u8 flags][u16 tileX][u16 tileY]
+    //     [u16 growMs][u16 holdMs][u16 fadeMs][u16 ageMs][u8 n]([i8 dx][i8 dy])*n
+    // kind is CloudKind. effectId is the clientEffectId of its effects.xml
+    // entry, whose <client> look the client draws it with; 0 for a zone written
+    // inline, drawn by kind. flags: AREA_EFFECT_HIDES when it blocks vision
+    // (the server stops sending what it hides). The n tiles are offsets from (tileX, tileY) in growth
     // order: at age a the first ceil(n * a / growMs) of them are covered. It is
     // over at growMs + holdMs + fadeMs and needs no removal. Sent when the cloud
     // appears and every CLOUD_RESEND_MS after, so a player who walks into view
@@ -391,6 +394,9 @@ enum class ServerOpcode : uint8_t {
     ACCOUNT_RUN = 136,         // [str json]: own survivor run and cap progress
     ACCOUNT_CLANS = 137,       // [str json {players:[{pid,clan}]}]: online permanent clan identities
 };
+
+// AREA_EFFECT flags.
+inline constexpr uint8_t AREA_EFFECT_HIDES = 1;
 
 // AREA_EFFECT kinds: what a cloud looks like. Wire values: never renumber.
 enum class CloudKind : uint8_t {

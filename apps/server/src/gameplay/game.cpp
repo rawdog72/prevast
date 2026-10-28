@@ -6898,42 +6898,75 @@ void Game::applyProjectilePayload(Projectile* projectile, const ProjectileData* 
 {
 	if (pdata && pdata->detonates()) {
 		const uint32_t attackerId = projectile->getShooter() ? projectile->getShooter()->getID() : 0;
-		detonateProjectile(*pdata, pos, attackerId);
+		// The way it was flying when it went off: stopAt() zeroes the velocity
+		// but keeps the heading. A grenade dropped at someone's feet never had
+		// one.
+		float dirX = 0.0f, dirY = 0.0f;
+		if (projectile->getSpeed() > 0.0f) {
+			dirX = std::cos(projectile->getAngle());
+			dirY = std::sin(projectile->getAngle());
+		}
+		detonateProjectile(*pdata, pos, attackerId, dirX, dirY);
 	} else {
 		dropProjectileItem(projectile, pos);
 	}
 }
 
-void Game::detonateProjectile(const ProjectileData& pdata, const Position& pos, uint32_t attackerId)
+void Game::detonateProjectile(const ProjectileData& pdata, const Position& pos, uint32_t attackerId,
+                              float dirX, float dirY)
 {
-	if (pdata.explosion.enabled) {
-		const ProjectileExplosion& blast = pdata.explosion;
-		executeExplosion(pos, blast.radius, blast.area, blast.playerDamage, blast.buildingDamage, blast.knockback,
-		                 attackerId, &blast.onHit, blast.throughWall);
-	}
-	if (pdata.fragments.enabled) {
-		fireFragments(pos, pdata.fragments, attackerId);
-	}
-	if (pdata.cloud.enabled) {
-		spawnCloud(pos, pdata.cloud, attackerId);
+	runEffects(pdata.effects, pos, attackerId, dirX, dirY);
+}
+
+void Game::runEffects(const EffectList& effects, const Position& pos, uint32_t attackerId, float dirX, float dirY)
+{
+	for (const EffectData& effect : effects) {
+		runEffect(effect, pos, attackerId, dirX, dirY, 0);
 	}
 }
 
-bool Game::isCloudBlockedTile(int32_t tileX, int32_t tileY)
+void Game::runEffect(const EffectData& effect, const Position& pos, uint32_t attackerId, float dirX, float dirY,
+                     int depth)
+{
+	// EffectManager cuts chains off at load; this only guards a chain built
+	// some other way from running forever.
+	if (depth > 8) return;
+
+	if (effect.explosion.enabled) {
+		const EffectExplosion& blast = effect.explosion;
+		executeExplosion(pos, blast.radius, blast.area, blast.playerDamage, blast.buildingDamage, blast.knockback,
+		                 attackerId, &blast.onHit, blast.throughWall);
+	}
+	if (effect.fragments.enabled) {
+		fireFragments(pos, effect.fragments, attackerId);
+	}
+	if (effect.zone.enabled) {
+		spawnCloud(pos, effect.zone, attackerId, dirX, dirY);
+	}
+	for (const EffectData& next : effect.then) {
+		runEffect(next, pos, attackerId, dirX, dirY, depth + 1);
+	}
+}
+
+bool Game::isCloudBlockedTile(int32_t tileX, int32_t tileY, uint8_t blockedBy)
 {
 	if (tileX < 0 || tileY < 0 ||
 	    tileX >= static_cast<int32_t>(MapSize::tilesX()) || tileY >= static_cast<int32_t>(MapSize::tilesY())) {
 		return true;
 	}
+	if (blockedBy == 0) return false;
 	// A wall or a closed door whose outline covers the middle of the tile: the
-	// same things that stop a bullet. Rocks and trees stand IN a cloud.
+	// same things that stop a bullet. Rocks and trees stand IN a cloud unless
+	// it says blockedBy="walls,scenery".
 	const float centerX = static_cast<float>(tileX * TILE_SIZE + TILE_SIZE / 2);
 	const float centerY = static_cast<float>(tileY * TILE_SIZE + TILE_SIZE / 2);
 	const int32_t margin = Map::collisionScanTileMargin();
 	std::vector<Thing*> things;
 	map.getSolidThingsInTileBox(tileX - margin, tileY - margin, tileX + margin, tileY + margin, things);
 	for (Thing* thing : things) {
-		if (!thing->getObject()) continue;
+		const bool wall = thing->getObject() != nullptr;
+		const bool scenery = thing->getResource() != nullptr;
+		if (!(wall && (blockedBy & ZoneBlock::Walls)) && !(scenery && (blockedBy & ZoneBlock::Scenery))) continue;
 		scenery_geometry::Shape shape;
 		if (gameSceneryShape(thing, shape) && scenery_geometry::containsDeep(shape, centerX, centerY, 0.0f)) {
 			return true;
@@ -6957,9 +6990,10 @@ static bool canMergeClouds(const ProjectileCloud& cloud)
 // fire (another damage, another tick) stays a cloud of its own.
 static bool sameCloudType(const ProjectileCloud& a, const ProjectileCloud& b)
 {
-	return a.kind == b.kind && a.damage == b.damage && a.damageType == b.damageType && a.tickMs == b.tickMs &&
-	       a.buildingDamage == b.buildingDamage && a.burns == b.burns && a.growMs == b.growMs &&
-	       a.holdMs == b.holdMs && a.fadeMs == b.fadeMs && a.onHit.key == b.onHit.key;
+	return a.kind == b.kind && a.effectId == b.effectId && a.damage == b.damage && a.damageType == b.damageType &&
+	       a.tickMs == b.tickMs && a.buildingDamage == b.buildingDamage && a.burns == b.burns &&
+	       a.growMs == b.growMs && a.holdMs == b.holdMs && a.fadeMs == b.fadeMs && a.onHit.key == b.onHit.key &&
+	       a.onEnd == b.onEnd;
 }
 
 // Folds a new cloud -- `cells`, offsets from (tileX, tileY) -- into `existing`
@@ -7023,18 +7057,19 @@ static bool mergeCloud(ActiveCloud& existing, const ProjectileCloud& cloud, int3
 // A grenade resting against a wall can sit on that wall's own tile. Spreading
 // from there would leak to both sides, so it starts from the open tile next to
 // it that is nearest the grenade -- the side it was thrown from.
-void Game::spawnCloud(const Position& pos, const ProjectileCloud& cloud, uint32_t attackerId)
+void Game::spawnCloud(const Position& pos, const EffectZone& cloud, uint32_t attackerId, float dirX, float dirY)
 {
 	if (!cloud.enabled) return;
 
+	const uint8_t blockedBy = cloud.blockedBy;
 	int32_t tileX = static_cast<int32_t>(pos.x) / TILE_SIZE;
 	int32_t tileY = static_cast<int32_t>(pos.y) / TILE_SIZE;
-	if (isCloudBlockedTile(tileX, tileY)) {
+	if (isCloudBlockedTile(tileX, tileY, blockedBy)) {
 		float best = 1e18f;
 		int32_t bestX = tileX, bestY = tileY;
 		for (int32_t dy = -1; dy <= 1; ++dy) {
 			for (int32_t dx = -1; dx <= 1; ++dx) {
-				if ((dx == 0 && dy == 0) || isCloudBlockedTile(tileX + dx, tileY + dy)) continue;
+				if ((dx == 0 && dy == 0) || isCloudBlockedTile(tileX + dx, tileY + dy, blockedBy)) continue;
 				const float cx = static_cast<float>((tileX + dx) * TILE_SIZE + TILE_SIZE / 2) - static_cast<float>(pos.x);
 				const float cy = static_cast<float>((tileY + dy) * TILE_SIZE + TILE_SIZE / 2) - static_cast<float>(pos.y);
 				const float d = cx * cx + cy * cy;
@@ -7049,8 +7084,20 @@ void Game::spawnCloud(const Position& pos, const ProjectileCloud& cloud, uint32_
 		tileY = bestY;
 	}
 
-	std::vector<area_fill::Cell> cells = area_fill::fill(cloud.tiles, cloud.radius, [&](int dx, int dy) {
-		return isCloudBlockedTile(tileX + dx, tileY + dy);
+	// The shape: round, or stretched along / across the way it came from, its
+	// edge roughened by a fresh seed each time so no two look alike.
+	area_fill::Shape shape;
+	shape.maxCells = cloud.tiles;
+	shape.maxRadius = cloud.radius;
+	shape.dirX = dirX;
+	shape.dirY = dirY;
+	shape.stretch = cloud.stretch;
+	shape.line = cloud.line;
+	shape.forward = cloud.forward;
+	shape.irregular = cloud.irregular;
+	shape.seed = static_cast<uint32_t>(uniform_random(1, 0x7FFFFFFF));
+	std::vector<area_fill::Cell> cells = area_fill::fill(shape, [&](int dx, int dy) {
+		return isCloudBlockedTile(tileX + dx, tileY + dy, blockedBy);
 	});
 
 	// A second molotov into a fire already burning there feeds that fire
@@ -7212,6 +7259,8 @@ void Game::sendCloud(const ActiveCloud& cloud)
 	msg.addByte(static_cast<uint8_t>(ServerOpcode::AREA_EFFECT));
 	msg.add<uint16_t>(cloud.id);
 	msg.addByte(cloud.data.kind);
+	msg.add<uint16_t>(cloud.data.effectId);
+	msg.addByte(cloud.data.blocksVision ? AREA_EFFECT_HIDES : 0);
 	msg.add<uint16_t>(static_cast<uint16_t>(cloud.tileX));
 	msg.add<uint16_t>(static_cast<uint16_t>(cloud.tileY));
 	msg.add<uint16_t>(cloud.data.growMs);
@@ -7234,12 +7283,26 @@ void Game::sendCloud(const ActiveCloud& cloud)
 
 void Game::updateClouds(uint32_t elapsedMs)
 {
+	// What ended clouds leave behind (<onEnd>), run once the loop is done: an
+	// effect may spawn a cloud, and that must not land in the list mid-walk.
+	struct Ended {
+		std::shared_ptr<const EffectData> effect;
+		Position at;
+		uint32_t attackerId = 0;
+	};
+	std::vector<Ended> ended;
+
 	for (size_t i = 0; i < clouds.size(); ) {
 		ActiveCloud& cloud = *clouds[i];
 		cloud.ageMs += elapsedMs;
 		if (cloud.ageMs >= cloud.lifeMs()) {
 			// The client ends it on the same clock; nothing to send.
 			syncCloudSmoke(cloud, true);
+			if (cloud.data.onEnd) {
+				const Position at(static_cast<uint16_t>(cloud.tileX * TILE_SIZE + TILE_SIZE / 2),
+				                  static_cast<uint16_t>(cloud.tileY * TILE_SIZE + TILE_SIZE / 2));
+				ended.push_back({ cloud.data.onEnd, at, cloud.attackerId });
+			}
 			std::swap(clouds[i], clouds.back());
 			clouds.pop_back();
 			continue;
@@ -7264,13 +7327,17 @@ void Game::updateClouds(uint32_t elapsedMs)
 		}
 		++i;
 	}
+
+	for (const Ended& end : ended) {
+		runEffect(*end.effect, end.at, end.attackerId);
+	}
 }
 
 // Everyone standing on a covered tile takes the cloud's damage and gets its
 // condition. The condition is short and refreshed every tick (conditions.xml
 // <stacking mode="refresh">), so it lasts as long as they stay and a moment
 // after; the damage is applied here rather than by the condition, see
-// ProjectileCloud.
+// EffectZone.
 void Game::applyCloudTick(const ActiveCloud& cloud)
 {
 	const size_t covered = cloud.covered();
@@ -7369,7 +7436,7 @@ void Game::applyCloudTick(const ActiveCloud& cloud)
 // grenade resting against a wall loses the fragments heading into it and
 // sends the rest out from just off its face, instead of every one of them
 // starting inside the wall and stopping there on its first step.
-void Game::fireFragments(const Position& pos, const ProjectileFragments& fragments, uint32_t attackerId)
+void Game::fireFragments(const Position& pos, const EffectFragments& fragments, uint32_t attackerId)
 {
 	if (!fragments.enabled) return;
 
@@ -7377,7 +7444,7 @@ void Game::fireFragments(const Position& pos, const ProjectileFragments& fragmen
 	if (!fdata) {
 		return; // validateDataReferences reported the key at startup
 	}
-	if (fdata->fragments.enabled) {
+	if (effectsFireFragments(fdata->effects)) {
 		// Fragments that burst into fragments multiply with every generation.
 		static bool warnedNested = false;
 		if (!warnedNested) {

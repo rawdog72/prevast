@@ -2271,12 +2271,7 @@ void Player::dropGhoulRemains()
 	// The explosive ghoul's whole point: killing one in a crowd is a mistake.
 	// Attacker id 0 -- the blast belongs to the corpse, not to whoever popped
 	// it, so it cannot be farmed as a weapon against a third party.
-	if (ghoulData->explosion.enabled) {
-		g_game.executeExplosion(pos, ghoulData->explosion.radius, ghoulData->explosion.area,
-			ghoulData->explosion.playerDamage, ghoulData->explosion.buildingDamage,
-			ghoulData->explosion.knockback, 0, &ghoulData->explosion.onHit,
-			ghoulData->explosion.throughWall);
-	}
+	g_game.runEffects(ghoulData->effects, pos, 0);
 }
 
 const EquipableData* Player::getEquippedWeaponData() const

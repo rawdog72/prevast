@@ -21,6 +21,8 @@ const head = (n: number) => [
   ServerOpcode.AREA_EFFECT,
   ...u16(7), // id
   1, // kind: gas
+  ...u16(3), // effectId: toxic_gas
+  0, // flags
   ...u16(120),
   ...u16(340), // origin tile
   ...u16(2500),
@@ -30,12 +32,14 @@ const head = (n: number) => [
   n,
 ];
 
-describe('clouds on the wire (protocol 1421)', () => {
+describe('zones on the wire (protocol 1426)', () => {
   it('AREA_EFFECT carries the cloud, its timing and its tiles in growth order', () => {
     const ev = capture([...head(3), ...i8(0), ...i8(0), ...i8(-1), ...i8(0), ...i8(1), ...i8(-2)]);
     expect(ev).toEqual({
       id: 7,
       kind: 1,
+      effectId: 3,
+      hides: false,
       tileX: 120,
       tileY: 340,
       growMs: 2500,
@@ -48,6 +52,12 @@ describe('clouds on the wire (protocol 1421)', () => {
         [1, -2],
       ],
     });
+  });
+
+  it('says whether the zone blocks vision', () => {
+    const bytes = [...head(1), ...i8(0), ...i8(0)];
+    bytes[6] = 1; // flags: AREA_EFFECT_HIDES
+    expect(capture(bytes)?.hides).toBe(true);
   });
 
   it('drops a truncated or overlong AREA_EFFECT', () => {

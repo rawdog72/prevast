@@ -38,6 +38,8 @@ export class AudioManager {
   private currentGeigerSource: AudioBufferSourceNode | null = null;
   private ambientTrackIndex = 0;
   private ambientRunning = false;
+  /** Bumped by every stop, so a track still loading when it was stopped never starts. */
+  private ambientRequest = 0;
   private muted = false;
 
   masterVolume = 1.0;
@@ -233,9 +235,11 @@ export class AudioManager {
     if (!this.ctx || !this.musicGain) return;
 
     this.stopAmbient();
+    // A stop (or another track) before the file arrives wins over it.
+    const request = this.ambientRequest;
 
     void this.load(key).then((buf) => {
-      if (!buf || !this.ctx || !this.musicGain) return;
+      if (!buf || !this.ctx || !this.musicGain || request !== this.ambientRequest) return;
       const source = this.ctx.createBufferSource();
       source.buffer = buf;
       source.loop = true;
@@ -278,6 +282,7 @@ export class AudioManager {
   }
 
   stopAmbient(): void {
+    this.ambientRequest++;
     if (this.currentAmbientSource) {
       try {
         this.currentAmbientSource.stop();
@@ -287,6 +292,34 @@ export class AudioManager {
       }
       this.currentAmbientSource = null;
     }
+  }
+
+  /**
+   * Fades the looping music track out over `ms`, then stops it. The music
+   * level comes back for whatever plays next.
+   */
+  fadeOutAmbient(ms: number): void {
+    const source = this.currentAmbientSource;
+    if (!source || !this.ctx || !this.musicGain) {
+      this.stopAmbient();
+      return;
+    }
+    const gain = this.musicGain.gain;
+    const now = this.ctx.currentTime;
+    gain.cancelScheduledValues(now);
+    gain.setValueAtTime(gain.value, now);
+    gain.linearRampToValueAtTime(0, now + ms / 1000);
+    setTimeout(() => {
+      if (this.currentAmbientSource === source) this.stopAmbient();
+      if (!this.musicGain || !this.ctx) return;
+      this.musicGain.gain.cancelScheduledValues(this.ctx.currentTime);
+      this.updateGains();
+    }, ms);
+  }
+
+  /** True while a music track (the title loop or the in-game ambiance) is playing. */
+  get ambientPlaying(): boolean {
+    return this.currentAmbientSource !== null;
   }
 
   stopAmbiance(): void {

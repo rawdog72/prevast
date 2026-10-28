@@ -213,6 +213,9 @@ export class GameLoop {
   constructor(options: GameLoopOptions) {
     this.canvasManager = options.canvasManager;
     this.content = options.content;
+    // A zone is drawn with its effects.xml entry's <client> look.
+    this.clouds.lookSource = (effectId) =>
+      this.content.has('effects') ? this.content.byId('effects', effectId)?.client : undefined;
     this.assets = options.assets;
     this.socket = options.socket;
 
@@ -690,11 +693,9 @@ export class GameLoop {
         if (ev.kind === 'poisoned') this.poison.start(ev.a * 1000);
       }),
     );
-    this.cleanups.push(
-      this.socket.bus.on('selectedItem', () => {
-        this.audio.playEquip();
-      }),
-    );
+    // No sound on selectedItem: it fires on every inventory slot click, and the
+    // zipper there sounded like the bag opening. The zipper is reserved for the
+    // bag button itself (hotbar onBag).
     this.cleanups.push(
       this.socket.bus.on('cookState', (e) => {
         this.cookTimer.set(e.fuseMs, e.remainingMs, performance.now());
@@ -1420,7 +1421,18 @@ export class GameLoop {
     if (this.hud.chat.settings.bubbles) this.chatBubbles.render(ctx, this.camera, this.world);
     this.damageNumbers.render(ctx, this.camera);
 
-    // 5b. Interaction badge above our head (E / F), use timer, wrong-tool flash
+    // 5b. Interaction badge above our head (E / F), use timer, wrong-tool flash.
+    // The wrong-tool popup sits under the vitals strip, whose height depends on
+    // the interface size and wrapping -- measured only while the popup is up.
+    if (this.prompt.showingWrongTool) {
+      const vitals = this.hudRoot.querySelector<HTMLElement>('.hud-gauges');
+      if (vitals && !vitals.hidden) {
+        const canvasTop = this.canvasManager.canvas.getBoundingClientRect().top;
+        this.prompt.setTopInset(vitals.getBoundingClientRect().bottom - canvasTop);
+      } else {
+        this.prompt.setTopInset(0);
+      }
+    }
     this.prompt.render(
       ctx,
       this.camera,

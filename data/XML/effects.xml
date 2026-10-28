@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    What happens at a point: a blast, fragments, something left lying on the
+    ground, or any mix of them. Each <effect> here has a name, and anything
+    that goes off runs it by that name:
+
+        projectiles.xml   <onDestroy><effect key="frag_blast"/></onDestroy>
+        objects.xml       <onDestroy><effect key="c4_blast"/></onDestroy>
+        agents/*.xml      <onDeath><effect key="ghoul_burst"/></onDeath>
+        Lua scripts       { effect = "toxic_gas", at = "player" }  (quest-authoring.md)
+
+    so a gas cloud written once can be a grenade, a barrel that leaks when it
+    is shot, a ghoul that bursts on death, or a quest's trap.
+
+    A reference can change the effect for that one use without copying it.
+    Child elements merge into the effect's own, attribute by attribute:
+
+        <effect key="toxic_gas"><zone tiles="60" holdMs="20000"/></effect>
+
+    is toxic_gas, twice as big and lasting twice as long. A <client> look is
+    the effect's and is not changed by an override.
+
+    The parts can also still be written inline, straight into <onDestroy> or
+    <onDeath>, as before this file existed. Inline parts run first, then each
+    <effect> in order. An inline zone has no <client> look of its own: clients
+    draw it by its kind.
+
+    <effect key="..." clientEffectId="N">
+        key            the name everything else uses.
+        clientEffectId what a zone of this effect is called on the wire, so a
+                       client draws it with this entry's <client> look.
+                       Required, unique, from 1. Never renumber one in use.
+
+    In an effect, in the order they run:
+
+    <explosion area= radius= playerDamage= buildingDamage= knockback= throughWall=>
+        <onHit condition= chance= durationMs= strength=/>
+    </explosion>
+        A blast. `area` tiles round the tile it went off on (area="1" is
+        3x3), else a circle of `radius` world units. playerDamage to every
+        player and agent in it, buildingDamage to every building and
+        resource. throughWall (0..1, default 0): the share of damage,
+        knockback and condition chance that reaches a creature with a wall,
+        rock or tree between it and the blast. 0 means cover protects
+        completely. Buildings are never sheltered. <onHit> is what the blast
+        inflicts on every creature it catches (conditions.xml).
+
+    <fragments projectile="frag_fragment" count="22" range="400" damage="40"
+               buildingDamage="40" knockback="0" speedMultiplier="1.0"
+               spread="1" rangeVariation="0.6" speedVariation="0.4" falloff="0.4"/>
+        A frag's fragments. `count` (at most 48) REAL projectiles of the
+        `projectile` entry of projectiles.xml fly out of the blast, one
+        somewhere in each slice of the circle (`spread`, 0..1, is how much of
+        its slice it may wander over). Each falls up to `rangeVariation`
+        (0..0.9) short of `range` (at most 2000) and flies up to
+        `speedVariation` (0..0.9) slower than the fastest, so the burst is
+        ragged rather than a ring. Each one flies, collides and is drawn
+        exactly like a bullet: it stops at the first wall, rock, tree, player
+        or ghoul in its way, which takes `damage` (the fragment's <damage
+        type>, so armour counts) or, for buildings and resources,
+        `buildingDamage` (the same as `damage` unless stated). `falloff`
+        (0..1, default 1 = none) is the share of both still done by a
+        fragment landing at `range`. Nothing protects whoever set it off from
+        their own. A blast against a wall loses the fragments heading into
+        it; the rest fly out from its face. The fastest fly at the fragment
+        entry's <physics baseSpeed> times speedMultiplier.
+
+    <zone kind="gas|smoke|fire" tiles="30" radius="" growMs="3000" holdMs="10000"
+          fadeMs="3000" tickMs="500" damage="6" damageType="gas"
+          buildingDamage="0" burns="wood,cloth" blocksVision=""
+          shape="fill" stretch="1" forward="0" irregular="0" blockedBy="walls">
+        <onHit condition="choking"/>
+        <onEnd effect="..."/>
+    </zone>
+        Something left lying on the ground (<cloud> is the same element under
+        its old name). It spreads over at most `tiles` tiles (up to 255),
+        nearest first, within `radius` tiles (default: what `tiles` covers as
+        a disc plus one; at most 12). It grows over growMs, stays holdMs,
+        thins out over fadeMs (each at most 60000).
+
+        Damage. Every tickMs while grown or holding, each player and ghoul
+        standing in it takes `damage` of `damageType` (a wearable's
+        <modifier key="gasResistance"> reduces "gas", fireResistance "fire")
+        and gets the <onHit> condition. buildingDamage, burns: every tick,
+        each building on or right next to a covered tile whose material is
+        listed in `burns` takes buildingDamage (fire burns a wooden wall, not
+        a stone one). An object's material is its material= in objects.xml,
+        or read off its <client particles=>.
+
+        Sight. blocksVision (default true for kind="smoke", false otherwise):
+        while it is there, until half faded, nobody is sent a player, ghoul
+        or anything else that moves if the line to it crosses from clear air
+        into the zone or back - from outside you see neither into nor past
+        it, and from inside you see only the inside. Ghouls cannot target
+        through it either. It gives its tiles back last-grown first over the
+        first half of the fade, so it shrinks to where it went off.
+
+        Shape. Without anything set it is round. Something that was moving
+        when it went off (a thrown grenade or bottle) has a direction:
+          shape="fill" stretch="2"   twice as long ALONG that direction as
+                                     across it: a splash running on.
+          shape="line" stretch="3"   three times as long ACROSS it: a wall
+                                     laid in front of the thrower. A line
+                                     is stretch 3 unless stated.
+          forward="1.5"              its middle that many tiles further on
+                                     along the direction (negative: back).
+        stretch is 1..6. Something that went off where it lay - a dead ghoul,
+        a destroyed barrel, a grenade dropped at someone's feet - has no
+        direction, and is round whatever these say.
+        irregular (0..1) roughens the edge, differently every time.
+        blockedBy is what it cannot spread through: "walls" (walls and closed
+        doors: what stops a bullet; the default), "walls,scenery" (rocks and
+        trees too), or "none" (only the edge of the map). Doors opened later
+        do not let it out: the shape is fixed when it goes off.
+
+        Merging. A gas or fire zone landing on one of the same effect that
+        is still burning does not lie on top of it: it feeds it. The first
+        takes in the new one's tiles and starts its hold again, and the
+        latest thrower gets the kills, so five molotovs on one spot are one
+        fire. Zones that block vision always stay separate.
+
+        <onEnd effect="..."/>: another effect, run where the zone started
+        once it is gone. Takes overrides like any reference.
+
+    <effect key="..."/>
+        Another effect, run after this one's own parts, at the same point.
+        Takes overrides like any reference.
+
+    <client .../>
+        How this effect's zone is drawn. Looks only: nothing here changes
+        what anyone is sent or what the zone does.
+          render="puff"   soft puffs over every tile (gas, smoke).
+              color="r,g,b"      the puffs' colour.
+              alpha="0.42"       how thick at full strength (0..1).
+              insideAlpha="0.3"  how thick while you stand in a zone that
+                                 blocks vision: thin enough to see who is in
+                                 there with you.
+              size="0.85"        each puff's radius, in tiles.
+              drift="12"         how far each puff wanders, in world units.
+              maskColor="r,g,b" maskAlpha="0.94"
+                                 the darkness over everything outside a zone
+                                 that blocks vision, while you stand in it.
+          render="fire"   flames, smoke, embers, light and scorch.
+              flameColors="#d9573b,#ee8f45,#f2cf68"
+                                 the three flame layers, outermost first.
+              smokeColor="r,g,b" smokeLitColor="r,g,b"
+                                 the fire's smoke and its lit top.
+              emberColor="r,g,b" its sparks.
+              shatter="true"     a bottle breaking (glass, a fireball) when it
+                                 starts; false for a fire nothing threw.
+          render="none"   not drawn at all.
+        A zone with no look (written inline, or an effect without <client>)
+        is drawn by its kind: gas green, smoke grey, fire as a molotov's.
+
+    Every number is a starting point for playtesting, not a decision.
+-->
+<effects>
+
+    <!-- Grenades. -->
+
+    <!-- The offensive grenade: a big blast and shove, nothing that flies. -->
+    <effect key="offensive_blast" clientEffectId="1">
+        <explosion area="1" playerDamage="200" buildingDamage="400" knockback="20">
+            <onHit condition="slowed" chance="1" durationMs="600" strength="0.2"/>
+        </explosion>
+    </effect>
+
+    <!-- The frag: a small blast and a ring of fragments. Lethal in the open,
+         survivable behind anything solid. -->
+    <effect key="frag_blast" clientEffectId="2">
+        <explosion radius="90" playerDamage="40" buildingDamage="30" knockback="4"/>
+        <fragments projectile="frag_fragment" count="22" range="400" damage="40" buildingDamage="40"
+                   spread="1" rangeVariation="0.6" speedVariation="0.4" falloff="0.4"/>
+    </effect>
+
+    <!-- Gas: no blast at all. A cloud that fills a room or a corridor and
+         hurts whoever stays in it. -->
+    <effect key="toxic_gas" clientEffectId="3">
+        <zone kind="gas" tiles="30" growMs="3000" holdMs="10000" fadeMs="3000"
+              tickMs="500" damage="6" damageType="gas">
+            <onHit condition="choking"/>
+        </zone>
+        <client render="puff" color="150,178,52" alpha="0.42"/>
+    </effect>
+
+    <!-- Smoke: no blast, no damage. A thick cloud nobody can see into, out
+         of or through; the server stops sending what it hides. -->
+    <effect key="smoke_screen" clientEffectId="4">
+        <zone kind="smoke" tiles="40" growMs="2000" holdMs="15000" fadeMs="4000"/>
+        <client render="puff" color="170,170,170" alpha="0.85" insideAlpha="0.3"
+                maskColor="48,48,48" maskAlpha="0.94"/>
+    </effect>
+
+    <!-- The molotov's fire: a patch that burns whoever stands in it, keeps
+         burning them a moment after they leave (burning), and eats wooden
+         buildings next to it. Stone and metal do not burn. -->
+    <effect key="molotov_fire" clientEffectId="5">
+        <zone kind="fire" tiles="9" radius="2" growMs="500" holdMs="8000" fadeMs="1500"
+              tickMs="500" damage="8" damageType="fire" buildingDamage="90" burns="wood,cloth">
+            <onHit condition="burning"/>
+        </zone>
+        <client render="fire" shatter="true"/>
+    </effect>
+
+    <!-- Placed explosives (objects.xml). -->
+
+    <effect key="landmine_blast" clientEffectId="6">
+        <explosion area="1" playerDamage="200" buildingDamage="400" knockback="20">
+            <onHit condition="slowed" chance="1" durationMs="1000" strength="1.0"/>
+        </explosion>
+    </effect>
+
+    <effect key="dynamite_blast" clientEffectId="7">
+        <explosion area="1" playerDamage="180" buildingDamage="1400" knockback="20">
+            <onHit condition="slowed" chance="1" durationMs="1000" strength="1.0"/>
+        </explosion>
+    </effect>
+
+    <effect key="c4_blast" clientEffectId="8">
+        <explosion area="1" playerDamage="255" buildingDamage="6000" knockback="20">
+            <onHit condition="slowed" chance="1" durationMs="2000" strength="1.5"/>
+        </explosion>
+    </effect>
+
+    <!-- A fuel barrel going up (furnitures.xml). The big one names this with
+         a heavier <explosion playerDamage>. -->
+    <effect key="barrel_blast" clientEffectId="9">
+        <explosion area="1" playerDamage="250" buildingDamage="10000" knockback="20">
+            <onHit condition="slowed" chance="1" durationMs="1000" strength="1.0"/>
+        </explosion>
+    </effect>
+
+    <!-- Agents bursting on death (data/agents). The corpse's, not the
+         killer's: see Player::dropGhoulRemains. -->
+
+    <effect key="ghoul_burst" clientEffectId="10">
+        <explosion radius="40" playerDamage="120" buildingDamage="500"/>
+    </effect>
+
+    <effect key="teslabot_burst" clientEffectId="11">
+        <explosion radius="40" playerDamage="100" buildingDamage="100"/>
+    </effect>
+
+</effects>

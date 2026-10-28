@@ -106,7 +106,12 @@ return {
       }
     end
   end,
-  reinforce = function(ctx) return { { spawnAgent = "fast_ghoul", count = 2, tag = "ambush" } } end,
+  reinforce = function(ctx)
+    return {
+      { spawnAgent = "fast_ghoul", count = 2, tag = "ambush" },
+      { effect = "smoke_screen", x = ctx.player.x + 300, y = ctx.player.y },
+    }
+  end,
   onEvent = function(ctx, ev) return { { setVar = "cars", add = 1 } } end,
 }
 ```
@@ -120,8 +125,13 @@ return {
 - Actions: `start`, `advance` (a stage), `complete` (an ending), `fail`,
   `setVar` (`value=` or `add=`), `grantAchievement`, `say`, `status`,
   `spawnAgent` (≤ 5, `radius=`, `tag=`), `giveItem`, `takeItem`,
-  `applyCondition` (`durationMs=`, `strength=`), `after`. Quest actions from
-  a trigger script name `quest=`.
+  `applyCondition` (`durationMs=`, `strength=`), `effect`, `after`. Quest
+  actions from a trigger script name `quest=`.
+- `effect` sets off an `data/XML/effects.xml` entry: a blast, gas, smoke,
+  fire. `{ effect = "toxic_gas" }` at the player; `x=`, `y=` (world units,
+  within 1000 of the player) somewhere else; `angle=` (radians) points a
+  stretched or `line` zone. At most 4 per call. The effect is the world's:
+  its kills are nobody's.
 - All actions from one call are checked first; one bad action (unknown key,
   a limit, items the player does not carry) drops them all and logs why.
   They are applied on the next tick.

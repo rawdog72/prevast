@@ -290,124 +290,14 @@ bool ProjectileManager::loadFromXml(const std::string& filename)
 			pdata.lifetimeMs = lifetimeNode.attribute("durationMs").as_uint(0);
 		}
 
-		if (pugi::xml_node onDestroyNode = node.child("onDestroy")) {
-			xml_utils::parseExplosionChild(onDestroyNode, pdata.explosion);
-
-			if (pugi::xml_node cloudNode = onDestroyNode.child("cloud")) {
-				ProjectileCloud& cloud = pdata.cloud;
-				const std::string kind = cloudNode.attribute("kind").as_string("gas");
-				if (kind == "gas") {
-					cloud.kind = static_cast<uint8_t>(CloudKind::GAS);
-				} else if (kind == "smoke") {
-					cloud.kind = static_cast<uint8_t>(CloudKind::SMOKE);
-				} else if (kind == "fire") {
-					cloud.kind = static_cast<uint8_t>(CloudKind::FIRE);
-				} else {
-					reportDataWarning(filename, fmt::format(
-						"projectile '{}' has <cloud kind=\"{}\">; the kinds are gas, smoke and fire. Using gas",
-						key, kind));
-					cloud.kind = static_cast<uint8_t>(CloudKind::GAS);
-				}
-
-				const uint32_t tiles = cloudNode.attribute("tiles").as_uint(0);
-				cloud.tiles = static_cast<uint8_t>(std::min<uint32_t>(tiles, area_fill::kMaxCells));
-				// Default radius: what `tiles` covers as a disc, plus a ring of
-				// slack so a wall on one side lets it reach further on the other.
-				const float defaultRadius = std::sqrt(static_cast<float>(cloud.tiles) / 3.14159f) + 1.0f;
-				const float radius = cloudNode.attribute("radius").as_float(defaultRadius);
-				cloud.radius = std::clamp(radius, 0.0f, static_cast<float>(area_fill::kMaxRadius));
-
-				const auto phase = [&](const char* name, uint32_t fallback) {
-					const uint32_t ms = cloudNode.attribute(name).as_uint(fallback);
-					if (ms > CLOUD_MAX_PHASE_MS) {
-						reportDataWarning(filename, fmt::format(
-							"projectile '{}' has <cloud {}=\"{}\">; clamped to {}", key, name, ms, CLOUD_MAX_PHASE_MS));
-					}
-					return static_cast<uint16_t>(std::min(ms, CLOUD_MAX_PHASE_MS));
-				};
-				cloud.growMs = phase("growMs", 0);
-				cloud.holdMs = phase("holdMs", 0);
-				cloud.fadeMs = phase("fadeMs", 0);
-				const uint32_t tickMs = cloudNode.attribute("tickMs").as_uint(500);
-				cloud.tickMs = static_cast<uint16_t>(std::clamp(tickMs, CLOUD_MIN_TICK_MS, CLOUD_MAX_PHASE_MS));
-
-				cloud.blocksVision = cloudNode.attribute("blocksVision").as_bool(cloud.kind == static_cast<uint8_t>(CloudKind::SMOKE));
-				cloud.damage = clampDamageAmount(cloudNode.attribute("damage").as_llong());
-				cloud.buildingDamage = clampDamageAmount(cloudNode.attribute("buildingDamage").as_llong());
-				{
-					std::string burns = cloudNode.attribute("burns").as_string("wood,cloth");
-					size_t start = 0;
-					while (start <= burns.size()) {
-						const size_t comma = burns.find(',', start);
-						std::string material = burns.substr(start, comma == std::string::npos ? std::string::npos : comma - start);
-						material.erase(0, material.find_first_not_of(" \t"));
-						material.erase(material.find_last_not_of(" \t") + 1);
-						if (!material.empty()) cloud.burns.push_back(material);
-						if (comma == std::string::npos) break;
-						start = comma + 1;
-					}
-				}
-				cloud.damageType = cloudNode.attribute("damageType").as_string("gas");
-				xml_utils::parseConditionApplication(cloudNode.child("onHit"), cloud.onHit, filename, key);
-
-				cloud.enabled = cloud.tiles > 0 && (cloud.growMs + cloud.holdMs + cloud.fadeMs) > 0;
-				if (tiles > cloud.tiles || radius != cloud.radius) {
-					reportDataWarning(filename, fmt::format(
-						"projectile '{}' has <cloud tiles=\"{}\" radius=\"{}\">; clamped to {} and {}",
-						key, tiles, radius, cloud.tiles, cloud.radius));
-				}
-				if (!cloud.enabled) {
-					reportDataWarning(filename, fmt::format(
-						"projectile '{}' has a <cloud> with no tiles or no duration; it does nothing", key));
-				}
-			}
-
-			if (onDestroyNode.child("shrapnel")) {
+		// <onDestroy>: its own <explosion>, <fragments> and <zone>, and any
+		// <effect key=> from effects.xml (loaded before this file).
+		EffectManager::getInstance().parseEffects(node.child("onDestroy"), pdata.effects, filename,
+			fmt::format("projectile '{}'", key));
+		for (const EffectData& effect : pdata.effects) {
+			if (effect.fragments.enabled && effect.fragments.projectileKey == key) {
 				reportDataWarning(filename, fmt::format(
-					"projectile '{}' has <shrapnel>, which is gone: fragments are real projectiles now. "
-					"Write <fragments projectile=\"...\" count= range= damage=/> instead", key));
-			}
-
-			if (pugi::xml_node fragNode = onDestroyNode.child("fragments")) {
-				ProjectileFragments& frags = pdata.fragments;
-				frags.projectileKey = fragNode.attribute("projectile").as_string();
-				const uint32_t count = fragNode.attribute("count").as_uint(0);
-				const uint32_t range = fragNode.attribute("range").as_uint(0);
-				// Every fragment is a projectile entity sent to every watcher,
-				// three records each (create, stop, remove): the count is the
-				// bandwidth of a blast, so it is capped.
-				frags.count = static_cast<uint8_t>(std::min<uint32_t>(count, PROJECTILE_FRAGMENT_MAX_COUNT));
-				frags.range = static_cast<uint16_t>(std::min<uint32_t>(range, PROJECTILE_FRAGMENT_MAX_RANGE));
-				frags.damage = clampDamageAmount(fragNode.attribute("damage").as_llong());
-				// Like a gun's <buildingDamage>: what it does to a body unless stated.
-				frags.buildingDamage = fragNode.attribute("buildingDamage")
-					? clampDamageAmount(fragNode.attribute("buildingDamage").as_llong())
-					: frags.damage;
-				frags.knockback = std::max(0.0f, fragNode.attribute("knockback").as_float(0.0f));
-				frags.speedMultiplier = fragNode.attribute("speedMultiplier").as_float(1.0f);
-				if (frags.speedMultiplier <= 0.0f) {
-					reportDataWarning(filename, fmt::format(
-						"projectile '{}' has <fragments speedMultiplier=\"{}\">; using 1.0", key, frags.speedMultiplier));
-					frags.speedMultiplier = 1.0f;
-				}
-				frags.spread = std::clamp(fragNode.attribute("spread").as_float(frags.spread), 0.0f, 1.0f);
-				frags.rangeVariation = std::clamp(fragNode.attribute("rangeVariation").as_float(frags.rangeVariation), 0.0f, 0.9f);
-				frags.speedVariation = std::clamp(fragNode.attribute("speedVariation").as_float(frags.speedVariation), 0.0f, 0.9f);
-				frags.falloff = std::clamp(fragNode.attribute("falloff").as_float(frags.falloff), 0.0f, 1.0f);
-				frags.enabled = !frags.projectileKey.empty() && frags.count > 0 && frags.range > 0;
-				if (count != frags.count || range != frags.range) {
-					reportDataWarning(filename, fmt::format(
-						"projectile '{}' has <fragments count=\"{}\" range=\"{}\">; clamped to {} and {}",
-						key, count, range, frags.count, frags.range));
-				}
-				if (!frags.enabled) {
-					reportDataWarning(filename, fmt::format(
-						"projectile '{}' has <fragments> without a projectile, a count and a range; it does nothing", key));
-				} else if (frags.projectileKey == key) {
-					reportDataWarning(filename, fmt::format(
-						"projectile '{}' fires itself as its own <fragments>; ignored", key));
-					frags.enabled = false;
-				}
+					"projectile '{}' fires itself as its own <fragments>; Game::fireFragments will refuse it", key));
 			}
 		}
 

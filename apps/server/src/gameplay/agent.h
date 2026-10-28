@@ -6,6 +6,7 @@
 
 #include "gameplay/creature.h"
 #include "gameplay/condition.h" // ConditionApplication, for <ability condition=>
+#include "gameplay/effect.h"
 #include "core/tools.h" // OTSYS_TIME, for the knockback window
 
 #include <pugixml.hpp>
@@ -125,18 +126,8 @@ struct AgentTarget {
 // Drops use the shared ItemDrop shape from definitions.h; this file used to
 // declare its own identical-in-spirit struct.
 
-struct AgentExplosion {
-	bool enabled = false;
-	uint16_t playerDamage = 0;
-	uint16_t buildingDamage = 0;
-	float knockback = 0.0f;
-	uint16_t radius = 0;
-	uint16_t area = 0;
-	float throughWall = 0.0f; // share reaching a creature behind a wall; see ProjectileExplosion
-	// What the BLAST inflicts on every creature caught in it -- a plague ghoul
-	// bursting into a cloud. See ProjectileExplosion::onHit.
-	ConditionApplication onHit;
-};
+// An agent's death blast is the shared one (gameplay/effect.h).
+using AgentExplosion = EffectExplosion;
 
 // How much wider than `vision` the give-up range is when agents.xml does not
 // state one. Anything above 1 breaks the per-tick acquire/lose flip-flop; 1.4
@@ -800,7 +791,9 @@ struct AgentData {
 
 	// onDeath
 	std::vector<ItemDrop> drops;
-	AgentExplosion explosion;
+	// <onDeath>: what happens where it dies -- an <explosion>, a <zone> of gas,
+	// any <effect key=> from effects.xml.
+	EffectList effects;
 
 	// Resolved spacing for the separation pass (separationRadius, or 2*radius).
 	float spacing() const

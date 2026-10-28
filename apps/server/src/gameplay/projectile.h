@@ -7,111 +7,19 @@
 #include "world/thing.h"
 #include "core/position.h"
 #include "gameplay/condition.h" // ConditionApplication, for <onHit condition=>
+#include "gameplay/effect.h"
 #include <algorithm>
 #include <unordered_map>
 #include <string>
 
 class Creature;
 
-struct ProjectileExplosion {
-	bool enabled = false;
-	uint16_t radius = 0;   // circular pixel range (used when area == 0)
-	uint16_t area = 0;     // tiles around the explosion's tile; overrides radius when > 0
-	uint16_t playerDamage = 0;
-	uint16_t buildingDamage = 0;
-	float knockback = 0.0f;
-	// <explosion throughWall="0.3">: the share of damage, knockback and condition
-	// chance that reaches a creature with a wall between it and the blast. 0 (the
-	// default) means cover protects completely. Buildings are never occluded.
-	float throughWall = 0.0f;
-	// <explosion><onHit condition= chance= durationMs=/></explosion>: what the
-	// BLAST inflicts on every creature caught in it. A stun grenade, a gas
-	// charge, a cryo mine. Parsed by the shared parseExplosionChild, so all
-	// three explosion shapes get it at once and cannot drift.
-	ConditionApplication onHit;
-};
-
-// <onDestroy><fragments projectile= count= range= damage= buildingDamage=
-//     knockback= speedMultiplier= spread= rangeVariation= speedVariation=
-//     falloff=/></onDestroy>:
-// a frag grenade's fragments. `count` real projectiles -- the `projectile`
-// entry of this file, fired the way a gun fires its round -- fly out from the
-// blast in every direction, each in its own slice of the circle. Each one is
-// simulated, collided and sent to clients like any bullet, so it stops at the
-// first wall, rock, tree or body in its way, and whatever stands in front
-// takes the fragments meant for whoever is behind it. Fewer of them reach a
-// far target, so damage falls off with distance on its own.
-//
-// What a weapon's <fire> and <damage> say for a gun, this says for the blast:
-// `damage` per fragment to a player or agent (the fragment projectile's
-// <damage type> picks the resistance), `buildingDamage` to a building or
-// resource -- the same as `damage` unless stated, as a gun's is --
-// `knockback` per fragment. The fragment projectile's <physics baseSpeed>
-// times `speedMultiplier` is how fast the fastest of them fly. See
-// Game::fireFragments.
-struct ProjectileFragments {
-	bool enabled = false;
-	// By key and resolved when the grenade goes off: projectiles.xml loads in
-	// one pass, so the entry may come later in the file, and a content reload
-	// must not leave a dangling id.
-	std::string projectileKey;
-	uint8_t count = 0;
-	uint16_t range = 0;
-	uint16_t damage = 0;          // per fragment that lands on a player or agent
-	uint16_t buildingDamage = 0;  // per fragment that lands on a building or resource
-	float knockback = 0.0f;
-	float speedMultiplier = 1.0f;
-	// How far each fragment may wander inside its slice of the circle: 0 is a
-	// perfect star, 1 anywhere in the slice.
-	float spread = 1.0f;
-	// The share of `range` a fragment may fall short by, so they do not all
-	// stop on one ring.
-	float rangeVariation = 0.6f;
-	// The share of the speed a fragment may be slower by. All at one speed,
-	// the burst's front is a perfect expanding circle however far each flies.
-	float speedVariation = 0.4f;
-	// The share of its damage (body and building alike) a fragment still does
-	// when it lands `range` from the blast, falling off in a straight line from
-	// all of it at the blast -- a gun's <falloff minMultiplier>. 1 = none.
-	float falloff = 1.0f;
-};
-
-// <onDestroy><cloud kind= tiles= radius= growMs= holdMs= fadeMs= tickMs= damage= damageType=>
-//     <onHit condition= durationMs= strength= chance=/></cloud>
-// Something that lingers on the ground where it went off: a gas cloud now,
-// smoke and fire later. It spreads over at most `tiles` tiles, nearest first,
-// no further than `radius` tiles out, and walls and closed doors stop it (see
-// area_fill.h). It grows over growMs, stays holdMs and thins out over fadeMs.
-// Every tickMs while it is fully there (grow and hold), each player and agent
-// standing on one of its tiles takes `damage` of `damageType` (a wearable's
-// <modifier key="gasResistance"> reduces "gas") and gets <onHit>: a short
-// condition, refreshed for as long as they stay, so walking out ends it soon
-// after. The damage is the cloud's own and NOT a <healthTick> on the condition:
-// a refresh restarts a condition's tick timers, so a condition re-applied every
-// tickMs would never reach its own interval. See Game::spawnCloud.
-struct ProjectileCloud {
-	bool enabled = false;
-	uint8_t kind = 1;            // CloudKind (opcodes.h): what the client draws
-	uint8_t tiles = 0;
-	float radius = 0.0f;         // in tiles
-	uint16_t growMs = 0;
-	uint16_t holdMs = 0;
-	uint16_t fadeMs = 0;
-	uint16_t tickMs = 500;
-	uint16_t damage = 0;          // per tick, to each player and agent inside
-	std::string damageType = "gas";
-	// <cloud buildingDamage= burns="wood,cloth">: fire. Every tick, each building
-	// on or right next to a covered tile whose material (ObjectData::material)
-	// is in `burns` takes buildingDamage -- so it burns the wooden wall it is
-	// up against, not the stone one. `burns` defaults to wood and cloth.
-	uint16_t buildingDamage = 0;
-	std::vector<std::string> burns;
-	// <cloud blocksVision=>: smoke. While it is there (grow, hold and the first
-	// half of the fade) nobody is sent what it hides; see smoke_sight.h.
-	// Defaults to true for kind="smoke" and false otherwise.
-	bool blocksVision = false;
-	ConditionApplication onHit;
-};
+// What a projectile does where it goes off lives in gameplay/effect.h, shared
+// with objects, agents and scripts. The old names stay for the code that uses
+// them.
+using ProjectileExplosion = EffectExplosion;
+using ProjectileFragments = EffectFragments;
+using ProjectileCloud = EffectZone;
 
 struct ProjectileData {
 	// The client's projectile index, which a weapon cites as `bulletId` in
@@ -142,13 +50,14 @@ struct ProjectileData {
 	// carries its own set too, and the two combine: see Game::applyHitEffects.
 	HitEffects hitEffects;
 
-	ProjectileExplosion explosion;
-	ProjectileFragments fragments;
-	ProjectileCloud cloud;
+	// <onDestroy>: what happens where it goes off -- a blast, fragments,
+	// something left on the ground -- written inline or named from effects.xml
+	// (<effect key=>). See EffectManager::parseEffects.
+	EffectList effects;
 
-	// Whether this projectile goes off where it dies (a blast, fragments, a
-	// cloud) rather than dropping as an item.
-	bool detonates() const { return explosion.enabled || fragments.enabled || cloud.enabled; }
+	// Whether this projectile goes off where it dies rather than dropping as
+	// an item.
+	bool detonates() const { return !effects.empty(); }
 
 	// <shatter/>: breaks where it lands or on the first thing it hits -- a
 	// molotov's bottle -- and goes off there and then. It never parks and never

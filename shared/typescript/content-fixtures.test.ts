@@ -30,6 +30,7 @@ describe('tests/fixtures/content', () => {
       kits: 32,
       objects: 62,
       furnitures: 59,
+      effects: 11,
       projectiles: 9,
       agents: 9,
       structures: 12,

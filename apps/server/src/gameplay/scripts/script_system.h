@@ -19,10 +19,10 @@ struct QuestDefinition;
 struct ScriptIntent {
     enum class Kind : uint8_t {
         Start, Advance, Complete, Fail, SetVar, GrantAchievement, AccountEvent,
-        Say, Status, SpawnAgent, GiveItem, TakeItem, ApplyCondition, After,
+        Say, Status, SpawnAgent, GiveItem, TakeItem, ApplyCondition, After, Effect,
     };
     Kind kind = Kind::Say;
-    std::string key;    // quest / stage / ending / var / achievement / agent / item / condition / hook
+    std::string key;    // quest / stage / ending / var / achievement / agent / item / condition / hook / effect
     std::string quest;  // quest= for quest actions ('' = the calling quest)
     std::string text;   // say / status
     std::string tag;    // spawnAgent
@@ -30,6 +30,11 @@ struct ScriptIntent {
     bool add = false;
     uint32_t count = 1, radius = 300, durationMs = 0, seconds = 0;
     float strength = 1.0f;
+    // effect: where (x=, y=; the player's own position without them) and the
+    // way it is facing (angle=, radians; none = round zones).
+    bool hasPosition = false, hasAngle = false;
+    uint32_t x = 0, y = 0;
+    float angle = 0.0f;
 };
 
 namespace script_intents {

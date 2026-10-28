@@ -28,6 +28,7 @@
 #include "gameplay/equipment.h"
 #include "gameplay/weapon_mods.h"
 #include "gameplay/projectile.h"
+#include "gameplay/effect.h"
 #include "gameplay/kit.h"
 #include "gameplay/groups.h"
 #include "content/xml_utils.h"
@@ -207,6 +208,12 @@ namespace {
 			{"crit",  "condition", &effects, "condition in conditions.xml", nullptr},
 			// A frag's <fragments projectile=>: resolved by key when it goes
 			// off, and the entry may come later in the same file.
+			{"fragments", "projectile", &projectiles, "projectile in projectiles.xml", nullptr},
+		});
+		// effects.xml: what a blast or a zone inflicts, and what a frag fires.
+		// Both resolve only once conditions.xml and projectiles.xml are in.
+		checkFileRefs(contentFile("effects.xml"), {
+			{"onHit", "condition", &effects, "condition in conditions.xml", nullptr},
 			{"fragments", "projectile", &projectiles, "projectile in projectiles.xml", nullptr},
 		});
 		// <explosion><onHit condition=> lives in objects.xml and furnitures.xml
@@ -396,6 +403,14 @@ namespace {
 		// which is validated against the weapon's magazineSize at parse.
 		if (!KitManager::getInstance().loadFromXml(contentFile("kits.xml"))) {
 			startupErrorMessage("Failed to load kits.xml");
+			return false;
+		}
+
+		// Named effects -- blasts, fragments, gas, smoke, fire -- before every
+		// file that names one: objects, projectiles and agents resolve their
+		// <effect key=> as they load. Nothing in it names an item.
+		if (!EffectManager::getInstance().loadFromXml(contentFile("effects.xml"))) {
+			startupErrorMessage("Failed to load effects.xml");
 			return false;
 		}
 

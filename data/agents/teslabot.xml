@@ -15,7 +15,7 @@
     </ability>
   </abilities>
   <onDeath>
-    <explosion radius="40" playerDamage="100" buildingDamage="100"/>
+    <effect key="teslabot_burst"/>
     <drops>
       <item key="shaped_uranium" amount="1"/>
       <item key="alloys" amount="1"/>

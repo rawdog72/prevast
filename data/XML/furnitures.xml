@@ -671,9 +671,7 @@
             </contents>
         </storage>
 		<onDestroy>
-            <explosion area="1" playerDamage="250" buildingDamage="10000" knockback="20">
-                <onHit condition="slowed" chance="1" durationMs="1000" strength="1.0"/>
-            </explosion>
+            <effect key="barrel_blast"/>
 			<drops>
 				<item key="shaped_metal" amount="8" />
 			</drops>
@@ -693,9 +691,9 @@
 			<areaEffect id="2" type="radiation" strength="1" area="2"/>
 		</areaEffects>
 		<onDestroy>
-            <explosion area="1" playerDamage="300" buildingDamage="10000" knockback="20">
-                <onHit condition="slowed" chance="1" durationMs="1000" strength="1.0"/>
-            </explosion>
+            <effect key="barrel_blast">
+                <explosion playerDamage="300"/>
+            </effect>
 			<drops>
 				<item key="shaped_metal" amount="8" />
                 		<item key="uranium" amount="8" />

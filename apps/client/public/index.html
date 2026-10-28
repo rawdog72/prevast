@@ -84,8 +84,10 @@
                     <div data-home-clans aria-live="polite"><p class="dv-ranking-empty">Loading clans…</p></div>
                 </section>
                 <button type="button" class="dv-btn dv-rankings-more" data-home-rankings-open>View all rankings <span aria-hidden="true">↗</span></button>
-                <p class="dv-account-hint" data-home-rankings-status role="status"></p>
-                <button type="button" class="dv-link" data-home-rankings-retry hidden>Retry leaderboards</button>
+                <div class="dv-rankings-notice">
+                    <p class="dv-account-hint" data-home-rankings-status role="status"></p>
+                    <button type="button" class="dv-link" data-home-rankings-retry hidden>Try again</button>
+                </div>
             </aside>
             <section id="dv-start-window" class="dv-window" aria-label="Play">
                 <div id="dv-play-view">
@@ -307,11 +309,20 @@
                     </form>
                 </div>
             </section>
+            <!-- The changelog, newest first: the top entry is what returning players see. -->
+            <aside id="dv-whats-new" class="dv-window dv-whats-new" aria-labelledby="dv-whats-new-title">
+                <h2 id="dv-whats-new-title" class="dv-eyebrow">WHAT'S NEW</h2>
+                <div class="dv-whats-new-body">
+                    <article class="dv-release-note">
+                        <h3><time datetime="2026-09">2026-09</time> — new client</h3>
+                        <p>The client is being rebuilt from scratch. Items, buildings and rules now come from the server, so every server can differ.</p>
+                    </article>
+                </div>
+            </aside>
         </div>
         <footer class="dv-footer">
             <nav aria-label="Game links">
                 <button type="button" data-info="controls">How to play</button>
-                <button type="button" data-info="updates">Changelog</button>
                 <button type="button" data-editor>World editor</button>
             </nav>
             <p class="dv-disclaimer">Unofficial fan-made server. Not affiliated with or endorsed by Devast.io.</p>
@@ -333,10 +344,6 @@
                         <dt>Map</dt><dd>M</dd>
                         <dt>Chat</dt><dd>Enter</dd>
                     </dl>
-                </div>
-                <div class="dv-info-content" data-updates-pane hidden>
-                    <div class="dv-release">2026-09 — new client</div>
-                    <p>The client is being rebuilt from scratch. Items, buildings and rules now come from the server, so every server can differ.</p>
                 </div>
             </section>
         </dialog>

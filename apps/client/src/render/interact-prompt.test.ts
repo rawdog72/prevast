@@ -195,15 +195,30 @@ describe('InteractPrompt', () => {
     expect(drawn).toHaveLength(0);
   });
 
-  it('flashes the wrong-tool badge with the required tool at the top of the screen for 2s', () => {
+  it('places the wrong-tool popup just below the reported vitals strip', () => {
+    const prompt = new InteractPrompt();
+    prompt.setTopInset(120);
+    prompt.wrongTool('day-stone-pickaxe');
+    prompt.update(1000);
+    const { ctx, drawn } = recordingContext();
+    prompt.render(ctx, camera, assets, local, null, null);
+    // 10px gap under the strip, at 0.65 of the 110x66 art.
+    expect(drawn[0]!.y).toBeCloseTo(130);
+    expect(drawn[0]!.w).toBeCloseTo(110 * 0.65);
+  });
+
+  it('flashes a smaller wrong-tool badge with the required tool under the vitals strip for 2s', () => {
     const prompt = new InteractPrompt();
     prompt.wrongTool('day-stone-pickaxe');
+    expect(prompt.showingWrongTool).toBe(true);
     prompt.update(1000);
     const { ctx, drawn } = recordingContext();
     prompt.render(ctx, camera, assets, local, null, null);
     expect(drawn.map((d) => d.sprite)).toEqual(['wrong-tool', 'day-stone-pickaxe']);
     expect(drawn[0]!.x + drawn[0]!.w / 2).toBeCloseTo(640);
-    expect(drawn[0]!.y + drawn[0]!.h / 2).toBeCloseTo(50);
+    // No inset reported: the default strip bottom (72) + 10 gap, then half the 0.65-scaled 66px badge.
+    expect(drawn[0]!.y).toBeCloseTo(82);
+    expect(drawn[0]!.h).toBeCloseTo(66 * 0.65);
     expect(drawn[0]!.alpha).toBe(1);
     prompt.update(1500);
     const again = recordingContext();

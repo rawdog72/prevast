@@ -54,6 +54,13 @@
     <!-- starting loadouts; ammo is clamped against magazineSize -->
     <file name="kits.xml" root="kits" after="equipables.xml"/>
 
+    <!-- named effects: blasts, fragments, gas, smoke and fire. References
+         nothing that loads after it (a frag's fragment projectile and the
+         conditions it inflicts are checked once everything is in), and
+         objects, projectiles and agents name these as they load, so it
+         comes before all three. -->
+    <file name="effects.xml" root="effects"/>
+
     <!-- placeable world objects; itemKey, fuel and drops name items -->
     <file name="objects.xml" root="objects" after="items.xml"/>
 

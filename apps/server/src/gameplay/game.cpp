@@ -2865,7 +2865,7 @@ namespace {
 // Much cheaper than isTileClear, whose owner/clan checks, door-swing handling
 // and placement-vs-floor rules are about *building* placement and have no
 // meaning for a creature spawn.
-bool Game::isSpawnPositionValid(const Position& pos, const Creature* self, SpawnRule rule) const
+bool Game::isSpawnPositionValid(const Position& pos, const Thing* self, SpawnRule rule) const
 {
 	const int32_t mapWidth = MapSize::widthUnits();
 	const int32_t mapHeight = MapSize::heightUnits();
@@ -2992,11 +2992,65 @@ bool Game::isSpawnPositionValid(const Position& pos, const Creature* self, Spawn
 					}
 					continue;
 				}
+
+				// NPCs are not Creatures, so without this every check above
+				// waved them through: a login, a night spawn or another NPC
+				// could materialise inside a merchant. They keep the creature
+				// clearance whether or not their body is solid -- a walk-through
+				// NPC is still a person standing there -- and under either rule,
+				// since nobody's base is where an NPC stands.
+				if (thing->getNpc()) {
+					if (distX <= SPAWN_CREATURE_CLEARANCE && distY <= SPAWN_CREATURE_CLEARANCE) {
+						return false;
+					}
+					continue;
+				}
 			}
 		}
 	}
 
 	return true;
+}
+
+// Defined further down, beside the movement resolver that owns it.
+bool playerOverlapsObstacle(Thing* obstacle, float px, float py, float playerRadius, float& overlap, float& nx, float& ny);
+
+bool Game::bodyBlockedAt(const Position& at, float radius, const Thing* self, bool creaturesBlock) const
+{
+	const float px = static_cast<float>(at.x);
+	const float py = static_cast<float>(at.y);
+
+	// The map edge is a wall, held the same way the movement resolver holds it.
+	if (px < radius || py < radius ||
+		px > static_cast<float>(MapSize::widthUnits()) - radius ||
+		py > static_cast<float>(MapSize::heightUnits()) - radius) {
+		return true;
+	}
+
+	// An obstacle is filed under the tile holding its CENTRE but its body
+	// reaches as far as the widest one loaded, so the box is content-derived
+	// (collisionScanTileMargin), never a fixed 3x3: a margin that is too small
+	// fails silently and the body is declared clear inside a big object.
+	const int32_t margin = Map::collisionScanTileMargin() + 1;
+	const int32_t tx = at.x / TILE_SIZE;
+	const int32_t ty = at.y / TILE_SIZE;
+	std::vector<Thing*> nearby;
+	map.getSolidThingsInTileBox(tx - margin, ty - margin, tx + margin, ty + margin, nearby);
+	for (Thing* thing : nearby) {
+		// Solid lists are filed when a thing is placed; a door opened since
+		// then is still listed, so collision is asked again here.
+		if (thing == self || !thing->hasCollision()) {
+			continue;
+		}
+		if (!creaturesBlock && thing->getCreature()) {
+			continue;
+		}
+		float overlap = 0.0f, nx = 0.0f, ny = 0.0f;
+		if (playerOverlapsObstacle(thing, px, py, radius, overlap, nx, ny)) {
+			return true;
+		}
+	}
+	return false;
 }
 
 // Pick a legal spawn position honouring spawnX / spawnY / spawnSpread.

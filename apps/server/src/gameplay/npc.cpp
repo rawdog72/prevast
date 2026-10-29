@@ -6,7 +6,6 @@
 #include "gameplay/npc.h"
 #include "gameplay/quests/quest_system.h"
 #include "gameplay/game.h"
-#include "world/collision.h"
 #include "network/opcodes.h"
 #include <cctype>
 
@@ -290,12 +289,7 @@ void NpcSystem::update(uint32_t elapsed) {
         if (!walkRadius || !d.speed) continue;
         if (now >= npc.nextWalk) {
             npc.nextWalk = now + 4000 + rand() % 4000;
-            if ((rand() % 3) == 0) npc.goal = npc.spawn.home;
-            else {
-                const double angle = (rand() % 6283) / 1000.0;
-                const uint32_t radius = rand() % (walkRadius + 1);
-                npc.goal = g_game.clampPositionToMap(int(npc.spawn.home.x + cos(angle) * radius), int(npc.spawn.home.y + sin(angle) * radius));
-            }
+            npc.goal = (rand() % 3) == 0 ? npc.spawn.home : pickWalkGoal(npc, walkRadius);
         }
         const float dx = float(npc.goal.x) - npc.position.x, dy = float(npc.goal.y) - npc.position.y;
         const float distance = std::sqrt(dx * dx + dy * dy);
@@ -303,19 +297,10 @@ void NpcSystem::update(uint32_t elapsed) {
         const float step = std::min(distance, d.speed * std::min(elapsed, 100u) / 1000.0f);
         const Position candidate = g_game.clampPositionToMap(int(std::round(npc.position.x + dx / distance * step)), int(std::round(npc.position.y + dy / distance * step)));
         if (candidate.getDistance(npc.spawn.home) > static_cast<int32_t>(walkRadius)) { npc.goal = npc.spawn.home; continue; }
-        std::vector<Thing*> nearby;
-        const int tx = candidate.x / TILE_SIZE, ty = candidate.y / TILE_SIZE;
-        const int margin = Map::collisionScanTileMargin() + 1;
-        g_game.map.getThingsInTileBox(tx - margin, ty - margin, tx + margin, ty + margin, nearby);
-        bool blocked = false;
-        for (auto* other : nearby) {
-            if (other == &npc || !other->hasCollision() || (!d.solid && (other->getCreature() || other->getNpc()))) continue;
-            CollisionRect rect; float overlap = 0, nx = 0, ny = 0;
-            const CollisionCircle circle{float(candidate.x), float(candidate.y), 28};
-            if (other->getCollisionRect(rect)) blocked = Collision::checkCircleRect(circle, rect, overlap, nx, ny);
-            else blocked = Collision::checkCircleCircle(circle, {float(other->getPosition().x), float(other->getPosition().y), other->getCollisionRadius()}, overlap, nx, ny);
-            if (blocked) break;
-        }
+        // The movement layer's own overlap test. A solid NPC also keeps out of
+        // players and agents; a walk-through one only minds geometry and
+        // other solid NPCs.
+        const bool blocked = g_game.bodyBlockedAt(candidate, Npc::BODY_RADIUS, &npc, d.solid);
         if (!blocked) {
             npc.rotation = static_cast<uint8_t>(int(std::atan2(dy, dx) * 255 / (2 * 3.141592653589793) + 255) % 255);
             g_game.map.placeThing(candidate, &npc);
@@ -323,6 +308,15 @@ void NpcSystem::update(uint32_t elapsed) {
     }
     std::vector<uint32_t> ended, refreshed;
     const bool second = now / 1000 != lastSecond;
+    if (second) {
+        updateRelocation(now);
+        // A Random spawn that found no free spot at start is retried, rather
+        // than standing inside something.
+        if (npcs.size() < spawns.size() && now >= nextSpawnRetry) {
+            nextSpawnRetry = now + 10000;
+            spawnMissing(/*announce=*/false);
+        }
+    }
     for (auto& [id, s] : sessions) {
         auto* p = g_game.getPlayerByID(id); const auto n = npcs.find(s.spawn);
         if (!available(p) || n == npcs.end() || !inRange(p, *n->second) || now >= s.expires) ended.push_back(id);

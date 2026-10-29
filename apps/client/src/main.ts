@@ -286,6 +286,7 @@ const screen = new StartScreen({
     },
     closeIn: () => homeBackdrop.closeIn(),
     pullBack: () => homeBackdrop.pullBack(),
+    setName: (name, verified) => homeBackdrop.setSurvivorName(name, verified),
     leave: () => {
       // Done just before the game starts its own ambiance on the same music channel.
       homeMusic.fadeOut(LEAVE_MS - 50);

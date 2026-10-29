@@ -183,6 +183,7 @@
     <ClCompile Include="src\gameplay\npc_stock.cpp" />
     <ClCompile Include="src\gameplay\npc_content.cpp" />
     <ClCompile Include="src\gameplay\npc_economy.cpp" />
+    <ClCompile Include="src\gameplay\npc_placement.cpp" />
     <ClCompile Include="src\gameplay\npc_script.cpp" />
     <ClCompile Include="src\gameplay\agent.cpp" />
     <ClCompile Include="src\persistence\ban.cpp" />

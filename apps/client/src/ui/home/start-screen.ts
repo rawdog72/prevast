@@ -73,10 +73,21 @@ export interface StartBackdrop {
   pullBack?(): void;
   /** Joined: the way out to the game; resolves when the game may take the screen. */
   leave?(): Promise<void>;
+  /** The name the player will go by, as they type it (verified = an account's). */
+  setName?(name: string, verified: boolean): void;
 }
 
 /** How long the game takes to come up out of the dark after the start screen goes. */
 const ENTER_FADE_MS = 700;
+
+/** "84 online · 6 servers": everyone on an open server; null when none is open. */
+export function onlineSummary(servers: readonly ListedServer[]): string | null {
+  const open = servers.filter((server) => server.state === 'open');
+  if (!open.length) return null;
+  const players = open.reduce((sum, server) => sum + Math.max(0, server.players), 0);
+  const worlds = open.length === 1 ? '1 server' : `${open.length} servers`;
+  return `${players.toLocaleString('en')} online · ${worlds}`;
+}
 
 const REFRESH_INTERVAL_MS = 20_000;
 const TOUCH_GRACE_MS = 5_000;
@@ -178,6 +189,7 @@ export class StartScreen {
       onState: (state) => {
         this.listingState = state;
         this.refresh();
+        this.renderOnline();
       },
     });
   }
@@ -284,6 +296,8 @@ export class StartScreen {
     );
 
     this.nickname.value = readSetting(NICKNAME_KEY) ?? '';
+    this.nickname.addEventListener('input', () => this.syncName());
+    this.syncName();
     doc.addEventListener('visibilitychange', () => this.syncListingActivity());
     if (this.accountApi) {
       this.accounts = new AccountPanel(doc, this.accountApi, (state) => this.applyAccount(state), {
@@ -553,7 +567,21 @@ export class StartScreen {
       this.updateLabels();
       this.renderWhenIdle();
     }
+    this.renderOnline();
     this.queuePings();
+  }
+
+  /** The players-online line in the corner: hidden while the list is loading or unreachable. */
+  private renderOnline(): void {
+    const line = this.doc.querySelector<HTMLElement>('[data-home-online]');
+    if (!line) return;
+    const text =
+      this.listingState === 'ready' || this.listingState === 'updating'
+        ? onlineSummary(this.servers)
+        : null;
+    line.hidden = text === null;
+    const label = line.querySelector<HTMLElement>('[data-home-online-text]');
+    if (label && text !== null && label.textContent !== text) label.textContent = text;
   }
 
   private renderWhenIdle(): void {
@@ -734,6 +762,12 @@ export class StartScreen {
       'aria-describedby',
       asAccount ? 'dv-nickname-account-hint' : 'dv-nickname-guest-hint',
     );
+    this.syncName(asAccount);
+  }
+
+  /** The survivor by the fire wears the name being typed (the account's, ticked, when playing as one). */
+  private syncName(asAccount = this.nickname.readOnly): void {
+    this.backdrop?.setName?.(this.nickname.value.trim(), asAccount);
   }
 
   private listingActive(): boolean {

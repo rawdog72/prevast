@@ -176,7 +176,7 @@ describe('HomeBackdrop', () => {
     backdrop.stop();
   });
 
-  it('puts a survivor by the fire, wearing the chosen skin, with no name over them', () => {
+  it('puts a survivor by the fire, wearing the chosen skin and the typed name', () => {
     const { win, step } = fakeWindow();
     const backdrop = new HomeBackdrop({ canvas: canvas(), content: content(), assets, win });
     backdrop.setContentReady();
@@ -196,6 +196,10 @@ describe('HomeBackdrop', () => {
     backdrop.setSurvivorSkin(5);
     expect(world.entities.getByType(EntityType.PLAYER)[0]!.extra & 255).toBe(5);
     expect(world.players.get(survivor.pid)?.nickname).toBe('');
+    backdrop.setSurvivorName('Ada', true);
+    expect(world.players.get(survivor.pid)).toMatchObject({ nickname: 'Ada', verified: true });
+    backdrop.setSurvivorName('');
+    expect(world.players.get(survivor.pid)).toMatchObject({ nickname: '', verified: false });
     backdrop.stop();
   });
 

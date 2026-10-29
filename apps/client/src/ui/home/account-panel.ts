@@ -250,7 +250,10 @@ export class AccountPanel {
       // A network failure says nothing about the cookie's validity. Keep the
       // last known identity; joining still requires a fresh account ticket.
       this.set(wasLoaded ? {} : { enabled: true });
-      this.say('Accounts could not be refreshed. Try again in a moment.', 'warn');
+      // A guest loses nothing here: the strip already offers sign-in, which reports
+      // its own errors. Only a shown sign-in that may be stale is worth a word.
+      if (this.current.account)
+        this.say("Accounts can't be reached right now. You're still signed in.", 'warn');
     }
   }
 

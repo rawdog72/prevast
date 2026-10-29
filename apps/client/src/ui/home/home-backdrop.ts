@@ -348,6 +348,9 @@ export class HomeBackdrop {
   private lean = { x: 0, y: 0 };
   /** The survivor's look: a wearable id (0 = none); skins will land here. */
   private survivorSkin = 0;
+  /** The name over the survivor: whatever is in the start screen's name box. */
+  private survivorName = '';
+  private survivorVerified = false;
   /** 0..1 how far the view has closed in on the fire, and where it is heading. */
   private approach = 0;
   private approachTarget = 0;
@@ -377,6 +380,20 @@ export class HomeBackdrop {
   setSurvivorSkin(wearableId: number): void {
     this.survivorSkin = wearableId & 255;
     if (this.world) this.placeSurvivor(this.world, survivorAngle(this.clock));
+  }
+
+  /**
+   * The name over the survivor, as other players will see it (empty = none),
+   * with the verified tick when it is a registered account's.
+   */
+  setSurvivorName(name: string, verified = false): void {
+    this.survivorName = name;
+    this.survivorVerified = verified;
+    const info = this.world?.players.get(SURVIVOR_PID);
+    if (info) {
+      info.nickname = name;
+      info.verified = verified && name !== '';
+    }
   }
 
   start(): void {
@@ -447,8 +464,10 @@ export class HomeBackdrop {
     world.tilesY = BACKDROP_TILES_Y;
     const placements = backdropPlacements();
     world.entities.processUnits(backdropRecords(placements, this.content), true);
-    // No name over their head: an empty nickname draws no nameplate.
-    world.players.set(SURVIVOR_PID, newPlayerInfo(SURVIVOR_PID, ''));
+    // An empty nickname draws no nameplate at all.
+    const info = newPlayerInfo(SURVIVOR_PID, this.survivorName);
+    info.verified = this.survivorVerified && this.survivorName !== '';
+    world.players.set(SURVIVOR_PID, info);
     this.placeSurvivor(world, survivorAngle(0));
     // Already burning when the scene fades in, rather than lighting up.
     this.animator.update(world, 1000);

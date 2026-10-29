@@ -186,7 +186,8 @@ void placeNpcs(const ActiveScenario& scenario)
 		NpcSpawn spawn;
 		spawn.key = stockKey(scenario.project.id, generation, e.id);
 		spawn.npc = e.ref;
-		spawn.home = Position(static_cast<uint16_t>(e.x), static_cast<uint16_t>(e.y));
+		spawn.anchor = spawn.home = Position(static_cast<uint16_t>(e.x), static_cast<uint16_t>(e.y));
+		spawn.placed = true; // NpcPlacement::Fixed: nudged off anything solid when it is placed
 		if (e.wander) spawn.walkRadius = static_cast<uint32_t>(*e.wander) * TILE_SIZE;
 		spawn.rotation = e.angle.value_or(0);
 		spawns.push_back(std::move(spawn));

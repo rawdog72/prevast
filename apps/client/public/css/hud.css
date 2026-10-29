@@ -302,23 +302,35 @@ select.dv-input option { background: #252c35; }
 @keyframes hud-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
 
 /* ---------------------------------------------------------------------- *
- * Vitals: one instrument strip across the top centre -- life | food,
- * warmth, stamina | clock, radiation | level. Color belongs to the gauges;
- * the neutral frame stays quiet against both day and night game scenes.
+ * Vitals: one strip across the top centre -- life | food, warmth, stamina
+ * | clock, radiation | level. Drawn in the world's own language: thick ink
+ * outlines, flat colour with one highlight and one shade, and a solid icon
+ * badge riding the left end of each bar, so a need reads by colour and
+ * shape before its number. The panel is a dark, slightly see-through slab
+ * that holds up on grass, sand, snow and night.
  * It centres in the band between the leaderboard (top-left) and the minimap
  * (top-right): the same reserve on both sides keeps it on the centre line,
  * and on a window too narrow for one line its groups wrap onto a second.
  * ---------------------------------------------------------------------- */
 
 .hud-gauges {
-  --dv-life: #cb786e;
-  --dv-food: #c9a16a;
-  --dv-cold: #7aaebc;
-  --dv-stamina: #c9be79;
+  --vit-ink: #141915;
+  --vit-panel: rgba(27, 33, 28, 0.8);
+  --vit-empty: #2c342d;
+  --vit-text: #f6f2e6;
+  --vit-muted: #b8c2b1;
+  --vit-danger: #ff5e52;
+  /* Ink outline for numbers that sit on colour or on the world. */
+  --vit-outline: -1px -1px 0 var(--vit-ink), 1px -1px 0 var(--vit-ink), -1px 1px 0 var(--vit-ink), 1px 1px 0 var(--vit-ink), 0 2px 0 var(--vit-ink);
+  --dv-life: #e9564c;
+  --dv-food: #f39b3a;
+  --dv-cold: #49c2dc;
+  --dv-stamina: #f4d04a;
+  --dv-xp: #b892ff;
   /* Screen px kept clear on each side: the wider of leaderboard and minimap, plus margins. */
   --vit-reserve: calc(28px + max(200px * var(--hud-z-leaderboard, 1), 190px * var(--hud-z-minimap, 1)));
   position: absolute;
-  top: calc(14px / var(--hud-z-vitals, 1));
+  top: calc(12px / var(--hud-z-vitals, 1));
   left: calc(var(--vit-reserve) / var(--hud-z-vitals, 1));
   right: calc(var(--vit-reserve) / var(--hud-z-vitals, 1));
   width: fit-content;
@@ -328,121 +340,230 @@ select.dv-input option { background: #252c35; }
   align-items: center;
   justify-content: center;
   gap: 8px 0;
-  padding: 9px 2px 10px 12px;
-  border: 1px solid #42454b;
-  border-radius: 8px;
-  background: linear-gradient(145deg, rgba(36, 38, 43, 0.97), rgba(23, 25, 29, 0.97));
-  box-shadow: 0 2px 0 #111216, 0 6px 18px rgba(0, 0, 0, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  color: #e4e5e8;
+  padding: 8px 2px;
+  border: 2.5px solid var(--vit-ink);
+  border-radius: 16px;
+  background: var(--vit-panel);
+  box-shadow: 0 3px 0 rgba(10, 13, 10, 0.5), inset 0 1.5px 0 rgba(255, 255, 255, 0.08);
+  color: var(--vit-text);
   pointer-events: none;
 }
 .hud-gauges::before { display: none; }
-.hud-gauges .hud-gauge-unit { margin-left: 2px; font-size: 9px; color: #a6a9af; }
+.hud-gauges .hud-gauge-unit { margin-left: 1px; font-size: 0.7em; }
+/* The needs show bare numbers to stay compact; the meters still say "percent". */
+.hud-tile .hud-gauge-unit { display: none; }
 
-/* Life leads, with a slightly deeper track and the existing damage trail. */
-.hud-life { --c: var(--dv-life); display: flex; align-items: center; gap: 9px; width: 160px; flex: none; }
-.hud-life-icon { flex: none; width: 23px; color: var(--c); font-size: 22px; line-height: 1; }
-.hud-life-body { display: flex; flex-direction: column; flex: 1; min-width: 0; gap: 6px; }
-.hud-life-heading { display: flex; align-items: baseline; justify-content: space-between; }
-.hud-life-label { font-size: 12px; }
-.hud-life-value { line-height: 1; }
-.hud-life-val { font-size: 17px; font-variant-numeric: tabular-nums; }
-.hud-life-track {
-  position: relative;
-  height: 11px;
-  border: 1px solid #101115;
-  border-radius: 3px;
-  background: #101216;
-  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.07);
-  overflow: hidden;
-  transition: border-color 0.3s, box-shadow 0.3s;
+/* Groups sit side by side, split by a carved groove (ink line + highlight). */
+.hud-life, .hud-tiles, .hud-vit-environment, .hud-xp { padding: 0 11px; }
+.hud-tiles, .hud-vit-environment, .hud-xp {
+  border-left: 2px solid rgba(8, 10, 8, 0.45);
+  box-shadow: inset 1px 0 0 rgba(255, 255, 255, 0.06);
 }
+
+/* Screen-reader-only words: the strip shows colour, glyph and number. */
+.hud-life-label, .hud-tile-label, .hud-xp-text, .hud-time-until {
+  position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+}
+
+/* --- Badge: a coloured disc with a solid glyph, shared by every gauge --- */
+.hud-badge {
+  --size: 26px;
+  position: relative;
+  z-index: 1;
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: var(--size);
+  height: var(--size);
+  border: 2.5px solid var(--vit-ink);
+  border-radius: 50%;
+  background: radial-gradient(circle at 34% 28%, color-mix(in srgb, var(--c), #fff 38%) 0 18%, var(--c) 46%, color-mix(in srgb, var(--c), #000 22%) 100%);
+  box-shadow: 0 2px 0 var(--vit-ink);
+  color: var(--vit-ink);
+  transition: background 0.25s;
+}
+.hud-glyph { width: 62%; height: 62%; fill: currentColor; }
+
+/* --- Bars: an inked pill; the fill runs out from under the badge --- */
+.hud-life-track, .hud-tile-track {
+  --ov: 10px;
+  position: relative;
+  flex: none;
+  border: 2.5px solid var(--vit-ink);
+  border-radius: 999px;
+  background: var(--vit-empty);
+  box-shadow: inset 0 2px 0 rgba(0, 0, 0, 0.35), 0 2px 0 var(--vit-ink);
+  overflow: hidden;
+  transition: border-color 0.3s;
+}
+.hud-bar-run { position: absolute; top: 0; bottom: 0; right: 0; left: calc(var(--ov) - 6px); }
+.hud-life-fill, .hud-tile-fill, .hud-life-trail {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: var(--val, 100%);
+}
+.hud-life-fill, .hud-tile-fill {
+  background: var(--c);
+  /* One shade along the bottom, one highlight along the top. */
+  box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.2), inset 0 2.5px 0 rgba(255, 255, 255, 0.32), 2px 0 0 rgba(20, 25, 21, 0.55);
+  transition: width 0.12s linear;
+}
+.hud-life-trail { background: #fff3df; opacity: 0.9; }
+
+/* Life leads: the biggest badge and bar, the percent inside it. */
+.hud-life { --c: var(--dv-life); display: flex; align-items: center; flex: none; }
+.hud-life .hud-badge { --size: 36px; margin-right: -12px; }
+.hud-life-track { --ov: 12px; width: 124px; height: 22px; }
 .hud-life-track::after {
+  /* Quarter notches, drawn over the fill. */
   content: '';
   position: absolute;
   inset: 0;
-  background: repeating-linear-gradient(90deg, transparent 0, transparent calc(20% - 1px), rgba(13, 14, 17, 0.28) calc(20% - 1px), rgba(13, 14, 17, 0.28) 20%);
+  left: 6px;
+  background: linear-gradient(90deg, transparent calc(25% - 1px), rgba(20, 25, 21, 0.28) calc(25% - 1px) 25%, transparent 25% calc(50% - 1px), rgba(20, 25, 21, 0.28) calc(50% - 1px) 50%, transparent 50% calc(75% - 1px), rgba(20, 25, 21, 0.28) calc(75% - 1px) 75%, transparent 75%);
+  pointer-events: none;
 }
-.hud-life-trail { position: absolute; inset: 0; width: var(--val, 100%); background: #d8c5b7; border-radius: 2px; }
-.hud-life-fill {
+.hud-life-value {
   position: absolute;
-  inset: 0;
-  width: var(--val, 100%);
-  border-radius: 2px;
-  background: linear-gradient(180deg, var(--c), color-mix(in srgb, var(--c), #16181c 15%));
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
-  transition: width 0.12s linear;
+  z-index: 1;
+  right: 9px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  line-height: 1;
+  text-shadow: var(--vit-outline);
+  font-variant-numeric: tabular-nums;
 }
-.hud-life.is-critical { --c: #f08d7e; }
-.hud-life.is-critical .hud-life-value { color: #ffb7ab; }
-.hud-life.is-critical .hud-life-track { border-color: #89534d; }
-.hud-life.is-critical .hud-life-fill { animation: hud-pulse 1s ease-in-out infinite; }
-.hud-life.is-hit .hud-life-track { border-color: #f2c5b9; box-shadow: 0 0 0 2px rgba(222, 128, 111, 0.25); }
-.hud-life.is-hit .hud-life-fill { filter: brightness(1.45); }
+.hud-life.is-critical { --c: var(--vit-danger); }
+.hud-life.is-critical .hud-life-track { border-color: #5c1612; }
+.hud-life.is-critical .hud-life-fill { animation: hud-pulse 0.9s ease-in-out infinite; }
+.hud-life.is-critical .hud-badge { animation: hud-vit-throb 0.9s ease-in-out infinite; }
+.hud-life.is-hit .hud-life-fill { filter: brightness(1.5); }
+.hud-life.is-hit .hud-badge { animation: hud-vit-shake 0.22s linear; }
 
-/* Aligned rows are readable without nested cards or decorative badges. */
-/* Icon, bar, value: the strip has no room for the words, so the label is kept for screen readers only. */
-.hud-tiles { display: flex; gap: 12px; }
-.hud-tile { display: grid; grid-template-columns: 16px 44px 30px; align-items: center; gap: 6px; min-width: 0; min-height: 18px; }
-.hud-tile-icon { grid-column: 1; grid-row: 1; color: var(--c); font-size: 16px; line-height: 1; }
-.hud-tile-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
-.hud-tile-value { grid-column: 3; grid-row: 1; display: flex; align-items: baseline; justify-content: flex-end; line-height: 1; }
-.hud-tile-val { font-size: 12px; font-variant-numeric: tabular-nums; }
-.hud-tile-track { grid-column: 2; grid-row: 1; position: relative; height: 6px; border-radius: 2px; background: #101216; box-shadow: 0 1px 0 rgba(255, 255, 255, 0.07); overflow: hidden; }
-.hud-tile-fill { position: absolute; inset: 0; width: var(--val, 100%); border-radius: inherit; background: var(--c); transition: width 0.12s linear; }
-.hud-tile-dir { width: 5px; height: 4px; flex: none; margin-left: 4px; align-self: center; background: var(--c); opacity: 0; transition: opacity 0.3s; }
-.hud-tile[data-dir="rise"] .hud-tile-dir { clip-path: polygon(50% 0, 100% 100%, 0 100%); }
-.hud-tile[data-dir="fall"] .hud-tile-dir { clip-path: polygon(0 0, 100% 0, 50% 100%); }
-.hud-tile[data-dir="rise"] .hud-tile-dir, .hud-tile[data-dir="fall"] .hud-tile-dir { opacity: 0.8; }
-.hud-tile.is-critical .hud-tile-label, .hud-tile.is-critical .hud-tile-val { color: #ffb7ab; }
-.hud-tile.is-critical .hud-tile-track { box-shadow: 0 0 0 1px #89534d; }
-.hud-tile.is-critical .hud-tile-fill { background: #f08d7e; animation: hud-pulse 1s ease-in-out infinite; }
+/* Needs: badge, bar, then the number and the server's trend. */
+.hud-tiles { display: flex; align-items: center; gap: 6px; }
+.hud-tile { display: flex; align-items: center; min-width: 0; }
+.hud-tile .hud-badge { --size: 28px; margin-right: -10px; }
+.hud-tile-track { width: 52px; height: 15px; }
+.hud-tile-value {
+  display: flex;
+  align-items: baseline;
+  width: 33px;
+  margin-left: 5px;
+  font-size: 13px;
+  line-height: 1;
+  text-shadow: var(--vit-outline);
+  font-variant-numeric: tabular-nums;
+}
+.hud-tile-dir {
+  width: 7px;
+  height: 6px;
+  flex: none;
+  margin-left: 3px;
+  align-self: center;
+  background: var(--vit-text);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.hud-tile[data-dir="rise"] .hud-tile-dir { clip-path: polygon(50% 0, 100% 100%, 0 100%); background: #b4ec7c; opacity: 1; }
+.hud-tile[data-dir="fall"] .hud-tile-dir { clip-path: polygon(0 0, 100% 0, 50% 100%); opacity: 0.75; }
+.hud-tile.is-critical .hud-tile-fill { --c: var(--vit-danger); }
+.hud-tile.is-critical .hud-badge { box-shadow: 0 2px 0 var(--vit-ink), 0 0 0 3px rgba(255, 94, 82, 0.55); }
+.hud-tile.is-critical .hud-tile-val { color: #ffc2ba; }
+.hud-tile.is-critical .hud-tile-track { border-color: #5c1612; }
+.hud-tile.is-critical .hud-tile-fill { animation: hud-pulse 0.9s ease-in-out infinite; }
+.hud-tile.is-critical .hud-badge { animation: hud-vit-throb 0.9s ease-in-out infinite; }
 
-/* Clock and exposure: compact instruments with explicit labels. */
-/* Each group after life opens with a hairline; the trailing right padding balances the strip's own. */
-.hud-life, .hud-tiles, .hud-vit-environment, .hud-xp { padding-right: 12px; }
-.hud-tiles, .hud-vit-environment, .hud-xp { padding-left: 12px; border-left: 1px solid rgba(211, 216, 226, 0.1); }
-.hud-vit-environment { display: flex; align-items: center; gap: 10px; }
-.hud-time, .hud-rad { display: flex; align-items: center; gap: 6px; min-width: 0; }
+/* --- World: clock and radiation, small round instruments --- */
+.hud-vit-environment { display: flex; align-items: center; gap: 12px; }
+.hud-time, .hud-rad { display: flex; align-items: center; gap: 7px; min-width: 0; }
 .hud-time-body, .hud-rad-body { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
-.hud-time-phase, .hud-rad-label { color: #a6a9af; font-size: 10px; line-height: 1; }
-.hud-time-countdown { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 3px; }
-.hud-time-left, .hud-rad-val { font-size: 12px; line-height: 1.2; font-variant-numeric: tabular-nums; }
-/* The clock ring already shows how far through the phase it is; "to dusk" stays for screen readers. */
-.hud-time-until { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
-.hud-clock { position: relative; width: 30px; height: 30px; flex: none; }
-.hud-clock-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
-.hud-clock-day { fill: none; stroke: #c9b887; stroke-width: 4; transition: opacity 0.6s; }
-.hud-clock-night { fill: none; stroke: #8ca2c2; stroke-width: 4; transition: opacity 0.6s; }
-.hud-clock.is-night .hud-clock-day, .hud-clock:not(.is-night) .hud-clock-night { opacity: 0.25; }
-.hud-clock-sun, .hud-clock-moon { fill: none; stroke: #c9b887; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-.hud-clock-moon { stroke: #9db4d5; }
+.hud-time-phase, .hud-rad-label { color: var(--vit-muted); font-size: 10px; line-height: 1; letter-spacing: 0.2px; }
+.hud-time-countdown { display: flex; align-items: baseline; }
+.hud-time-left, .hud-rad-val { font-size: 14px; line-height: 1.1; text-shadow: var(--vit-outline); font-variant-numeric: tabular-nums; }
+
+.hud-clock, .hud-rad-dial {
+  position: relative;
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border: 2.5px solid var(--vit-ink);
+  border-radius: 50%;
+  background: var(--vit-empty);
+  box-shadow: 0 2px 0 var(--vit-ink), inset 0 2px 0 rgba(0, 0, 0, 0.3);
+}
+.hud-clock-svg, .hud-rad-svg { position: absolute; inset: 1px; width: calc(100% - 2px); height: calc(100% - 2px); overflow: visible; }
+.hud-clock-day { fill: none; stroke: #f4d04a; stroke-width: 7; transition: opacity 0.6s; }
+.hud-clock-night { fill: none; stroke: #6f8fd8; stroke-width: 7; transition: opacity 0.6s; }
+.hud-clock.is-night .hud-clock-day, .hud-clock:not(.is-night) .hud-clock-night { opacity: 0.3; }
+.hud-clock-sun { fill: #f4d04a; stroke: #f4d04a; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+.hud-clock-moon { fill: #a9c0f2; stroke: none; }
 .hud-clock .hud-clock-moon, .hud-clock.is-night .hud-clock-sun { display: none; }
 .hud-clock.is-night .hud-clock-moon { display: block; }
-.hud-clock-marker { fill: #e4e5e8; stroke: #24262b; stroke-width: 2; }
+.hud-clock-marker { fill: #fff; stroke: var(--vit-ink); stroke-width: 3.5; }
 
-/* Radiation rises as cleanliness falls. */
-.hud-rad { padding-left: 10px; border-left: 1px solid rgba(211, 216, 226, 0.1); }
-.hud-rad-dial { position: relative; width: 30px; height: 30px; flex: none; color: #a6a9af; }
-.hud-rad-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
-.hud-rad-ticks line { stroke: #777b84; stroke-width: 1.5; stroke-linecap: round; }
-.hud-rad-track { fill: none; stroke: #3e4148; stroke-width: 5; stroke-linecap: round; }
-.hud-rad-arc { fill: none; stroke: currentColor; stroke-width: 5; stroke-linecap: round; stroke-dasharray: 100; stroke-dashoffset: calc(100 - 100 * var(--p, 0)); transition: stroke 0.3s; }
-.hud-rad-needle { stroke: currentColor; stroke-width: 2; stroke-linecap: round; transition: stroke 0.3s; }
-.hud-rad-icon { position: absolute; left: 50%; top: 57%; transform: translate(-50%, -50%); font-size: 13px; line-height: 1; }
-.hud-rad.is-warn .hud-rad-dial, .hud-rad.is-warn .hud-rad-val { color: #d8b682; }
-.hud-rad.is-critical .hud-rad-dial, .hud-rad.is-critical .hud-rad-val { color: #ffb7ab; }
-.hud-rad.is-draining .hud-rad-icon, .hud-rad.is-draining .hud-rad-arc { animation: hud-pulse 1s ease-in-out infinite; }
+/* Radiation rises as cleanliness falls: quiet grey at rest, amber, then red. */
+.hud-rad-dial { color: #9aa696; }
+.hud-rad-ticks { display: none; }
+.hud-rad-track { fill: none; stroke: rgba(0, 0, 0, 0.35); stroke-width: 8; stroke-linecap: round; }
+.hud-rad-arc { fill: none; stroke: currentColor; stroke-width: 8; stroke-linecap: round; stroke-dasharray: 100; stroke-dashoffset: calc(100 - 100 * var(--p, 0)); transition: stroke 0.3s; }
+.hud-rad-needle { stroke: var(--vit-text); stroke-width: 3; stroke-linecap: round; }
+.hud-rad-icon { position: absolute; left: 50%; top: 56%; transform: translate(-50%, -50%); width: 14px; height: 14px; display: grid; }
+.hud-rad-icon .hud-glyph { width: 100%; height: 100%; }
+.hud-rad.is-warn .hud-rad-dial, .hud-rad.is-warn .hud-rad-val { color: #f6b13c; }
+.hud-rad.is-critical .hud-rad-dial { color: var(--vit-danger); border-color: #5c1612; }
+.hud-rad.is-critical .hud-rad-val { color: #ffc2ba; }
+.hud-rad.is-draining .hud-rad-icon, .hud-rad.is-draining .hud-rad-arc { animation: hud-pulse 0.9s ease-in-out infinite; }
 
-/* Progress closes the strip: the level over a short bar; the XP numbers stay for screen readers. */
-.hud-xp { display: flex; flex-direction: column; align-items: stretch; justify-content: center; gap: 5px; width: 58px; box-sizing: content-box; }
-.hud-level-badge { display: flex; align-items: baseline; justify-content: center; gap: 4px; flex: none; }
-.hud-level-label { color: #a6a9af; font-size: 9px; letter-spacing: 0.3px; }
+/* --- Progress closes the strip: the level on a disc, XP as a slim pill --- */
+.hud-xp { --c: var(--dv-xp); display: flex; align-items: center; }
+.hud-level-badge {
+  position: relative;
+  z-index: 1;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  margin-right: -8px;
+  border: 2.5px solid var(--vit-ink);
+  border-radius: 50%;
+  background: radial-gradient(circle at 34% 28%, color-mix(in srgb, var(--c), #fff 38%) 0 18%, var(--c) 46%, color-mix(in srgb, var(--c), #000 22%) 100%);
+  box-shadow: 0 2px 0 var(--vit-ink);
+  text-shadow: var(--vit-outline);
+}
+.hud-level-label { font-size: 7px; line-height: 1; letter-spacing: 0.6px; text-shadow: none; color: var(--vit-ink); margin-bottom: 1px; }
 .hud-level { font-size: 13px; line-height: 1; font-variant-numeric: tabular-nums; }
-.hud-xp-body { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0; }
-.hud-xp-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
-.hud-xp-track { position: relative; height: 3px; border-radius: 1px; background: #101216; overflow: hidden; }
-.hud-xp-fill { position: absolute; inset: 0; width: var(--val, 0%); border-radius: inherit; background: #969faa; transition: width 0.25s ease-out; }
+.hud-xp-body { display: flex; flex-direction: column; }
+/* The padding keeps the start of the fill clear of the badge. */
+.hud-xp-track {
+  position: relative;
+  padding-left: 6px;
+  width: 40px;
+  height: 11px;
+  border: 2.5px solid var(--vit-ink);
+  border-left: 0;
+  border-radius: 0 999px 999px 0;
+  background: var(--vit-empty);
+  box-shadow: inset 0 2px 0 rgba(0, 0, 0, 0.35), 0 2px 0 var(--vit-ink);
+  overflow: hidden;
+}
+.hud-xp-fill {
+  display: block;
+  height: 100%;
+  width: var(--val, 0%);
+  background: var(--c);
+  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.2), inset 0 2px 0 rgba(255, 255, 255, 0.3);
+  transition: width 0.25s ease-out;
+}
+
+@keyframes hud-vit-throb { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.14); } }
+@keyframes hud-vit-shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-2px) rotate(-6deg); } 75% { transform: translateX(2px) rotate(6deg); } }
 
 @media (prefers-reduced-motion: reduce) {
   .hud-gauges *, .hud-gauges *::after { animation: none !important; transition: none !important; }

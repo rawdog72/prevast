@@ -708,11 +708,19 @@ public:
 	//                   owner's base. Only colliding geometry blocks, so floors,
 	//                   roads and open doors are fine to come back on.
 	//
-	// Takes a Creature rather than a Player: `self` is only ever used for the
-	// identity skip, and the body is already creature-generic.
+	// Takes a Thing rather than a Player: `self` is only ever used for the
+	// identity skip, and the body is already creature-generic -- NPCs are
+	// placed (and re-placed when they travel) through this same predicate.
 	enum class SpawnRule { Strict, Resurrection };
-	bool isSpawnPositionValid(const Position& pos, const Creature* self,
+	bool isSpawnPositionValid(const Position& pos, const Thing* self,
 	                          SpawnRule rule = SpawnRule::Strict) const;
+
+	// Does a round body of `radius` at `at` overlap anything solid? The movement
+	// layer's own overlap test (playerOverlapsObstacle) over everything whose
+	// body could reach `at`, plus the map edge. `self` is skipped; creatures
+	// count only when `creaturesBlock`.
+	bool bodyBlockedAt(const Position& at, float radius, const Thing* self = nullptr,
+	                   bool creaturesBlock = false) const;
 
 	// Applies the spawnX/spawnY/spawnSpread config and guarantees a placeable
 	// Position.

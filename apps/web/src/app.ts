@@ -3,6 +3,7 @@
 
 import compression from 'compression';
 import express from 'express';
+import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import type { AccountService } from './accounts/account-service';
 import { createAccountRouter } from './accounts/account-routes';
@@ -58,6 +59,29 @@ export function createApp(options: AppOptions): express.Express {
       profile: (snapshot) => accountProfile(options.root, snapshot),
     }),
   );
+  // The start page, with its link-preview image URLs made absolute: link
+  // scrapers (Discord's among them) do not resolve relative ones. Only a
+  // plain host name is ever written into the page.
+  const startPage = path.join(options.root, 'apps', 'client', 'public', 'index.html');
+  app.get(['/', '/index.html'], async (req, res, next) => {
+    let html: string;
+    try {
+      html = await readFile(startPage, 'utf8');
+    } catch {
+      next();
+      return;
+    }
+    const host = req.get('host') ?? '';
+    if (/^[a-z0-9.-]+(:\d{1,5})?$/i.test(host) || /^\[[0-9a-f:]+\](:\d{1,5})?$/i.test(host)) {
+      const origin = `${req.protocol}://${host}`;
+      html = html.replace(
+        /(<meta (?:property|name)="(?:og|twitter):image" content=")\//g,
+        `$1${origin}/`,
+      );
+    }
+    res.setHeader('Cache-Control', 'no-cache');
+    res.type('html').send(html);
+  });
   // Generated content tables for browser startup. Test fixtures are separate.
   app.use('/content', express.static(path.join(options.root, 'dist', 'content'), { maxAge: '1h' }));
   // The bundle revalidates on every load (ETag), and so must the stylesheet,

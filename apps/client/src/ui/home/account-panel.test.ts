@@ -112,7 +112,7 @@ describe('AccountPanel', () => {
     expect(a.login).toHaveBeenCalledWith('Alice', 'password1', false);
   });
 
-  it('shows a placeholder until the host answers, hides disabled accounts and keeps sign-in available on network errors', async () => {
+  it('shows a placeholder until the host answers, hides disabled accounts and keeps sign-in available, quietly, on network errors', async () => {
     const { panel } = await build(api({ me: vi.fn(async () => ({ enabled: false })) }), false);
     expect($('#dv-account').hidden).toBe(false);
     expect($('[data-account-loading]').hidden).toBe(false);
@@ -120,7 +120,8 @@ describe('AccountPanel', () => {
     expect($('#dv-account').hidden).toBe(true);
     await build(api({ me: vi.fn(async () => Promise.reject(new Error('down'))) }));
     expect($('#dv-account').hidden).toBe(false);
-    expect($('#dv-account-notice').textContent).toContain('could not be refreshed');
+    // A guest is not told: the strip already offers sign-in.
+    expect($('#dv-account-notice').hidden).toBe(true);
   });
 
   it('preserves the signed-in identity on a failed refresh and clears the dashboard when the session expires', async () => {
@@ -135,6 +136,7 @@ describe('AccountPanel', () => {
     await panel.refresh();
     expect(panel.state.account).toEqual(alice);
     expect(panel.openView).toBe('manage');
+    expect($('#dv-account-notice').textContent).toContain("You're still signed in");
     await panel.refresh();
     expect(panel.state.account).toBeNull();
     expect(panel.openView).toBeNull();

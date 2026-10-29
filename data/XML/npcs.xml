@@ -6,6 +6,12 @@
   <include file="../npc/quartermaster.xml"/>
   <include file="../npc/smuggler.xml"/>
 
+  <!-- Spawns: key (stable, it names the shop's stock) and npc, then where.
+         tileX/tileY                  that tile, or the nearest free one
+         tileX/tileY spreadTiles="N"  a random free spot within N tiles
+         placement="random"           a random free spot anywhere on the map
+       relocateMinutes="M" moves a spreadTiles or random NPC every M minutes.
+       Example: <spawn key="road_trader" npc="smuggler" placement="random" relocateMinutes="45"/> -->
   <spawn key="town_mara" npc="merchant" tileX="40" tileY="42"/>
   <spawn key="town_elias" npc="banker" tileX="42" tileY="42"/>
   <spawn key="town_rook" npc="quartermaster" tileX="44" tileY="42"/>

@@ -7,7 +7,12 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { ListedServer } from '../../../../../shared/typescript/server-list';
-import { StartScreen, type JoinRequest, type StartScreenOptions } from './start-screen';
+import {
+  StartScreen,
+  onlineSummary,
+  type JoinRequest,
+  type StartScreenOptions,
+} from './start-screen';
 
 const html = readFileSync(path.resolve(process.cwd(), 'apps/client/public/index.html'), 'utf8');
 const bodyMarkup = html
@@ -68,6 +73,36 @@ describe('StartScreen', () => {
     for (const screen of screens.splice(0)) screen.hide();
     vi.restoreAllMocks();
     vi.useRealTimers();
+  });
+
+  it('puts the name being typed over the survivor by the fire', () => {
+    window.localStorage.setItem('nickname', 'Ada');
+    const backdrop = { start: vi.fn(), stop: vi.fn(), setName: vi.fn() };
+    const { screen } = build([], undefined, { backdrop });
+    screen.show();
+    expect(backdrop.setName).toHaveBeenLastCalledWith('Ada', false);
+    const input = $<HTMLInputElement>('#nicknameInput');
+    input.value = '  Grace ';
+    input.dispatchEvent(new Event('input'));
+    expect(backdrop.setName).toHaveBeenLastCalledWith('Grace', false);
+  });
+
+  it('counts players on open servers for the online line', async () => {
+    expect(onlineSummary([])).toBeNull();
+    expect(onlineSummary([server({ state: 'closed', players: 9 })])).toBeNull();
+    expect(
+      onlineSummary([
+        server({ id: 'a', players: 5 }),
+        server({ id: 'b', players: 1200 }),
+        server({ id: 'c', state: 'maintenance', players: 40 }),
+      ]),
+    ).toBe('1,205 online · 2 servers');
+    const { screen } = build([server({ players: 3 })]);
+    screen.show();
+    await flush();
+    const line = $('[data-home-online]');
+    expect(line.hidden).toBe(false);
+    expect(line.textContent).toBe('3 online · 1 server');
   });
 
   it('runs the backdrop only while the screen is up', () => {

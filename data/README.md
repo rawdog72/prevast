@@ -36,6 +36,16 @@ restock intervals, purchase limits, karma policies, appearance and ordinary
 dialogue. Spawn keys in `XML/npcs.xml` identify persistent stock; changing a
 spawn key creates a different shop. Keep these keys stable.
 
+A `<spawn>` stands on `tileX`/`tileY` by default. When something solid is in
+the way the NPC takes the nearest free tile and the server logs the move.
+`spreadTiles="N"` picks a random free spot within N tiles of that point at
+each start; `placement="random"` (no tile) picks one anywhere on the map,
+off player builds, out of players' sight and apart from other random NPCs.
+`relocateMinutes="M"` moves a spread or random NPC to a fresh spot every M
+minutes, but never mid-conversation or while a player is near it. A quest
+area `near="npc:<key>"` follows the NPC. `!npc-list` shows where each spawn
+stands; `!npc-relocate[=<spawn key>]` moves one now.
+
 Each quest is one file, `quests/<key>.xml`; the key must match the file name.
 A quest has start triggers (`<talk>`, `<event>`, `<use>`, `<requires>`),
 stages with keyed objectives and outcomes, endings, and optional

@@ -88,6 +88,25 @@ describe('host', () => {
     expect(await page.text()).toContain('id="prevast-home"');
   });
 
+  it('gives link previews an absolute image URL for the host asked', async () => {
+    const page = await (await fetch(`${base}/`)).text();
+    expect(page).toContain(`<meta property="og:image" content="${base}/img/og-preview.jpg">`);
+    expect(page).toContain(`<meta name="twitter:image" content="${base}/img/og-preview.jpg">`);
+    // A host header that is not a plain host name is never written into the page.
+    const { request } = await import('node:http');
+    const odd = await new Promise<string>((resolve, reject) => {
+      const req = request(`${base}/`, { headers: { host: 'evil.test"><script>' } }, (res) => {
+        let body = '';
+        res.on('data', (chunk) => (body += chunk));
+        res.on('end', () => resolve(body));
+      });
+      req.on('error', reject);
+      req.end();
+    });
+    expect(odd).not.toContain('<script>');
+    expect(odd).toContain('<meta property="og:image" content="/img/og-preview.jpg">');
+  });
+
   it('revalidates the page and stylesheets on every load but lets images cache', async () => {
     const page = await fetch(`${base}/`);
     expect(page.headers.get('cache-control')).toBe('no-cache');

@@ -129,10 +129,31 @@ bool NpcSystem::load(const std::string& file) {
         std::set<std::string> spawnKeys;
         for (auto s : root.children("spawn")) {
             NpcSpawn spawn; spawn.key = key(s); spawn.npc = key(s, "npc");
-            const auto x = number(s, "tileX", 0, MapSize::tilesX() - 1);
-            const auto y = number(s, "tileY", 0, MapSize::tilesY() - 1);
-            spawn.home = Position(x * TILE_SIZE + TILE_SIZE / 2, y * TILE_SIZE + TILE_SIZE / 2);
             if (!next.count(spawn.npc) || !spawnKeys.insert(spawn.key).second) throw std::runtime_error("invalid NPC spawn");
+            // placement="fixed" (default): the tile, nudged to the nearest free
+            // one if something solid stands there. spreadTiles="N" turns it
+            // into an area: a random free spot within N tiles. placement=
+            // "random": anywhere on the map. relocateMinutes moves an area or
+            // random NPC to a fresh spot that often (a travelling trader).
+            const std::string placement = text(s, "placement", "fixed");
+            const bool hasTile = s.attribute("tileX") || s.attribute("tileY");
+            const auto spreadTiles = number(s, "spreadTiles", 0, 64);
+            const auto relocateMinutes = number(s, "relocateMinutes", 0, 10080);
+            if (placement == "random") {
+                if (hasTile || spreadTiles) throw std::runtime_error("NPC spawn '" + spawn.key + "': placement=\"random\" takes no tileX/tileY/spreadTiles");
+                spawn.placement = NpcPlacement::Random;
+            } else if (placement == "fixed") {
+                if (!s.attribute("tileX") || !s.attribute("tileY")) throw std::runtime_error("NPC spawn '" + spawn.key + "' needs tileX and tileY");
+                const auto x = number(s, "tileX", 0, MapSize::tilesX() - 1);
+                const auto y = number(s, "tileY", 0, MapSize::tilesY() - 1);
+                spawn.anchor = spawn.home = Position(x * TILE_SIZE + TILE_SIZE / 2, y * TILE_SIZE + TILE_SIZE / 2);
+                spawn.placed = true;
+                if (spreadTiles) { spawn.placement = NpcPlacement::Area; spawn.spread = spreadTiles * TILE_SIZE; }
+                else if (relocateMinutes) throw std::runtime_error("NPC spawn '" + spawn.key + "': relocateMinutes needs spreadTiles or placement=\"random\"");
+            } else {
+                throw std::runtime_error("NPC spawn '" + spawn.key + "': placement must be fixed or random");
+            }
+            spawn.relocateMs = relocateMinutes * 60000;
             nextSpawns.push_back(spawn);
         }
         if (scenarioSpawns) {

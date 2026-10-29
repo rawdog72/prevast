@@ -167,17 +167,7 @@ void NpcSystem::useScenarioSpawns(std::vector<NpcSpawn> placed) {
 
 void NpcSystem::start() {
     loadStock();
-    for (const auto& spawn : spawns) {
-        if (npcs.count(spawn.key)) continue;
-        auto npc = std::make_unique<Npc>();
-        npc->spawn = spawn; npc->definition = &definitions.at(spawn.npc);
-        npc->position = npc->previous = npc->goal = spawn.home;
-        npc->rotation = spawn.rotation;
-        const auto id = g_game.map.acquireEntityId(EntityClass::Npc);
-        if (!id) continue;
-        npc->setID(id);
-        g_game.map.placeThing(spawn.home, npc.get());
-        restock(spawn.key, *npc->definition);
-        npcs.emplace(spawn.key, std::move(npc));
-    }
+    // Placement -- validating authored spots, choosing random ones -- lives in
+    // npc_placement.cpp.
+    spawnMissing();
 }

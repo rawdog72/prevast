@@ -5,17 +5,46 @@
 // Compact vitality panel: life, labeled needs, world conditions, and XP.
 // Values use the GaugeModel's eased
 // numbers; unchanged frames leave the DOM alone.
+// The look follows the world art: chunky outlined bars with a solid icon
+// badge riding the left end, so each need reads at a glance over grass,
+// sand, snow and night alike.
 
-import { icon, type IconName } from '../dom/icons';
 import type { GaugeModel } from '../../world/gauge-model';
 import type { InventoryStore } from '../../world/inventory-store';
 import { GaugeDirection, type GaugeSlotName } from '../../net/opcodes';
 import type { WorldClock } from '../../world/world-state';
 
+/**
+ * Solid 24x24 glyphs for the vitals badges. The shared icon set is line art
+ * for buttons and windows; a badge needs a filled silhouette that still reads
+ * at 14px on a coloured disc.
+ */
+const GLYPHS = {
+  heart:
+    'M12 21s-7.6-4.6-9.7-9.4C.8 8.1 2.9 4.4 6.7 4.4c2.1 0 3.6 1.1 5.3 3.1 1.7-2 3.2-3.1 5.3-3.1 3.8 0 5.9 3.7 4.4 7.2C19.6 16.4 12 21 12 21Z',
+  // Drumstick: the meat, the bone, its two knobs (separate shapes, one fill).
+  food: 'M15 2.5a6.5 6.5 0 1 1 0 13a6.5 6.5 0 1 1 0-13Z|M12.13 14.13 7.33 18.93 5.07 16.67 9.87 11.87Z|M2.2 16.9a2.1 2.1 0 1 0 4.2 0a2.1 2.1 0 1 0-4.2 0Z|M5 19.7a2.1 2.1 0 1 0 4.2 0a2.1 2.1 0 1 0-4.2 0Z',
+  // Thermometer with its scale.
+  warmth: 'M8 4.5a2.5 2.5 0 0 1 5 0v8.4a5 5 0 1 1-5 0Z|M16 4h4v2h-4Z|M16 8h4v2h-4Z|M16 12h3v2h-3Z',
+  stamina: 'M14 1.5 4 13.5h6.5L9 22.5l11-13h-6.5L14 1.5Z',
+  radiation:
+    'M8.6 12H2.4a9.6 9.6 0 0 1 4.8-8.31l3.1 5.37A3.4 3.4 0 0 0 8.6 12ZM13.7 9.06l3.1-5.37A9.6 9.6 0 0 1 21.6 12h-6.2a3.4 3.4 0 0 0-1.7-2.94ZM13.7 14.94l3.1 5.37a9.6 9.6 0 0 1-9.6 0l3.1-5.37a3.4 3.4 0 0 0 3.4 0ZM12 10.2a1.8 1.8 0 1 1 0 3.6 1.8 1.8 0 0 1 0-3.6Z',
+} as const;
+type GlyphName = keyof typeof GLYPHS;
+
+/** A glyph is one or more '|'-separated shapes, each its own path so overlaps simply merge. */
+function glyph(name: GlyphName): string {
+  const paths = GLYPHS[name]
+    .split('|')
+    .map((d) => `<path d="${d}"/>`)
+    .join('');
+  return `<svg class="hud-glyph" viewBox="0 0 24 24" aria-hidden="true">${paths}</svg>`;
+}
+
 interface TileConfig {
   id: GaugeSlotName;
   label: string;
-  icon: IconName;
+  glyph: GlyphName;
   color: string;
   /** Below this fraction the tile pulses. */
   criticalBelow: number;
@@ -24,11 +53,11 @@ interface TileConfig {
 const LIFE_CRITICAL_BELOW = 0.25;
 
 const TILES: TileConfig[] = [
-  { id: 'food', label: 'Food', icon: 'food', color: 'var(--dv-food)', criticalBelow: 0.2 },
+  { id: 'food', label: 'Food', glyph: 'food', color: 'var(--dv-food)', criticalBelow: 0.2 },
   {
     id: 'warmth',
     label: 'Warmth',
-    icon: 'warm_blooded',
+    glyph: 'warmth',
     color: 'var(--dv-cold)',
     criticalBelow: 0.2,
   },
@@ -36,7 +65,7 @@ const TILES: TileConfig[] = [
   {
     id: 'stamina',
     label: 'Stamina',
-    icon: 'lightning',
+    glyph: 'stamina',
     color: 'var(--dv-stamina)',
     criticalBelow: 0,
   },
@@ -213,11 +242,13 @@ export class HudGauges {
     life.dataset.gauge = 'life';
     life.title = 'Life';
     labelMeter(life, 'Life');
+    // The badge overlaps the bar's left end; the fill runs from under it
+    // (.hud-bar-run), and the percent rides inside the bar.
     life.innerHTML =
-      `<span class="hud-life-icon" aria-hidden="true">${icon('heart')}</span>` +
-      `<span class="hud-life-body"><span class="hud-life-heading"><span class="hud-life-label">Life</span>` +
-      `<span class="hud-life-value"><span class="hud-life-val"></span><span class="hud-gauge-unit">%</span></span></span>` +
-      `<span class="hud-life-track"><span class="hud-life-trail"></span><span class="hud-life-fill"></span></span></span>`;
+      `<span class="hud-badge hud-life-icon">${glyph('heart')}</span>` +
+      `<span class="hud-life-label">Life</span>` +
+      `<span class="hud-life-track"><span class="hud-bar-run"><span class="hud-life-trail"></span><span class="hud-life-fill"></span></span>` +
+      `<span class="hud-life-value"><span class="hud-life-val"></span><span class="hud-gauge-unit">%</span></span></span>`;
     root.appendChild(life);
     this.lifeEl = life;
     this.lifeFill = life.querySelector('.hud-life-fill')!;
@@ -236,11 +267,11 @@ export class HudGauges {
       tile.title = t.label;
       labelMeter(tile, t.label);
       tile.innerHTML =
-        `<span class="hud-tile-icon" aria-hidden="true">${icon(t.icon)}</span>` +
+        `<span class="hud-badge hud-tile-icon">${glyph(t.glyph)}</span>` +
         `<span class="hud-tile-label">${t.label}</span>` +
+        `<span class="hud-tile-track"><span class="hud-bar-run"><span class="hud-tile-fill"></span></span></span>` +
         `<span class="hud-tile-value"><span class="hud-tile-val"></span><span class="hud-gauge-unit">%</span>` +
-        `<span class="hud-tile-dir" aria-hidden="true"></span></span>` +
-        `<span class="hud-tile-track"><span class="hud-tile-fill"></span></span>`;
+        `<span class="hud-tile-dir" aria-hidden="true"></span></span>`;
       tiles.appendChild(tile);
       this.tiles.set(t.id, tile);
       this.tileFills.set(t.id, tile.querySelector('.hud-tile-fill')!);
@@ -256,7 +287,7 @@ export class HudGauges {
       `<span class="hud-time-body"><span class="hud-time-phase"></span>` +
       `<span class="hud-time-countdown"><span class="hud-time-left"></span> <span class="hud-time-until"></span></span></span></div>` +
       `<div class="hud-rad" title="Radiation exposure" style="--p:0"><span class="hud-rad-dial">${RAD_SVG}` +
-      `<span class="hud-rad-icon">${icon('radiation')}</span></span>` +
+      `<span class="hud-rad-icon">${glyph('radiation')}</span></span>` +
       `<span class="hud-rad-body"><span class="hud-rad-label">Radiation</span><span class="hud-rad-val"></span></span></div>`;
     root.appendChild(environment);
     this.radEl = environment.querySelector('.hud-rad')!;

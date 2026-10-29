@@ -558,3 +558,27 @@ body.dv-home-active .dg { display:none; }
 #prevast-home.is-leaving { opacity:0; pointer-events:none; transition:opacity .35s ease; }
 .dv-enter-fade { position:fixed; inset:0; z-index:100; background:rgb(5,8,12); pointer-events:none; opacity:1; transition:opacity .7s ease .05s; }
 .dv-enter-fade.is-gone { opacity:0; }
+
+/* Players online, beside the sound switch. */
+.dv-online { position:absolute; z-index:2; top:clamp(12px,2vh,22px); right:calc(clamp(12px,2vw,26px) + 50px); display:flex; align-items:center; gap:8px; height:40px; margin:0; padding:0 14px; border:1px solid var(--dv-highlight); border-radius:20px; background:rgba(19,23,28,.55); backdrop-filter:blur(10px); color:var(--dv-text); font:13px var(--dv-form-font); font-variant-numeric:tabular-nums; white-space:nowrap; }
+.dv-online[hidden] { display:none; }
+.dv-online-dot { width:8px; height:8px; border-radius:50%; background:#8bce9f; box-shadow:0 0 0 3px rgba(139,206,159,.18); }
+@media (max-width:760px) { .dv-online { position:static; align-self:center; order:-1; margin:4px auto 0; height:32px; } }
+
+/* How to play: a short start, then the controls as keys. */
+.dv-help-heading { margin:18px 0 8px; font:12px var(--dv-form-font); font-weight:700; letter-spacing:1.4px; text-transform:uppercase; color:#b8c7aa; }
+.dv-first-steps { margin:0; padding-left:22px; display:grid; gap:7px; font:13px/1.55 var(--dv-form-font); color:var(--dv-text); }
+.dv-first-steps strong { color:var(--dv-accent); font-weight:600; }
+/* One scroll only: the dialog itself never scrolls; its window is a column whose text area takes what is left. */
+#dv-info { max-height:none; overflow:visible; padding:0; }
+#dv-info .dv-window { position:relative; display:flex; flex-direction:column; max-height:min(calc(100dvh - 40px),760px); }
+#dv-info .dv-window > form { position:absolute; top:24px; right:24px; }
+#dv-info h2 { flex-shrink:0; padding-right:48px; }
+#dv-info .dv-info-content { flex:1 1 auto; min-height:0; max-height:none; overflow-y:auto; overscroll-behavior:contain; scrollbar-width:thin; }
+#dv-info .dv-controls { grid-template-columns:auto 1fr; align-items:stretch; gap:0 18px; margin:0; font:13px var(--dv-form-font); line-height:1.5; }
+#dv-info .dv-controls dt,#dv-info .dv-controls dd { display:flex; align-items:center; padding:5px 0; }
+#dv-info .dv-controls dt { color:var(--dv-muted); }
+#dv-info .dv-controls dd { flex-wrap:wrap; justify-content:flex-end; gap:4px; color:var(--dv-text); }
+#dv-info kbd { display:inline-block; min-width:22px; padding:0 6px; border:1px solid rgba(230,240,250,.22); border-bottom-width:3px; border-radius:6px; background:rgba(255,255,255,.06); color:var(--dv-text); font:12px/1.6 var(--dv-form-font); text-align:center; }
+.dv-first-steps kbd { padding:0 6px !important; }
+#dv-info .dv-or { color:var(--dv-muted); margin:0 2px; }

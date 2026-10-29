@@ -89,6 +89,7 @@
     <ClInclude Include="src\gameplay\npc.h"><Filter>gameplay</Filter></ClInclude>
     <ClCompile Include="src\gameplay\npc_content.cpp"><Filter>gameplay</Filter></ClCompile>
     <ClCompile Include="src\gameplay\npc_economy.cpp"><Filter>gameplay</Filter></ClCompile>
+    <ClCompile Include="src\gameplay\npc_placement.cpp"><Filter>gameplay</Filter></ClCompile>
     <ClCompile Include="src\gameplay\npc_script.cpp"><Filter>gameplay</Filter></ClCompile>
     <ClCompile Include="src\gameplay\npc_stock.cpp"><Filter>gameplay</Filter></ClCompile>
     <ClCompile Include="src\gameplay\object.cpp"><Filter>gameplay</Filter></ClCompile>

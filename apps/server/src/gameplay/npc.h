@@ -43,23 +43,37 @@ struct NpcDefinition {
     std::vector<NpcRule> karma;
     std::map<std::string, std::vector<NpcReply>> topics;
 };
+// How a spawn picks the spot its NPC stands on (npcs.xml <spawn placement=...>).
+//   Fixed  -- the authored tile. If something solid stands there the NPC is
+//             moved to the nearest free spot instead of being buried in it.
+//   Area   -- a random free spot within `spread` of the authored tile.
+//   Random -- a random free spot anywhere on the map, away from players' bases.
+enum class NpcPlacement : uint8_t { Fixed, Area, Random };
 struct NpcSpawn {
-    std::string key, npc; Position home;
+    std::string key, npc;
+    // Where it actually stands once placed; for Fixed/Area also the authored
+    // point until then. `anchor` keeps the authored point for Fixed/Area.
+    Position home, anchor;
     std::optional<uint32_t> walkRadius; // scenario placements: overrides the definition's
     uint8_t rotation = 0;
+    NpcPlacement placement = NpcPlacement::Fixed;
+    uint32_t spread = 0;     // world units, Area only
+    uint32_t relocateMs = 0; // Area/Random: move to a fresh spot this often, 0 = never
+    bool placed = false;     // `home` is a resolved spot (false: Random not yet placed)
 };
 class Npc final : public Thing {
 public:
     NpcSpawn spawn;
     const NpcDefinition* definition = nullptr;
     Position position, previous, goal;
-    uint64_t nextWalk = 0;
+    uint64_t nextWalk = 0, nextRelocate = 0;
     uint8_t rotation = 0;
     bool dirty = true;
     Npc* getNpc() override { return this; }
     const Npc* getNpc() const override { return this; }
+    static constexpr float BODY_RADIUS = 28;
     bool hasCollision() const override { return definition->solid; }
-    float getCollisionRadius() const override { return 28; }
+    float getCollisionRadius() const override { return BODY_RADIUS; }
     bool isMobile() const override { return true; }
     bool isRemoved() const override { return false; }
     bool isDirty() const override { return dirty; }
@@ -111,10 +125,22 @@ public:
     // so across content reloads. Before start(); NPCs already standing stay.
     void useScenarioSpawns(std::vector<NpcSpawn> placed);
     // Where the NPC stands (its first spawn), for quest areas near="npc:key".
+    // The live home when it is standing -- Area and Random spawns only know
+    // theirs once placed, and a travelling NPC takes the area with it. Null for
+    // a Random spawn that is not on the map yet.
     const Position* spawnPosition(const std::string& key) const {
-        for (const auto& s : spawns) if (s.npc == key) return &s.home;
+        for (const auto& s : spawns) {
+            if (s.npc != key) continue;
+            if (const auto live = npcs.find(s.key); live != npcs.end()) return &live->second->spawn.home;
+            return s.placed ? &s.home : nullptr;
+        }
         return nullptr;
     }
+    // Moves every travelling NPC (relocateMinutes) on now, ignoring its timer
+    // but not its guards; or just the spawn `key`. Returns how many moved.
+    uint32_t relocateNow(const std::string& key = "");
+    // One line per spawn: key, NPC, placement and where it stands, for !npc-list.
+    std::vector<std::string> describeSpawns() const;
     // How many of an item the player could hand over: what the exchange planner
     // would take (not the equipped weapon or wearable, not a used magazine).
     uint32_t takeable(const Player* player, uint16_t iid) const;
@@ -132,7 +158,7 @@ private:
     std::map<uint32_t, NpcProgress> progress;
     std::array<uint16_t, 3> coins{};
     uint32_t nextSession = 0;
-    uint64_t lastSecond = 0;
+    uint64_t lastSecond = 0, nextSpawnRetry = 0;
     bool stockHealthy = true, stockLoaded = false;
     std::string contentDirectory;
     struct IpBudget { ActionBudget actions; uint64_t seen = 0; };
@@ -152,6 +178,16 @@ private:
     uint32_t maximum(Player*, const NpcOffer&, bool buy, economy::Money price, uint32_t limit);
     void talk(Player*, const std::string&);
     bool script(Player*, const std::string&);
+    // Placement (npc_placement.cpp). `self` is the NPC being placed when it is
+    // already on the map, so it does not count as standing in its own way.
+    bool findHome(const NpcSpawn&, const Npc* self, Position& out) const;
+    // Puts every spawn that is not standing yet on the map. `announce` logs
+    // a Random spawn that found nowhere to stand (the retries stay quiet).
+    void spawnMissing(bool announce = true);
+    bool canRelocate(const Npc&, uint64_t now) const;
+    bool relocate(Npc&, uint64_t now);
+    void updateRelocation(uint64_t now);
+    Position pickWalkGoal(const Npc&, uint32_t walkRadius) const;
     static void compileScript(NpcDefinition&);
 };
 extern NpcSystem g_npcs;

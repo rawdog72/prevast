@@ -599,6 +599,19 @@ void Game::parseAdminCommand(Player* player, const std::string& cmdLine)
 		}
 	} else if (cmd == "reload-npcs") {
 		adminReloadXml(player, "npcs");
+	} else if (cmd == "npc-list") {
+		// Where every NPC spawn stands -- the random and travelling ones
+		// especially, which have no fixed tile to look up.
+		const auto lines = g_npcs.describeSpawns();
+		adminReply(player, fmt::format("[Admin] {} NPC spawn(s):", lines.size()));
+		for (const auto& line : lines) adminReply(player, "[Admin]   " + line);
+	} else if (cmd == "npc-relocate") {
+		// !npc-relocate moves every travelling NPC now; !npc-relocate=<spawn key>
+		// re-rolls the spot of that one area or random spawn.
+		const uint32_t moved = g_npcs.relocateNow(args);
+		adminReply(player, moved
+			? fmt::format("[Admin] Moved {} NPC(s); !npc-list shows where.", moved)
+			: std::string("[Admin] Nothing moved: no such area/random spawn, someone is talking to it, or no free spot was found."));
 	} else if (cmd == "reload-quests") {
 		adminReloadXml(player, "quests");
 	} else if (cmd == "quest") {

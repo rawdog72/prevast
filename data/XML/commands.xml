@@ -52,6 +52,8 @@
     <command name="reload" rank="3" aliases="reload-xml reload-npcs reload-quests"/>
     <command name="quest" rank="3"/>
     <command name="achievement" rank="3"/>
+    <command name="npc-list" rank="3"/>
+    <command name="npc-relocate" rank="3"/>
     <command name="map" rank="3"/>
     <command name="map-size" rank="3"/>
     <command name="b" rank="3"/>

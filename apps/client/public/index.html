@@ -10,6 +10,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Prevast Open Server</title>
     <meta name="description" content="Post-apocalyptic survival: gather, craft, build and survive with other players.">
+    <meta name="theme-color" content="#1c2f20">
+    <!-- Link previews (Discord, social sites). The web host makes the image URL absolute (apps/web/src/app.ts). -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Prevast Open Server">
+    <meta property="og:title" content="Prevast Open Server">
+    <meta property="og:description" content="Post-apocalyptic survival: gather, craft, build and survive with other players.">
+    <meta property="og:image" content="/img/og-preview.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="PREVAST Open Server: a campfire in a forest clearing">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="/img/og-preview.jpg">
     <link rel="icon" type="image/png" href="/img/favicon.png">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Black+Han+Sans">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Viga">
@@ -71,6 +83,8 @@
     <main id="prevast-home" hidden>
         <!-- Sign-in / sign-out confirmations (account-panel.ts), floating so the start window never jumps. -->
         <p id="dv-account-notice" class="dv-account-notice" role="status" aria-live="polite" hidden></p>
+        <!-- Everyone on an open server right now (start-screen.ts renderOnline). -->
+        <p class="dv-online" data-home-online hidden><span class="dv-online-dot" aria-hidden="true"></span><span data-home-online-text></span></p>
         <div class="dv-home-layout">
             <a class="dv-brand" href="/" aria-label="Prevast Open Server">PREVAST<span>OPEN SERVER</span></a>
             <aside id="dv-home-rankings" class="dv-home-rankings" aria-label="Community leaderboards" hidden>
@@ -333,16 +347,24 @@
                 <h2 id="dv-info-title">How to play</h2>
                 <div class="dv-info-content" data-help-pane>
                     <p>Gather resources, craft tools and build a shelter. Keep yourself fed and warm, and watch out for radiation.</p>
+                    <h3 class="dv-help-heading">Your first minutes</h3>
+                    <ol class="dv-first-steps">
+                        <li><strong>Gather.</strong> Hit trees and rocks with <kbd>Left click</kbd> for wood and stone.</li>
+                        <li><strong>Craft.</strong> Press <kbd>C</kbd> and make a campfire and a workbench. Place the workbench to craft tools, walls and doors.</li>
+                        <li><strong>Stay alive.</strong> Eat when you are hungry and keep near a fire at night.</li>
+                        <li><strong>Settle.</strong> Wall yourself in with a door before you leave the game.</li>
+                    </ol>
+                    <h3 class="dv-help-heading">Controls</h3>
                     <dl class="dv-controls">
-                        <dt>Move</dt><dd>W A S D / Arrow keys</dd>
-                        <dt>Attack / use</dt><dd>Left mouse button</dd>
-                        <dt>Aim</dt><dd>Hold right mouse button</dd>
-                        <dt>Look / open / talk</dt><dd>Ctrl + right mouse button</dd>
-                        <dt>Run</dt><dd>Shift</dd>
-                        <dt>Interact</dt><dd>E</dd>
-                        <dt>Craft</dt><dd>C</dd>
-                        <dt>Map</dt><dd>M</dd>
-                        <dt>Chat</dt><dd>Enter</dd>
+                        <dt>Move</dt><dd><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> <span class="dv-or">or</span> arrow keys</dd>
+                        <dt>Attack / use</dt><dd><kbd>Left click</kbd></dd>
+                        <dt>Aim</dt><dd>Hold <kbd>Right click</kbd></dd>
+                        <dt>Look / open / talk</dt><dd><kbd>Ctrl</kbd> + <kbd>Right click</kbd></dd>
+                        <dt>Run</dt><dd><kbd>Shift</kbd></dd>
+                        <dt>Interact</dt><dd><kbd>E</kbd></dd>
+                        <dt>Craft</dt><dd><kbd>C</kbd></dd>
+                        <dt>Map</dt><dd><kbd>M</kbd></dd>
+                        <dt>Chat</dt><dd><kbd>Enter</kbd></dd>
                     </dl>
                 </div>
             </section>
